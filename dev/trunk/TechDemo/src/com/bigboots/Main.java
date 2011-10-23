@@ -78,7 +78,7 @@ public class Main extends SimpleApplication implements AnimEventListener, Action
     protected AnimChannel channel;
     
     private Vector3f walkDirection = new Vector3f();
-    private boolean left = false, right = false, up = false, down = false;
+    private boolean left = false, right = false, up = false, down = false,lastLeft = true;
     private static final Logger logger = Logger.getLogger(SimpleApplication.class.getName());
     
     @Override
@@ -290,11 +290,12 @@ public class Main extends SimpleApplication implements AnimEventListener, Action
       if (value) { 
           left = true;
           //rotate the player
-          Quaternion qT = player.getLocalRotation();
-          Quaternion tmp = new Quaternion().fromAngles(0f,FastMath.HALF_PI, 0f);
-          logger.log(Level.INFO, "LEFT TMP Angle: {0} | {1} | {2} | {3}",  new Object[]{tmp.getX(), tmp.getY(), tmp.getZ(), tmp.getW()} );
-          logger.log(Level.INFO, "LEFT QT Angle: {0} | {1} | {2} | {3}",  new Object[]{qT.getX(), qT.getY(), qT.getZ(), qT.getW()} );
-          if(!qT.equals(tmp)){
+          //Quaternion qT = player.getLocalRotation();
+          //Quaternion tmp = new Quaternion().fromAngles(0f,FastMath.HALF_PI, 0f);
+          //logger.log(Level.INFO, "LEFT TMP Angle: {0} | {1} | {2} | {3}",  new Object[]{tmp.getX(), tmp.getY(), tmp.getZ(), tmp.getW()} );
+          //logger.log(Level.INFO, "LEFT QT Angle: {0} | {1} | {2} | {3}",  new Object[]{qT.getX(), qT.getY(), qT.getZ(), qT.getW()} );
+          if(/*!qT.equals(tmp)&!*/!lastLeft){
+            lastLeft = true;
             player.rotate(0, FastMath.PI, 0);
           }
           
@@ -311,13 +312,14 @@ public class Main extends SimpleApplication implements AnimEventListener, Action
       if (value) { 
           right = true;
           //rotate the player
-          Quaternion qT = player.getLocalRotation();
-          Quaternion tmp = new Quaternion().fromAngles(0f,-FastMath.PI, 0f);
+          //Quaternion qT = player.getLocalRotation();
+          //Quaternion tmp = new Quaternion().fromAngles(0f,-FastMath.PI, 0f);
           //tmp.inverse();
           //qT.normalize();
-          logger.log(Level.INFO, "RIGHT TMP Angle: {0} | {1} | {2} | {3}",  new Object[]{tmp.getX(), tmp.getY(), tmp.getZ(), tmp.getW()} );
-          logger.log(Level.INFO, "RIGHT QT Angle: {0} | {1} | {2} | {3}",  new Object[]{qT.getX(), qT.getY(), qT.getZ(), qT.getW()} );
-          if(!qT.equals(tmp)){
+          //logger.log(Level.INFO, "RIGHT TMP Angle: {0} | {1} | {2} | {3}",  new Object[]{tmp.getX(), tmp.getY(), tmp.getZ(), tmp.getW()} );
+          //logger.log(Level.INFO, "RIGHT QT Angle: {0} | {1} | {2} | {3}",  new Object[]{qT.getX(), qT.getY(), qT.getZ(), qT.getW()} );
+          if(/*!qT.equals(tmp)&&*/lastLeft){
+            lastLeft = false;
             player.rotate(0, -FastMath.PI, 0);
           }
           
