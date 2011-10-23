@@ -1,6 +1,7 @@
 package com.bigboots;
 
 import com.jme3.app.SimpleApplication;
+import com.jme3.bullet.collision.PhysicsCollisionEvent;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import com.jme3.math.Vector3f;
@@ -22,6 +23,7 @@ import com.jme3.animation.AnimEventListener;
 import com.jme3.animation.LoopMode;
 //physic
 import com.jme3.bullet.BulletAppState;
+import com.jme3.bullet.collision.PhysicsCollisionListener;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 //import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.control.CharacterControl;
@@ -64,7 +66,7 @@ import com.jme3.post.filters.DepthOfFieldFilter;
  * test
  * @author normenhansen
  */
-public class Main extends SimpleApplication implements AnimEventListener, ActionListener{ 
+public class Main extends SimpleApplication implements AnimEventListener, ActionListener, PhysicsCollisionListener{ 
 
     public static void main(String[] args) {
         Main app = new Main();
@@ -370,5 +372,9 @@ public class Main extends SimpleApplication implements AnimEventListener, Action
     @Override
     public void simpleRender(RenderManager rm) {
         //TODO: add render code
+    }
+
+    public void collision(PhysicsCollisionEvent pce) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }
