@@ -80,8 +80,7 @@ public class WithZDir extends SimpleApplication implements AnimEventListener, Ac
     protected CameraNode camNode;
     protected AnimChannel channel;
     
-    private Vector3f walkDirection = new Vector3f();
-    private boolean left = false, right = false, up = false, down = false,lastLeft = true;
+    private boolean walk = false;
     private static final Logger logger = Logger.getLogger(SimpleApplication.class.getName());
     
     private static final class Directions{
@@ -306,14 +305,14 @@ public class WithZDir extends SimpleApplication implements AnimEventListener, Ac
       else{
           pressed--;                      
       }
-      if(pressed==1&&value){
-          pControler.setEnabled(true);
+      if(pressed==1&&value&!binding.equals("Jump")){
+          walk = true;
           channel.setAnim("RunTop", 0.50f);
           channel.setAnim("RunBase", 0.50f);
           channel.setLoopMode(LoopMode.Loop);          
       }
-      else if (pressed==0) {
-          pControler.setEnabled(false);
+      else if (pressed==0&!value) {
+          walk = false;
           channel.setAnim("IdleTop", 0.50f);
           channel.setLoopMode(LoopMode.DontLoop);          
       }
@@ -362,9 +361,12 @@ public class WithZDir extends SimpleApplication implements AnimEventListener, Ac
         Quaternion newRot = new Quaternion().slerp(player.getLocalRotation(),Directions.downDir, tpf*3);
         player.setLocalRotation(newRot);
         }
-        
-        pControler.setViewDirection(player.getWorldRotation().mult(Vector3f.UNIT_Z));
-        pControler.setWalkDirection(pControler.getViewDirection().multLocal(tpf*10));
-                     
+        if(walk){
+        pControler.setWalkDirection(pControler.getViewDirection().multLocal(tpf*10));          
+        pControler.setViewDirection(player.getWorldRotation().mult(Vector3f.UNIT_Z));                     
+        }
+        else{
+        pControler.setWalkDirection(Vector3f.ZERO);
+        }
     }
 }
