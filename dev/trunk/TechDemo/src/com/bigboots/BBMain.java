@@ -70,11 +70,7 @@ import com.jme3.post.filters.DepthOfFieldFilter;
  * 
  * @author Ulrich Nzuzi <ulrichnz@code.google.com>
  * @author Vemund Kvam <vekjeft@code.google.com>
- */
-
-/**
- * test
- * @author normenhansen
+ * 
  */
 public class BBMain extends SimpleApplication implements AnimEventListener, ActionListener, AnalogListener{ 
 

@@ -119,7 +119,11 @@ public class BBEngineSystem implements SystemListener {
         cam.setLocation(new Vector3f(0f, 0f, 10f));
         cam.lookAt(new Vector3f(0f, 0f, 0f), Vector3f.UNIT_Y);
         viewPort = renderManager.createMainView("Default", cam);
-        viewPort.setClearEnabled(true);
+        
+        //viewPort.setClearEnabled(true);
+        // TODO : Control this
+        viewPort.setEnabled(true);
+
         
         // update timer so that the next delta is not too large
         timer.reset();
@@ -166,7 +170,10 @@ public class BBEngineSystem implements SystemListener {
         
         // render states
         //stateManager.render(renderManager);
-        renderManager.render(tpf);
+        //renderManager.render(tpf);
+        // TODO : Control this        
+        renderManager.render(tpf,true);
+        
         //stateManager.postRender();
     }
     
