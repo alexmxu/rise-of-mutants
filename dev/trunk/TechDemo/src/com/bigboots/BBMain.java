@@ -1,18 +1,3 @@
-/*
- * Copyright (C) 2011  BigBoots Team
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * See <http://www.gnu.org/licenses/>.
- */
 package com.bigboots;
 
 import com.jme3.app.SimpleApplication;
@@ -38,21 +23,26 @@ import com.jme3.animation.AnimEventListener;
 import com.jme3.animation.LoopMode;
 //physic
 import com.jme3.bullet.BulletAppState;
-import com.jme3.bullet.collision.PhysicsCollisionListener;
+import com.jme3.bullet.collision.shapes.HeightfieldCollisionShape;
+import com.jme3.bullet.collision.shapes.PlaneCollisionShape;
+import com.jme3.math.Plane;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
-//import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.control.CharacterControl;
 import com.jme3.bullet.control.RigidBodyControl;
+
+
 //import com.jme3.bullet.util.CollisionShapeFactory;
 
 //Input
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
+import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
 
 //terrain
 import com.jme3.material.Material;
 //import com.jme3.terrain.geomipmap.TerrainLodControl;
+import com.jme3.math.Vector2f;
 import com.jme3.terrain.heightmap.AbstractHeightMap;
 import com.jme3.terrain.geomipmap.TerrainQuad;
 //import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
@@ -76,12 +66,17 @@ import com.jme3.post.filters.FogFilter;
 import com.jme3.post.filters.DepthOfFieldFilter;
 //audio
 
-
 /**
  * 
  * @author Ulrich Nzuzi <ulrichnz@code.google.com>
+ * @author Vemund Kvam <vekjeft@code.google.com>
  */
-public class BBMain extends SimpleApplication implements AnimEventListener, ActionListener, PhysicsCollisionListener{ 
+
+/**
+ * test
+ * @author normenhansen
+ */
+public class BBMain extends SimpleApplication implements AnimEventListener, ActionListener, AnalogListener{ 
 
     public static void main(String[] args) {
         BBMain app = new BBMain();
@@ -90,17 +85,25 @@ public class BBMain extends SimpleApplication implements AnimEventListener, Acti
 
     protected Node human;
     protected CharacterControl pControler;
+    protected TerrainQuad terrain;
     protected Spatial player;
     protected CameraNode camNode;
     protected AnimChannel channel;
     
-    private Vector3f walkDirection = new Vector3f();
-    private boolean left = false, right = false, up = false, down = false,lastLeft = true;
+    private boolean walk, jump = false;
     private static final Logger logger = Logger.getLogger(SimpleApplication.class.getName());
+    
+    private static final class Directions{
+    private static final Quaternion rot = new Quaternion().fromAngleAxis(-FastMath.HALF_PI, Vector3f.UNIT_Y);
+    private static final Quaternion upDir = Quaternion.DIRECTION_Z;
+    private static final Quaternion rightDir = upDir.mult(rot);
+    private static final Quaternion downDir = rightDir.mult(rot);
+    private static final Quaternion leftDir = downDir.mult(rot);
+    }
     
     @Override
     public void simpleInitApp() {
-
+        
     //Set up keys
     inputManager.addMapping("Left", new KeyTrigger(KeyInput.KEY_J));
     inputManager.addMapping("Right", new KeyTrigger(KeyInput.KEY_L));
@@ -130,9 +133,8 @@ public class BBMain extends SimpleApplication implements AnimEventListener, Acti
     Spatial sword = assetManager.loadModel("Models/Sinbad/Sword/Sword.mesh.j3o");
     human.attachChild(player);
     human.attachChild(sword);
-    human.setLocalTranslation(new Vector3f(-338.13904f, -91.89435f, 13.445859f));
+    human.setLocalTranslation(new Vector3f(-338.13904f, -91.89435f+100, 13.445859f));
     player.rotate(0, FastMath.HALF_PI, 0);
-    //player.setLocalRotation(new Quaternion().fromAngleAxis(2*FastMath.HALF_PI, Vector3f.UNIT_Y));
     
     //Load terrain
             
@@ -182,11 +184,11 @@ public class BBMain extends SimpleApplication implements AnimEventListener, Acti
      * 3.5) We supply the prepared heightmap itself.
      */
     int patchSize = 65;
-    TerrainQuad terrain = new TerrainQuad("my terrain", patchSize, 513, heightmap.getHeightMap());
+    terrain = new TerrainQuad("my terrain", patchSize, 513, heightmap.getHeightMap());
  
     /** 4. We give the terrain its material, position & scale it, and attach it. */
     terrain.setMaterial(mat_terrain);
-    terrain.setLocalTranslation(0, -100, 0);
+    terrain.setLocalTranslation(0, 0, 0);
     terrain.setLocalScale(2f, 1f, 2f);
         
         
@@ -213,27 +215,57 @@ public class BBMain extends SimpleApplication implements AnimEventListener, Acti
     // Set up Physics
     BulletAppState bulletAppState = new BulletAppState();
     stateManager.attach(bulletAppState);
+    //bulletAppState.getPhysicsSpace().enableDebug(assetManager);
 
     // We set up collision detection for the scene by creating a
     // compound collision shape and a static RigidBodyControl with mass zero.
     //TerrainQuad tQ = (TerrainQuad) world.getChild(1);
-    terrain.addControl(new RigidBodyControl(0));
-
+    terrain.addControl(new RigidBodyControl(new HeightfieldCollisionShape(terrain.getHeightMap(), terrain.getLocalScale()),0));
 
     //CollisionShape sceneShape = CollisionShapeFactory.createMeshShape(terrain);
     //RigidBodyControl landscape = new RigidBodyControl(sceneShape, 0);
     //terrain.addControl(landscape);
 
+
+    Vector3f displacement = Vector3f.UNIT_Z;
+    Vector3f normal = new Vector3f(0,0,1);
+    float constant = displacement.dot(normal);
+    Plane plane = new Plane(normal, constant);
+    
+    // Walls on each side
+    PlaneCollisionShape zMinusColl = new PlaneCollisionShape(plane);
+    normal = new Vector3f(0,0,-1);
+    constant = displacement.dot(normal);
+    Plane plane2 = new Plane(normal, constant);
+    
+    PlaneCollisionShape zPlussColl = new PlaneCollisionShape(plane2);    
+  
+    RigidBodyControl zMinusCollContr = new RigidBodyControl(zMinusColl,0);
+    RigidBodyControl zPlussCollContr = new RigidBodyControl(zPlussColl,0);
+    
+    zMinusCollContr.setPhysicsLocation(Vector3f.UNIT_Z.mult(60));
+    zMinusCollContr.setPhysicsLocation(Vector3f.UNIT_Z.mult(-60));
+    
+    bulletAppState.getPhysicsSpace().add(zMinusCollContr);
+    bulletAppState.getPhysicsSpace().add(zPlussCollContr);
+    
     // We also put the player in its starting position.
     CapsuleCollisionShape capsuleShape = new CapsuleCollisionShape(1.5f, 6f, 1);
-    pControler = new CharacterControl(capsuleShape, 0.05f);
+    pControler = new CharacterControl(capsuleShape, .05f);
     pControler.setJumpSpeed(20);
     pControler.setFallSpeed(30);
     pControler.setGravity(30);
     pControler.setPhysicsLocation(player.getWorldTranslation());//new Vector3f(0, 10, 0));
-
-    bulletAppState.getPhysicsSpace().addAll(terrain);
+    pControler.setUseViewDirection(true);   
+    
+    // Add phys. controller to player.
+    player.addControl(pControler);
     bulletAppState.getPhysicsSpace().add(pControler); 
+    
+    // Add controllers to phys. space.
+    bulletAppState.getPhysicsSpace().addAll(terrain);
+
+    //bulletAppState.getPhysicsSpace().addCollisionListener(this);
 
     //Position the camera
     //cam.setLocation(new Vector3f(-341.88324f, -68.31373f, -49.842667f));
@@ -301,87 +333,71 @@ public class BBMain extends SimpleApplication implements AnimEventListener, Acti
     
   /** These are our custom actions triggered by key presses.
    * We do not walk yet, we just keep track of the direction the user pressed. */
+  private int pressed=0;
   public void onAction(String binding, boolean value, float tpf) {
-      
-    if (binding.equals("Left")) {
-      if (value) { 
-          left = true;
-          //rotate the player
-          //Quaternion qT = player.getLocalRotation();
-          //Quaternion tmp = new Quaternion().fromAngles(0f,FastMath.HALF_PI, 0f);
-          //logger.log(Level.INFO, "LEFT TMP Angle: {0} | {1} | {2} | {3}",  new Object[]{tmp.getX(), tmp.getY(), tmp.getZ(), tmp.getW()} );
-          //logger.log(Level.INFO, "LEFT QT Angle: {0} | {1} | {2} | {3}",  new Object[]{qT.getX(), qT.getY(), qT.getZ(), qT.getW()} );
-          if(/*!qT.equals(tmp)&!*/!lastLeft){
-            lastLeft = true;
-            player.rotate(0, FastMath.PI, 0);
-          }
-          
+      if(value == true){
+          pressed++;
+      }
+      else{
+          pressed--;                      
+      }
+      if(pressed==1&&value&!binding.equals("Jump")&&!walk){
+          walk = true;
+          if(!jump){
           channel.setAnim("RunTop", 0.50f);
           channel.setAnim("RunBase", 0.50f);
           channel.setLoopMode(LoopMode.Loop);
-      } else { 
-          left = false;
-          channel.setAnim("IdleTop", 0.50f);
-          channel.setLoopMode(LoopMode.DontLoop);
-      }
-
-    } else if (binding.equals("Right")) {
-      if (value) { 
-          right = true;
-          //rotate the player
-          //Quaternion qT = player.getLocalRotation();
-          //Quaternion tmp = new Quaternion().fromAngles(0f,-FastMath.PI, 0f);
-          //tmp.inverse();
-          //qT.normalize();
-          //logger.log(Level.INFO, "RIGHT TMP Angle: {0} | {1} | {2} | {3}",  new Object[]{tmp.getX(), tmp.getY(), tmp.getZ(), tmp.getW()} );
-          //logger.log(Level.INFO, "RIGHT QT Angle: {0} | {1} | {2} | {3}",  new Object[]{qT.getX(), qT.getY(), qT.getZ(), qT.getW()} );
-          if(/*!qT.equals(tmp)&&*/lastLeft){
-            lastLeft = false;
-            player.rotate(0, -FastMath.PI, 0);
           }
-          
-          channel.setAnim("RunTop", 0.50f);
-          channel.setAnim("RunBase", 0.50f);
-          channel.setLoopMode(LoopMode.Loop);
-      } else { 
-          right = false;
-          channel.setAnim("IdleTop", 0.50f);
-          channel.setLoopMode(LoopMode.DontLoop);
       }
-    } else if (binding.equals("Up")) {
-      if (value) { up = true; } else { up = false; }
-    } else if (binding.equals("Down")) {
-      if (value) { down = true; } else { down = false; }
-    } else if (binding.equals("Jump")) {
-        channel.setAnim("JumpStart", 0.50f);  
+      else if (pressed==0&!value&!binding.equals("Jump")) {
+          walk = false;
+          if(!jump){          
+          channel.setAnim("IdleTop", 0.50f);
+          channel.setLoopMode(LoopMode.DontLoop);          
+          }
+      }
+    if (binding.equals("Jump") &! jump ) {
+        if (value){
+        jump = true;
+        channel.setAnim("JumpStart", 0.50f);
         pControler.jump();
-          channel.setAnim("JumpLoop", 0.50f);
-          channel.setLoopMode(LoopMode.Loop);
-      if (!value) { 
-          channel.setAnim("IdleTop", 0.50f);
-      }
-        
+        channel.setAnim("JumpLoop", 0.50f);
+        channel.setLoopMode(LoopMode.Loop);
+        }
     }
 
   }
 
-  
-    
+    float hasJumped = 0;
     @Override
     public void simpleUpdate(float tpf) {
-        //Move physic body
-        Vector3f camDir = cam.getDirection().clone().multLocal(0.6f);
-        Vector3f camLeft = cam.getLeft().clone().multLocal(0.4f);
-        walkDirection.set(0, 0, 0);
-        if (left)  { walkDirection.addLocal(camLeft); }
-        if (right) { walkDirection.addLocal(camLeft.negate()); }
-        //if (up)    { walkDirection.addLocal(camDir); }
-        //if (down)  { walkDirection.addLocal(camDir.negate()); }
-        pControler.setWalkDirection(walkDirection);
-        
-        //human.rotate(0, 2*tpf, 0); 
-        human.setLocalTranslation(pControler.getPhysicsLocation());
-        //cam.lookAt(player.getWorldTranslation(), Vector3f.UNIT_Y);
+        Vector3f pos = pControler.getPhysicsLocation();
+        human.setLocalTranslation(pos);
+        Vector2f pos2d = new Vector2f(pos.x,pos.z);
+        float height = terrain.getHeight(pos2d);
+        if(height>pos.y-6){
+            if(jump)
+            {
+            hasJumped+=tpf;
+                if(hasJumped>0.2f)
+                {
+                fpsText.setText("Landing");
+                jump = false;
+                hasJumped = 0;
+                    if(walk){
+                    //channel.setAnim("RunTop", 0.50f);
+                    channel.setAnim("RunBase", 0.50f);
+                    channel.setLoopMode(LoopMode.Loop);
+                    }
+                    else{
+                    channel.setAnim("IdleTop", 0.50f);
+                    channel.setLoopMode(LoopMode.DontLoop);                           
+                    pControler.setWalkDirection(Vector3f.ZERO);
+                    }
+                                             
+                }
+            }
+        }
     }
 
     @Override
@@ -389,7 +405,33 @@ public class BBMain extends SimpleApplication implements AnimEventListener, Acti
         //TODO: add render code
     }
 
-    public void collision(PhysicsCollisionEvent pce) {
-        throw new UnsupportedOperationException("Not supported yet.");
+
+
+    public void onAnalog(String binding, float value, float tpf) {
+        if(!jump)
+        {
+        if (binding.equals("Left")) {
+        Quaternion newRot = new Quaternion().slerp(player.getLocalRotation(),Directions.leftDir, tpf*3);
+        player.setLocalRotation(newRot);
+        }
+        else if (binding.equals("Right")) {
+        Quaternion newRot = new Quaternion().slerp(player.getLocalRotation(),Directions.rightDir, tpf*3);
+        player.setLocalRotation(newRot);        
+        } else if (binding.equals("Up")) {
+        Quaternion newRot = new Quaternion().slerp(player.getLocalRotation(),Directions.upDir, tpf*3);
+        player.setLocalRotation(newRot);
+        } else if (binding.equals("Down")) {
+        Quaternion newRot = new Quaternion().slerp(player.getLocalRotation(),Directions.downDir, tpf*3);
+        player.setLocalRotation(newRot);
+        }
+        
+        if(walk){
+        pControler.setViewDirection(player.getWorldRotation().mult(Vector3f.UNIT_Z));                     
+        pControler.setWalkDirection(pControler.getViewDirection().multLocal(tpf*10));                  
+        }        
+        else{
+        pControler.setWalkDirection(Vector3f.ZERO);
+        }
+        }
     }
 }
