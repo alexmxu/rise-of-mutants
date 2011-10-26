@@ -49,6 +49,7 @@ import java.util.LinkedList;
 /**
  * Handles the command queue of an AI entity.
  * @author normenhansen
+ * @author Vemund Kvam
  */
 public class CommandControl implements Control {
 

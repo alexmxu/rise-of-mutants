@@ -42,6 +42,7 @@ import com.jme3.scene.Spatial;
 /**
  * Basic interface for AI commands
  * @author normenhansen
+ * @author Vemund Kvam
  */
 public interface Command {
     enum State{

@@ -6,7 +6,8 @@ package com.bigboots.ai;
 
 /**
  *
- * @author Vekjeft
+ * @author Vemund Kvam <vekjeft@code.google.com>
+ * Class that handles global A.I. decisions and hands them out to entities.
  */
 public class Decisions {
     

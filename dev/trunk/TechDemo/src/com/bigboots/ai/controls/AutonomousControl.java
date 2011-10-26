@@ -38,6 +38,7 @@ import com.jme3.math.Vector3f;
  * When a NavigationControl is available on the spatial, it should be used by
  * the AutonomousControl to navigate.
  * @author normenhansen
+ * @author Vemund Kvam
  */
 public interface AutonomousControl extends MovementControl {
 

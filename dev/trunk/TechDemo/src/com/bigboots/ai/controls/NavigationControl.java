@@ -38,6 +38,7 @@ import com.jme3.scene.control.Control;
  * Basic interface for navigation contols, these mostly do not much themselves
  * but are used by other controls to navigate.
  * @author normenhansen
+ * @author Vemund Kvam
  */
 public interface NavigationControl extends Control {
 
