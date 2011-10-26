@@ -3,22 +3,48 @@
  * and open the template in the editor.
  */
 package com.bigboots;
+
+import com.bigboots.ai.controls.AutonomousCharacterControl;
+import com.bigboots.ai.controls.AutonomousControl;
+import com.bigboots.ai.controls.AutonomousVehicleControl;
+import com.bigboots.ai.controls.CommandControl;
+import com.bigboots.ai.controls.MovementControl;
+import com.bigboots.ai.util.NavMeshGenerator;
+import com.bigboots.ai.navmesh.NavMesh;
+import com.bigboots.ai.triggers.SphereTrigger;
+import com.bigboots.ai.triggers.TriggerControl;
+
+
 import com.jme3.app.Application;
 import com.jme3.app.state.AbstractAppState;
 import com.jme3.asset.AssetManager;
+import com.jme3.asset.DesktopAssetManager;
+import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.PhysicsSpace;
+import com.jme3.bullet.collision.PhysicsCollisionObject;
+import com.jme3.bullet.collision.PhysicsRayTestResult;
+import com.jme3.bullet.control.CharacterControl;
+import com.jme3.bullet.control.RigidBodyControl;
+import com.jme3.bullet.control.VehicleControl;
+import com.jme3.material.Material;
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector3f;
+
+import com.jme3.scene.Geometry;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import java.util.HashMap;
-import com.bigboots.ai.util.NavMeshGenerator;
-import com.bigboots.ai.navmesh.NavMesh;
-import com.jme3.bullet.BulletAppState;
-import com.jme3.bullet.collision.PhysicsCollisionObject;
 import com.jme3.scene.control.Control;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import jme3tools.optimize.GeometryBatchFactory;
 /**
  * 
  * @author Ulrich Nzuzi <ulrichnz@code.google.com>
@@ -38,6 +64,7 @@ public class BBWorldManager extends AbstractAppState  {
     private NavMeshGenerator generator = new NavMeshGenerator();
     private PhysicsSpace space;
     private List<Control> userControls = new LinkedList<Control>();
+    private int newId;
     
     
     public BBWorldManager(Application app, Node rootNode) {
@@ -106,4 +133,350 @@ public class BBWorldManager extends AbstractAppState  {
     public PhysicsSpace getPhysicsSpace(){
     return space;
     }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    /**
+     * get the NavMesh of the currently loaded level
+     * @return
+     */
+    public NavMesh getNavMesh() {
+        return navMesh;
+    }
+
+    /**
+     * get the world root node (not necessarily the application rootNode!)
+     * @return
+     */
+    public Node getWorldRoot() {
+        return worldRoot;
+    }
+
+    /**
+     * loads the specified level node
+     * @param name
+     */
+    public void loadLevel(String name) {
+        worldRoot = (Node) assetManager.loadModel(name);
+    }
+
+    /**
+     * detaches the level and clears the cache
+     */
+    public void closeLevel() {
+
+        entities.clear();
+        space.removeAll(worldRoot);
+        rootNode.detachChild(worldRoot);
+        ((DesktopAssetManager) assetManager).clearCache();
+    }
+
+    /**
+     * preloads the models with the given names
+     * @param modelNames
+     */
+    public void preloadModels(String[] modelNames) {
+        for (int i = 0; i < modelNames.length; i++) {
+            String string = modelNames[i];
+            assetManager.loadModel(string);
+        }
+    }
+
+    /**
+     * creates the nav mesh for the loaded level
+     */
+    public void createNavMesh() {
+
+        Mesh mesh = new Mesh();
+
+        //version a: from mesh
+        GeometryBatchFactory.mergeGeometries(findGeometries(worldRoot, new LinkedList<Geometry>()), mesh);
+        Mesh optiMesh = generator.optimize(mesh);
+
+        navMesh.loadFromMesh(optiMesh);
+
+        //TODO: navmesh only for debug
+        Geometry navGeom = new Geometry("NavMesh");
+        navGeom.setMesh(optiMesh);
+        Material green = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        green.setColor("Color", ColorRGBA.Green);
+        green.getAdditionalRenderState().setWireframe(true);
+        navGeom.setMaterial(green);
+
+        worldRoot.attachChild(navGeom);
+    }
+
+    /**
+     * attaches the level node to the rootnode
+     */
+    public void attachLevel() {
+        space.addAll(worldRoot);
+        rootNode.attachChild(worldRoot);
+    }
+
+    private List<Geometry> findGeometries(Node node, List<Geometry> geoms) {
+        for (Iterator<Spatial> it = node.getChildren().iterator(); it.hasNext();) {
+            Spatial spatial = it.next();
+            if (spatial instanceof Geometry) {
+                geoms.add((Geometry) spatial);
+            } else if (spatial instanceof Node) {
+                findGeometries((Node) spatial, geoms);
+            }
+        }
+        return geoms;
+    }
+
+    /**
+     * adds a new entity (only used on server)
+     * @param modelIdentifier
+     * @param location
+     * @param rotation
+     * @return
+     */
+    public long addNewEntity(String modelIdentifier, Vector3f location, Quaternion rotation) {
+//        long id = 0;
+//        while (entities.containsKey(id)) {
+//            id++;
+//        }
+        newId++;
+        addEntity(newId, modelIdentifier, location, rotation);
+        return newId;
+    }
+
+    /**
+     * add an entity (vehicle, immobile house etc), always related to a spatial
+     * with specific userdata like hp, maxhp etc. (sends message if server)
+     * @param id
+     * @param modelIdentifier
+     * @param location
+     * @param rotation
+     */
+    public void addEntity(long id, String modelIdentifier, Vector3f location, Quaternion rotation) {
+        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Adding entity: {0}", id);
+
+        Node entityModel = (Node) assetManager.loadModel(modelIdentifier);
+        setEntityTranslation(entityModel, location, rotation);
+        if (entityModel.getControl(CharacterControl.class) != null) {
+            // entityModel.addControl(new CharacterAnimControl());
+            //FIXME: strangeness setting these in jMP..
+            entityModel.getControl(CharacterControl.class).setFallSpeed(55);
+            entityModel.getControl(CharacterControl.class).setJumpSpeed(15);
+        }
+        entityModel.setUserData("player_id", -1l);
+        entityModel.setUserData("group_id", -1);
+        entityModel.setUserData("entity_id", id);
+        entities.put(id, entityModel);
+        space.addAll(entityModel);
+        worldRoot.attachChild(entityModel);
+    }
+
+    /**
+     * removes the entity with the specified id, exits player if inside
+     * (sends message if server)
+     * @param id
+     */
+    public void removeEntity(long id) {
+        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Removing entity: {0}", id);
+
+        Spatial spat = entities.remove(id);
+        if (spat == null) {
+            Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "try removing entity thats not there: {0}", id);
+            return;
+        }
+        Long playerId = (Long) spat.getUserData("player_id");
+        removeTransientControls(spat);
+        removeAIControls(spat);
+
+        spat.removeFromParent();
+        space.removeAll(spat);
+    }
+
+    /**
+     * disables an entity so that it is not displayed
+     * @param id
+     */
+    public void disableEntity(long id) {
+        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Disabling entity: {0}", id);
+
+        Spatial spat = getEntity(id);
+        spat.removeFromParent();
+        space.removeAll(spat);
+    }
+
+    /**
+     * reenables an entity after it has been disabled
+     * @param id
+     * @param location
+     * @param rotation
+     */
+    public void enableEntity(long id, Vector3f location, Quaternion rotation) {
+        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Enabling entity: {0}", id);
+
+        Spatial spat = getEntity(id);
+        setEntityTranslation(spat, location, rotation);
+        worldRoot.attachChild(spat);
+        space.addAll(spat);
+    }
+
+    /**
+     * sets the translation of an entity based on its type
+     * @param entityModel
+     * @param location
+     * @param rotation
+     */
+    private void setEntityTranslation(Spatial entityModel, Vector3f location, Quaternion rotation) {
+        if (entityModel.getControl(RigidBodyControl.class) != null) {
+            entityModel.getControl(RigidBodyControl.class).setPhysicsLocation(location);
+            entityModel.getControl(RigidBodyControl.class).setPhysicsRotation(rotation.toRotationMatrix());
+        } else if (entityModel.getControl(CharacterControl.class) != null) {
+            entityModel.getControl(CharacterControl.class).setPhysicsLocation(location);
+            entityModel.getControl(CharacterControl.class).setViewDirection(rotation.mult(Vector3f.UNIT_Z).multLocal(1, 0, 1).normalizeLocal());
+        } else if (entityModel.getControl(VehicleControl.class) != null) {
+            entityModel.getControl(VehicleControl.class).setPhysicsLocation(location);
+            entityModel.getControl(VehicleControl.class).setPhysicsRotation(rotation.toRotationMatrix());
+        } else {
+            entityModel.setLocalTranslation(location);
+            entityModel.setLocalRotation(rotation);
+        }
+    }
+
+
+    /**
+     * makes the specified entity ready to be controlled by an AIControl
+     * by adding an AutonomousControl based on entity type.
+     */
+    private void makeAutoControl(long entityId) {
+        Spatial spat = getEntity(entityId);
+        if (spat.getControl(CharacterControl.class) != null) {
+            Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Make autonomous character control for entity {0} ", entityId);
+            spat.addControl(new AutonomousCharacterControl(entityId));
+
+        } else if (spat.getControl(VehicleControl.class) != null) {
+            Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Make autonomous vehicle control for entity {0} ", entityId);
+            spat.addControl(new AutonomousVehicleControl(entityId));
+        }
+    }
+
+    /**
+     * removes all movement controls (ManualControl / AutonomousControl) from
+     * spatial
+     * @param spat
+     */
+    private void removeTransientControls(Spatial spat) {
+
+        AutonomousControl autoControl = spat.getControl(AutonomousControl.class);
+        if (autoControl != null) {
+            spat.removeControl(autoControl);
+        }
+    }
+
+    /**
+     * adds the command queue and triggers for user controlled ai entities
+     */
+    private void addAIControls(long playerId, long entityId) {
+        //TODO: use stored controls for playerId
+        Spatial spat = getEntity(entityId);
+        spat.addControl(new CommandControl(this, playerId, entityId));
+//        Command command = new AttackCommand();
+        SphereTrigger trigger = new SphereTrigger(this);
+        spat.addControl(trigger);
+    }
+
+    /**
+     * removes the command queue and triggers for user controlled ai entities
+     */
+    private void removeAIControls(Spatial spat) {
+        CommandControl aiControl = spat.getControl(CommandControl.class);
+        if (aiControl != null) {
+            spat.removeControl(aiControl);
+        }
+        TriggerControl triggerControl = spat.getControl(TriggerControl.class);
+        while (triggerControl != null) {
+            spat.removeControl(triggerControl);
+            triggerControl = spat.getControl(TriggerControl.class);
+        }
+    }
+
+
+
+
+    /**
+     * does a ray test that starts at the entity location and extends in its
+     * view direction by length, stores collision location in supplied
+     * storeLocation vector, if collision object is an entity, returns entity
+     * @param entity
+     * @param length
+     * @param storeVector
+     * @return
+     */
+    public Spatial doRayTest(Spatial entity, float length, Vector3f storeLocation) {
+        MovementControl control = entity.getControl(MovementControl.class);
+        Vector3f startLocation = control.getLocation();
+        Vector3f endLocation = startLocation.add(control.getAimDirection().normalize().multLocal(length));
+        List<PhysicsRayTestResult> results = getPhysicsSpace().rayTest(startLocation, endLocation);
+        Spatial found = null;
+        float dist = Float.MAX_VALUE;
+        for (Iterator<PhysicsRayTestResult> it = results.iterator(); it.hasNext();) {
+            PhysicsRayTestResult physicsRayTestResult = it.next();
+            Spatial object = getEntity(physicsRayTestResult.getCollisionObject());
+            if (object == entity) {
+                continue;
+            }
+            if (physicsRayTestResult.getHitFraction() < dist) {
+                dist = physicsRayTestResult.getHitFraction();
+                if (storeLocation != null) {
+                    FastMath.interpolateLinear(physicsRayTestResult.getHitFraction(), startLocation, endLocation, storeLocation);
+                }
+                found = object;
+            }
+        }
+        return found;
+    }
+
+    /**
+     * does a ray test, stores collision location in supplied storeLocation vector, if collision
+     * object is an entity, returns entity
+     * @param storeLocation
+     * @return
+     */
+    public Spatial doRayTest(Vector3f startLocation, Vector3f endLocation, Vector3f storeLocation) {
+        List<PhysicsRayTestResult> results = getPhysicsSpace().rayTest(startLocation, endLocation);
+        //TODO: sorting of results
+        Spatial found = null;
+        float dist = Float.MAX_VALUE;
+        for (Iterator<PhysicsRayTestResult> it = results.iterator(); it.hasNext();) {
+            PhysicsRayTestResult physicsRayTestResult = it.next();
+            Spatial object = getEntity(physicsRayTestResult.getCollisionObject());
+            if (physicsRayTestResult.getHitFraction() < dist) {
+                dist = physicsRayTestResult.getHitFraction();
+                if (storeLocation != null) {
+                    FastMath.interpolateLinear(physicsRayTestResult.getHitFraction(), startLocation, endLocation, storeLocation);
+                }
+                found = object;
+            }
+        }
+        return found;
+    }
+
+
+
+    @Override
+    public void update(float tpf) {
+    }    
 }
