@@ -340,24 +340,27 @@ public class BBMain extends SimpleApplication implements AnimEventListener, Acti
       if(pressed==1&&value&!binding.equals("Jump")&&!walk){
           walk = true;
           if(!jump){
-          channel.setAnim("RunTop", 0.50f);
-          channel.setAnim("RunBase", 0.50f);
+          logger.log(Level.INFO,"Character walking init.");              
+          channel.setAnim("RunTop", 0.50f); // TODO: Must activate "RunBase" after a certain time.
+          channel.setAnim("RunBase", 0.50f); // TODO: Must be activated after a certain time after "RunTop"
           channel.setLoopMode(LoopMode.Loop);
           }
       }
       else if (pressed==0&!value&!binding.equals("Jump")) {
           walk = false;
-          if(!jump){          
+          if(!jump){
+          logger.log(Level.INFO,"Character walking end.");
           channel.setAnim("IdleTop", 0.50f);
           channel.setLoopMode(LoopMode.DontLoop);          
           }
       }
     if (binding.equals("Jump") &! jump ) {
         if (value){
+        logger.log(Level.INFO,"Character jumping start.");
         jump = true;
-        channel.setAnim("JumpStart", 0.50f);
+        // channel.setAnim("JumpStart", 0.5f); // TODO: Must activate "JumpLoop" after a certain time.
         pControler.jump();
-        channel.setAnim("JumpLoop", 0.50f);
+        channel.setAnim("JumpLoop", 0.50f); // TODO: Must be activated after a certain time after "JumpStart"
         channel.setLoopMode(LoopMode.Loop);
         }
     }
@@ -377,16 +380,16 @@ public class BBMain extends SimpleApplication implements AnimEventListener, Acti
             hasJumped+=tpf;
                 if(hasJumped>0.2f)
                 {
-                fpsText.setText("Landing");
+                logger.log(Level.INFO,"Character jumping end.");
                 jump = false;
                 hasJumped = 0;
                     if(walk){
                     //channel.setAnim("RunTop", 0.50f);
-                    channel.setAnim("RunBase", 0.50f);
+                    channel.setAnim("RunBase", 0.10f);
                     channel.setLoopMode(LoopMode.Loop);
                     }
                     else{
-                    channel.setAnim("IdleTop", 0.50f);
+                    channel.setAnim("IdleTop", 0.10f);
                     channel.setLoopMode(LoopMode.DontLoop);                           
                     pControler.setWalkDirection(Vector3f.ZERO);
                     }
