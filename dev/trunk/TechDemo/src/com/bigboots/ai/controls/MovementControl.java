@@ -42,6 +42,7 @@ import com.jme3.scene.control.Control;
  * Base interface for autonomous and manual movements controls, mostly used
  * to read position of entity
  * @author normenhansen
+ * @author Vemund Kvam
  */
 public interface MovementControl extends Control{
     public Vector3f getLocation();

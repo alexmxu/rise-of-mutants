@@ -32,20 +32,25 @@
 package com.bigboots.ai.controls;
 
 import com.jme3.bullet.control.CharacterControl;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
 import com.jme3.math.Vector3f;
 import com.bigboots.BBGlobals;
 import com.jme3.network.Client;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.control.Control;
+import java.io.IOException;
 
 /**
  * Automomous character control, implements the AutonomousControl interface and
  * controls a character if available on the spatial.
  * @author normenhansen
+ * @author Vemund Kvam
  */
-public class AutonomousCharacterControl extends AbstractAutonomousControl {
-
+public class AutonomousCharacterControl implements AutonomousControl {
+    private long entityId;
     private float checkRadius = 2;
     private float speed = 10f * BBGlobals.PHYSICS_TPT;
     private Vector3f targetLocation = new Vector3f();
@@ -54,26 +59,42 @@ public class AutonomousCharacterControl extends AbstractAutonomousControl {
     private boolean moving = false;
     private CharacterControl characterControl;
     private Vector3f aimDirection = new Vector3f(Vector3f.UNIT_Z);
-
+    
+    private Vector3f lastMoveToLocation = new Vector3f();
+    private Vector3f lastAimDirection = new Vector3f();
+    protected boolean enabled = true;
+    protected Spatial spatial;
+    
     public AutonomousCharacterControl() {
     }
 
     public AutonomousCharacterControl(long entityId) {
-        super(entityId);
+        this.entityId = entityId;
+    }
+    
+    public void aimAt(Vector3f direction) {
+            if (!lastAimDirection.equals(direction)) {
+                lastAimDirection.set(direction);
+            }
     }
 
-    @Override
+
+    public void moveTo(Vector3f location) {
+        if (!lastMoveToLocation.equals(location)) {
+        lastMoveToLocation.set(location);
+        }
+    }
+    
+
     public void doAimAt(Vector3f direction) {
         aimDirection.set(direction);
 //        characterControl.setViewDirection(direction);
     }
 
-    @Override
     public Vector3f getAimDirection() {
         return aimDirection;
     }
 
-    @Override
     public void doMoveTo(Vector3f location) {
         targetLocation.set(location);
         characterControl.getPhysicsLocation(vector);
@@ -85,7 +106,7 @@ public class AutonomousCharacterControl extends AbstractAutonomousControl {
         }
     }
 
-    @Override
+    
     public void doPerformAction(String action, boolean activate) {
         if (activate && action.equals(action)) {
             characterControl.jump();
@@ -95,8 +116,8 @@ public class AutonomousCharacterControl extends AbstractAutonomousControl {
     public void performAction(int action, boolean activate) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+
     
-    @Override
     public void setSpatial(Spatial spatial) {
         this.spatial = spatial;
         if (spatial == null) {
@@ -113,22 +134,22 @@ public class AutonomousCharacterControl extends AbstractAutonomousControl {
         characterControl = spatial.getControl(CharacterControl.class);
     }
 
-    @Override
+    
     public boolean isMoving() {
         return moving;
     }
 
-    @Override
+
     public Vector3f getTargetLocation() {
         return targetLocation;
     }
 
-    @Override
+
     public Vector3f getLocation() {
         return characterControl.getPhysicsLocation(vector);
     }
 
-    @Override
+
     public void update(float tpf) {
         if (!moving || !enabled) {
             return;
@@ -150,6 +171,26 @@ public class AutonomousCharacterControl extends AbstractAutonomousControl {
     }
 
     public void render(RenderManager rm, ViewPort vp) {
+    }
+
+    public Control cloneForSpatial(Spatial spatial) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public void setEnabled(boolean enabled) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public boolean isEnabled() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public void write(JmeExporter ex) throws IOException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public void read(JmeImporter im) throws IOException {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
 }

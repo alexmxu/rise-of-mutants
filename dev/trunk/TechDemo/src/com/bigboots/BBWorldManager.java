@@ -6,14 +6,12 @@ package com.bigboots;
 
 import com.bigboots.ai.controls.AutonomousCharacterControl;
 import com.bigboots.ai.controls.AutonomousControl;
-import com.bigboots.ai.controls.AutonomousVehicleControl;
 import com.bigboots.ai.controls.CommandControl;
 import com.bigboots.ai.controls.MovementControl;
 import com.bigboots.ai.util.NavMeshGenerator;
 import com.bigboots.ai.navmesh.NavMesh;
 import com.bigboots.ai.triggers.SphereTrigger;
 import com.bigboots.ai.triggers.TriggerControl;
-
 
 import com.jme3.app.Application;
 import com.jme3.app.state.AbstractAppState;
@@ -31,12 +29,12 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
-
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -367,9 +365,6 @@ public class BBWorldManager extends AbstractAppState  {
             Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Make autonomous character control for entity {0} ", entityId);
             spat.addControl(new AutonomousCharacterControl(entityId));
 
-        } else if (spat.getControl(VehicleControl.class) != null) {
-            Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Make autonomous vehicle control for entity {0} ", entityId);
-            spat.addControl(new AutonomousVehicleControl(entityId));
         }
     }
 
