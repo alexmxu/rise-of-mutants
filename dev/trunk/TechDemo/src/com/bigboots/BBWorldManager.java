@@ -469,8 +469,6 @@ public class BBWorldManager extends AbstractAppState  {
         return found;
     }
 
-
-
     @Override
     public void update(float tpf) {
     }    
