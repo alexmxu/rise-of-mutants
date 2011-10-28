@@ -1,19 +1,9 @@
 package com.bigboots.testscene;
 
 
-
-/*You can get transforms from *.blend files and use your models for it. 
- * Blender could be used as a World Editor or scene composer.
- * Names of JME objects and blend objects should be like:
- * JME names - Box, Sphere
- * blend names - Box, Box.000, Box.001, Box.002.... Sphere, Sphere.000, Sphere.001...
-*/ 
-
-
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.BlenderKey;
 import com.jme3.asset.DesktopAssetManager;
-import com.jme3.font.BitmapText;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
@@ -36,10 +26,10 @@ public class TestScene extends SimpleApplication {
      Spatial ledder;
     
      // collision shapes
-     Node obj01_l;
-     Node obj02_l;
-     Node obj03_l;
-     Node ledder_l;
+     Geometry obj01_l;
+     Geometry obj02_l;
+     Geometry obj03_l;
+     Geometry ledder_l;
      
       
     public static void main(String[] args) {
@@ -81,10 +71,10 @@ public class TestScene extends SimpleApplication {
 
         
         //Collision Shapes
-        obj01_l = (Node) assetManager.loadModel("Scenes/TestScene/obj01_l.obj"); 
-        obj02_l = (Node) assetManager.loadModel("Scenes/TestScene/obj02_l.obj"); 
-        obj03_l = (Node) assetManager.loadModel("Scenes/TestScene/obj03_l.obj"); 
-        ledder_l = (Node) assetManager.loadModel("Scenes/TestScene/ledder_l.obj"); 
+        obj01_l =  (Geometry) assetManager.loadModel("Scenes/TestScene/obj01_l.obj"); 
+        obj02_l =  (Geometry) assetManager.loadModel("Scenes/TestScene/obj02_l.obj"); 
+        obj03_l =  (Geometry) assetManager.loadModel("Scenes/TestScene/obj03_l.obj"); 
+        ledder_l =  (Geometry) assetManager.loadModel("Scenes/TestScene/ledder_l.obj"); 
 
           // Collision Shapes to be used
 //        CompoundCollisionShape myComplexShape = CollisionShapeFactory.createMeshShape((Node) myComplexGeometry );
