@@ -26,21 +26,27 @@ import com.jme3.scene.shape.*;
 public class TestScene extends SimpleApplication {
 
     Geometry geom_a;
-    Geometry geom_b;
-    Node ndmd;
-    Material mat_sphr;
     Material mat_box;
-
+    Node ndmd;
+    
+    // models
+     Spatial obj01;
+     Spatial obj02;
+     Spatial obj03;
+     Spatial ledder;
+    
+     // collision shapes
+     Node obj01_l;
+     Node obj02_l;
+     Node obj03_l;
+     Node ledder_l;
+     
       
     public static void main(String[] args) {
         TestScene app = new TestScene();
         app.start();
     }
 
-     Spatial obj01;
-     Spatial obj02;
-     Spatial obj03;
-     Spatial ledder;
     
     
      public void Models () {
@@ -73,6 +79,18 @@ public class TestScene extends SimpleApplication {
         ledder.setMaterial(mat);
         ndmd.attachChild(ledder);
 
+        
+        //Collision Shapes
+        obj01_l = (Node) assetManager.loadModel("Scenes/TestScene/obj01_l.obj"); 
+        obj02_l = (Node) assetManager.loadModel("Scenes/TestScene/obj02_l.obj"); 
+        obj03_l = (Node) assetManager.loadModel("Scenes/TestScene/obj03_l.obj"); 
+        ledder_l = (Node) assetManager.loadModel("Scenes/TestScene/ledder_l.obj"); 
+
+          // Collision Shapes to be used
+//        CompoundCollisionShape myComplexShape = CollisionShapeFactory.createMeshShape((Node) myComplexGeometry );
+
+        
+        
         
         // Spawn Points of Mutants
         Box box_a = new Box(Vector3f.ZERO, 0.3f, 0.3f, 0.3f);
