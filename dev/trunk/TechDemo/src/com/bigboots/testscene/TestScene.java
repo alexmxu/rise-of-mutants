@@ -128,7 +128,6 @@ public class TestScene extends SimpleApplication {
                 Spatial ndGet =  ndmd.getChild(j).clone(false);
                 ndGet.setName(strndscene);
                 ndGet.setLocalTransform(nd.getChild(i).getWorldTransform());
-                ndGet.getLocalScale().z  = -ndGet.getLocalScale().z;
                 ndscene.attachChild(ndGet);   
                 
          }    
@@ -147,11 +146,11 @@ public class TestScene extends SimpleApplication {
         // Add a light Source
         DirectionalLight dl = new DirectionalLight();
         dl.setDirection(new Vector3f(-0.8f, -0.6f, -0.08f).normalizeLocal());
-        dl.setColor(new ColorRGBA(1,1,1,1));
+        dl.setColor(new ColorRGBA(0.7f,0.7f,0.7f,1));
         rootNode.addLight(dl);
         
         AmbientLight al = new AmbientLight();
-        al.setColor(new ColorRGBA(1.0f,1.0f,2.3f,1.0f));
+        al.setColor(new ColorRGBA(1.9f,1.9f,3.0f,1.0f));
         rootNode.addLight(al);
         
         
