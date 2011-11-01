@@ -16,6 +16,8 @@
 package com.bigboots;
 
 import com.bigboots.core.BBEngineSystem;
+import com.bigboots.input.BBInputManager;
+import com.jme3.input.controls.ActionListener;
 
 
 /**
@@ -23,8 +25,25 @@ import com.bigboots.core.BBEngineSystem;
  * @author Ulrich Nzuzi <ulrichnz@code.google.com>
  */
 public class BBApplication {
+    public static final String INPUT_MAPPING_EXIT = "SIMPLEAPP_Exit";
+    public static final String INPUT_MAPPING_CAMERA_POS = "SIMPLEAPP_CameraPos";
+    public static final String INPUT_MAPPING_MEMORY = "SIMPLEAPP_Memory";
+    public static final String INPUT_MAPPING_HIDE_STATS = "SIMPLEAPP_HideStats";
     
     private BBEngineSystem engineSystem;
+    
+    private AppActionListener actionListener = new AppActionListener();
+    private class AppActionListener implements ActionListener {
+      public void onAction(String name, boolean value, float tpf) {
+          if (!value) {
+              return;
+          }
+
+          if (name.equals(INPUT_MAPPING_EXIT)) {
+              stop();
+          } 
+      }
+    }
     
     public void init(){
         engineSystem = new BBEngineSystem();
@@ -34,10 +53,13 @@ public class BBApplication {
      * Main game loop.
      */
     public void run(){
-        
+        this.init();
+        engineSystem.initialize();
+        BBInputManager.getInstance().init(engineSystem);
+         BBInputManager.getInstance().getInputManager().addListener(actionListener, INPUT_MAPPING_EXIT,INPUT_MAPPING_CAMERA_POS, INPUT_MAPPING_MEMORY, INPUT_MAPPING_HIDE_STATS);
     }
-    
-    public void update(float tpf){
-        
+     
+    public void stop(){
+        engineSystem.stop(false);
     }
 }
