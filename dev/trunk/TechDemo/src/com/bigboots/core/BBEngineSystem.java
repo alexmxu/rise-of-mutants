@@ -50,6 +50,7 @@ public class BBEngineSystem implements SystemListener {
     protected float speed = 1f;
     protected boolean paused = false;
     protected float secondCounter = 0.0f;
+    protected boolean inputEnabled = true;
     
     protected boolean showSettings = true;
     protected ViewPort viewPort;
@@ -68,10 +69,7 @@ public class BBEngineSystem implements SystemListener {
     
     
     public void create(){
-        if (context != null && context.isCreated()){
-            logger.warning("start() called when application already created!");
-            return;
-        }
+        
         boolean loadSettings = false;
         if (settings == null){
             settings = new AppSettings(true);
@@ -84,9 +82,19 @@ public class BBEngineSystem implements SystemListener {
                 return;
             }
         }
+        if (context != null && context.isCreated()){
+            logger.warning("start() called when application already created!");
+            return;
+        }
+        if (context != null && settings.useInput() != inputEnabled){
+            // may need to create or destroy input based
+            // on settings change
+            inputEnabled = !inputEnabled;           
+        }else{
+            inputEnabled = settings.useInput();
+        }
         
-           
-        logger.log(Level.FINE, "Starting application: {0}", getClass().getName());
+        logger.log(Level.INFO, "Starting application: {0}", getClass().getName());
         context = JmeSystem.newContext(settings, JmeContext.Type.Display);
         context.setSystemListener(this);
         context.create(false);
@@ -105,10 +113,11 @@ public class BBEngineSystem implements SystemListener {
      */
     public void initialize(){
         // aquire important objects from the context
-        //settings = context.getSettings();
+        settings = context.getSettings();
         timer = context.getTimer();
        
         renderer = context.getRenderer();
+              
         renderManager = new RenderManager(renderer);
         //Remy - 09/14/2010 setted the timer in the renderManager
         renderManager.setTimer(timer);
@@ -124,9 +133,10 @@ public class BBEngineSystem implements SystemListener {
         // TODO : Control this
         viewPort.setEnabled(true);
 
+        BBUpdateManager.getInstance();
         
         // update timer so that the next delta is not too large
-        timer.reset();
+        //timer.reset();              
     }
     
     public void reshape(int w, int h){
@@ -172,8 +182,8 @@ public class BBEngineSystem implements SystemListener {
         //stateManager.render(renderManager);
         //renderManager.render(tpf);
         // TODO : Control this        
-        renderManager.render(tpf,true);
-        
+        renderManager.render(tpf, context.isRenderable());
+        BBUpdateManager.getInstance().update(tpf);
         //stateManager.postRender();
     }
     
@@ -205,6 +215,16 @@ public class BBEngineSystem implements SystemListener {
     
     public void handleError(String errMsg, Throwable t){
         logger.log(Level.SEVERE, errMsg, t);
+    }
+
+    /**
+     * Requests the context to close, shutting down the main loop
+     * and making necessary cleanup operations. 
+     * After the application has stopped, it cannot be used anymore.
+     */
+    public void stop(boolean waitFor){
+        logger.log(Level.FINE, "Closing application: {0}", getClass().getName());
+        context.destroy(waitFor);
     }
     
     /**
@@ -250,5 +270,12 @@ public class BBEngineSystem implements SystemListener {
     public Renderer getRenderer(){
         return renderer;
     }
-     
+    
+    public AppSettings getSettings(){
+        return settings;
+    }
+    
+    public boolean isInputEnabled(){
+        return inputEnabled;
+    }
 }
