@@ -16,7 +16,6 @@
 package com.bigboots.input;
 
 import com.bigboots.core.BBEngineSystem;
-import com.bigboots.core.BBSettings;
 import com.bigboots.core.BBUpdateListener;
 import com.bigboots.core.BBUpdateManager;
 import com.jme3.input.JoyInput;
@@ -43,7 +42,6 @@ public class BBInputManager implements BBUpdateListener{
     protected TouchInput touchInput;
     protected InputManager inputManager;
     
-    protected boolean inputEnabled = true;
     protected BBEngineSystem myEng;
     
     private static BBInputManager instance = new BBInputManager();
@@ -58,16 +56,6 @@ public class BBInputManager implements BBUpdateListener{
     public void init(BBEngineSystem eng){
         
         myEng = eng;
-        
-        //Check settings
-        if (myEng.getContext() != null && BBSettings.getInstance().getSettings().useInput() != inputEnabled){
-            // may need to create or destroy input based
-            // on settings change
-            inputEnabled = !inputEnabled;           
-        }else{
-            inputEnabled = BBSettings.getInstance().getSettings().useInput();
-        }
-        
         //init input
         mouseInput = myEng.getContext().getMouseInput();
         if (mouseInput != null)
@@ -81,7 +69,7 @@ public class BBInputManager implements BBUpdateListener{
         if (touchInput != null)
             touchInput.initialize();
 
-        if (!BBSettings.getInstance().getSettings().getBoolean("DisableJoysticks")){
+        if (!myEng.getSettings().getBoolean("DisableJoysticks")){
             joyInput = myEng.getContext().getJoyInput();
             if (joyInput != null)
                 joyInput.initialize();
@@ -102,7 +90,7 @@ public class BBInputManager implements BBUpdateListener{
     
     public void update(float tpf){
         
-        if (inputEnabled){
+        if (myEng.isInputEnabled()){
             inputManager.update(tpf);
         }
     }
@@ -113,9 +101,5 @@ public class BBInputManager implements BBUpdateListener{
      */
     public InputManager getInputManager(){
         return inputManager;
-    }
-    
-    public boolean isInputEnabled(){
-        return inputEnabled;
     }
 }

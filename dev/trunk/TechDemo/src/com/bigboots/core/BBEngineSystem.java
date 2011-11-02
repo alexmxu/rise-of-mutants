@@ -16,10 +16,6 @@
 package com.bigboots.core;
 
 import com.jme3.app.AppTask;
-import com.jme3.asset.AssetManager;
-import com.jme3.light.AmbientLight;
-import com.jme3.light.DirectionalLight;
-import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.system.JmeContext;
@@ -33,15 +29,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 //
 import com.jme3.renderer.ViewPort;
+import com.jme3.system.AppSettings;
 import com.jme3.renderer.Camera;
 import com.jme3.math.Vector3f;
 import java.util.concurrent.Future;
 
-import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
-import com.jme3.util.SkyFactory;
-import java.net.MalformedURLException;
-import java.net.URL;
 /**
  *
  * 
@@ -58,14 +50,12 @@ public class BBEngineSystem implements SystemListener {
     protected float speed = 1f;
     protected boolean paused = false;
     protected float secondCounter = 0.0f;
+    protected boolean inputEnabled = true;
     
-    
+    protected boolean showSettings = true;
     protected ViewPort viewPort;
-
+    protected AppSettings settings;
     protected Camera cam;
-    
-    protected Node rootNode = new Node("Root Node");
-    protected AssetManager assetManager;
     
     private final ConcurrentLinkedQueue<AppTask<?>> taskQueue = new ConcurrentLinkedQueue<AppTask<?>>();
     
@@ -77,47 +67,37 @@ public class BBEngineSystem implements SystemListener {
         
     }
     
-    private void initAssetManager(){
-        if (BBSettings.getInstance().getSettings() != null){
-            String assetCfg = BBSettings.getInstance().getSettings().getString("AssetConfigURL");
-            if (assetCfg != null){
-                URL url = null;
-                try {
-                    url = new URL(assetCfg);
-                } catch (MalformedURLException ex) {
-                }
-                if (url == null) {
-                    url = BBEngineSystem.class.getClassLoader().getResource(assetCfg);
-                    if (url == null) {
-                        logger.log(Level.SEVERE, "Unable to access AssetConfigURL in asset config:{0}", assetCfg);
-                        return;
-                    }
-                }
-                assetManager = JmeSystem.newAssetManager(url);
-            }
-        }
-        if (assetManager == null){
-            assetManager = JmeSystem.newAssetManager(
-                    Thread.currentThread().getContextClassLoader()
-                    .getResource("com/jme3/asset/Desktop.cfg"));
-        }
-    }
     
     public void create(){
         
-        BBSettings.getInstance();
-                
+        boolean loadSettings = false;
+        if (settings == null){
+            settings = new AppSettings(true);
+            loadSettings = true;
+        }
+        
+        // show settings dialog
+        if (showSettings) {
+            if (!JmeSystem.showSettingsDialog(settings, loadSettings)) {
+                return;
+            }
+        }
         if (context != null && context.isCreated()){
             logger.warning("start() called when application already created!");
             return;
         }
-        
+        if (context != null && settings.useInput() != inputEnabled){
+            // may need to create or destroy input based
+            // on settings change
+            inputEnabled = !inputEnabled;           
+        }else{
+            inputEnabled = settings.useInput();
+        }
         
         logger.log(Level.INFO, "Starting application: {0}", getClass().getName());
-        context = JmeSystem.newContext(BBSettings.getInstance().getSettings(), JmeContext.Type.Display);
+        context = JmeSystem.newContext(settings, JmeContext.Type.Display);
         context.setSystemListener(this);
         context.create(false);
-        
     }
     
     
@@ -132,13 +112,8 @@ public class BBEngineSystem implements SystemListener {
      * and far values 1 and 1000 units respectively.
      */
     public void initialize(){
-        if (assetManager == null){
-            initAssetManager();
-        }
-        
         // aquire important objects from the context
-        BBSettings.getInstance().loadFromContext(context);
-        
+        settings = context.getSettings();
         timer = context.getTimer();
        
         renderer = context.getRenderer();
@@ -148,39 +123,20 @@ public class BBEngineSystem implements SystemListener {
         renderManager.setTimer(timer);
         
         //init camera
-        cam = new Camera(BBSettings.getInstance().getSettings().getWidth(), BBSettings.getInstance().getSettings().getHeight());
+        cam = new Camera(settings.getWidth(), settings.getHeight());
         cam.setFrustumPerspective(45f, (float)cam.getWidth() / cam.getHeight(), 1f, 1000f);
         cam.setLocation(new Vector3f(0f, 0f, 10f));
         cam.lookAt(new Vector3f(0f, 0f, 0f), Vector3f.UNIT_Y);
         viewPort = renderManager.createMainView("Default", cam);
         
-        viewPort.setClearFlags(true, true, true);
+        //viewPort.setClearEnabled(true);
+        // TODO : Control this
         viewPort.setEnabled(true);
-        viewPort.attachScene(rootNode);
 
         BBUpdateManager.getInstance();
         
         // update timer so that the next delta is not too large
-        timer.reset(); 
-        
-      
-        Spatial sky = SkyFactory.createSky(assetManager, "Textures/sky/skysphere.jpg", true);
-        rootNode.attachChild(sky);
-        // We add light so we see the scene
-        AmbientLight al = new AmbientLight();
-        al.setColor(ColorRGBA.White.mult(1.3f));
-        rootNode.addLight(al); 
-        DirectionalLight dl = new DirectionalLight();
-        dl.setColor(ColorRGBA.White);
-        dl.setDirection(new Vector3f(2.8f, -2.8f, -2.8f).normalizeLocal());
-        rootNode.addLight(dl);
-         
-    }
-    
-    public ViewPort createView(String name, Camera cam) {
-        
-        ViewPort vp = renderManager.createMainView(name, cam);
-        return vp;
+        //timer.reset();              
     }
     
     public void reshape(int w, int h){
@@ -206,10 +162,8 @@ public class BBEngineSystem implements SystemListener {
         if (speed == 0 || paused)
             return;
         
-        if(timer != null){
-            timer.update();
+        timer.update();
         
-                
         float tpf = timer.getTimePerFrame() * speed;
 
         secondCounter += timer.getTimePerFrame();
@@ -217,19 +171,20 @@ public class BBEngineSystem implements SystemListener {
         if (secondCounter >= 1.0f) {
             secondCounter = 0.0f;
         }
-        
+
         // update states
         //stateManager.update(tpf);
         // update and root node
-        rootNode.updateLogicalState(tpf);
-        rootNode.updateGeometricState();
+        //rootNode.updateLogicalState(tpf);
+        //rootNode.updateGeometricState();
         
         // render states
-        //stateManager.render(renderManager);     
+        //stateManager.render(renderManager);
+        //renderManager.render(tpf);
+        // TODO : Control this        
         renderManager.render(tpf, context.isRenderable());
         BBUpdateManager.getInstance().update(tpf);
         //stateManager.postRender();
-        }
     }
     
     public <V> Future<V> enqueue(Callable<V> callable) {
@@ -316,20 +271,11 @@ public class BBEngineSystem implements SystemListener {
         return renderer;
     }
     
-    
-    /**
-     * Retrieves rootNode
-     * @return rootNode Node object
-     *
-     */
-    public Node getRootNode() {
-        return rootNode;
+    public AppSettings getSettings(){
+        return settings;
     }
     
-    /**
-     * @return The {@link AssetManager asset manager} for this application.
-     */
-    public AssetManager getAssetManager(){
-        return assetManager;
+    public boolean isInputEnabled(){
+        return inputEnabled;
     }
 }
