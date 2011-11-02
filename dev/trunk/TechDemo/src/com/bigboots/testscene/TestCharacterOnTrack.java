@@ -135,13 +135,13 @@ public class TestCharacterOnTrack extends SimpleApplication implements AnimEvent
     //Vector3f playerLoc = new Vector3f(-256, (terrain.getHeight(new Vector2f(-256,0))+10), 0);
     Vector3f playerLoc = new Vector3f(0, 30, 0);
     humanStalker = new Node("HumanStalker");
-    human = makeASinbad("human",playerLoc,1,1);
+    human = makeASinbad("human",playerLoc,2,1);
     player = human.getChild("humanplayer");    
     bulletAppState.getPhysicsSpace().addAll(human);
     rootNode.attachChild(human);
     rootNode.attachChild(humanStalker);
     
-    setupEnemies(playerLoc);    
+    //setupEnemies(playerLoc);    
     setupEffects();
     
     //Load sky
@@ -243,7 +243,7 @@ public class TestCharacterOnTrack extends SimpleApplication implements AnimEvent
     
     Node sinbadModel = new Node();
     sinbadModel.attachChild(sinbadModel2);
-    sinbadModel2.setLocalTranslation(0, -1, 0);
+    sinbadModel2.setLocalTranslation(0, -.85f, 0);
     
     
     sinbadModel2.setName(name+"player");
@@ -272,11 +272,12 @@ public class TestCharacterOnTrack extends SimpleApplication implements AnimEvent
     playerChannel.setSpeed(speed);    
     
     // CapWe also put the player in its starting position.
-    CapsuleCollisionShape capsuleShape = new CapsuleCollisionShape(1f, 2f, 1);
+    CapsuleCollisionShape capsuleShape = new CapsuleCollisionShape(.7f, 2f, 1);
     CharacterControl pControler = new CharacterControl(capsuleShape, .05f);
-    pControler.setJumpSpeed(30);
-    pControler.setFallSpeed(30);
-    pControler.setGravity(30);
+    
+    pControler.setJumpSpeed(35);
+    pControler.setFallSpeed(40);
+    pControler.setGravity(35);
     //pControler.setPhysicsLocation(player.getWorldTranslation());//new Vector3f(0, 10, 0));
     pControler.setUseViewDirection(true);   
     /*
@@ -285,7 +286,7 @@ public class TestCharacterOnTrack extends SimpleApplication implements AnimEvent
         debugColl.setLocalTranslation(0, 2, 0);
     */
     // Add phys. controller to player.
-//    sinbadModel.addControl(pControler);
+    //sinbadModel.addControl(pControler);
     sinbadOut.addControl(pControler);
     sinbadOut.scale(scale);    
     return sinbadOut;
@@ -343,8 +344,8 @@ public class TestCharacterOnTrack extends SimpleApplication implements AnimEvent
           if(!jump){
           logger.log(Level.INFO,"Character walking end.");
           //playerChannel.setAnim("IdleTop", 0.50f);
-          //player.getControl(AnimControl.class).getChannel(0).setAnim("base_stand", 0.50f);          
-          //player.getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.DontLoop);          
+          player.getControl(AnimControl.class).getChannel(0).setAnim("base_stand", 0.50f);          
+          player.getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.DontLoop);          
           }
       }
     if (binding.equals("Jump") &! jump ) {
@@ -353,8 +354,8 @@ public class TestCharacterOnTrack extends SimpleApplication implements AnimEvent
         jump = true;
         // channel.setAnim("JumpStart", 0.5f); // TODO: Must activate "JumpLoop" after a certain time.
         human.getControl(CharacterControl.class).jump();
-        //player.getControl(AnimControl.class).getChannel(0).setAnim("jump", 0.50f); // TODO: Must be activated after a certain time after "JumpStart"
-        //player.getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.DontLoop);
+        player.getControl(AnimControl.class).getChannel(0).setAnim("jump", 0.50f); // TODO: Must be activated after a certain time after "JumpStart"
+        player.getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.DontLoop);
         }
     }
 
@@ -424,14 +425,14 @@ public class TestCharacterOnTrack extends SimpleApplication implements AnimEvent
                     //channel.setAnim("RunTop", 0.50f);
           logger.log(Level.INFO,"Character jumping end. Start stand.");
                         
-                   // player.getControl(AnimControl.class).getChannel(0).setAnim("run_01", 0.50f);
-                   // player.getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.Loop);
+                    player.getControl(AnimControl.class).getChannel(0).setAnim("run_01", 0.50f);
+                    player.getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.Loop);
                     }
                     else{
           logger.log(Level.INFO,"Character jumping end. Start stand.");
                         
-                   // player.getControl(AnimControl.class).getChannel(0).setAnim("base_stand", 0.50f);
-                   // player.getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.DontLoop);                           
+                    player.getControl(AnimControl.class).getChannel(0).setAnim("base_stand", 0.50f);
+                    player.getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.DontLoop);                           
                     human.getControl(CharacterControl.class).setWalkDirection(Vector3f.ZERO);
                     }
                 hasBeenOnGround = false;
@@ -442,8 +443,8 @@ public class TestCharacterOnTrack extends SimpleApplication implements AnimEvent
             logger.log(Level.INFO,"Character jumping start.");
             jump = true;
             //channel.setAnim("JumpStart", 0.5f); // TODO: Must activate "JumpLoop" after a certain time.
-           // player.getControl(AnimControl.class).getChannel(0).setAnim("jump", 0.50f); // TODO: Must be activated after a certain time after "JumpStart"
-          //  player.getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.DontLoop);
+        player.getControl(AnimControl.class).getChannel(0).setAnim("jump", 0.50f); // TODO: Must be activated after a certain time after "JumpStart"
+        player.getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.DontLoop);
         }
     }
 
@@ -485,31 +486,7 @@ public class TestCharacterOnTrack extends SimpleApplication implements AnimEvent
     
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
     
     
     Geometry geom_a;
