@@ -25,16 +25,19 @@ import com.jme3.animation.LoopMode;
 import com.jme3.asset.BlenderKey;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.bullet.BulletAppState;
-import com.jme3.bullet.collision.shapes.HeightfieldCollisionShape;
-import com.jme3.bullet.collision.shapes.PlaneCollisionShape;
-import com.jme3.math.Plane;
+import com.jme3.bullet.collision.PhysicsRayTestResult;
+
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.control.CharacterControl;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.bullet.collision.shapes.CollisionShape;
+import com.jme3.bullet.collision.shapes.CompoundCollisionShape;
+import com.jme3.bullet.control.PhysicsControl;
+import com.jme3.bullet.objects.PhysicsCharacter;
 import com.jme3.bullet.util.CollisionShapeFactory;
 
 //settings
+import com.jme3.collision.CollisionResults;
 import com.jme3.system.AppSettings;
 
 //Input
@@ -47,6 +50,7 @@ import com.jme3.input.controls.KeyTrigger;
 import com.jme3.material.Material;
 //import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.math.Matrix3f;
+import com.jme3.math.Ray;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector2f;
 import com.jme3.terrain.heightmap.AbstractHeightMap;
@@ -73,6 +77,7 @@ import com.jme3.post.filters.DepthOfFieldFilter;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import java.util.HashMap;
+import java.util.LinkedList;
 //audio
 
 /**
@@ -92,7 +97,7 @@ public class TestCharacterOnTrack extends SimpleApplication implements AnimEvent
     }
     private HashMap<Long, Node> entities = new HashMap<Long, Node>();
     
-    protected Node human,humanStalker;
+    protected Node human,humanStalker,ndscene;
     protected TerrainQuad terrain;
     protected Spatial player;
     protected CameraNode camNode;
@@ -161,7 +166,7 @@ public class TestCharacterOnTrack extends SimpleApplication implements AnimEvent
     camNode.setControlDir(ControlDirection.SpatialToCamera);
     
     //Move camNode, e.g. behind and above the target:
-    camNode.setLocalTranslation(new Vector3f(40, 10, 0));
+    camNode.setLocalTranslation(new Vector3f(25, 10, 0));
     //Rotate the camNode to look at the target:
     camNode.lookAt(humanStalker.getLocalTranslation(), Vector3f.UNIT_Y);
     //Attach the camNode to the target:
@@ -233,40 +238,56 @@ public class TestCharacterOnTrack extends SimpleApplication implements AnimEvent
     }
     public Node makeASinbad(String name,Vector3f pos,float scale,float speed){
     Node sinbadOut = new Node(name);
-    Spatial sinbadModel = assetManager.loadModel("Models/Sinbad/Sinbad.mesh.j3o");
-    sinbadModel.setName(name+"player");
+    //Spatial sinbadModel2 = assetManager.loadModel("Models/Sinbad/Sinbad.mesh.j3o");
+    Spatial sinbadModel2 = assetManager.loadModel("Scenes/TestScene/character.mesh.xml");
+    
+    Node sinbadModel = new Node();
+    sinbadModel.attachChild(sinbadModel2);
+    sinbadModel2.setLocalTranslation(0, -1, 0);
+    
+    
+    sinbadModel2.setName(name+"player");
+
+    /*
     Spatial sword = assetManager.loadModel("Models/Sinbad/Sword/Sword.mesh.j3o");
     sword.setLocalTranslation(-1.1f, 0, 0);
     sword.rotate(new Quaternion().fromAngleAxis(FastMath.PI, Vector3f.UNIT_Y));
     sword.rotate(new Quaternion().fromAngleAxis(.3f, Vector3f.UNIT_X));
+    */
     sinbadOut.attachChild(sinbadModel);
-    sinbadOut.attachChild(sword);
+//    sinbadOut.attachChild(sword);
 
     sinbadOut.setLocalTranslation(pos);
 
     //Set up animation
-    AnimControl control = sinbadModel.getControl(AnimControl.class);
-    //control.addListener(this);
+    AnimControl control = sinbadModel2.getControl(AnimControl.class);
 
     // PlayerChannel later refered to by player.getControl(AnimControl.class).getChannel(0);
     AnimChannel playerChannel = control.createChannel();
-    playerChannel.setAnim("IdleTop");
-    playerChannel.setLoopMode(LoopMode.Loop);
+    
+    playerChannel.setAnim("run_01");
+//    playerChannel.setAnim("RunBase");
+
+    playerChannel.setLoopMode(LoopMode.Cycle);
     playerChannel.setSpeed(speed);    
     
     // CapWe also put the player in its starting position.
-    CapsuleCollisionShape capsuleShape = new CapsuleCollisionShape(1.5f*scale, 6.5f*scale, 1);
+    CapsuleCollisionShape capsuleShape = new CapsuleCollisionShape(1f, 2f, 1);
     CharacterControl pControler = new CharacterControl(capsuleShape, .05f);
     pControler.setJumpSpeed(30);
     pControler.setFallSpeed(30);
     pControler.setGravity(30);
     //pControler.setPhysicsLocation(player.getWorldTranslation());//new Vector3f(0, 10, 0));
     pControler.setUseViewDirection(true);   
-    
+    /*
+        Spatial debugColl = pControler.createDebugShape(assetManager);
+        rootNode.attachChild(debugColl);    
+        debugColl.setLocalTranslation(0, 2, 0);
+    */
     // Add phys. controller to player.
 //    sinbadModel.addControl(pControler);
     sinbadOut.addControl(pControler);
-    sinbadOut.scale(scale);
+    sinbadOut.scale(scale);    
     return sinbadOut;
     }
     
@@ -286,13 +307,12 @@ public class TestCharacterOnTrack extends SimpleApplication implements AnimEvent
   // Abstract funtion coming with animation
     public void onAnimCycleDone(AnimControl control, AnimChannel chan, String animName) {
     /*
-         * if (animName.equals("RunTop")) {
+         if (animName.equals("RunTop")) {
       chan.setAnim("IdleTop", 0.50f);
       chan.setLoopMode(LoopMode.DontLoop);
       chan.setSpeed(1f);
     }
-         * 
-         */
+*/
      }
  // Abstract funtion coming with animation
     public void onAnimChange(AnimControl control, AnimChannel channel, String animName) {
@@ -313,8 +333,8 @@ public class TestCharacterOnTrack extends SimpleApplication implements AnimEvent
           walk = true;
           if(!jump){
           logger.log(Level.INFO,"Character walking init.");
-          player.getControl(AnimControl.class).getChannel(0).setAnim("RunTop", 0.50f); // TODO: Must activate "RunBase" after a certain time.
-          player.getControl(AnimControl.class).getChannel(0).setAnim("RunBase", 0.50f); // TODO: Must be activated after a certain time after "RunTop"
+          //player.getControl(AnimControl.class).getChannel(0).setAnim("RunTop", 0.50f); // TODO: Must activate "RunBase" after a certain time.
+          player.getControl(AnimControl.class).getChannel(0).setAnim("run_01", 0.50f); // TODO: Must be activated after a certain time after "RunTop"
           player.getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.Loop);
           }
       }
@@ -323,8 +343,8 @@ public class TestCharacterOnTrack extends SimpleApplication implements AnimEvent
           if(!jump){
           logger.log(Level.INFO,"Character walking end.");
           //playerChannel.setAnim("IdleTop", 0.50f);
-          player.getControl(AnimControl.class).getChannel(0).setAnim("IdleTop", 0.50f);          
-          player.getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.DontLoop);          
+          //player.getControl(AnimControl.class).getChannel(0).setAnim("base_stand", 0.50f);          
+          //player.getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.DontLoop);          
           }
       }
     if (binding.equals("Jump") &! jump ) {
@@ -333,18 +353,21 @@ public class TestCharacterOnTrack extends SimpleApplication implements AnimEvent
         jump = true;
         // channel.setAnim("JumpStart", 0.5f); // TODO: Must activate "JumpLoop" after a certain time.
         human.getControl(CharacterControl.class).jump();
-        player.getControl(AnimControl.class).getChannel(0).setAnim("JumpLoop", 0.50f); // TODO: Must be activated after a certain time after "JumpStart"
-        player.getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.Loop);
+        //player.getControl(AnimControl.class).getChannel(0).setAnim("jump", 0.50f); // TODO: Must be activated after a certain time after "JumpStart"
+        //player.getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.DontLoop);
         }
     }
 
     }
 
     float hasJumped = 0;
-
+    boolean hasBeenOnGround = false;
     @Override
     public void simpleUpdate(float tpf) {
-        
+        System.out.println(player.getControl(AnimControl.class).getChannel(0).getTime());
+        System.out.println(player.getControl(AnimControl.class).getChannel(0).getAnimationName());
+        System.out.println(player.getControl(AnimControl.class).getChannel(0).getLoopMode());    
+        System.out.println(player.getControl(AnimControl.class).getChannel(0).getSpeed());           
         for(Node a:entities.values()){
             Vector3f humanPos = human.getLocalTranslation().clone();
             Quaternion newRot = new Quaternion().fromAngleAxis(FastMath.rand.nextFloat()*2-.5f, Vector3f.UNIT_Y);
@@ -353,59 +376,74 @@ public class TestCharacterOnTrack extends SimpleApplication implements AnimEvent
             a.getLocalRotation().slerp(newRot,tpf);            
             
             float distSquared = humanPos.distanceSquared(a.getLocalTranslation());
-            if(distSquared>9){      
+            if(distSquared>9){
             a.getControl(CharacterControl.class).setViewDirection(a.getLocalRotation().mult(Vector3f.UNIT_Z));            
             a.getControl(CharacterControl.class).setWalkDirection(a.getLocalRotation().mult(Vector3f.UNIT_Z).mult(tpf*5));
-                if(!a.getChild(0).getControl(AnimControl.class).getChannel(0).getAnimationName().equals("RunBase")&&!a.getChild(0).getControl(AnimControl.class).getChannel(0).getAnimationName().equals("RunTop"))
-                {
-                a.getChild(0).getControl(AnimControl.class).getChannel(0).setAnim("RunTop", 0.50f); // TODO: Must activate "RunBase" after a certain time.                    
-                a.getChild(0).getControl(AnimControl.class).getChannel(0).setAnim("RunBase", 0.50f);
-                a.getChild(0).getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.Loop);
-                }
+                //**if(!a.getChild(0).getControl(AnimControl.class).getChannel(0).getAnimationName().equals("RunBase")&&!a.getChild(0).getControl(AnimControl.class).getChannel(0).getAnimationName().equals("RunTop"))
+                //**{
+                //**a.getChild(0).getControl(AnimControl.class).getChannel(0).setAnim("RunTop", 0.50f); // TODO: Must activate "RunBase" after a certain time.                    
+                //**a.getChild(0).getControl(AnimControl.class).getChannel(0).setAnim("RunBase", 0.50f);
+                //**a.getChild(0).getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.Loop);
+                //**}
                 // Workaround
-                if(a.getChild(0).getControl(AnimControl.class).getChannel(0).getSpeed()!=smallManSpeed){
-                a.getChild(0).getControl(AnimControl.class).getChannel(0).setSpeed(smallManSpeed);
-                }            
+                //if(a.getChild(0).getControl(AnimControl.class).getChannel(0).getSpeed()!=smallManSpeed){
+                //a.getChild(0).getControl(AnimControl.class).getChannel(0).setSpeed(smallManSpeed);
+                //}            
             }
             else{
             a.getControl(CharacterControl.class).setWalkDirection(Vector3f.ZERO);
-                if(!a.getChild(0).getControl(AnimControl.class).getChannel(0).getAnimationName().equals("IdleTop"))
-                {
-                a.getChild(0).getControl(AnimControl.class).getChannel(0).setAnim("IdleTop", 0.50f);
-                a.getChild(0).getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.DontLoop);
-                }
+                //**if(!a.getChild(0).getControl(AnimControl.class).getChannel(0).getAnimationName().equals("IdleTop"))
+                //**{
+                //**a.getChild(0).getControl(AnimControl.class).getChannel(0).setAnim("IdleTop", 0.50f);
+                //**a.getChild(0).getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.DontLoop);
+                //**}
             }
-            
-        
         }
-        
+    
         Vector3f pos = human.getControl(CharacterControl.class).getPhysicsLocation();
         humanStalker.setLocalTranslation(pos);
         
-        Vector2f pos2d = new Vector2f(pos.x,pos.z);
-        float height = 100;//terrain.getHeight(pos2d);
-        if(height>pos.y-6){
+        
+        PhysicsCharacter anv = human.getControl(CharacterControl.class);
+        
+        if(anv.onGround()){
             if(jump)
             {
-            hasJumped+=tpf;
-                if(hasJumped>0.2f)
+                boolean hasBeenOnGroundCopy = hasBeenOnGround;
+                if(!hasBeenOnGround)
+                hasBeenOnGround=true;
+         
+                if(hasBeenOnGroundCopy)
                 {
+                hasJumped+=tpf;
+
                 logger.log(Level.INFO,"Character jumping end.");
                 jump = false;
                 hasJumped = 0;
                     if(walk){
                     //channel.setAnim("RunTop", 0.50f);
-                    player.getControl(AnimControl.class).getChannel(0).setAnim("RunBase", 0.10f);
-                    player.getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.Loop);
+          logger.log(Level.INFO,"Character jumping end. Start stand.");
+                        
+                   // player.getControl(AnimControl.class).getChannel(0).setAnim("run_01", 0.50f);
+                   // player.getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.Loop);
                     }
                     else{
-                    player.getControl(AnimControl.class).getChannel(0).setAnim("IdleTop", 0.10f);
-                    player.getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.DontLoop);                           
+          logger.log(Level.INFO,"Character jumping end. Start stand.");
+                        
+                   // player.getControl(AnimControl.class).getChannel(0).setAnim("base_stand", 0.50f);
+                   // player.getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.DontLoop);                           
                     human.getControl(CharacterControl.class).setWalkDirection(Vector3f.ZERO);
                     }
-                                             
+                hasBeenOnGround = false;
                 }
             }
+        }
+        else if(!jump){
+            logger.log(Level.INFO,"Character jumping start.");
+            jump = true;
+            //channel.setAnim("JumpStart", 0.5f); // TODO: Must activate "JumpLoop" after a certain time.
+           // player.getControl(AnimControl.class).getChannel(0).setAnim("jump", 0.50f); // TODO: Must be activated after a certain time after "JumpStart"
+          //  player.getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.DontLoop);
         }
     }
 
@@ -418,23 +456,23 @@ public class TestCharacterOnTrack extends SimpleApplication implements AnimEvent
         if(!jump)
         {
         if (binding.equals("Left")) {
-        Quaternion newRot = new Quaternion().slerp(human.getLocalRotation(),Directions.leftDir, tpf*3);
+        Quaternion newRot = new Quaternion().slerp(human.getLocalRotation(),Directions.leftDir, tpf*8);
         human.setLocalRotation(newRot);
         }
         else if (binding.equals("Right")) {
-        Quaternion newRot = new Quaternion().slerp(human.getLocalRotation(),Directions.rightDir, tpf*3);
+        Quaternion newRot = new Quaternion().slerp(human.getLocalRotation(),Directions.rightDir, tpf*8);
         human.setLocalRotation(newRot);        
         } else if (binding.equals("Up")) {
-        Quaternion newRot = new Quaternion().slerp(human.getLocalRotation(),Directions.upDir, tpf*3);
+        Quaternion newRot = new Quaternion().slerp(human.getLocalRotation(),Directions.upDir, tpf*8);
         human.setLocalRotation(newRot);
         } else if (binding.equals("Down")) {
-        Quaternion newRot = new Quaternion().slerp(human.getLocalRotation(),Directions.downDir, tpf*3);
+        Quaternion newRot = new Quaternion().slerp(human.getLocalRotation(),Directions.downDir, tpf*8);
         human.setLocalRotation(newRot);
         }
         
         if(walk){
         human.getControl(CharacterControl.class).setViewDirection(human.getWorldRotation().mult(Vector3f.UNIT_Z));                     
-        human.getControl(CharacterControl.class).setWalkDirection(human.getControl(CharacterControl.class).getViewDirection().multLocal(tpf*20));                  
+        human.getControl(CharacterControl.class).setWalkDirection(human.getControl(CharacterControl.class).getViewDirection().multLocal(.5f));                  
         }        
         else{
         human.getControl(CharacterControl.class).setWalkDirection(Vector3f.ZERO);
@@ -578,7 +616,7 @@ public class TestCharacterOnTrack extends SimpleApplication implements AnimEvent
         Node nd =  (Node) dsk.loadModel(bk); 
         
         //Create empty Scene Node
-        Node ndscene = new Node("Scene");
+        ndscene = new Node("Scene");
         
         // Attach boxes with names and transformations of the blend file to a Scene
          for (int j=0; j<ndmd.getChildren().size();j++){
