@@ -13,7 +13,6 @@
  *  
  * See <http://www.gnu.org/licenses/>.
  */
-
 package com.bigboots.core;
 
 import com.jme3.asset.AssetManager;

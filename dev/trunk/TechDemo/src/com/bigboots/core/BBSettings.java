@@ -13,13 +13,49 @@
  * 
  * See <http://www.gnu.org/licenses/>.
  */
-
 package com.bigboots.core;
+
+import com.jme3.system.AppSettings;
+import com.jme3.system.JmeContext;
+import com.jme3.system.JmeSystem;
 
 /**
  *
  * @author Ulrich Nzuzi <ulrichnz@code.google.com>
  */
 public class BBSettings {
+    private static BBSettings instance = new BBSettings();
+
+    public static BBSettings getInstance() { 
+        return instance; 
+    }
     
+    
+    protected boolean showSettings = true;
+    protected AppSettings settings;
+    protected boolean loadFromRegistry = false;
+    
+    private BBSettings(){
+
+        settings = new AppSettings(true);
+        loadFromRegistry = true;
+        // show settings dialog
+        if (showSettings) {
+            if (!JmeSystem.showSettingsDialog(settings, loadFromRegistry)) {
+                return;
+            }
+        }
+    }
+    
+    public void showDialog(boolean val){
+        showSettings = val;
+    }
+    
+    public void loadFromContext(JmeContext contxt){
+        settings = contxt.getSettings();
+    }
+    
+    public AppSettings getSettings(){
+        return settings;
+    }
 }
