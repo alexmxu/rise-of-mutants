@@ -17,14 +17,11 @@ package com.bigboots.core;
 
 import com.jme3.app.AppTask;
 import com.jme3.asset.AssetManager;
-import com.jme3.light.AmbientLight;
-import com.jme3.light.DirectionalLight;
-import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.system.JmeContext;
 import com.jme3.system.JmeSystem;
-import com.jme3.system.SystemListener;
+
 import com.jme3.system.Timer;
 
 import java.util.concurrent.Callable;
@@ -32,21 +29,26 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 //
-import com.jme3.renderer.ViewPort;
-import com.jme3.renderer.Camera;
-import com.jme3.math.Vector3f;
-import java.util.concurrent.Future;
 
+
+import java.util.concurrent.Future;
+/*
+import com.jme3.math.Vector3f;
+import com.jme3.light.AmbientLight;
+import com.jme3.light.DirectionalLight;
+import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.util.SkyFactory;
+*/
+import com.jme3.system.SystemListener;
 import java.net.MalformedURLException;
 import java.net.URL;
 /**
  *
  * 
  */
-public class BBEngineSystem implements SystemListener {
+public class BBEngineSystem {
     
     private static final Logger logger = Logger.getLogger(BBEngineSystem.class.getName());
     
@@ -58,13 +60,9 @@ public class BBEngineSystem implements SystemListener {
     protected float speed = 1f;
     protected boolean paused = false;
     protected float secondCounter = 0.0f;
+   
     
-    
-    protected ViewPort viewPort;
-
-    protected Camera cam;
-    
-    protected Node rootNode = new Node("Root Node");
+    //protected Node rootNode = new Node("Root Node");
     protected AssetManager assetManager;
     
     private final ConcurrentLinkedQueue<AppTask<?>> taskQueue = new ConcurrentLinkedQueue<AppTask<?>>();
@@ -104,8 +102,6 @@ public class BBEngineSystem implements SystemListener {
     }
     
     public void create(){
-        
-        BBSettings.getInstance();
                 
         if (context != null && context.isCreated()){
             logger.warning("start() called when application already created!");
@@ -115,11 +111,11 @@ public class BBEngineSystem implements SystemListener {
         
         logger.log(Level.INFO, "Starting application: {0}", getClass().getName());
         context = JmeSystem.newContext(BBSettings.getInstance().getSettings(), JmeContext.Type.Display);
-        context.setSystemListener(this);
+        
         context.create(false);
         
     }
-    
+   
     
     /**
      * Do not call manually.
@@ -136,9 +132,6 @@ public class BBEngineSystem implements SystemListener {
             initAssetManager();
         }
         
-        // aquire important objects from the context
-        BBSettings.getInstance().loadFromContext(context);
-        
         timer = context.getTimer();
        
         renderer = context.getRenderer();
@@ -146,47 +139,12 @@ public class BBEngineSystem implements SystemListener {
         renderManager = new RenderManager(renderer);
         //Remy - 09/14/2010 setted the timer in the renderManager
         renderManager.setTimer(timer);
-        
-        //init camera
-        cam = new Camera(BBSettings.getInstance().getSettings().getWidth(), BBSettings.getInstance().getSettings().getHeight());
-        cam.setFrustumPerspective(45f, (float)cam.getWidth() / cam.getHeight(), 1f, 1000f);
-        cam.setLocation(new Vector3f(0f, 0f, 10f));
-        cam.lookAt(new Vector3f(0f, 0f, 0f), Vector3f.UNIT_Y);
-        viewPort = renderManager.createMainView("Default", cam);
-        
-        viewPort.setClearFlags(true, true, true);
-        viewPort.setEnabled(true);
-        viewPort.attachScene(rootNode);
-
-        BBUpdateManager.getInstance();
-        
+ 
         // update timer so that the next delta is not too large
         timer.reset(); 
-        
+
+    }
       
-        Spatial sky = SkyFactory.createSky(assetManager, "Textures/sky/skysphere.jpg", true);
-        rootNode.attachChild(sky);
-        // We add light so we see the scene
-        AmbientLight al = new AmbientLight();
-        al.setColor(ColorRGBA.White.mult(1.3f));
-        rootNode.addLight(al); 
-        DirectionalLight dl = new DirectionalLight();
-        dl.setColor(ColorRGBA.White);
-        dl.setDirection(new Vector3f(2.8f, -2.8f, -2.8f).normalizeLocal());
-        rootNode.addLight(dl);
-         
-    }
-    
-    public ViewPort createView(String name, Camera cam) {
-        
-        ViewPort vp = renderManager.createMainView(name, cam);
-        return vp;
-    }
-    
-    public void reshape(int w, int h){
-        renderManager.notifyReshape(w, h);
-    }
-    
     /**
      * Do not call manually.
      * Callback from ContextListener.
@@ -220,22 +178,28 @@ public class BBEngineSystem implements SystemListener {
         
         // update states
         //stateManager.update(tpf);
-        // update and root node
-        rootNode.updateLogicalState(tpf);
-        rootNode.updateGeometricState();
         
         // render states
         //stateManager.render(renderManager);     
         renderManager.render(tpf, context.isRenderable());
-        BBUpdateManager.getInstance().update(tpf);
+        
         //stateManager.postRender();
         }
     }
     
+        
+    public void setContextListener(SystemListener lstr){
+        context.setSystemListener(lstr);
+    }
+        
     public <V> Future<V> enqueue(Callable<V> callable) {
         AppTask<V> task = new AppTask<V>(callable);
         taskQueue.add(task);
         return task;
+    }
+    
+     public void reshape(int w, int h){
+        renderManager.notifyReshape(w, h);
     }
     
     public void requestClose(boolean esc){
@@ -246,8 +210,6 @@ public class BBEngineSystem implements SystemListener {
         if (pauseOnFocus){
             paused = false;
             context.setAutoFlushFrames(true);
-            //if (inputManager != null)
-            //    inputManager.reset();
         }
     }
     
@@ -276,13 +238,7 @@ public class BBEngineSystem implements SystemListener {
      * Do not call manually.
      * Callback from ContextListener.
      */
-    public void destroy(){
-        //stateManager.cleanup();
-        
-        //destroyInput();
-        //if (audioRenderer != null)
-        //    audioRenderer.cleanup();
-        
+    public void destroy(){       
         timer.reset();
     }
     
@@ -316,15 +272,10 @@ public class BBEngineSystem implements SystemListener {
         return renderer;
     }
     
-    
-    /**
-     * Retrieves rootNode
-     * @return rootNode Node object
-     *
-     */
-    public Node getRootNode() {
-        return rootNode;
+    public Timer getTimer(){
+        return timer;
     }
+    
     
     /**
      * @return The {@link AssetManager asset manager} for this application.

@@ -44,17 +44,18 @@ public class BBSceneManager implements BBUpdateListener{
     
     
     protected ViewPort viewPort;
-    protected Node rootNode;
+    protected Node rootNode = new Node("Root Node");
     
-    public void init(BBEngineSystem eng, Camera cam){
-        rootNode = eng.getRootNode();
-        viewPort = eng.createView("TEST", cam);
-        viewPort.setClearFlags(true, true, true);
-        viewPort.setEnabled(true);
-        viewPort.attachScene(rootNode);
-        
+    
+    public void init(){   
         BBUpdateManager.getInstance().register(this);
     }
+    
+    public void setViewPort(ViewPort vp){
+        viewPort = vp;
+        viewPort.attachScene(rootNode);
+    }
+    
     
     // TODO : Change it next time
     public void createSky(AssetManager asset) {
@@ -68,7 +69,8 @@ public class BBSceneManager implements BBUpdateListener{
     }
     
     public void update(float tpf) {
-        
+        rootNode.updateLogicalState(tpf);
+        rootNode.updateGeometricState();
     }
     
     //TODO : To be changed
@@ -83,5 +85,16 @@ public class BBSceneManager implements BBUpdateListener{
         rootNode.addLight(dl);   
     }  
     
+    /**
+     * Retrieves rootNode
+     * @return rootNode Node object
+     *
+     */
+    public Node getRootNode() {
+        return rootNode;
+    }
     
+    public ViewPort getViewPort() {
+        return viewPort;
+    }
 }
