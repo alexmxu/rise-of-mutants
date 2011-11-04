@@ -15,6 +15,7 @@
  */
 package com.bigboots.input;
 
+import com.bigboots.BBGlobals;
 import com.bigboots.core.BBEngineSystem;
 import com.bigboots.core.BBSettings;
 import com.bigboots.core.BBUpdateListener;
@@ -32,11 +33,7 @@ import com.jme3.system.JmeContext.Type;
  * @author Ulrich Nzuzi <ulrichnz@code.google.com>
  */
 public class BBInputManager implements BBUpdateListener{
-    public static final String INPUT_MAPPING_EXIT = "SIMPLEAPP_Exit";
-    public static final String INPUT_MAPPING_CAMERA_POS = "SIMPLEAPP_CameraPos";
-    public static final String INPUT_MAPPING_MEMORY = "SIMPLEAPP_Memory";
-    public static final String INPUT_MAPPING_HIDE_STATS = "SIMPLEAPP_HideStats";
-    
+        
     protected MouseInput mouseInput;
     protected KeyInput keyInput;
     protected JoyInput joyInput;
@@ -90,12 +87,12 @@ public class BBInputManager implements BBUpdateListener{
         inputManager = new InputManager(mouseInput, keyInput, joyInput, touchInput);
         
         if (myEng.getContext().getType() == Type.Display) {
-            inputManager.addMapping(INPUT_MAPPING_EXIT, new KeyTrigger(KeyInput.KEY_ESCAPE));
+            inputManager.addMapping(BBGlobals.INPUT_MAPPING_EXIT, new KeyTrigger(KeyInput.KEY_ESCAPE));
         }
 
-        inputManager.addMapping(INPUT_MAPPING_CAMERA_POS, new KeyTrigger(KeyInput.KEY_C));
-        inputManager.addMapping(INPUT_MAPPING_MEMORY, new KeyTrigger(KeyInput.KEY_M));
-        inputManager.addMapping(INPUT_MAPPING_HIDE_STATS, new KeyTrigger(KeyInput.KEY_F5));
+        inputManager.addMapping(BBGlobals.INPUT_MAPPING_CAMERA_POS, new KeyTrigger(KeyInput.KEY_C));
+        inputManager.addMapping(BBGlobals.INPUT_MAPPING_MEMORY, new KeyTrigger(KeyInput.KEY_M));
+        inputManager.addMapping(BBGlobals.INPUT_MAPPING_HIDE_STATS, new KeyTrigger(KeyInput.KEY_F5));
         
         BBUpdateManager.getInstance().register(this);
     }
@@ -107,6 +104,21 @@ public class BBInputManager implements BBUpdateListener{
         }
     }
 
+    public void destroyInput(){
+        if (mouseInput != null)
+            mouseInput.destroy();
+
+        if (keyInput != null)
+            keyInput.destroy();
+
+        if (joyInput != null)
+            joyInput.destroy();
+        
+        if (touchInput != null)
+            touchInput.destroy();        
+
+        inputManager = null;
+    }
     
     /**
      * @return the {@link InputManager input manager}.
@@ -117,5 +129,11 @@ public class BBInputManager implements BBUpdateListener{
     
     public boolean isInputEnabled(){
         return inputEnabled;
+    }
+    
+    public void resetInput(){
+        if (inputManager != null) {
+            inputManager.reset();
+        }
     }
 }

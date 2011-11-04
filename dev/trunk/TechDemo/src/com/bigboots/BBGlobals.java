@@ -29,4 +29,9 @@ public class BBGlobals {
 
     public static final boolean PHYSICS_THREADED = true; // Function not implemented.
     public static final boolean PHYSICS_DEBUG = false; // Function not implemented.
+    
+    public static final String INPUT_MAPPING_EXIT = "SIMPLEAPP_Exit";
+    public static final String INPUT_MAPPING_CAMERA_POS = "SIMPLEAPP_CameraPos";
+    public static final String INPUT_MAPPING_MEMORY = "SIMPLEAPP_Memory";
+    public static final String INPUT_MAPPING_HIDE_STATS = "SIMPLEAPP_HideStats";
 }
