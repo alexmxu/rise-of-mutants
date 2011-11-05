@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nifty xmlns="http://nifty-gui.sourceforge.net/nifty-1.3.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://nifty-gui.sourceforge.net/nifty-1.3.xsd http://nifty-gui.sourceforge.net/nifty-1.3.xsd">
+  
+  <useControls filename="nifty-default-controls.xml" />
+  <useStyles filename="nifty-default-styles.xml" />
+  
+  <style id="myStyle">
+    <attributes color="#0000" border="4px" />
+  </style>
+
+  
+  <!-- note: no useStyles or useControls in here backgroundColor="#f60f" -->
+  <!-- note: you can't use that file on its own -->
+  <!-- note: this file is only demonstrating loading additional screens -->
+  <screen id="start" controller="com.bigboots.states.BBMainMenuState">
+    <layer id="layer" childLayout="center">
+        <panel id="panel" style="myStyle" height="30%" width="35%" align="center" valign="center" childLayout="vertical">   
+          <panel id="panelstr" height="25%" width="35%" align="center" valign="center" childLayout="center" visibleToMouse="true">
+            <!-- we can use a button here but we've not included the controls at all! magic? no :) this whole screen is loaded additionally to other xml data loaded before -->
+            <control id="start" name="button" label="Start" color="#000" align="center" valign="center">
+                <interact onClick="startGame()" />
+            </control>
+          </panel>
+          <panel id="panelstr" height="25%" width="35%" align="center" valign="center" childLayout="center" visibleToMouse="true">
+            <control id="opts" name="button" label="Options" color="#000" align="center" valign="center">
+                <interact onClick="quitGame()" />
+            </control>
+          </panel>  
+          <panel id="panelquit" height="25%" width="35%" align="center" valign="center" childLayout="center" visibleToMouse="true">
+            <control id="back" name="button" label="Back" color="#000" align="center" valign="center">
+                <interact onClick="quitGame()" />
+            </control>
+          </panel>
+         <panel id="panel_mid" height="100%" width="100%" childLayout="horizontal">       
+            <text text="CopyRight - BigBoots Team - 2011" height="1%" valign="bottom" font="Interface/Fonts/Verdana.fnt" />
+        </panel>
+        </panel>
+     
+
+    </layer>
+  </screen>
+</nifty>
