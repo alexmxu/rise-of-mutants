@@ -88,9 +88,7 @@ public class BBApplication implements SystemListener {
         BBInputManager.getInstance().getInputManager().addListener(actionListener, BBGlobals.INPUT_MAPPING_EXIT,BBGlobals.INPUT_MAPPING_CAMERA_POS, BBGlobals.INPUT_MAPPING_MEMORY, BBGlobals.INPUT_MAPPING_HIDE_STATS);
         
         
-        BBInGameState ingame = new BBInGameState();
         BBMainMenuState menu = new BBMainMenuState();
-        
         BBStateManager.getInstance().attach(menu);
   
     }
