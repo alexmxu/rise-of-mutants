@@ -15,15 +15,44 @@
  */
 package com.bigboots.testscene;
 
-import com.bigboots.BBApplication;
+//import com.bigboots.BBApplication;
+import com.bigboots.components.BBComponent;
+import com.bigboots.components.BBEntity;
 
 /**
  *
  * @author @author Ulrich Nzuzi <ulrichnz@code.google.com>
  */
+/*
 public class TestAPIFrameWork extends BBApplication{
     public static void main(String[] args) {
         TestAPIFrameWork app = new TestAPIFrameWork();
         app.run();
+    }
+}
+*/
+public class TestAPIFrameWork {
+    public static void main(String[] args) {
+        
+        BBComponent cmp1 = new BBComponent("Light");
+        BBComponent cmp2 = new BBComponent("Flame");
+        BBEntity armor = new BBEntity("Armor");
+        armor.add(cmp1);
+        armor.add(cmp2);
+        
+        BBComponent comp1 = new BBComponent("Sword");
+        BBComponent comp2 = new BBComponent("Shield");
+        BBComponent comp3 = new BBComponent("Helmet");
+        BBComponent comp4 = new BBComponent("Boots");
+          
+        BBEntity myPlayer = new BBEntity("Player");
+        
+        myPlayer.add(comp1);
+        myPlayer.add(comp2);
+        myPlayer.add(comp3);
+        myPlayer.add(comp4);
+        myPlayer.add(armor);
+        
+        myPlayer.display();
     }
 }
