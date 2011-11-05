@@ -20,12 +20,13 @@ import com.bigboots.core.BBSceneManager;
 import com.bigboots.core.BBSettings;
 import com.bigboots.core.BBUpdateManager;
 import com.bigboots.input.BBInputManager;
+import com.bigboots.states.BBInGameState;
+import com.bigboots.states.BBMainMenuState;
+import com.bigboots.states.BBStateManager;
 import com.jme3.system.SystemListener;
 
 import com.jme3.input.controls.ActionListener;
-import com.jme3.math.Vector3f;
-import com.jme3.renderer.Camera;
-import com.jme3.renderer.ViewPort;
+
 
 
 /**
@@ -72,7 +73,9 @@ public class BBApplication implements SystemListener {
     public void initialize(){
         //set up scene by initializing rootnode
         BBSceneManager.getInstance().init();
-        BBUpdateManager.getInstance();
+        BBUpdateManager.getInstance();      
+        //State
+        BBStateManager.getInstance().init(engineSystem);
         
         // aquire settings config from the context
         BBSettings.getInstance().loadFromContext(engineSystem.getContext());
@@ -84,19 +87,11 @@ public class BBApplication implements SystemListener {
         BBInputManager.getInstance().init(engineSystem);
         BBInputManager.getInstance().getInputManager().addListener(actionListener, BBGlobals.INPUT_MAPPING_EXIT,BBGlobals.INPUT_MAPPING_CAMERA_POS, BBGlobals.INPUT_MAPPING_MEMORY, BBGlobals.INPUT_MAPPING_HIDE_STATS);
         
-        //Load first scene and camera
-        Camera cam = new Camera(BBSettings.getInstance().getSettings().getWidth(), BBSettings.getInstance().getSettings().getHeight());
-        cam.setFrustumPerspective(45f, (float)cam.getWidth() / cam.getHeight(), 1f, 1000f);
-        cam.setLocation(new Vector3f(0f, 0f, 10f));
-        cam.lookAt(new Vector3f(0f, 0f, 0f), Vector3f.UNIT_Y);
         
-        ViewPort vp = engineSystem.getRenderManager().createMainView("TEST", cam);
-        vp.setClearFlags(true, true, true);
-        vp.setEnabled(true);
+        BBInGameState ingame = new BBInGameState();
+        BBMainMenuState menu = new BBMainMenuState();
         
-        BBSceneManager.getInstance().setViewPort(vp);
-        BBSceneManager.getInstance().setupLight();
-        BBSceneManager.getInstance().createSky(engineSystem.getAssetManager());
+        BBStateManager.getInstance().attach(menu);
   
     }
 
@@ -105,12 +100,19 @@ public class BBApplication implements SystemListener {
      * to the back buffer.
      */
     public void update(){
+        float tpf = engineSystem.getTimer().getTimePerFrame();
+        
+        BBStateManager.getInstance().update(tpf);
         
         //update all updater : rootnode, input, etc
-        BBUpdateManager.getInstance().update(engineSystem.getTimer().getTimePerFrame());
-                
+        BBUpdateManager.getInstance().update(tpf);
+        
+        BBStateManager.getInstance().render(engineSystem.getRenderManager());
+        
         //update state of the scene graph after rootNode.updateGeometricState() call
         engineSystem.update();
+        
+        BBStateManager.getInstance().postRender();
     }
     
     /**
