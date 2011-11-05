@@ -1,19 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<components>
 	<component name="climbing" javaclass="[path]/Climbing.class">
-			<description>Adds climbing functionality to Entity</description>
-		</component>
+		<description>Adds climbing functionality to Entity</description>
+	</component>
 	<component name="leader" javaclass="[path]/Climbing.class">
-			<description>Adds leader functionality to Entity</description>
-		</component>
+		<description>Adds leader functionality to Entity</description>
+	</component>
 	<component name="grouping" javaclass="[path]/Climbing.class">
-			<description>Adds grouping functionality to Entity</description>			
-		</component>
+		<description>Adds grouping functionality to Entity</description>			
+	</component>
 	<component name="door" javaclass="[path]/Climbing.class">
-			<description>Adds opening functionality to Entity</description>		
-		</component>
+		<description>Adds opening functionality to Entity</description>		
+	</component>
 	<component name="mysteriousForce" javaclass="[path]/MysteriousForce.class">
-			<description>Adds mysteriousForce functionality to Entity</description>		
+		<description>Adds mysteriousForce functionality to Entity</description>		
 	</component>
 	<component name="crabSpawner" javaclass="[path]/CrabSpawner.class">
 			<description>Adds crabSpawner functionality to an entity.</description>		
 	</component>
+</components>

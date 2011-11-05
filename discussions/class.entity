@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<entityclasses>
 	<entityclass className="commonMonster">		
 		<inGameName>Regular Common Monster</inGameName>
 		<models blenderInstanceMainId="0">
@@ -7,13 +8,14 @@
 		</models>
 		<components>
 			<component name="run" modelId="0">
-			<maxspeed>10</max_speed>
+			<maxSpeed>10</maxSpeed>
 			</component>
 			<component name="jump" modelId="0">
-				<jumpheight>5</jump_height>
+				<jumpHeight>5</jumpHeight>
 			</component>
 			<component name="sword" swordModelId="1" characterModelId="0">
 				<swingSpeed>5</swingSpeed>
 			</component>
 		</components>
 	</entityclass>
+</entityclasses>
