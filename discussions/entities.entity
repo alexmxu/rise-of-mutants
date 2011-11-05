@@ -1,4 +1,4 @@
-<?xml version="1.0">
+<?xml version="1.0" encoding="UTF-8"?>
 	<entity id="0" className="commonMonster" entityName="aNotSoCommonMonster">
 		<imeName>
 			<setXml>A not so regular common monster</setXml>
