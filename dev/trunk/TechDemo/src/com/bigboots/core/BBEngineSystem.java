@@ -16,7 +16,6 @@
 package com.bigboots.core;
 
 import com.jme3.app.AppTask;
-import com.jme3.asset.AssetManager;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.system.JmeContext;
@@ -42,8 +41,7 @@ import com.jme3.scene.Spatial;
 import com.jme3.util.SkyFactory;
 */
 import com.jme3.system.SystemListener;
-import java.net.MalformedURLException;
-import java.net.URL;
+
 /**
  *
  * 
@@ -62,9 +60,6 @@ public class BBEngineSystem {
     protected float secondCounter = 0.0f;
    
     
-    //protected Node rootNode = new Node("Root Node");
-    protected AssetManager assetManager;
-    
     private final ConcurrentLinkedQueue<AppTask<?>> taskQueue = new ConcurrentLinkedQueue<AppTask<?>>();
     
     
@@ -75,31 +70,7 @@ public class BBEngineSystem {
         
     }
     
-    private void initAssetManager(){
-        if (BBSettings.getInstance().getSettings() != null){
-            String assetCfg = BBSettings.getInstance().getSettings().getString("AssetConfigURL");
-            if (assetCfg != null){
-                URL url = null;
-                try {
-                    url = new URL(assetCfg);
-                } catch (MalformedURLException ex) {
-                }
-                if (url == null) {
-                    url = BBEngineSystem.class.getClassLoader().getResource(assetCfg);
-                    if (url == null) {
-                        logger.log(Level.SEVERE, "Unable to access AssetConfigURL in asset config:{0}", assetCfg);
-                        return;
-                    }
-                }
-                assetManager = JmeSystem.newAssetManager(url);
-            }
-        }
-        if (assetManager == null){
-            assetManager = JmeSystem.newAssetManager(
-                    Thread.currentThread().getContextClassLoader()
-                    .getResource("com/jme3/asset/Desktop.cfg"));
-        }
-    }
+    
     
     public void create(){
                 
@@ -128,10 +99,7 @@ public class BBEngineSystem {
      * and far values 1 and 1000 units respectively.
      */
     public void initialize(){
-        if (assetManager == null){
-            initAssetManager();
-        }
-        
+
         timer = context.getTimer();
        
         renderer = context.getRenderer();
@@ -175,15 +143,9 @@ public class BBEngineSystem {
         if (secondCounter >= 1.0f) {
             secondCounter = 0.0f;
         }
-        
-        // update states
-        //stateManager.update(tpf);
-        
-        // render states
-        //stateManager.render(renderManager);     
+ 
         renderManager.render(tpf, context.isRenderable());
-        
-        //stateManager.postRender();
+
         }
     }
     
@@ -277,10 +239,5 @@ public class BBEngineSystem {
     }
     
     
-    /**
-     * @return The {@link AssetManager asset manager} for this application.
-     */
-    public AssetManager getAssetManager(){
-        return assetManager;
-    }
+    
 }
