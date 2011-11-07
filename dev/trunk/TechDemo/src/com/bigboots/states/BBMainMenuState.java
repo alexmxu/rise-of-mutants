@@ -34,7 +34,7 @@ import de.lessvoid.nifty.screen.ScreenController;
  */
 public class BBMainMenuState extends BBAbstractState implements ScreenController {
     protected Node guiNode = new Node("Gui Node");
-    private Nifty nifty;
+    private Nifty mNifty;
     protected ViewPort guiViewPort;
     private NiftyJmeDisplay niftyDisplay;
     
@@ -51,9 +51,9 @@ public class BBMainMenuState extends BBAbstractState implements ScreenController
                                                           BBInputManager.getInstance().getInputManager(),
                                                           null,
                                                           guiViewPort);
-        nifty = niftyDisplay.getNifty();
+        mNifty = niftyDisplay.getNifty();
 
-        nifty.fromXml("Interface/mainmenu.xml", "start");
+        mNifty.fromXml("Interface/mainmenu.xml", "start");
 
         // attach the nifty display to the gui view port as a processor
         guiViewPort.addProcessor(niftyDisplay);
@@ -102,7 +102,7 @@ public class BBMainMenuState extends BBAbstractState implements ScreenController
     }
     
     public void bind(Nifty nifty, Screen screen){
-        
+        mNifty = nifty;
     }
 
     public void onStartScreen(){
@@ -118,14 +118,17 @@ public class BBMainMenuState extends BBAbstractState implements ScreenController
         System.out.println("startGame");
         //TODO : Next time use message notification to notify the change
         BBStateManager.getInstance().detach(this);
-        
+        // switch to another screen
+        mNifty.gotoScreen("null"); 
+        //Change Game state
         BBInGameState ingame = new BBInGameState();
         BBStateManager.getInstance().attach(ingame);
+        
     }
 
     public void optionGame() {
         System.out.println("optionGame");
-        //mNifty.gotoScreen(nextScreen);  // switch to another screen
+
     }
     
     public void quitGame() {
