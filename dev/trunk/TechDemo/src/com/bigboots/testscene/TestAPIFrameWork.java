@@ -15,7 +15,7 @@
  */
 package com.bigboots.testscene;
 
-//import com.bigboots.BBApplication;
+import com.bigboots.BBApplication;
 import com.bigboots.components.BBComponent;
 import com.bigboots.components.BBEntity;
 
@@ -23,18 +23,11 @@ import com.bigboots.components.BBEntity;
  *
  * @author @author Ulrich Nzuzi <ulrichnz@code.google.com>
  */
-/*
+
 public class TestAPIFrameWork extends BBApplication{
+    
     public static void main(String[] args) {
-        TestAPIFrameWork app = new TestAPIFrameWork();
-        app.run();
-    }
-}
-*/
-public class TestAPIFrameWork {
-    public static void main(String[] args) {
-        
-        BBComponent cmp1 = new BBComponent("Light");
+                BBComponent cmp1 = new BBComponent("Light");
         BBComponent cmp2 = new BBComponent("Flame");
         BBEntity armor = new BBEntity("Armor");
         armor.add(cmp1);
@@ -54,5 +47,9 @@ public class TestAPIFrameWork {
         myPlayer.add(armor);
         
         myPlayer.display();
+        
+        
+        TestAPIFrameWork app = new TestAPIFrameWork();
+        app.run();
     }
 }
