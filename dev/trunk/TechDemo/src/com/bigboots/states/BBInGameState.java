@@ -15,9 +15,11 @@
  */
 package com.bigboots.states;
 
+import com.bigboots.BBGlobals;
 import com.bigboots.core.BBEngineSystem;
 import com.bigboots.core.BBSceneManager;
 import com.bigboots.core.BBSettings;
+import com.bigboots.input.BBInputManager;
 import com.bigboots.physics.BBPhysicsManager;
 import com.jme3.animation.AnimChannel;
 import com.jme3.scene.Spatial;
@@ -27,6 +29,7 @@ import com.jme3.renderer.ViewPort;
 
 //for player
 import com.jme3.animation.AnimControl;
+import com.jme3.animation.AnimEventListener;
 import com.jme3.animation.LoopMode;
 import com.jme3.scene.CameraNode;
 import com.jme3.scene.control.CameraControl.ControlDirection;
@@ -35,12 +38,24 @@ import com.jme3.scene.Node;
 import com.jme3.asset.BlenderKey;
 
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
+import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.control.CharacterControl;
+import com.jme3.bullet.control.RigidBodyControl;
+import com.jme3.bullet.objects.PhysicsCharacter;
+import com.jme3.bullet.util.CollisionShapeFactory;
+import com.jme3.input.KeyInput;
+import com.jme3.input.controls.ActionListener;
+import com.jme3.input.controls.AnalogListener;
+import com.jme3.input.controls.KeyTrigger;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -48,13 +63,52 @@ import com.jme3.scene.shape.Box;
  * @author Ulrich Nzuzi <ulrichnz@code.google.com>
  */
 public class BBInGameState extends BBAbstractState {
+
+    Geometry geom_a;
+    Material mat_box;
+    // models
+    Spatial obj01;
+    Spatial obj02;
+    Spatial obj03;
+    Spatial ledder;
+    // collision shapes
+    Geometry obj01_l;
+    Geometry obj02_l;
+    Geometry obj03_l;
+    Geometry ledder_l;
+    protected Node human,humanStalker;
+    protected Spatial player;
     
-        
+    float hasJumped = 0;
+    boolean hasBeenOnGround = false;
+    private int pressed=0;
+    private boolean walk, jump = false;
+    
+    private GameActionListener actionListener = new GameActionListener();
+    private static final Logger logger = Logger.getLogger(BBInGameState.class.getName());
+    
     @Override
     public void initialize(BBEngineSystem engineSystem) {
         super.initialize(engineSystem);
 
-        BBPhysicsManager.getInstance().init();
+        BBPhysicsManager.getInstance().init(engineSystem);
+        
+        //Set up keys
+        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_CAMERA_POS, new KeyTrigger(KeyInput.KEY_C));
+        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_MEMORY, new KeyTrigger(KeyInput.KEY_M));
+        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_HIDE_STATS, new KeyTrigger(KeyInput.KEY_F5));
+        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_LEFT, new KeyTrigger(KeyInput.KEY_J));
+        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_RIGHT, new KeyTrigger(KeyInput.KEY_L));
+        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_UP, new KeyTrigger(KeyInput.KEY_I));
+        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_DOWN, new KeyTrigger(KeyInput.KEY_K));
+        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_JUMP, new KeyTrigger(KeyInput.KEY_SPACE));
+        
+        BBInputManager.getInstance().getInputManager().addListener(actionListener, 
+                                                                    BBGlobals.INPUT_MAPPING_LEFT,
+                                                                    BBGlobals.INPUT_MAPPING_RIGHT, 
+                                                                    BBGlobals.INPUT_MAPPING_UP, 
+                                                                    BBGlobals.INPUT_MAPPING_DOWN,
+                                                                    BBGlobals.INPUT_MAPPING_JUMP);
         
         //Load first scene and camera
         Camera cam = new Camera(BBSettings.getInstance().getSettings().getWidth(), BBSettings.getInstance().getSettings().getHeight());
@@ -70,35 +124,34 @@ public class BBInGameState extends BBAbstractState {
         BBSceneManager.getInstance().setupLight();
         BBSceneManager.getInstance().createSky();
         
-        sinbadOut = new Node("PLAYER");
-        Spatial humanStalker = BBSceneManager.getInstance().loadSpatial("Scenes/TestScene/character.mesh.xml");
-        humanStalker.setName("PLAYER");
-        humanStalker.setLocalTranslation(0, -.85f, 0);
-        sinbadOut.attachChild(humanStalker);
-        sinbadOut.setLocalTranslation(new Vector3f(0, 30, 0));
-        sinbadOut.scale(2);     
         
-        //Physics
-        BBPhysicsManager.getInstance().getPhysicsSpace().addAll(humanStalker);
-        
-        //create the camera Node
-        CameraNode camNode = new CameraNode("Camera Node", cam);
-        //This mode means that camera copies the movements of the target:
-        camNode.setControlDir(ControlDirection.SpatialToCamera);
-        //Move camNode, e.g. behind and above the target:
-        camNode.setLocalTranslation(new Vector3f(25, 10, 0));
-        //Rotate the camNode to look at the target:
-        camNode.lookAt(humanStalker.getLocalTranslation(), Vector3f.UNIT_Y);
-        //Attach the camNode to the target:
-        sinbadOut.attachChild(camNode);
-        
-        
+        humanStalker = new Node("HumanStalker");
+                
+        human = new Node("human");
+        //Spatial sinbadModel2 = assetManager.loadModel("Models/Sinbad/Sinbad.mesh.j3o");
+        Spatial sinbadModel2 = BBSceneManager.getInstance().loadSpatial("Scenes/TestScene/character.mesh.xml");
+
+        Node sinbadModel = new Node();
+        sinbadModel.attachChild(sinbadModel2);
+        sinbadModel2.setLocalTranslation(0, -.85f, 0);
+
+
+        sinbadModel2.setName("human_player");
+
+        human.attachChild(sinbadModel);
+        //    human.attachChild(sword);
+
+        human.setLocalTranslation(new Vector3f(0, 30, 0));
+
         //Set up animation
-        AnimControl control = humanStalker.getControl(AnimControl.class);
+        AnimControl control = sinbadModel2.getControl(AnimControl.class);
+
         // PlayerChannel later refered to by player.getControl(AnimControl.class).getChannel(0);
         AnimChannel playerChannel = control.createChannel();
-        playerChannel.setAnim("run_01");
+
+        playerChannel.setAnim("base_stand");
         //    playerChannel.setAnim("RunBase");
+
         playerChannel.setLoopMode(LoopMode.Cycle);
         playerChannel.setSpeed(1);    
 
@@ -111,40 +164,86 @@ public class BBInGameState extends BBAbstractState {
         pControler.setGravity(35);
         //pControler.setPhysicsLocation(player.getWorldTranslation());//new Vector3f(0, 10, 0));
         pControler.setUseViewDirection(true);   
-        /*
-        Spatial debugColl = pControler.createDebugShape(assetManager);
-        rootNode.attachChild(debugColl);    
-        debugColl.setLocalTranslation(0, 2, 0);
-        */
+
         // Add phys. controller to player.
         //sinbadModel.addControl(pControler);
-        sinbadOut.addControl(pControler);
+        human.addControl(pControler);
+        human.scale(2); 
+        player = human.getChild("humanplayer");
+        BBPhysicsManager.getInstance().getPhysicsSpace().addAll(human);
+        BBSceneManager.getInstance().addChild(human);
+        BBSceneManager.getInstance().addChild(humanStalker);
+        
+        //Physics
+        BBPhysicsManager.getInstance().getPhysicsSpace().addAll(human);
+        
+        //create the camera Node
+        CameraNode camNode = new CameraNode("Camera Node", cam);
+        //This mode means that camera copies the movements of the target:
+        camNode.setControlDir(ControlDirection.SpatialToCamera);
+        //Move camNode, e.g. behind and above the target:
+        camNode.setLocalTranslation(new Vector3f(25, 10, 0));
+        //Rotate the camNode to look at the target:
+        camNode.lookAt(humanStalker.getLocalTranslation(), Vector3f.UNIT_Y);
+        //Attach the camNode to the target:
+        humanStalker.attachChild(camNode);
+     
         
         loadScene();
     }
     
+    
     @Override
     public void update(float tpf) {
         super.update(tpf);
-        sinbadOut.updateLogicalState(tpf);
-        sinbadOut.updateGeometricState();
-    }
-    Geometry geom_a;
-    Material mat_box;
+        
+        Vector3f pos = human.getControl(CharacterControl.class).getPhysicsLocation();
+        humanStalker.setLocalTranslation(pos);
+        
+         PhysicsCharacter anv = human.getControl(CharacterControl.class);
+        
+        if(anv.onGround() && player!=null){
+            if(jump)
+            {
+                boolean hasBeenOnGroundCopy = hasBeenOnGround;
+                if(!hasBeenOnGround)
+                    hasBeenOnGround=true;
+         
+                if(hasBeenOnGroundCopy)
+                {
+                    hasJumped+=tpf;
 
-    
-    // models
-     Spatial obj01;
-     Spatial obj02;
-     Spatial obj03;
-     Spatial ledder;
-    
-     // collision shapes
-     Geometry obj01_l;
-     Geometry obj02_l;
-     Geometry obj03_l;
-     Geometry ledder_l;
-     Node sinbadOut;
+                    logger.log(Level.INFO,"Character jumping end.");
+                    jump = false;
+                    hasJumped = 0;
+                    if(walk){
+                        //channel.setAnim("RunTop", 0.50f);
+                        logger.log(Level.INFO,"Character jumping end. Start stand.");
+
+                        player.getControl(AnimControl.class).getChannel(0).setAnim("run_01", 0.50f);
+                        player.getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.Loop);
+                    }
+                    else{
+                        logger.log(Level.INFO,"Character jumping end. Start stand.");
+
+                        player.getControl(AnimControl.class).getChannel(0).setAnim("base_stand", 0.50f);
+                        player.getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.DontLoop);                           
+                        human.getControl(CharacterControl.class).setWalkDirection(Vector3f.ZERO);
+                    }
+                    hasBeenOnGround = false;
+                }
+            }
+        }
+        else if(!jump){
+            logger.log(Level.INFO,"Character jumping start.");
+            jump = true;
+            //channel.setAnim("JumpStart", 0.5f); // TODO: Must activate "JumpLoop" after a certain time.
+            //player.getControl(AnimControl.class).getChannel(0).setAnim("jump", 0.50f); // TODO: Must be activated after a certain time after "JumpStart"
+            //player.getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.DontLoop);
+        }
+       
+    }
+
     public void loadScene(){
         
         Node ndmd = new Node("Models");
@@ -290,6 +389,102 @@ public class BBInGameState extends BBAbstractState {
         nd.removeFromParent();
         dsk.clearCache();
         
+        CollisionShape myComplexShape = CollisionShapeFactory.createMeshShape(physicsModelsFinal);
+        physicsModelsFinal.detachAllChildren();
+        RigidBodyControl worldPhysics = new RigidBodyControl(myComplexShape,0);  
+        worldPhysics.createDebugShape(BBSceneManager.getInstance().getAssetManager());        
+        BBPhysicsManager.getInstance().getPhysicsSpace().add(worldPhysics); 
+        BBSceneManager.getInstance().getRootNode().attachChild(worldPhysics.debugShape());
+        physicsModelsFinal = null;
+        
     }
+    
+    
+    private static final class Directions{
+        private static final Quaternion rot = new Quaternion().fromAngleAxis(-FastMath.HALF_PI, Vector3f.UNIT_Y);
+        private static final Quaternion upDir = Quaternion.DIRECTION_Z.mult(rot);
+        private static final Quaternion rightDir = upDir.mult(rot);
+        private static final Quaternion downDir = rightDir.mult(rot);
+        private static final Quaternion leftDir = downDir.mult(rot);
+    }
+    
+    private class GameActionListener implements AnimEventListener, ActionListener, AnalogListener {
 
+        public void onAction(String binding, boolean value, float tpf) {
+            if(value == true){
+              pressed++;
+            }
+            else{
+              pressed--;                      
+            }
+            if(pressed == 1 && value& !binding.equals("Jump") && !walk){
+              walk = true;
+              if(!jump){
+              logger.log(Level.INFO,"Character walking init.");
+              //player.getControl(AnimControl.class).getChannel(0).setAnim("RunTop", 0.50f); // TODO: Must activate "RunBase" after a certain time.
+              player.getControl(AnimControl.class).getChannel(0).setAnim("run_01", 0.50f); // TODO: Must be activated after a certain time after "RunTop"
+              player.getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.Loop);
+              }
+            }
+            else if (pressed==0&!value&!binding.equals("Jump")) {
+              walk = false;
+              if(!jump){
+                  logger.log(Level.INFO,"Character walking end.");
+                  //playerChannel.setAnim("IdleTop", 0.50f);
+                  player.getControl(AnimControl.class).getChannel(0).setAnim("base_stand", 0.50f);          
+                  player.getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.DontLoop);          
+              }
+            }
+            if (binding.equals("Jump") &! jump ) {
+                if (value){
+                    logger.log(Level.INFO,"Character jumping start.");
+                    jump = true;
+                    // channel.setAnim("JumpStart", 0.5f); // TODO: Must activate "JumpLoop" after a certain time.
+                    human.getControl(CharacterControl.class).jump();
+                    player.getControl(AnimControl.class).getChannel(0).setAnim("jump", 0.50f); // TODO: Must be activated after a certain time after "JumpStart"
+                    player.getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.DontLoop);
+                }
+            }
+        }//end onAAction
+        
+              
+        public void onAnalog(String binding, float value, float tpf) {
+            System.out.println("******** BINDING :"+ binding.toString() +"********");
+            System.out.println("******** JUMP VALUE  :"+ jump +"********");
+            //if(!jump){
+                if (binding.equals(BBGlobals.INPUT_MAPPING_LEFT)) {
+                    Quaternion newRot = new Quaternion().slerp(human.getLocalRotation(),Directions.leftDir, tpf*8);
+                    human.setLocalRotation(newRot);
+                }
+                else if (binding.equals("Right")) {
+                    Quaternion newRot = new Quaternion().slerp(human.getLocalRotation(),Directions.rightDir, tpf*8);
+                    human.setLocalRotation(newRot);        
+                } else if (binding.equals("Up")) {
+                    Quaternion newRot = new Quaternion().slerp(human.getLocalRotation(),Directions.upDir, tpf*8);
+                    human.setLocalRotation(newRot);
+                } else if (binding.equals("Down")) {
+                    Quaternion newRot = new Quaternion().slerp(human.getLocalRotation(),Directions.downDir, tpf*8);
+                    human.setLocalRotation(newRot);
+                }
+
+                if(walk){
+                    human.getControl(CharacterControl.class).setViewDirection(human.getWorldRotation().mult(Vector3f.UNIT_Z));                     
+                    human.getControl(CharacterControl.class).setWalkDirection(human.getControl(CharacterControl.class).getViewDirection().multLocal(.5f));                  
+                }        
+                else{
+                    human.getControl(CharacterControl.class).setWalkDirection(Vector3f.ZERO);
+                }
+            //}
+        }//end onAnalog
+        
+        // Abstract funtion coming with animation
+        public void onAnimCycleDone(AnimControl control, AnimChannel chan, String animName) {
+            //unused
+        }
+        // Abstract funtion coming with animation
+        public void onAnimChange(AnimControl control, AnimChannel channel, String animName) {
+            // unused
+        }
+    }//end GameActionListener
+    
 }

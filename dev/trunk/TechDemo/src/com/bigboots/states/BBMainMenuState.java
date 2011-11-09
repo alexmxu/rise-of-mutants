@@ -59,21 +59,6 @@ public class BBMainMenuState extends BBAbstractState implements ScreenController
         guiViewPort.addProcessor(niftyDisplay);
         guiViewPort.attachScene(guiNode);
         BBInputManager.getInstance().getInputManager().setCursorVisible(true);
-
-        /*
-        //Load first scene and camera
-        Camera cam = new Camera(BBSettings.getInstance().getSettings().getWidth(), BBSettings.getInstance().getSettings().getHeight());
-        cam.setFrustumPerspective(45f, (float)cam.getWidth() / cam.getHeight(), 1f, 1000f);
-        cam.setLocation(new Vector3f(0f, 0f, 10f));
-        cam.lookAt(new Vector3f(0f, 0f, 0f), Vector3f.UNIT_Y);
-        
-        ViewPort vp = engineSystem.getRenderManager().createMainView("TEST", cam);
-        vp.setClearFlags(true, true, true);
-        BBSceneManager.getInstance().setViewPort(vp);
-   
-        BBSceneManager.getInstance().setupLight();
-        BBSceneManager.getInstance().createSky();
-         */
     }
     
     @Override

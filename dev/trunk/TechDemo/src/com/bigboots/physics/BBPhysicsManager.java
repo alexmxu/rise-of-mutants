@@ -15,7 +15,9 @@
  */
 package com.bigboots.physics;
 
+import com.bigboots.core.BBEngineSystem;
 import com.bigboots.core.BBUpdateListener;
+import com.bigboots.core.BBUpdateManager;
 import com.jme3.app.Application;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.bullet.BulletAppState;
@@ -35,24 +37,28 @@ public class BBPhysicsManager extends Application implements BBUpdateListener{
         return instance; 
     }
     
-   private BulletAppState bulletAppState;
-
+    private BulletAppState bulletAppState;
+    private BBEngineSystem engineSystem;
+    
+    
     public void update(float tpf) {
         //throw new UnsupportedOperationException("Not supported yet.");
-        
-        
+               
         // update states need by Bullet
         stateManager.update(tpf);
         // render states
-        //stateManager.render(renderManager);
+        stateManager.render(engineSystem.getRenderManager());
         stateManager.postRender();
     }
     
-    public void init(){
+    public void init(BBEngineSystem eng){
+        engineSystem = eng;
         stateManager = new AppStateManager(this);
         // Set up Physics
         bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
+        
+        BBUpdateManager.getInstance().register(this);
     }
     @Override
     public void initialize(){

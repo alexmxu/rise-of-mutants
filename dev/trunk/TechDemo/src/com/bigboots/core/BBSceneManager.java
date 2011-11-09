@@ -33,7 +33,7 @@ import java.net.URL;
  * Manage our specific SceneGraph
  * @author @author Ulrich Nzuzi <ulrichnz@code.google.com>
  */
-public class BBSceneManager implements BBUpdateListener{
+public class BBSceneManager {
     private static BBSceneManager instance = new BBSceneManager();
 
     private BBSceneManager() {
@@ -50,7 +50,7 @@ public class BBSceneManager implements BBUpdateListener{
     
     
     public void init(){   
-        BBUpdateManager.getInstance().register(this);
+        //BBUpdateManager.getInstance().register(this);
         if (assetManager == null){
             initAssetManager();
         }
@@ -75,6 +75,10 @@ public class BBSceneManager implements BBUpdateListener{
     
     public void addChild(Spatial sp){
         rootNode.attachChild(sp);
+    }
+    
+    public void addChild(Node node){
+        rootNode.attachChild(node);
     }
     
     public void update(float tpf) {
