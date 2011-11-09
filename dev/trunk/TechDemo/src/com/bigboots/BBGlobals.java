@@ -34,4 +34,10 @@ public class BBGlobals {
     public static final String INPUT_MAPPING_CAMERA_POS = "SIMPLEAPP_CameraPos";
     public static final String INPUT_MAPPING_MEMORY = "SIMPLEAPP_Memory";
     public static final String INPUT_MAPPING_HIDE_STATS = "SIMPLEAPP_HideStats";
+    
+    public static final String INPUT_MAPPING_LEFT = "Left";
+    public static final String INPUT_MAPPING_RIGHT = "Right";
+    public static final String INPUT_MAPPING_UP = "Up";
+    public static final String INPUT_MAPPING_DOWN = "Down";
+    public static final String INPUT_MAPPING_JUMP = "Jump";
 }

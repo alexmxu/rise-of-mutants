@@ -26,6 +26,7 @@ import com.jme3.input.MouseInput;
 import com.jme3.input.TouchInput;
 import com.jme3.input.InputManager;
 import com.jme3.input.controls.KeyTrigger;
+import com.jme3.input.controls.Trigger;
 import com.jme3.system.JmeContext.Type;
 
 /**
@@ -90,11 +91,11 @@ public class BBInputManager implements BBUpdateListener{
             inputManager.addMapping(BBGlobals.INPUT_MAPPING_EXIT, new KeyTrigger(KeyInput.KEY_ESCAPE));
         }
 
-        inputManager.addMapping(BBGlobals.INPUT_MAPPING_CAMERA_POS, new KeyTrigger(KeyInput.KEY_C));
-        inputManager.addMapping(BBGlobals.INPUT_MAPPING_MEMORY, new KeyTrigger(KeyInput.KEY_M));
-        inputManager.addMapping(BBGlobals.INPUT_MAPPING_HIDE_STATS, new KeyTrigger(KeyInput.KEY_F5));
-        
         BBUpdateManager.getInstance().register(this);
+    }
+    
+    public void mapKey(String mappingName, Trigger... triggers){
+        inputManager.addMapping(mappingName, triggers);
     }
     
     public void update(float tpf){

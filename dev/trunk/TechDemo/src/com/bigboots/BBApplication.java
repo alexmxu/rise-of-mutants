@@ -85,6 +85,7 @@ public class BBApplication implements SystemListener {
         
         //init input and listener
         BBInputManager.getInstance().init(engineSystem);
+           
         BBInputManager.getInstance().getInputManager().addListener(actionListener, BBGlobals.INPUT_MAPPING_EXIT,BBGlobals.INPUT_MAPPING_CAMERA_POS, BBGlobals.INPUT_MAPPING_MEMORY, BBGlobals.INPUT_MAPPING_HIDE_STATS);
         
         
@@ -104,6 +105,9 @@ public class BBApplication implements SystemListener {
         
         //update all updater : rootnode, input, etc
         BBUpdateManager.getInstance().update(tpf);
+        
+        //Update RootNode
+        BBSceneManager.getInstance().update(tpf);
         
         BBStateManager.getInstance().render(engineSystem.getRenderManager());
         

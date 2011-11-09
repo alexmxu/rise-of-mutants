@@ -248,12 +248,6 @@ public class TestCharacterOnTrack extends SimpleApplication implements AnimEvent
     
     sinbadModel2.setName(name+"player");
 
-    /*
-    Spatial sword = assetManager.loadModel("Models/Sinbad/Sword/Sword.mesh.j3o");
-    sword.setLocalTranslation(-1.1f, 0, 0);
-    sword.rotate(new Quaternion().fromAngleAxis(FastMath.PI, Vector3f.UNIT_Y));
-    sword.rotate(new Quaternion().fromAngleAxis(.3f, Vector3f.UNIT_X));
-    */
     sinbadOut.attachChild(sinbadModel);
 //    sinbadOut.attachChild(sword);
 
