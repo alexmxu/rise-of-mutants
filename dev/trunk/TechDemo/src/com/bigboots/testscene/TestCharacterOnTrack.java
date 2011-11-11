@@ -91,7 +91,7 @@ public class TestCharacterOnTrack extends SimpleApplication implements AnimEvent
     public static void main(String[] args) {
         TestCharacterOnTrack app = new TestCharacterOnTrack();
         AppSettings appSettings = new AppSettings(true);
-        appSettings.setFrameRate(60);
+        appSettings.setVSync(true);
         app.setSettings(appSettings);
         app.start();
     }
