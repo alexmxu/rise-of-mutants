@@ -15,6 +15,7 @@
  */
 package com.bigboots;
 
+import com.bigboots.audio.BBAudioManager;
 import com.bigboots.core.BBEngineSystem;
 import com.bigboots.core.BBSceneManager;
 import com.bigboots.core.BBSettings;
@@ -68,7 +69,8 @@ public class BBApplication implements SystemListener {
         BBInputManager.getInstance().init(engineSystem);
         //init gui
         BBGuiManager.getInstance().init(engineSystem);
-        
+        //init Audio
+        BBAudioManager.getInstance().initAudio(engineSystem);
         //Launch the main menu screen
         BBMainMenuState menu = new BBMainMenuState();
         BBStateManager.getInstance().attach(menu);
@@ -158,6 +160,7 @@ public class BBApplication implements SystemListener {
      */
     public void destroy(){
         BBInputManager.getInstance().destroyInput();
+        BBStateManager.getInstance().cleanup();
         engineSystem.destroy();
     }
 }

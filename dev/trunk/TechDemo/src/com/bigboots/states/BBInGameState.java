@@ -16,6 +16,7 @@
 package com.bigboots.states;
 
 import com.bigboots.BBGlobals;
+import com.bigboots.audio.BBAudioManager;
 import com.bigboots.core.BBEngineSystem;
 import com.bigboots.core.BBSceneManager;
 import com.bigboots.core.BBSettings;
@@ -62,6 +63,7 @@ import com.jme3.scene.shape.Box;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.jme3.audio.AudioNode;
 
 /**
  *
@@ -94,6 +96,10 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
     boolean hasBeenOnGround = false;
     private int pressed=0;
     private boolean walk, jump = false;
+    
+    //music
+    private AudioNode music;
+    private AudioNode step;
     
     private GameActionListener actionListener = new GameActionListener();
     private static final Logger logger = Logger.getLogger(BBInGameState.class.getName());
@@ -201,8 +207,17 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
         //Attach the camNode to the target:
         humanStalker.attachChild(camNode);
      
-        
         loadScene();
+        
+        //init music
+        //BBAudioManager.getInstance().getListener().setLocation(humanStalker.getWorldTranslation());
+        music = BBAudioManager.getInstance().createAudio("Sounds/game.wav", false);
+        music.setVolume(1);
+        music.setLooping(true);
+        music.play();
+        
+        step = BBAudioManager.getInstance().createAudio("Sounds/step1.wav", false);
+        step.setVolume(10);
     }
     
     @Override
@@ -301,11 +316,13 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
         else if(!jump){
             logger.log(Level.INFO,"Character jumping start.");
             jump = true;
-            //channel.setAnim("JumpStart", 0.5f); // TODO: Must activate "JumpLoop" after a certain time.
+            
             playerChannel.setAnim("jump", 0.50f); // TODO: Must be activated after a certain time after "JumpStart"
             playerChannel.setLoopMode(LoopMode.DontLoop);
         }
        
+        
+        
     }
 
     public void bind(Nifty nifty, Screen screen){
@@ -331,7 +348,114 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
         //BBStateManager.getInstance().attach(menu);
     
     }
+   
+      
+    private static final class Directions{
+        private static final Quaternion rot = new Quaternion().fromAngleAxis(-FastMath.HALF_PI, Vector3f.UNIT_Y);
+        private static final Quaternion upDir = Quaternion.DIRECTION_Z.mult(rot);
+        private static final Quaternion rightDir = upDir.mult(rot);
+        private static final Quaternion downDir = rightDir.mult(rot);
+        private static final Quaternion leftDir = downDir.mult(rot);
+    }
+    private float time = 0;
+    private class GameActionListener implements AnimEventListener, ActionListener, AnalogListener {
+
+        public void onAction(String binding, boolean value, float tpf) {
+            
+            if (binding.equals(BBGlobals.INPUT_MAPPING_EXIT)) {
+              //System.out.println("ESCAPE");  
+              //mNifty.gotoScreen("game");
+                engineSystem.stop(false);
+            } 
+            
+            if(value == true){
+              pressed++;
+            }
+            else{
+              pressed--;                      
+            }
+            if(pressed == 1 && value& !binding.equals("Jump") && !walk){
+              walk = true;
+              if(!jump){
+              logger.log(Level.INFO,"Character walking init.");
+              //playerChannel.setAnim("RunTop", 0.50f); // TODO: Must activate "RunBase" after a certain time.
+              playerChannel.setAnim("run_01", 0.50f); // TODO: Must be activated after a certain time after "RunTop"
+              playerChannel.setLoopMode(LoopMode.Loop);
+              
+              //Trying to repeat the walk sound
+              time += tpf;
+              if (time > 0f) {
+                step.play();
+                time = 0;
+              }
+
+              }
+            }
+            else if (pressed==0&!value&!binding.equals("Jump")) {
+              walk = false;
+              if(!jump){
+                  logger.log(Level.INFO,"Character walking end.");
+                  //playerChannel.setAnim("IdleTop", 0.50f);
+                  playerChannel.setAnim("base_stand", 0.50f);          
+                  playerChannel.setLoopMode(LoopMode.DontLoop);
+                  step.stop();
+              }
+            }
+            if (binding.equals("Jump") &! jump ) {
+                if (value){
+                    logger.log(Level.INFO,"Character jumping start.");
+                    jump = true;
+                    // channel.setAnim("JumpStart", 0.5f); // TODO: Must activate "JumpLoop" after a certain time.
+                    human.getControl(CharacterControl.class).jump();
+                    playerChannel.setAnim("jump", 0.50f); // TODO: Must be activated after a certain time after "JumpStart"
+                    playerChannel.setLoopMode(LoopMode.DontLoop);
+                }
+            }
+        }//end onAAction
+        
+              
+        public void onAnalog(String binding, float value, float tpf) {
+            //System.out.println("******** BINDING :"+ binding.toString() +"********");
+            //System.out.println("******** JUMP VALUE  :"+ jump +"********");
+            if(!jump){
+                if (binding.equals(BBGlobals.INPUT_MAPPING_LEFT)) {
+                    Quaternion newRot = new Quaternion().slerp(human.getLocalRotation(),Directions.leftDir, tpf*8);
+                    human.setLocalRotation(newRot);
+                }
+                else if (binding.equals("Right")) {
+                    Quaternion newRot = new Quaternion().slerp(human.getLocalRotation(),Directions.rightDir, tpf*8);
+                    human.setLocalRotation(newRot);        
+                } else if (binding.equals("Up")) {
+                    Quaternion newRot = new Quaternion().slerp(human.getLocalRotation(),Directions.upDir, tpf*8);
+                    human.setLocalRotation(newRot);
+                } else if (binding.equals("Down")) {
+                    Quaternion newRot = new Quaternion().slerp(human.getLocalRotation(),Directions.downDir, tpf*8);
+                    human.setLocalRotation(newRot);
+                }
+
+                if(walk){
+                    human.getControl(CharacterControl.class).setViewDirection(human.getWorldRotation().mult(Vector3f.UNIT_Z));                     
+                    human.getControl(CharacterControl.class).setWalkDirection(human.getControl(CharacterControl.class).getViewDirection().multLocal(.2f));                  
+                }        
+                else{
+                    human.getControl(CharacterControl.class).setWalkDirection(Vector3f.ZERO);
+                }
+            }
+        }//end onAnalog
+        
+        // Abstract funtion coming with animation
+        public void onAnimCycleDone(AnimControl control, AnimChannel chan, String animName) {
+            //unused
+        }
+        // Abstract funtion coming with animation
+        public void onAnimChange(AnimControl control, AnimChannel channel, String animName) {
+            // unused
+        }
+    }//end GameActionListener
     
+    
+    
+     
     public void loadScene(){
         
         ndmd = new Node("Models");
@@ -485,99 +609,4 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
         physicsModelsFinal = null;
         
     }
-      
-    private static final class Directions{
-        private static final Quaternion rot = new Quaternion().fromAngleAxis(-FastMath.HALF_PI, Vector3f.UNIT_Y);
-        private static final Quaternion upDir = Quaternion.DIRECTION_Z.mult(rot);
-        private static final Quaternion rightDir = upDir.mult(rot);
-        private static final Quaternion downDir = rightDir.mult(rot);
-        private static final Quaternion leftDir = downDir.mult(rot);
-    }
-    
-    private class GameActionListener implements AnimEventListener, ActionListener, AnalogListener {
-
-        public void onAction(String binding, boolean value, float tpf) {
-            
-            if (binding.equals(BBGlobals.INPUT_MAPPING_EXIT)) {
-              //System.out.println("ESCAPE");  
-              //mNifty.gotoScreen("game");
-                engineSystem.stop(false);
-            } 
-            
-            if(value == true){
-              pressed++;
-            }
-            else{
-              pressed--;                      
-            }
-            if(pressed == 1 && value& !binding.equals("Jump") && !walk){
-              walk = true;
-              if(!jump){
-              logger.log(Level.INFO,"Character walking init.");
-              //playerChannel.setAnim("RunTop", 0.50f); // TODO: Must activate "RunBase" after a certain time.
-              playerChannel.setAnim("run_01", 0.50f); // TODO: Must be activated after a certain time after "RunTop"
-              playerChannel.setLoopMode(LoopMode.Loop);
-              }
-            }
-            else if (pressed==0&!value&!binding.equals("Jump")) {
-              walk = false;
-              if(!jump){
-                  logger.log(Level.INFO,"Character walking end.");
-                  //playerChannel.setAnim("IdleTop", 0.50f);
-                  playerChannel.setAnim("base_stand", 0.50f);          
-                  playerChannel.setLoopMode(LoopMode.DontLoop);          
-              }
-            }
-            if (binding.equals("Jump") &! jump ) {
-                if (value){
-                    logger.log(Level.INFO,"Character jumping start.");
-                    jump = true;
-                    // channel.setAnim("JumpStart", 0.5f); // TODO: Must activate "JumpLoop" after a certain time.
-                    human.getControl(CharacterControl.class).jump();
-                    playerChannel.setAnim("jump", 0.50f); // TODO: Must be activated after a certain time after "JumpStart"
-                    playerChannel.setLoopMode(LoopMode.DontLoop);
-                }
-            }
-        }//end onAAction
-        
-              
-        public void onAnalog(String binding, float value, float tpf) {
-            //System.out.println("******** BINDING :"+ binding.toString() +"********");
-            //System.out.println("******** JUMP VALUE  :"+ jump +"********");
-            if(!jump){
-                if (binding.equals(BBGlobals.INPUT_MAPPING_LEFT)) {
-                    Quaternion newRot = new Quaternion().slerp(human.getLocalRotation(),Directions.leftDir, tpf*8);
-                    human.setLocalRotation(newRot);
-                }
-                else if (binding.equals("Right")) {
-                    Quaternion newRot = new Quaternion().slerp(human.getLocalRotation(),Directions.rightDir, tpf*8);
-                    human.setLocalRotation(newRot);        
-                } else if (binding.equals("Up")) {
-                    Quaternion newRot = new Quaternion().slerp(human.getLocalRotation(),Directions.upDir, tpf*8);
-                    human.setLocalRotation(newRot);
-                } else if (binding.equals("Down")) {
-                    Quaternion newRot = new Quaternion().slerp(human.getLocalRotation(),Directions.downDir, tpf*8);
-                    human.setLocalRotation(newRot);
-                }
-
-                if(walk){
-                    human.getControl(CharacterControl.class).setViewDirection(human.getWorldRotation().mult(Vector3f.UNIT_Z));                     
-                    human.getControl(CharacterControl.class).setWalkDirection(human.getControl(CharacterControl.class).getViewDirection().multLocal(.2f));                  
-                }        
-                else{
-                    human.getControl(CharacterControl.class).setWalkDirection(Vector3f.ZERO);
-                }
-            }
-        }//end onAnalog
-        
-        // Abstract funtion coming with animation
-        public void onAnimCycleDone(AnimControl control, AnimChannel chan, String animName) {
-            //unused
-        }
-        // Abstract funtion coming with animation
-        public void onAnimChange(AnimControl control, AnimChannel channel, String animName) {
-            // unused
-        }
-    }//end GameActionListener
-    
 }
