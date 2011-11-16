@@ -19,13 +19,11 @@ import com.bigboots.core.BBEngineSystem;
 import com.bigboots.core.BBSceneManager;
 import com.bigboots.core.BBSettings;
 import com.bigboots.core.BBUpdateManager;
+import com.bigboots.gui.BBGuiManager;
 import com.bigboots.input.BBInputManager;
-import com.bigboots.states.BBInGameState;
 import com.bigboots.states.BBMainMenuState;
 import com.bigboots.states.BBStateManager;
 import com.jme3.system.SystemListener;
-
-import com.jme3.input.controls.ActionListener;
 
 
 
@@ -36,20 +34,6 @@ import com.jme3.input.controls.ActionListener;
 public class BBApplication implements SystemListener {
         
     private BBEngineSystem engineSystem;
-    
-    private AppActionListener actionListener = new AppActionListener();
-    private class AppActionListener implements ActionListener {
-      public void onAction(String name, boolean value, float tpf) {
-          if (!value) {
-              return;
-          }
-
-          if (name.equals(BBGlobals.INPUT_MAPPING_EXIT)) {
-              stop();
-          } 
-      }
-    }
-    
     
     /*
      * Main game loop.
@@ -62,9 +46,6 @@ public class BBApplication implements SystemListener {
         engineSystem.setContextListener(this);
     }
      
-    public void stop(){
-        engineSystem.stop(false);
-    }
     /**
      * Callback to indicate the application to initialize. This method
      * is called in the GL/Rendering thread so any GL-dependent resources
@@ -85,10 +66,10 @@ public class BBApplication implements SystemListener {
         
         //init input and listener
         BBInputManager.getInstance().init(engineSystem);
-           
-        BBInputManager.getInstance().getInputManager().addListener(actionListener, BBGlobals.INPUT_MAPPING_EXIT,BBGlobals.INPUT_MAPPING_CAMERA_POS, BBGlobals.INPUT_MAPPING_MEMORY, BBGlobals.INPUT_MAPPING_HIDE_STATS);
+        //init gui
+        BBGuiManager.getInstance().init(engineSystem);
         
-        
+        //Launch the main menu screen
         BBMainMenuState menu = new BBMainMenuState();
         BBStateManager.getInstance().attach(menu);
   

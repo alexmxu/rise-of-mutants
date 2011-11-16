@@ -19,6 +19,7 @@ import com.bigboots.BBGlobals;
 import com.bigboots.core.BBEngineSystem;
 import com.bigboots.core.BBSceneManager;
 import com.bigboots.core.BBSettings;
+import com.bigboots.gui.BBGuiManager;
 import com.bigboots.input.BBInputManager;
 import com.bigboots.physics.BBPhysicsManager;
 import com.jme3.animation.AnimChannel;
@@ -27,6 +28,10 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
 
+//for gui
+import de.lessvoid.nifty.screen.ScreenController;
+import de.lessvoid.nifty.Nifty;
+import de.lessvoid.nifty.screen.Screen;
 //for player
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.AnimEventListener;
@@ -62,8 +67,10 @@ import java.util.logging.Logger;
  *
  * @author Ulrich Nzuzi <ulrichnz@code.google.com>
  */
-public class BBInGameState extends BBAbstractState {
+public class BBInGameState extends BBAbstractState implements ScreenController{
 
+    private Nifty mNifty;
+    
     Geometry geom_a;
     Material mat_box;
     // models
@@ -77,6 +84,7 @@ public class BBInGameState extends BBAbstractState {
     Geometry obj03_l;
     Geometry ledder_l;
     protected Node human,humanStalker;
+    protected Node ndmd, physicsModels;
     protected Spatial player;
     
     float hasJumped = 0;
@@ -87,10 +95,11 @@ public class BBInGameState extends BBAbstractState {
     private GameActionListener actionListener = new GameActionListener();
     private static final Logger logger = Logger.getLogger(BBInGameState.class.getName());
     
+    
     @Override
-    public void initialize(BBEngineSystem engineSystem) {
-        super.initialize(engineSystem);
-
+    public void initialize(BBEngineSystem eng) {
+        super.initialize(eng);
+        
         BBPhysicsManager.getInstance().init(engineSystem);
         
         //Set up keys
@@ -102,13 +111,19 @@ public class BBInGameState extends BBAbstractState {
         BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_UP, new KeyTrigger(KeyInput.KEY_I));
         BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_DOWN, new KeyTrigger(KeyInput.KEY_K));
         BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_JUMP, new KeyTrigger(KeyInput.KEY_SPACE));
+        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_EXIT, new KeyTrigger(KeyInput.KEY_ESCAPE));
         
         BBInputManager.getInstance().getInputManager().addListener(actionListener, 
                                                                     BBGlobals.INPUT_MAPPING_LEFT,
                                                                     BBGlobals.INPUT_MAPPING_RIGHT, 
                                                                     BBGlobals.INPUT_MAPPING_UP, 
                                                                     BBGlobals.INPUT_MAPPING_DOWN,
-                                                                    BBGlobals.INPUT_MAPPING_JUMP);
+                                                                    BBGlobals.INPUT_MAPPING_JUMP,
+                                                                    BBGlobals.INPUT_MAPPING_EXIT);
+        
+        BBInputManager.getInstance().getInputManager().setCursorVisible(false);
+        
+        mNifty = BBGuiManager.getInstance().getNifty();
         
         //Load first scene and camera
         Camera cam = new Camera(BBSettings.getInstance().getSettings().getWidth(), BBSettings.getInstance().getSettings().getHeight());
@@ -192,6 +207,37 @@ public class BBInGameState extends BBAbstractState {
         loadScene();
     }
     
+    @Override
+    public void stateDetached() {
+        super.stateDetached();
+        
+        BBSceneManager.getInstance().destroy();
+        
+        human.detachAllChildren();
+        human.removeFromParent();
+        human.getWorldLightList().clear();
+        human.getLocalLightList().clear();
+                
+        humanStalker.detachAllChildren();
+        humanStalker.removeFromParent();
+        humanStalker.getWorldLightList().clear();
+        humanStalker.getLocalLightList().clear();
+        
+        ndmd.detachAllChildren();
+        ndmd.removeFromParent();
+        ndmd.getWorldLightList().clear();
+        ndmd.getLocalLightList().clear();
+                
+        physicsModels.detachAllChildren();
+        physicsModels.removeFromParent();
+        physicsModels.getWorldLightList().clear();        
+        physicsModels.getLocalLightList().clear();
+        
+        BBSceneManager.getInstance().getViewPort().clearScenes();
+        
+        this.engineSystem.getRenderManager().clearQueue(BBSceneManager.getInstance().getViewPort());        
+        this.engineSystem.getRenderManager().removeMainView("TEST");               
+    }
     
     @Override
     public void update(float tpf) {
@@ -244,10 +290,33 @@ public class BBInGameState extends BBAbstractState {
        
     }
 
+    public void bind(Nifty nifty, Screen screen){
+        mNifty = nifty;
+    }
+    public void onStartScreen(){
+        
+    }
+    public void onEndScreen(){
+        
+    }
+    public void quitToMain(){
+        // switch to another screen
+        mNifty.gotoScreen("null");
+        BBStateManager.getInstance().detach(this);
+        //reset input
+        BBInputManager.getInstance().getInputManager().removeListener(actionListener);
+        BBInputManager.getInstance().getInputManager().clearMappings();
+        BBInputManager.getInstance().resetInput(); 
+        //Change Game state
+         mNifty.gotoScreen("start");
+        BBMainMenuState menu = new BBMainMenuState();
+        BBStateManager.getInstance().attach(menu);
+    }
+    
     public void loadScene(){
         
-        Node ndmd = new Node("Models");
-        Node physicsModels = new Node("PhysicsModels");
+        ndmd = new Node("Models");
+        physicsModels = new Node("PhysicsModels");
         
         // Material
         Material mat = BBSceneManager.getInstance().getAssetManager().loadMaterial("Scenes/TestScene/TestSceneMaterial.j3m"); 
@@ -300,8 +369,7 @@ public class BBInGameState extends BBAbstractState {
         ledder_l.setName("ledder_l");
         physicsModels.attachChild(ledder_l);
         
-           
-        
+       
         // Load a blender file. 
         DesktopAssetManager dsk = (DesktopAssetManager) BBSceneManager.getInstance().getAssetManager();        
         BlenderKey bk = new BlenderKey("Scenes/TestScene/test_scene_01_1.blend");
@@ -398,8 +466,7 @@ public class BBInGameState extends BBAbstractState {
         physicsModelsFinal = null;
         
     }
-    
-    
+      
     private static final class Directions{
         private static final Quaternion rot = new Quaternion().fromAngleAxis(-FastMath.HALF_PI, Vector3f.UNIT_Y);
         private static final Quaternion upDir = Quaternion.DIRECTION_Z.mult(rot);
@@ -411,6 +478,12 @@ public class BBInGameState extends BBAbstractState {
     private class GameActionListener implements AnimEventListener, ActionListener, AnalogListener {
 
         public void onAction(String binding, boolean value, float tpf) {
+            
+            if (binding.equals(BBGlobals.INPUT_MAPPING_EXIT)) {
+              System.out.println("ESCAPE");  
+              mNifty.gotoScreen("game");
+            } 
+            
             if(value == true){
               pressed++;
             }

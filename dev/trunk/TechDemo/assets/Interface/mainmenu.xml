@@ -17,7 +17,9 @@
         <panel id="panel" style="myStyle" height="30%" width="35%" align="center" valign="center" childLayout="vertical">   
           <effect>
             <onStartScreen  name="fade" startColor="#0000" endColor="#000f" length="1500"/>
+            <!--
             <onEndScreen name="move" mode="out" direction="bottom" length="300" startDelay="0" inherit="true"/>
+            -->
           </effect>
           <panel id="panelstr" height="25%" width="35%" align="center" valign="center" childLayout="center" visibleToMouse="true">
             <!-- we can use a button here but we've not included the controls at all! magic? no :) this whole screen is loaded additionally to other xml data loaded before -->
@@ -39,6 +41,19 @@
             <text text="CopyRight - BigBoots Team - 2011" height="1%" valign="bottom" font="Interface/Fonts/Verdana.fnt" />
         </panel>
         </panel>
+    </layer>
+  </screen>
+  
+  <screen id="game" controller="com.bigboots.states.BBInGameState">
+    <layer id="layer" childLayout="center">
+        <panel id="panel" style="myStyle" height="30%" width="35%" align="center" valign="center" childLayout="vertical">   
+           
+          <panel id="panquit" height="25%" width="35%" align="center" valign="center" childLayout="center" visibleToMouse="true">
+            <control id="back" name="button" label="Back" color="#000" align="center" valign="center">
+                <interact onClick="quitToMain()" />
+            </control>
+          </panel>
+         </panel>
     </layer>
   </screen>
   
