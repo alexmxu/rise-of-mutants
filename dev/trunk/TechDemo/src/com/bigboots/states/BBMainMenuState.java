@@ -36,8 +36,8 @@ public class BBMainMenuState extends BBAbstractState implements ScreenController
 
     
     @Override
-    public void initialize(BBEngineSystem engineSystem) {
-        super.initialize(engineSystem);
+    public void initialize(BBEngineSystem eng) {
+        super.initialize(eng);
      
         //Init input
         BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_EXIT, new KeyTrigger(KeyInput.KEY_ESCAPE));
@@ -92,6 +92,8 @@ public class BBMainMenuState extends BBAbstractState implements ScreenController
         //Change Game state
         BBInGameState ingame = new BBInGameState();
         BBStateManager.getInstance().attach(ingame);
+        //BBCreditState credit = new BBCreditState();
+        //BBStateManager.getInstance().attach(credit);
         
     }
 
@@ -99,12 +101,9 @@ public class BBMainMenuState extends BBAbstractState implements ScreenController
 
     }
     
-    public void quitGame() {
-        BBStateManager.getInstance().detach(this);
-        // switch to another screen
-        //mNifty.gotoScreen("null"); 
-        
-        engineSystem.stop(false);
+    public void quit() {
+        System.out.println("******** Quit");
+        this.engineSystem.stop(false);
     }
     
     private AppActionListener actionListener = new AppActionListener();
