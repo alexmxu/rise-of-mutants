@@ -47,7 +47,7 @@ public class BBSceneManager {
     protected ViewPort viewPort;
     protected Node rootNode = new Node("Root Node");
     protected AssetManager assetManager;
-    
+    private  AmbientLight al;
     
     public void init(){   
         //BBUpdateManager.getInstance().register(this);
@@ -89,7 +89,7 @@ public class BBSceneManager {
     //TODO : To be changed
     public void setupLight(){
         // We add light so we see the scene
-        AmbientLight al = new AmbientLight();
+        al = new AmbientLight();
         al.setColor(ColorRGBA.White.mult(1.3f));
         rootNode.addLight(al); 
         DirectionalLight dl = new DirectionalLight();
@@ -124,6 +124,15 @@ public class BBSceneManager {
         }
     }
     
+    public void destroy(){
+        rootNode.getWorldLightList().clear();
+        rootNode.getLocalLightList().clear();
+        rootNode.detachAllChildren();
+        rootNode.removeFromParent();
+        al = null;
+        rootNode = null;
+    }
+               
     /**
      * Retrieves rootNode
      * @return rootNode Node object
@@ -142,4 +151,5 @@ public class BBSceneManager {
     public AssetManager getAssetManager(){
         return assetManager;
     }
+    
 }

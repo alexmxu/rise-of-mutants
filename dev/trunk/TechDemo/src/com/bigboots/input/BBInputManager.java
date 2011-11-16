@@ -15,7 +15,6 @@
  */
 package com.bigboots.input;
 
-import com.bigboots.BBGlobals;
 import com.bigboots.core.BBEngineSystem;
 import com.bigboots.core.BBSettings;
 import com.bigboots.core.BBUpdateListener;
@@ -25,7 +24,6 @@ import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
 import com.jme3.input.TouchInput;
 import com.jme3.input.InputManager;
-import com.jme3.input.controls.KeyTrigger;
 import com.jme3.input.controls.Trigger;
 import com.jme3.system.JmeContext.Type;
 
@@ -88,7 +86,7 @@ public class BBInputManager implements BBUpdateListener{
         inputManager = new InputManager(mouseInput, keyInput, joyInput, touchInput);
         
         if (myEng.getContext().getType() == Type.Display) {
-            inputManager.addMapping(BBGlobals.INPUT_MAPPING_EXIT, new KeyTrigger(KeyInput.KEY_ESCAPE));
+            //inputManager.addMapping(BBGlobals.INPUT_MAPPING_EXIT, new KeyTrigger(KeyInput.KEY_ESCAPE));
         }
 
         BBUpdateManager.getInstance().register(this);

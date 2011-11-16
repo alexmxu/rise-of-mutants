@@ -32,9 +32,11 @@ public class BBAbstractState implements BBState{
      */
     protected boolean initialized = false;
     private boolean enabled = true;
-
-    public void initialize(BBEngineSystem engineSystem) {
+    protected BBEngineSystem engineSystem;
+    
+    public void initialize(BBEngineSystem eng) {
         initialized = true;
+        engineSystem = eng;
     }
 
     public boolean isInitialized() {

@@ -15,14 +15,13 @@
  */
 package com.bigboots.states;
 
+import com.bigboots.BBGlobals;
 import com.bigboots.core.BBEngineSystem;
-import com.bigboots.core.BBSceneManager;
-import com.bigboots.core.BBSettings;
+import com.bigboots.gui.BBGuiManager;
 import com.bigboots.input.BBInputManager;
-import com.jme3.scene.Node;
-import com.jme3.niftygui.NiftyJmeDisplay;
-import com.jme3.renderer.Camera;
-import com.jme3.renderer.ViewPort;
+import com.jme3.input.KeyInput;
+import com.jme3.input.controls.ActionListener;
+import com.jme3.input.controls.KeyTrigger;
 import de.lessvoid.nifty.Nifty;
 //import de.lessvoid.nifty.controls.Controller;
 import de.lessvoid.nifty.screen.Screen;
@@ -33,31 +32,19 @@ import de.lessvoid.nifty.screen.ScreenController;
  * @author @author Ulrich Nzuzi <ulrichnz@code.google.com>
  */
 public class BBMainMenuState extends BBAbstractState implements ScreenController {
-    protected Node guiNode = new Node("Gui Node");
     private Nifty mNifty;
-    protected ViewPort guiViewPort;
-    private NiftyJmeDisplay niftyDisplay;
+
     
     @Override
     public void initialize(BBEngineSystem engineSystem) {
         super.initialize(engineSystem);
      
-        // Create a new cam for the gui
-        Camera guiCam = new Camera(BBSettings.getInstance().getSettings().getWidth(), BBSettings.getInstance().getSettings().getHeight());
-        guiViewPort = engineSystem.getRenderManager().createPostView("Gui Default", guiCam);
-        guiViewPort.setClearFlags(false, false, false);
+        //Init input
+        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_EXIT, new KeyTrigger(KeyInput.KEY_ESCAPE));
+        BBInputManager.getInstance().getInputManager().addListener(actionListener, BBGlobals.INPUT_MAPPING_EXIT);
         
-        niftyDisplay = new NiftyJmeDisplay(BBSceneManager.getInstance().getAssetManager(),
-                                                          BBInputManager.getInstance().getInputManager(),
-                                                          null,
-                                                          guiViewPort);
-        mNifty = niftyDisplay.getNifty();
-
-        mNifty.fromXml("Interface/mainmenu.xml", "start");
-
-        // attach the nifty display to the gui view port as a processor
-        guiViewPort.addProcessor(niftyDisplay);
-        guiViewPort.attachScene(guiNode);
+        mNifty = BBGuiManager.getInstance().getNifty();
+                
         BBInputManager.getInstance().getInputManager().setCursorVisible(true);
     }
     
@@ -65,8 +52,6 @@ public class BBMainMenuState extends BBAbstractState implements ScreenController
     public void update(float tpf) {
         super.update(tpf);
 
-        guiNode.updateLogicalState(tpf);
-        guiNode.updateGeometricState();
     }
     @Override
     public void stateAttached() {
@@ -77,13 +62,8 @@ public class BBMainMenuState extends BBAbstractState implements ScreenController
     @Override
     public void stateDetached() {
         super.stateDetached();
-        //Clean all scene
-        BBInputManager.getInstance().getInputManager().setCursorVisible(false);
-        
-        niftyDisplay.cleanup();
-        guiNode.detachAllChildren();
-        guiViewPort.clearScenes();
-               
+
+     
     }
     
     public void bind(Nifty nifty, Screen screen){
@@ -100,11 +80,15 @@ public class BBMainMenuState extends BBAbstractState implements ScreenController
     
        /** custom methods */ 
     public void startGame() {     
-        System.out.println("startGame");
+        // switch to another screen
+        mNifty.gotoScreen("null");
         //TODO : Next time use message notification to notify the change
         BBStateManager.getInstance().detach(this);
-        // switch to another screen
-        mNifty.gotoScreen("null"); 
+        
+        //reset input
+        BBInputManager.getInstance().getInputManager().removeListener(actionListener);
+        BBInputManager.getInstance().getInputManager().clearMappings();
+        BBInputManager.getInstance().resetInput();        
         //Change Game state
         BBInGameState ingame = new BBInGameState();
         BBStateManager.getInstance().attach(ingame);
@@ -112,12 +96,27 @@ public class BBMainMenuState extends BBAbstractState implements ScreenController
     }
 
     public void optionGame() {
-        System.out.println("optionGame");
 
     }
     
     public void quitGame() {
-        System.out.println("quitGame");
+        BBStateManager.getInstance().detach(this);
+        // switch to another screen
+        //mNifty.gotoScreen("null"); 
         
+        engineSystem.stop(false);
+    }
+    
+    private AppActionListener actionListener = new AppActionListener();
+    private class AppActionListener implements ActionListener {
+      public void onAction(String name, boolean value, float tpf) {
+          if (!value) {
+              return;
+          }
+
+          if (name.equals(BBGlobals.INPUT_MAPPING_EXIT)) {
+              engineSystem.stop(false);
+          } 
+      }
     }
 }
