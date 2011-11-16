@@ -48,6 +48,7 @@ public class BBSceneManager {
     protected Node rootNode = new Node("Root Node");
     protected AssetManager assetManager;
     private  AmbientLight al;
+    private Spatial sky;
     
     public void init(){   
         //BBUpdateManager.getInstance().register(this);
@@ -68,7 +69,7 @@ public class BBSceneManager {
     }
     // TODO : Change it next time
     public void createSky() {
-        Spatial sky = SkyFactory.createSky(assetManager, "Textures/sky/skysphere.jpg", true);
+        sky = SkyFactory.createSky(assetManager, "Textures/sky/skybox1.jpeg", true);
         this.addChild(sky);
     }
     
@@ -125,10 +126,17 @@ public class BBSceneManager {
     }
     
     public void destroy(){
-        rootNode.getWorldLightList().clear();
-        rootNode.getLocalLightList().clear();
+        //sky.getLocalLightList().clear();
+        //sky.getWorldLightList().clear();
+        //sky.removeFromParent();
+       
+        //rootNode.getLocalLightList().clear();
+        //rootNode.getWorldLightList().clear();       
+        rootNode.removeLight(al);        
         rootNode.detachAllChildren();
         rootNode.removeFromParent();
+        
+        sky = null;
         al = null;
         rootNode = null;
     }

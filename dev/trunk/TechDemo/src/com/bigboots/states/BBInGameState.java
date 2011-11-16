@@ -87,6 +87,9 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
     protected Node ndmd, physicsModels;
     protected Spatial player;
     
+    private AnimControl control;
+    private AnimChannel playerChannel;
+    
     float hasJumped = 0;
     boolean hasBeenOnGround = false;
     private int pressed=0;
@@ -149,26 +152,21 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
         Node sinbadModel = new Node();
         sinbadModel.attachChild(sinbadModel2);
         sinbadModel2.setLocalTranslation(0, -.85f, 0);
-
-
         sinbadModel2.setName("human_player");
 
         human.attachChild(sinbadModel);
         //    human.attachChild(sword);
-
         human.setLocalTranslation(new Vector3f(0, 30, 0));
 
         //Set up animation
-        AnimControl control = sinbadModel2.getControl(AnimControl.class);
-
+        control = sinbadModel2.getControl(AnimControl.class);
+        //control.addListener(actionListener);
         // PlayerChannel later refered to by player.getControl(AnimControl.class).getChannel(0);
-        AnimChannel playerChannel = control.createChannel();
-
+        playerChannel = control.createChannel();
         playerChannel.setAnim("base_stand");
         //    playerChannel.setAnim("RunBase");
-
         playerChannel.setLoopMode(LoopMode.Cycle);
-        playerChannel.setSpeed(1);    
+        playerChannel.setSpeed(1f);    
 
         // CapWe also put the player in its starting position.
         CapsuleCollisionShape capsuleShape = new CapsuleCollisionShape(.7f, 2f, 1);
@@ -211,32 +209,52 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
     public void stateDetached() {
         super.stateDetached();
         
-        BBSceneManager.getInstance().destroy();
-        
         human.detachAllChildren();
         human.removeFromParent();
         human.getWorldLightList().clear();
         human.getLocalLightList().clear();
+        human = null;
                 
         humanStalker.detachAllChildren();
         humanStalker.removeFromParent();
         humanStalker.getWorldLightList().clear();
         humanStalker.getLocalLightList().clear();
+        humanStalker = null;
         
         ndmd.detachAllChildren();
         ndmd.removeFromParent();
         ndmd.getWorldLightList().clear();
         ndmd.getLocalLightList().clear();
-                
+        ndmd = null;
+        
+        obj01.removeFromParent();
+        obj01 = null;
+        obj02.removeFromParent();
+        obj02 = null;
+        obj03.removeFromParent();
+        obj03 = null;
+        ledder.removeFromParent();
+        ledder = null;
+        player.removeFromParent();
+        player = null;
+        
+        obj01_l = null;
+        obj02_l = null;
+        obj03_l = null;
+        ledder_l = null;
+        
         physicsModels.detachAllChildren();
         physicsModels.removeFromParent();
         physicsModels.getWorldLightList().clear();        
         physicsModels.getLocalLightList().clear();
+        physicsModels = null;
         
+        BBSceneManager.getInstance().destroy();
         BBSceneManager.getInstance().getViewPort().clearScenes();
         
         this.engineSystem.getRenderManager().clearQueue(BBSceneManager.getInstance().getViewPort());        
-        this.engineSystem.getRenderManager().removeMainView("TEST");               
+        this.engineSystem.getRenderManager().removeMainView("TEST"); 
+        
     }
     
     @Override
@@ -248,7 +266,7 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
         
          PhysicsCharacter anv = human.getControl(CharacterControl.class);
         
-        if(anv.onGround() && player!=null){
+        if(anv.onGround()){
             if(jump)
             {
                 boolean hasBeenOnGroundCopy = hasBeenOnGround;
@@ -263,17 +281,17 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
                     jump = false;
                     hasJumped = 0;
                     if(walk){
-                        //channel.setAnim("RunTop", 0.50f);
+                        
                         logger.log(Level.INFO,"Character jumping end. Start stand.");
 
-                        player.getControl(AnimControl.class).getChannel(0).setAnim("run_01", 0.50f);
-                        player.getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.Loop);
+                        playerChannel.setAnim("run_01", 0.50f);
+                        playerChannel.setLoopMode(LoopMode.Loop);
                     }
                     else{
                         logger.log(Level.INFO,"Character jumping end. Start stand.");
 
-                        player.getControl(AnimControl.class).getChannel(0).setAnim("base_stand", 0.50f);
-                        player.getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.DontLoop);                           
+                        playerChannel.setAnim("base_stand", 0.50f);
+                        playerChannel.setLoopMode(LoopMode.DontLoop);                           
                         human.getControl(CharacterControl.class).setWalkDirection(Vector3f.ZERO);
                     }
                     hasBeenOnGround = false;
@@ -284,8 +302,8 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
             logger.log(Level.INFO,"Character jumping start.");
             jump = true;
             //channel.setAnim("JumpStart", 0.5f); // TODO: Must activate "JumpLoop" after a certain time.
-            //player.getControl(AnimControl.class).getChannel(0).setAnim("jump", 0.50f); // TODO: Must be activated after a certain time after "JumpStart"
-            //player.getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.DontLoop);
+            playerChannel.setAnim("jump", 0.50f); // TODO: Must be activated after a certain time after "JumpStart"
+            playerChannel.setLoopMode(LoopMode.DontLoop);
         }
        
     }
@@ -301,16 +319,17 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
     }
     public void quitToMain(){
         // switch to another screen
-        mNifty.gotoScreen("null");
+        //mNifty.gotoScreen("null");
         BBStateManager.getInstance().detach(this);
         //reset input
         BBInputManager.getInstance().getInputManager().removeListener(actionListener);
         BBInputManager.getInstance().getInputManager().clearMappings();
         BBInputManager.getInstance().resetInput(); 
         //Change Game state
-         mNifty.gotoScreen("start");
-        BBMainMenuState menu = new BBMainMenuState();
-        BBStateManager.getInstance().attach(menu);
+        //mNifty.gotoScreen("start");
+        //BBMainMenuState menu = new BBMainMenuState();
+        //BBStateManager.getInstance().attach(menu);
+    
     }
     
     public void loadScene(){
@@ -480,8 +499,9 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
         public void onAction(String binding, boolean value, float tpf) {
             
             if (binding.equals(BBGlobals.INPUT_MAPPING_EXIT)) {
-              System.out.println("ESCAPE");  
-              mNifty.gotoScreen("game");
+              //System.out.println("ESCAPE");  
+              //mNifty.gotoScreen("game");
+                engineSystem.stop(false);
             } 
             
             if(value == true){
@@ -494,9 +514,9 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
               walk = true;
               if(!jump){
               logger.log(Level.INFO,"Character walking init.");
-              //player.getControl(AnimControl.class).getChannel(0).setAnim("RunTop", 0.50f); // TODO: Must activate "RunBase" after a certain time.
-              player.getControl(AnimControl.class).getChannel(0).setAnim("run_01", 0.50f); // TODO: Must be activated after a certain time after "RunTop"
-              player.getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.Loop);
+              //playerChannel.setAnim("RunTop", 0.50f); // TODO: Must activate "RunBase" after a certain time.
+              playerChannel.setAnim("run_01", 0.50f); // TODO: Must be activated after a certain time after "RunTop"
+              playerChannel.setLoopMode(LoopMode.Loop);
               }
             }
             else if (pressed==0&!value&!binding.equals("Jump")) {
@@ -504,8 +524,8 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
               if(!jump){
                   logger.log(Level.INFO,"Character walking end.");
                   //playerChannel.setAnim("IdleTop", 0.50f);
-                  player.getControl(AnimControl.class).getChannel(0).setAnim("base_stand", 0.50f);          
-                  player.getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.DontLoop);          
+                  playerChannel.setAnim("base_stand", 0.50f);          
+                  playerChannel.setLoopMode(LoopMode.DontLoop);          
               }
             }
             if (binding.equals("Jump") &! jump ) {
@@ -514,17 +534,17 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
                     jump = true;
                     // channel.setAnim("JumpStart", 0.5f); // TODO: Must activate "JumpLoop" after a certain time.
                     human.getControl(CharacterControl.class).jump();
-                    player.getControl(AnimControl.class).getChannel(0).setAnim("jump", 0.50f); // TODO: Must be activated after a certain time after "JumpStart"
-                    player.getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.DontLoop);
+                    playerChannel.setAnim("jump", 0.50f); // TODO: Must be activated after a certain time after "JumpStart"
+                    playerChannel.setLoopMode(LoopMode.DontLoop);
                 }
             }
         }//end onAAction
         
               
         public void onAnalog(String binding, float value, float tpf) {
-            System.out.println("******** BINDING :"+ binding.toString() +"********");
-            System.out.println("******** JUMP VALUE  :"+ jump +"********");
-            //if(!jump){
+            //System.out.println("******** BINDING :"+ binding.toString() +"********");
+            //System.out.println("******** JUMP VALUE  :"+ jump +"********");
+            if(!jump){
                 if (binding.equals(BBGlobals.INPUT_MAPPING_LEFT)) {
                     Quaternion newRot = new Quaternion().slerp(human.getLocalRotation(),Directions.leftDir, tpf*8);
                     human.setLocalRotation(newRot);
@@ -542,12 +562,12 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
 
                 if(walk){
                     human.getControl(CharacterControl.class).setViewDirection(human.getWorldRotation().mult(Vector3f.UNIT_Z));                     
-                    human.getControl(CharacterControl.class).setWalkDirection(human.getControl(CharacterControl.class).getViewDirection().multLocal(.5f));                  
+                    human.getControl(CharacterControl.class).setWalkDirection(human.getControl(CharacterControl.class).getViewDirection().multLocal(.2f));                  
                 }        
                 else{
                     human.getControl(CharacterControl.class).setWalkDirection(Vector3f.ZERO);
                 }
-            //}
+            }
         }//end onAnalog
         
         // Abstract funtion coming with animation

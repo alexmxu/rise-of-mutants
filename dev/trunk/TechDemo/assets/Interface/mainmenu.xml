@@ -25,16 +25,21 @@
             <!-- we can use a button here but we've not included the controls at all! magic? no :) this whole screen is loaded additionally to other xml data loaded before -->
             <control id="start" name="button" label="Start" color="#000" align="center" valign="center">
                 <interact onClick="startGame()" />
+                <effect>
+                    <onHover name="border" color="#822f" post="true" />
+                    <onEnabled name="renderQuad" startColor="#2228" endColor="#2220" post="true" length="150" />
+                    <onDisabled name="renderQuad" startColor="#2220" endColor="#2228" post="true" length="150" />
+                </effect>
             </control>
           </panel>
           <panel id="panelstr" height="25%" width="35%" align="center" valign="center" childLayout="center" visibleToMouse="true">
             <control id="opts" name="button" label="Options" color="#000" align="center" valign="center">
-                <interact onClick="quitGame()" />
+                <interact onClick="optionGame()" />
             </control>
           </panel>  
           <panel id="panelquit" height="25%" width="35%" align="center" valign="center" childLayout="center" visibleToMouse="true">
-            <control id="back" name="button" label="Back" color="#000" align="center" valign="center">
-                <interact onClick="quitGame()" />
+            <control id="quit" name="button" label="Quit" color="#000" align="center" valign="center">
+                <interact onClick="quit()" />
             </control>
           </panel>
          <panel id="panel_mid" height="100%" width="100%" childLayout="horizontal">       
@@ -49,8 +54,21 @@
         <panel id="panel" style="myStyle" height="30%" width="35%" align="center" valign="center" childLayout="vertical">   
            
           <panel id="panquit" height="25%" width="35%" align="center" valign="center" childLayout="center" visibleToMouse="true">
-            <control id="back" name="button" label="Back" color="#000" align="center" valign="center">
+            <control id="backm" name="button" label="Back" color="#000" align="center" valign="center">
                 <interact onClick="quitToMain()" />
+            </control>
+          </panel>
+         </panel>
+    </layer>
+  </screen>
+
+  <screen id="credit" controller="com.bigboots.states.BBCreditState">
+    <layer id="layer" childLayout="center">
+        <panel id="panel" style="myStyle" height="30%" width="35%" align="center" valign="center" childLayout="vertical">   
+           
+          <panel id="panquit" height="25%" width="35%" align="center" valign="center" childLayout="center" visibleToMouse="true">
+            <control id="back" name="button" label="Back" color="#000" align="center" valign="center">
+                <interact onClick="quitGame()" />
             </control>
           </panel>
          </panel>
