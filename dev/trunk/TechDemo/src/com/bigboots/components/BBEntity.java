@@ -24,7 +24,7 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import java.util.ArrayList;
 import java.util.List;
-
+import com.jme3.audio.Listener;
 /**
  *
  * @author @author Ulrich Nzuzi <ulrichnz@code.google.com>
@@ -32,11 +32,12 @@ import java.util.List;
  * Composite of our Object component Design
  */
 public class BBEntity extends BBObject{
-    public Node mTrasform;
+    public Node mTransform;
     protected Geometry mDisplay;
     protected CollisionShape mRigidBody;
     protected Light mLight;
-    protected AudioNode mAudio;
+    public AudioNode mAudio;
+    public Listener listener;
     protected AnimControl mAnimation;
     protected boolean mEnable;
     
@@ -45,7 +46,8 @@ public class BBEntity extends BBObject{
     
     public BBEntity(String name){
         super(name);
-        mTrasform = new Node(name);
+        mTransform = new Node(name);
+        listener = new Listener();
     }
   
     //Adds the BBObject to the composition.
@@ -59,7 +61,7 @@ public class BBEntity extends BBObject{
     }
     
     public void attachModel(Spatial sp){
-        mTrasform.attachChild(sp);
+        mTransform.attachChild(sp);
     }
     
     public void getComponent(String name){
@@ -77,6 +79,13 @@ public class BBEntity extends BBObject{
     
     public void getChildComponent(){
         
+    }
+    
+    public void setSound(AudioNode aud) {
+        mAudio = aud;
+        if(mTransform != null){
+            listener.setLocation(mTransform.getWorldTranslation());
+        }
     }
     
     public void setEnabled(boolean enabled) {
