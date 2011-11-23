@@ -46,10 +46,6 @@ public class BBObject {
         this.type = type;
     }
     
-    
-    //Prints the graphic.
-    public void print(StringBuffer buff){
-        System.out.println(buff + "BBObject : "+name);
-    }
+   
 
 }
