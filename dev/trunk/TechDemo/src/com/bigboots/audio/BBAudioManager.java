@@ -89,6 +89,10 @@ public class BBAudioManager implements BBUpdateListener{
         return listener;
     }
     
+    public void setListener(Listener lstr) {
+        audioRenderer.setListener(lstr);
+    }
+    
     public void destroy(){
         if (audioRenderer != null){
             audioRenderer.cleanup();

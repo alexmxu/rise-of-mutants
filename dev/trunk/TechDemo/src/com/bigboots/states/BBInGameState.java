@@ -219,9 +219,9 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
         //Node tmpModel = new Node();
         //tmpModel.attachChild(tmp);
         tmpSpatial.setLocalTranslation(0, -.85f, 0);
-        mEnemy.mTrasform.attachChild(tmpSpatial);
-        mEnemy.mTrasform.scale(5);
-        mEnemy.mTrasform.setLocalTranslation(-0.44354653f, 5f, -90.836426f);//(3.20598009f, 3.1f, -22.878937f);
+        mEnemy.mTransform.attachChild(tmpSpatial);
+        mEnemy.mTransform.scale(5);
+        mEnemy.mTransform.setLocalTranslation(-0.44354653f, 5f, -90.836426f);//(3.20598009f, 3.1f, -22.878937f);
         //Set up animation
         AnimControl enControl = tmpSpatial.getControl(AnimControl.class);
         //control.addListener(actionListener);
@@ -239,25 +239,33 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
         eControler.setGravity(30);
         eControler.setUseViewDirection(true);       
         //eControler.setPhysicsLocation(new Vector3f(-15.5712421f, 5.2f, 0.255402f));
-        mEnemy.mTrasform.addControl(eControler);
+        mEnemy.mTransform.addControl(eControler);
         
-        BBSceneManager.getInstance().addChild(mEnemy.mTrasform);
+        BBSceneManager.getInstance().addChild(mEnemy.mTransform);
         //BBPhysicsManager.getInstance().getPhysicsSpace().add(mEnemy.mTrasform.getControl(CharacterControl.class));
-        BBPhysicsManager.getInstance().getPhysicsSpace().addAll(mEnemy.mTrasform);
+        BBPhysicsManager.getInstance().getPhysicsSpace().addAll(mEnemy.mTransform);
         //Add it the map of Enemies
-        mapEnemies.put(new Long(1), mEnemy.mTrasform);
+        mapEnemies.put(new Long(1), mEnemy.mTransform);
         
         loadScene();
         
         //init music
         //BBAudioManager.getInstance().getListener().setLocation(humanStalker.getWorldTranslation());
         music = BBAudioManager.getInstance().createAudio("Sounds/game.wav", false);
-        music.setVolume(1);
+        music.setVolume(3);
         music.setLooping(true);
         music.play();
         
         step = BBAudioManager.getInstance().createAudio("Sounds/step1.wav", false);
         step.setVolume(10);
+        
+        //TEST enemy sound
+        AudioNode eAud = BBAudioManager.getInstance().createAudio("Sounds/growling1.wav", false);
+        mEnemy.setSound(eAud);
+        BBAudioManager.getInstance().getAudioRenderer().setListener(mEnemy.listener);
+        mEnemy.mAudio.setLooping(true);
+        mEnemy.mAudio.setVolume(1);
+        mEnemy.mAudio.play();
     }
     
     @Override
