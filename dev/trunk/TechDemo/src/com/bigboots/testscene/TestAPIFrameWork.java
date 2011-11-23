@@ -27,7 +27,9 @@ import com.bigboots.components.BBEntity;
 public class TestAPIFrameWork extends BBApplication{
     
     public static void main(String[] args) {
-                BBComponent cmp1 = new BBComponent("Light");
+        
+        /*
+        BBComponent cmp1 = new BBComponent("Light");
         BBComponent cmp2 = new BBComponent("Flame");
         BBEntity armor = new BBEntity("Armor");
         armor.add(cmp1);
@@ -47,7 +49,7 @@ public class TestAPIFrameWork extends BBApplication{
         myPlayer.add(armor);
         
         myPlayer.display();
-        
+        */
         
         TestAPIFrameWork app = new TestAPIFrameWork();
         app.run();

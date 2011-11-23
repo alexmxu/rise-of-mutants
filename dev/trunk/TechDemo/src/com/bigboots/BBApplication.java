@@ -16,6 +16,7 @@
 package com.bigboots;
 
 import com.bigboots.audio.BBAudioManager;
+import com.bigboots.core.BBDebugInfo;
 import com.bigboots.core.BBEngineSystem;
 import com.bigboots.core.BBSceneManager;
 import com.bigboots.core.BBSettings;
@@ -71,6 +72,12 @@ public class BBApplication implements SystemListener {
         BBGuiManager.getInstance().init(engineSystem);
         //init Audio
         BBAudioManager.getInstance().initAudio(engineSystem);
+        
+        BBDebugInfo.getInstance().loadFPSText();
+        BBDebugInfo.getInstance().loadStatsView(engineSystem.getRenderer());
+        BBDebugInfo.getInstance().setDisplayFps(true);
+        BBDebugInfo.getInstance().setDisplayStatView(true);
+        
         //Launch the main menu screen
         BBMainMenuState menu = new BBMainMenuState();
         BBStateManager.getInstance().attach(menu);
@@ -83,9 +90,11 @@ public class BBApplication implements SystemListener {
      */
     public void update(){
         float tpf = engineSystem.getTimer().getTimePerFrame();
+        //Display stats
+        BBDebugInfo.getInstance().update(tpf);
         
         BBStateManager.getInstance().update(tpf);
-        
+
         //update all updater : rootnode, input, etc
         BBUpdateManager.getInstance().update(tpf);
         
@@ -98,6 +107,7 @@ public class BBApplication implements SystemListener {
         engineSystem.update();
         
         BBStateManager.getInstance().postRender();
+        
     }
     
     /**

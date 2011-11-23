@@ -15,20 +15,29 @@
  */
 package com.bigboots.components;
 
-import java.util.HashSet;
-import java.util.Set;
+import com.jme3.animation.AnimControl;
+import com.jme3.audio.AudioNode;
+import com.jme3.bullet.collision.shapes.CollisionShape;
+import com.jme3.light.Light;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.Node;
 
 /**
  *
  * @author @author Ulrich Nzuzi <ulrichnz@code.google.com>
  */
 public class BBComponent extends BBObject{
-    
+    protected Node mTrasform;
+    protected Geometry mDisplay;
+    protected CollisionShape mRigidBody;
+    protected Light mLight;
+    protected AudioNode mAudio;
+    protected AnimControl mAnimation;
+    protected boolean mEnable;
     
     public BBComponent(String name){
-        super(name + "_Component");
-        super.setType("COMPONENT");
-        
+        super(name);
+        mTrasform = new Node(name);
     }
     
     
