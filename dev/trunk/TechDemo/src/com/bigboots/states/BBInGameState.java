@@ -17,6 +17,7 @@ package com.bigboots.states;
 
 import com.bigboots.BBGlobals;
 import com.bigboots.audio.BBAudioManager;
+import com.bigboots.components.BBEntity;
 import com.bigboots.core.BBEngineSystem;
 import com.bigboots.core.BBSceneManager;
 import com.bigboots.core.BBSettings;
@@ -64,6 +65,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.jme3.audio.AudioNode;
+import java.util.HashMap;
 
 /**
  *
@@ -96,6 +98,8 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
     boolean hasBeenOnGround = false;
     private int pressed=0;
     private boolean walk, jump = false;
+    // Temp workaround, speed is reset after blending.
+    private float smallManSpeed = .6f;
     
     //music
     private AudioNode music;
@@ -104,6 +108,7 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
     private GameActionListener actionListener = new GameActionListener();
     private static final Logger logger = Logger.getLogger(BBInGameState.class.getName());
     
+    private HashMap<Long, Node> mapEnemies = new HashMap<Long, Node>();
     
     @Override
     public void initialize(BBEngineSystem eng) {
@@ -153,19 +158,19 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
                 
         human = new Node("human");
         //Spatial sinbadModel2 = assetManager.loadModel("Models/Sinbad/Sinbad.mesh.j3o");
-        Spatial sinbadModel2 = BBSceneManager.getInstance().loadSpatial("Scenes/TestScene/character.mesh.xml");
+        Spatial sinbadSpatial = BBSceneManager.getInstance().loadSpatial("Scenes/TestScene/character.mesh.xml");
 
         Node sinbadModel = new Node();
-        sinbadModel.attachChild(sinbadModel2);
-        sinbadModel2.setLocalTranslation(0, -.85f, 0);
-        sinbadModel2.setName("human_player");
+        sinbadModel.attachChild(sinbadSpatial);
+        sinbadSpatial.setLocalTranslation(0, -.85f, 0);
+        sinbadSpatial.setName("human_player");
 
         human.attachChild(sinbadModel);
         //    human.attachChild(sword);
-        human.setLocalTranslation(new Vector3f(0, 30, 0));
+        human.setLocalTranslation(new Vector3f(0, 10, 0));
 
         //Set up animation
-        control = sinbadModel2.getControl(AnimControl.class);
+        control = sinbadSpatial.getControl(AnimControl.class);
         //control.addListener(actionListener);
         // PlayerChannel later refered to by player.getControl(AnimControl.class).getChannel(0);
         playerChannel = control.createChannel();
@@ -189,7 +194,7 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
         human.addControl(pControler);
         human.scale(2); 
         player = human.getChild("humanplayer");
-        BBPhysicsManager.getInstance().getPhysicsSpace().addAll(human);
+        //BBPhysicsManager.getInstance().getPhysicsSpace().addAll(human);
         BBSceneManager.getInstance().addChild(human);
         BBSceneManager.getInstance().addChild(humanStalker);
         
@@ -206,7 +211,42 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
         camNode.lookAt(humanStalker.getLocalTranslation(), Vector3f.UNIT_Y);
         //Attach the camNode to the target:
         humanStalker.attachChild(camNode);
-     
+        
+        //*******************************************
+        //TEST AND LOAD ENEMY WITH ENTITY SYSTEM
+        BBEntity mEnemy = new BBEntity("ENEMY");
+        Spatial tmpSpatial = BBSceneManager.getInstance().loadSpatial("Scenes/TestScene/mutant.j3o");
+        //Node tmpModel = new Node();
+        //tmpModel.attachChild(tmp);
+        tmpSpatial.setLocalTranslation(0, -.85f, 0);
+        mEnemy.mTrasform.attachChild(tmpSpatial);
+        mEnemy.mTrasform.scale(5);
+        mEnemy.mTrasform.setLocalTranslation(-0.44354653f, 5f, -90.836426f);//(3.20598009f, 3.1f, -22.878937f);
+        //Set up animation
+        AnimControl enControl = tmpSpatial.getControl(AnimControl.class);
+        //control.addListener(actionListener);
+        // PlayerChannel later refered to by player.getControl(AnimControl.class).getChannel(0);
+        AnimChannel enChannel = enControl.createChannel();
+        enChannel.setAnim("mutant_idle");
+        enChannel.setLoopMode(LoopMode.Cycle);
+        enChannel.setSpeed(1f);
+        
+        // CapWe also put the player in its starting position.
+        CapsuleCollisionShape enShape = new CapsuleCollisionShape(.7f, 7f, 1);
+        CharacterControl eControler = new CharacterControl(enShape, .05f);
+        eControler.setJumpSpeed(20);
+        eControler.setFallSpeed(30);
+        eControler.setGravity(30);
+        eControler.setUseViewDirection(true);       
+        //eControler.setPhysicsLocation(new Vector3f(-15.5712421f, 5.2f, 0.255402f));
+        mEnemy.mTrasform.addControl(eControler);
+        
+        BBSceneManager.getInstance().addChild(mEnemy.mTrasform);
+        //BBPhysicsManager.getInstance().getPhysicsSpace().add(mEnemy.mTrasform.getControl(CharacterControl.class));
+        BBPhysicsManager.getInstance().getPhysicsSpace().addAll(mEnemy.mTrasform);
+        //Add it the map of Enemies
+        mapEnemies.put(new Long(1), mEnemy.mTrasform);
+        
         loadScene();
         
         //init music
@@ -276,6 +316,43 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
     public void update(float tpf) {
         super.update(tpf);
         
+        //*************************************************
+        // Update Enemies
+        for(Node a:mapEnemies.values()){
+            Vector3f humanPos = human.getLocalTranslation().clone();
+            Quaternion newRot = new Quaternion().fromAngleAxis(FastMath.rand.nextFloat()*2-.5f, Vector3f.UNIT_Y);
+            humanPos.y = a.getLocalTranslation().y;            
+            a.lookAt(humanPos,Vector3f.UNIT_Y);
+            a.getLocalRotation().slerp(newRot,tpf);
+            //System.out.println("**** POS : "+humanPos.toString());           
+            float distSquared = humanPos.distanceSquared(a.getLocalTranslation());
+            if(distSquared>9){      
+            a.getControl(CharacterControl.class).setViewDirection(a.getLocalRotation().mult(Vector3f.UNIT_Z));            
+            a.getControl(CharacterControl.class).setWalkDirection(a.getLocalRotation().mult(Vector3f.UNIT_Z).mult(tpf*1.8f));
+                if(!a.getChild(0).getControl(AnimControl.class).getChannel(0).getAnimationName().equals("mutant_base_walk"))
+                {
+                //a.getChild(0).getControl(AnimControl.class).getChannel(0).setAnim("RunTop", 0.50f); // TODO: Must activate "RunBase" after a certain time.                    
+                a.getChild(0).getControl(AnimControl.class).getChannel(0).setAnim("mutant_base_walk", 0.50f);
+                a.getChild(0).getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.Loop);
+                }
+                // Workaround
+                if(a.getChild(0).getControl(AnimControl.class).getChannel(0).getSpeed()!=smallManSpeed){
+                a.getChild(0).getControl(AnimControl.class).getChannel(0).setSpeed(smallManSpeed);
+                }            
+            }
+            else{
+            a.getControl(CharacterControl.class).setWalkDirection(Vector3f.ZERO);
+                if(!a.getChild(0).getControl(AnimControl.class).getChannel(0).getAnimationName().equals("mutant_idle"))
+                {
+                a.getChild(0).getControl(AnimControl.class).getChannel(0).setAnim("mutant_idle", 0.50f);
+                a.getChild(0).getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.Loop);
+                }
+               
+            }
+        }//end for
+        
+        //******************************************************
+        // Update character
         Vector3f pos = human.getControl(CharacterControl.class).getPhysicsLocation();
         humanStalker.setLocalTranslation(pos);
         
@@ -542,7 +619,7 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
                         foundMainLocation = true;
                     }                   
                     Spatial ndGet =  ndmd.getChild(j).clone(false);
-                    System.out.println("VisTEST"+ndmd.getChild(j).getName());                
+                    //System.out.println("VisTEST"+ndmd.getChild(j).getName());                
                     ndGet.setName(strndscene);
                     Transform a = new Transform();
                     a = nd.getChild(i).getWorldTransform().clone();
@@ -583,7 +660,7 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
                         foundMainLocation = true;
                     }                   
                     Spatial ndGet =  physicsModels.getChild(j).clone(false);
-                    System.out.println("PHYSTEST"+physicsModels.getChild(j).getName());
+                    //System.out.println("PHYSTEST"+physicsModels.getChild(j).getName());
                     ndGet.setName(strndscene);
 
                     Transform a = nd.getChild(i).getWorldTransform().clone();
