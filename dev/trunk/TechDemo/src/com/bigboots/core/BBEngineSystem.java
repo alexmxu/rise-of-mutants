@@ -57,9 +57,7 @@ public class BBEngineSystem {
     protected boolean pauseOnFocus = true;
     protected float speed = 1f;
     protected boolean paused = false;
-    protected float secondCounter = 0.0f;
    
-    
     private final ConcurrentLinkedQueue<AppTask<?>> taskQueue = new ConcurrentLinkedQueue<AppTask<?>>();
     
     
@@ -132,21 +130,11 @@ public class BBEngineSystem {
         if (speed == 0 || paused)
             return;
         
-        if(timer != null){
-            timer.update();
-        
-                
+        timer.update();
+       
         float tpf = timer.getTimePerFrame() * speed;
-
-        secondCounter += timer.getTimePerFrame();
-        int fps = (int) timer.getFrameRate();
-        if (secondCounter >= 1.0f) {
-            secondCounter = 0.0f;
-        }
- 
         renderManager.render(tpf, context.isRenderable());
 
-        }
     }
     
         

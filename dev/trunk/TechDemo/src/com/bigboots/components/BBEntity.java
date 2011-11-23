@@ -15,6 +15,13 @@
  */
 package com.bigboots.components;
 
+import com.jme3.animation.AnimControl;
+import com.jme3.audio.AudioNode;
+import com.jme3.bullet.collision.shapes.CollisionShape;
+import com.jme3.light.Light;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,22 +32,38 @@ import java.util.List;
  * Composite of our Object component Design
  */
 public class BBEntity extends BBObject{
+    public Node mTrasform;
+    protected Geometry mDisplay;
+    protected CollisionShape mRigidBody;
+    protected Light mLight;
+    protected AudioNode mAudio;
+    protected AnimControl mAnimation;
+    protected boolean mEnable;
     
-    public static StringBuffer strBuff = new StringBuffer();
-
     //Collection of child graphics.
     private List<BBObject> mChildComponents = new ArrayList<BBObject>();
     
     public BBEntity(String name){
-        super(name + "_Entity");
-        super.setType("ENTITY");
+        super(name);
+        mTrasform = new Node(name);
+    }
+  
+    //Adds the BBObject to the composition.
+    public void addComponent(BBObject obj) {
+        mChildComponents.add(obj);
+    }
+ 
+    //Removes the BBObject from the composition.
+    public void removeComponent(BBObject obj) {
+        mChildComponents.remove(obj);
     }
     
-    //Prints the BBObject.
-    public void display() {
-        super.print(strBuff);
-        strBuff.append("   ");
-
+    public void attachModel(Spatial sp){
+        mTrasform.attachChild(sp);
+    }
+    
+    public void getComponent(String name){
+        /*
         for (BBObject obj : mChildComponents) {
             if(obj.getType().equals("ENTITY")){
                 ((BBEntity)obj).display();
@@ -49,19 +72,18 @@ public class BBEntity extends BBObject{
                 obj.print(strBuff);
             }
         }
-        strBuff.setLength(strBuff.length() - 3);
-
+    */
     }
-
     
-    //Adds the BBObject to the composition.
-    public void add(BBObject obj) {
-        mChildComponents.add(obj);
+    public void getChildComponent(){
+        
     }
- 
-    //Removes the BBObject from the composition.
-    public void remove(BBObject obj) {
-        mChildComponents.remove(obj);
+    
+    public void setEnabled(boolean enabled) {
+        mEnable = enabled;
     }
 
+    public boolean isEnabled() {
+        return mEnable;
+    }
 }

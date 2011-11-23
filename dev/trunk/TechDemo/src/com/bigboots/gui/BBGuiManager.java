@@ -25,6 +25,8 @@ import com.jme3.scene.Node;
 import com.jme3.niftygui.NiftyJmeDisplay;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
+import com.jme3.renderer.queue.RenderQueue.Bucket;
+import com.jme3.scene.Spatial.CullHint;
 import de.lessvoid.nifty.Nifty;
 
 /**
@@ -48,6 +50,9 @@ public class BBGuiManager implements BBUpdateListener{
     private NiftyJmeDisplay niftyDisplay;
     
     public void init(BBEngineSystem engineSystem){
+        //Use for displaying Debug info
+        guiNode.setQueueBucket(Bucket.Gui);
+        guiNode.setCullHint(CullHint.Never);
         // Create a new cam for the gui
         Camera guiCam = new Camera(BBSettings.getInstance().getSettings().getWidth(), BBSettings.getInstance().getSettings().getHeight());
         guiViewPort = engineSystem.getRenderManager().createPostView("Gui Default", guiCam);
@@ -81,5 +86,9 @@ public class BBGuiManager implements BBUpdateListener{
         niftyDisplay.cleanup();
         guiNode.detachAllChildren();
         guiViewPort.clearScenes();
+    }
+    
+    public Node getGuiNode(){
+        return guiNode;
     }
 }
