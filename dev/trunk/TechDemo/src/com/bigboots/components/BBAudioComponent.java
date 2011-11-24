@@ -15,33 +15,27 @@
  */
 package com.bigboots.components;
 
+import com.jme3.asset.AssetManager;
+import com.jme3.audio.AudioNode;
 
 /**
  *
  * @author @author Ulrich Nzuzi <ulrichnz@code.google.com>
  */
-public interface BBComponent {
-    /**
-     * The type of the Component.
-     */
-    public enum Type {
-        NODE,
-        LIGHT,
-        MESH,
-        AUDIO,
-        ANIMATION,
-        PHYSICS
+public class BBAudioComponent extends AudioNode implements BBComponent{
+    public BBAudioComponent(){
+        super();
     }
     
-    /**
-     * The Family of the Component.
-     */
-    public enum Family {
-        VISUAL,
-        AI
+    public BBAudioComponent(AssetManager assetManager, String name, boolean stream){
+        super(assetManager, name, stream, false);
     }
     
-    public Type getType();
+    public Type getType(){
+        return Type.AUDIO;
+    }
     
-    public Family getFamily();
+    public Family getFamily(){
+        return Family.VISUAL;
+    }
 }

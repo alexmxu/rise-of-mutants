@@ -17,7 +17,10 @@ package com.bigboots.states;
 
 import com.bigboots.BBGlobals;
 import com.bigboots.audio.BBAudioManager;
+import com.bigboots.components.BBAnimComponent;
+import com.bigboots.components.BBAudioComponent;
 import com.bigboots.components.BBEntity;
+import com.bigboots.components.BBNodeComponent;
 import com.bigboots.core.BBEngineSystem;
 import com.bigboots.core.BBSceneManager;
 import com.bigboots.core.BBSettings;
@@ -64,7 +67,7 @@ import com.jme3.scene.shape.Box;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.jme3.audio.AudioNode;
+
 import java.util.HashMap;
 
 /**
@@ -102,8 +105,8 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
     private float smallManSpeed = .6f;
     
     //music
-    private AudioNode music;
-    private AudioNode step;
+    private BBAudioComponent music;
+    private BBAudioComponent step;
     
     private GameActionListener actionListener = new GameActionListener();
     private static final Logger logger = Logger.getLogger(BBInGameState.class.getName());
@@ -215,21 +218,15 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
         //*******************************************
         //TEST AND LOAD ENEMY WITH ENTITY SYSTEM
         BBEntity mEnemy = new BBEntity("ENEMY");
-        Spatial tmpSpatial = BBSceneManager.getInstance().loadSpatial("Scenes/TestScene/mutant.j3o");
-        //Node tmpModel = new Node();
-        //tmpModel.attachChild(tmp);
-        tmpSpatial.setLocalTranslation(0, -.85f, 0);
-        mEnemy.mTransform.attachChild(tmpSpatial);
-        mEnemy.mTransform.scale(5);
-        mEnemy.mTransform.setLocalTranslation(-0.44354653f, 5f, -90.836426f);//(3.20598009f, 3.1f, -22.878937f);
-        //Set up animation
-        AnimControl enControl = tmpSpatial.getControl(AnimControl.class);
-        //control.addListener(actionListener);
-        // PlayerChannel later refered to by player.getControl(AnimControl.class).getChannel(0);
-        AnimChannel enChannel = enControl.createChannel();
-        enChannel.setAnim("mutant_idle");
-        enChannel.setLoopMode(LoopMode.Cycle);
-        enChannel.setSpeed(1f);
+        mEnemy.createEntity("Scenes/TestScene/mutant.j3o");
+        mEnemy.getComponent(BBNodeComponent.class).scale(5);
+        mEnemy.getComponent(BBNodeComponent.class).setLocalTranslation(-0.44354653f, 3f, -90.836426f);
+        
+        //Set up animation       
+        mEnemy.createAnimation();
+        mEnemy.getComponent(BBAnimComponent.class).getChannel().setAnim("mutant_idle");
+        mEnemy.getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.Cycle);
+        mEnemy.getComponent(BBAnimComponent.class).getChannel().setSpeed(1f);
         
         // CapWe also put the player in its starting position.
         CapsuleCollisionShape enShape = new CapsuleCollisionShape(.7f, 7f, 1);
@@ -238,14 +235,14 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
         eControler.setFallSpeed(30);
         eControler.setGravity(30);
         eControler.setUseViewDirection(true);       
-        //eControler.setPhysicsLocation(new Vector3f(-15.5712421f, 5.2f, 0.255402f));
-        mEnemy.mTransform.addControl(eControler);
+
+        mEnemy.getComponent(BBNodeComponent.class).addControl(eControler);
         
-        BBSceneManager.getInstance().addChild(mEnemy.mTransform);
+        BBSceneManager.getInstance().addChild(mEnemy.getComponent(BBNodeComponent.class));
         //BBPhysicsManager.getInstance().getPhysicsSpace().add(mEnemy.mTrasform.getControl(CharacterControl.class));
-        BBPhysicsManager.getInstance().getPhysicsSpace().addAll(mEnemy.mTransform);
+        BBPhysicsManager.getInstance().getPhysicsSpace().addAll(mEnemy.getComponent(BBNodeComponent.class));
         //Add it the map of Enemies
-        mapEnemies.put(new Long(1), mEnemy.mTransform);
+        mapEnemies.put(new Long(1), (mEnemy.getComponent(BBNodeComponent.class)));
         
         loadScene();
         
@@ -260,12 +257,11 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
         step.setVolume(10);
         
         //TEST enemy sound
-        AudioNode eAud = BBAudioManager.getInstance().createAudio("Sounds/growling1.wav", false);
-        mEnemy.setSound(eAud);
         BBAudioManager.getInstance().getAudioRenderer().setListener(mEnemy.listener);
-        mEnemy.mAudio.setLooping(true);
-        mEnemy.mAudio.setVolume(1);
-        mEnemy.mAudio.play();
+        mEnemy.createAudio("Sounds/growling1.wav");
+        mEnemy.getComponent(BBAudioComponent.class).setLooping(true);
+        mEnemy.getComponent(BBAudioComponent.class).setVolume(1);
+        mEnemy.getComponent(BBAudioComponent.class).play();
     }
     
     @Override
