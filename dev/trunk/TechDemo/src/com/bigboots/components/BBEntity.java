@@ -15,16 +15,17 @@
  */
 package com.bigboots.components;
 
+import com.bigboots.audio.BBAudioManager;
+import com.bigboots.core.BBSceneManager;
 import com.jme3.animation.AnimControl;
-import com.jme3.audio.AudioNode;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.light.Light;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import java.util.ArrayList;
 import java.util.List;
 import com.jme3.audio.Listener;
+
 /**
  *
  * @author @author Ulrich Nzuzi <ulrichnz@code.google.com>
@@ -32,60 +33,48 @@ import com.jme3.audio.Listener;
  * Composite of our Object component Design
  */
 public class BBEntity extends BBObject{
-    public Node mTransform;
+    private BBNodeComponent mNode;
+    private BBAudioComponent mAudio;
+    private BBAnimComponent mAnimation;
+    
     protected Geometry mDisplay;
     protected CollisionShape mRigidBody;
     protected Light mLight;
-    public AudioNode mAudio;
     public Listener listener;
-    protected AnimControl mAnimation;
     protected boolean mEnable;
-    
+    private Spatial tmpSpatial;
+
     //Collection of child graphics.
     private List<BBObject> mChildComponents = new ArrayList<BBObject>();
     
     public BBEntity(String name){
         super(name);
-        mTransform = new Node(name);
+        //mTransform = new Node(name);
+        mNode = new BBNodeComponent(name);
         listener = new Listener();
-    }
-  
-    //Adds the BBObject to the composition.
-    public void addComponent(BBObject obj) {
-        mChildComponents.add(obj);
-    }
- 
-    //Removes the BBObject from the composition.
-    public void removeComponent(BBObject obj) {
-        mChildComponents.remove(obj);
+        listener.setLocation(mNode.getWorldTranslation());
     }
     
-    public void attachModel(Spatial sp){
-        mTransform.attachChild(sp);
+    public void createEntity(String mesh){
+       tmpSpatial =  BBSceneManager.getInstance().loadSpatial(mesh);
+       tmpSpatial.setLocalTranslation(0, -.85f, 0);
+       mNode.attachChild(tmpSpatial);
     }
     
-    public void getComponent(String name){
-        /*
-        for (BBObject obj : mChildComponents) {
-            if(obj.getType().equals("ENTITY")){
-                ((BBEntity)obj).display();
-            }
-            else{
-                obj.print(strBuff);
-            }
-        }
-    */
+    public void createAnimation(){
+        mAnimation = new BBAnimComponent(tmpSpatial.getControl(AnimControl.class).createChannel());
     }
     
-    public void getChildComponent(){
+    public void createAudio(String name){
+        mAudio = BBAudioManager.getInstance().createAudio(name, false);
+    }
+    
+    public void createPhysic(){
         
     }
     
-    public void setSound(AudioNode aud) {
-        mAudio = aud;
-        if(mTransform != null){
-            listener.setLocation(mTransform.getWorldTranslation());
-        }
+    private void attachModel(Spatial sp){
+        mNode.attachChild(sp);
     }
     
     public void setEnabled(boolean enabled) {
@@ -95,4 +84,44 @@ public class BBEntity extends BBObject{
     public boolean isEnabled() {
         return mEnable;
     }
+    //Adds the BBObject to the composition.
+    public void addObjectComponent(BBObject obj) {
+        mChildComponents.add(obj);
+    }
+ 
+    //Removes the BBObject from the composition.
+    public void removeObjectComponent(BBObject obj) {
+        mChildComponents.remove(obj);
+    }
+       
+    public <T extends BBComponent>T getComponent(Class<T> name){
+        if(name.equals(BBNodeComponent.class)){
+            return (T)mNode;
+        }
+        if(name.equals(BBAudioComponent.class)){
+            return (T)mAudio;
+        }
+        if(name.equals(BBAnimComponent.class)){
+            return (T)mAnimation;
+        }
+       return null;
+        /*
+        for (BBObject obj : mChildComponents) {
+            if(obj.getType().equals("ENTITY")){
+                ((BBEntity)obj).display();
+            }
+            else{
+                obj.print(strBuff);
+            }
+        }
+        */
+    }
+    
+    public void getChildComponent(){
+        
+    }
+    public Geometry getMesh(){
+        return (Geometry)tmpSpatial;
+    }
+   
 }

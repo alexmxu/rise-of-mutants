@@ -15,33 +15,29 @@
  */
 package com.bigboots.components;
 
+import com.jme3.animation.AnimChannel;
 
 /**
  *
  * @author @author Ulrich Nzuzi <ulrichnz@code.google.com>
  */
-public interface BBComponent {
-    /**
-     * The type of the Component.
-     */
-    public enum Type {
-        NODE,
-        LIGHT,
-        MESH,
-        AUDIO,
-        ANIMATION,
-        PHYSICS
+public class BBAnimComponent implements BBComponent{
+    private AnimChannel enChannel;
+    
+    //Note : Cannont extend AnimChannel class because constructor is private 
+    public BBAnimComponent(AnimChannel anim){
+        enChannel = anim;
     }
     
-    /**
-     * The Family of the Component.
-     */
-    public enum Family {
-        VISUAL,
-        AI
+    public AnimChannel getChannel(){
+        return enChannel;
     }
     
-    public Type getType();
+    public Type getType(){
+        return Type.ANIMATION;
+    }
     
-    public Family getFamily();
+    public Family getFamily(){
+        return Family.VISUAL;
+    }    
 }

@@ -15,33 +15,27 @@
  */
 package com.bigboots.components;
 
+import com.jme3.scene.Node;
 
 /**
  *
  * @author @author Ulrich Nzuzi <ulrichnz@code.google.com>
  */
-public interface BBComponent {
-    /**
-     * The type of the Component.
-     */
-    public enum Type {
-        NODE,
-        LIGHT,
-        MESH,
-        AUDIO,
-        ANIMATION,
-        PHYSICS
+public class BBNodeComponent extends Node implements BBComponent{
+    
+    public BBNodeComponent(){
+        super();
     }
     
-    /**
-     * The Family of the Component.
-     */
-    public enum Family {
-        VISUAL,
-        AI
+    public BBNodeComponent(String name){
+        super(name);
     }
     
-    public Type getType();
+    public Type getType(){
+        return Type.NODE;
+    }
     
-    public Family getFamily();
+    public Family getFamily(){
+        return Family.VISUAL;
+    }
 }

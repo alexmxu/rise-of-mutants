@@ -15,6 +15,7 @@
  */
 package com.bigboots.audio;
 
+import com.bigboots.components.BBAudioComponent;
 import com.bigboots.core.BBEngineSystem;
 import com.bigboots.core.BBSceneManager;
 import com.bigboots.core.BBSettings;
@@ -59,8 +60,8 @@ public class BBAudioManager implements BBUpdateListener{
         BBUpdateManager.getInstance().register(this);
     }
     
-    public AudioNode createAudio(String buffer, boolean stream){
-        AudioNode node = new AudioNode(BBSceneManager.getInstance().getAssetManager(), buffer, stream);
+    public BBAudioComponent createAudio(String buffer, boolean stream){
+        BBAudioComponent node = new BBAudioComponent(BBSceneManager.getInstance().getAssetManager(), buffer, stream);
         return node;
     }
     
