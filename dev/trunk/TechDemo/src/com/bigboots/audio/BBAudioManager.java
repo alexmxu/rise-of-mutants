@@ -60,11 +60,6 @@ public class BBAudioManager implements BBUpdateListener{
         BBUpdateManager.getInstance().register(this);
     }
     
-    public BBAudioComponent createAudio(String buffer, boolean stream){
-        BBAudioComponent node = new BBAudioComponent(BBSceneManager.getInstance().getAssetManager(), buffer, stream);
-        return node;
-    }
-    
     
     public void update(float tpf){
         // Make sure the audio renderer is available to callables

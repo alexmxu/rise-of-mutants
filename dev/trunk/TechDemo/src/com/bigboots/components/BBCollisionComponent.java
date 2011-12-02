@@ -15,27 +15,47 @@
  */
 package com.bigboots.components;
 
-import com.jme3.scene.Node;
+import com.jme3.bullet.collision.shapes.CollisionShape;
+
 
 /**
  *
  * @author @author Ulrich Nzuzi <ulrichnz@code.google.com>
  */
-public class BBNodeComponent extends Node implements BBComponent{
+public class BBCollisionComponent implements BBComponent{
     
-    public BBNodeComponent(){
-        super();
+    public enum ShapeType {
+        NONE,
+        CAPSULE,
+        BOX,
+        CYLINDER,
+        HULL,
+        MESH,
+        PLAN,
+        SPHERE,
+        CONE
     }
     
-    public BBNodeComponent(String name){
-        super(name);
+    private ShapeType mType;
+    private CollisionShape mSpecificShape;
+    
+    public BBCollisionComponent(){
+        //super();
+        mType = ShapeType.NONE;
     }
     
+    public void attachShape(CollisionShape shp){
+        mSpecificShape = shp;
+    }
+    
+    public CollisionShape getShape(){
+        return mSpecificShape;
+    }
     public CompType getType(){
-        return CompType.NODE;
+        return CompType.COLSHAPE;
     }
     
     public CompFamily getFamily(){
-        return CompFamily.VISUAL;
+        return CompFamily.PHYSICS;
     }
 }
