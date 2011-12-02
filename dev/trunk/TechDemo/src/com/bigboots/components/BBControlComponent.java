@@ -15,27 +15,39 @@
  */
 package com.bigboots.components;
 
-import com.jme3.scene.Node;
+//import com.jme3.bullet.control.PhysicsControl;
+import com.jme3.scene.control.Control;
 
 /**
  *
  * @author @author Ulrich Nzuzi <ulrichnz@code.google.com>
  */
-public class BBNodeComponent extends Node implements BBComponent{
+public class BBControlComponent implements BBComponent{
     
-    public BBNodeComponent(){
-        super();
+    public enum ControlType {
+        NONE,
+        CHARACTER
     }
     
-    public BBNodeComponent(String name){
-        super(name);
+    private Control mControl;
+    
+    public BBControlComponent(){
+        
+    }
+    
+    public void attachControl(Control ctrl){
+        mControl = ctrl;
+    }
+    
+    public Control getControl(){
+        return mControl;
     }
     
     public CompType getType(){
-        return CompType.NODE;
+        return CompType.CONTROLLER;
     }
     
     public CompFamily getFamily(){
-        return CompFamily.VISUAL;
+        return CompFamily.PHYSICS;
     }
 }

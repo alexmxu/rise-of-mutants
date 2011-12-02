@@ -16,10 +16,16 @@
 package com.bigboots.states;
 
 import com.bigboots.BBGlobals;
+import com.bigboots.animation.BBAnimManager;
 import com.bigboots.audio.BBAudioManager;
 import com.bigboots.components.BBAnimComponent;
 import com.bigboots.components.BBAudioComponent;
+import com.bigboots.components.BBCollisionComponent;
+import com.bigboots.components.BBCollisionComponent.ShapeType;
+import com.bigboots.components.BBComponent.CompType;
+import com.bigboots.components.BBControlComponent;
 import com.bigboots.components.BBEntity;
+import com.bigboots.components.BBListenerComponent;
 import com.bigboots.components.BBNodeComponent;
 import com.bigboots.core.BBEngineSystem;
 import com.bigboots.core.BBSceneManager;
@@ -46,10 +52,13 @@ import com.jme3.scene.control.CameraControl.ControlDirection;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.scene.Node;
 import com.jme3.asset.BlenderKey;
+import com.jme3.audio.AudioNode;
+import com.jme3.audio.Listener;
 
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.control.CharacterControl;
+import com.jme3.bullet.control.PhysicsControl;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.bullet.objects.PhysicsCharacter;
 import com.jme3.bullet.util.CollisionShapeFactory;
@@ -63,6 +72,7 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.control.Control;
 import com.jme3.scene.shape.Box;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -156,6 +166,18 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
         BBSceneManager.getInstance().setupLight();
         BBSceneManager.getInstance().createSky();
         
+        //init global music
+        //BBAudioManager.getInstance().getListener().setLocation(humanStalker.getWorldTranslation());
+        music = new BBAudioComponent("Sounds/game.wav", false);
+        music.setVolume(3);
+        music.setLooping(true);
+        music.play();
+        
+        step = new BBAudioComponent("Sounds/step1.wav", false);
+        step.setVolume(10);
+        
+        // Load the main map (here blend loading)
+        loadScene();
         
         humanStalker = new Node("HumanStalker");
                 
@@ -217,51 +239,46 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
         
         //*******************************************
         //TEST AND LOAD ENEMY WITH ENTITY SYSTEM
+        //set up out enemy object entity and put it in scene
         BBEntity mEnemy = new BBEntity("ENEMY");
-        mEnemy.createEntity("Scenes/TestScene/mutant.j3o");
-        mEnemy.getComponent(BBNodeComponent.class).scale(5);
-        mEnemy.getComponent(BBNodeComponent.class).setLocalTranslation(-0.44354653f, 3f, -90.836426f);
+        BBNodeComponent node = mEnemy.addComponent(CompType.NODE);
+        mEnemy.loadModel("Scenes/TestScene/mutant.j3o");
+        node.scale(5);
+        node.setLocalTranslation(-0.44354653f, 3f, -90.836426f);
+        BBSceneManager.getInstance().addChild(mEnemy.getComponent(BBNodeComponent.class));
         
-        //Set up animation       
-        mEnemy.createAnimation();
-        mEnemy.getComponent(BBAnimComponent.class).getChannel().setAnim("mutant_idle");
-        mEnemy.getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.Cycle);
+        //Set up animation component      
+        //mEnemy.createAnimation();
+        BBAnimComponent anim = mEnemy.addComponent(CompType.ANIMATION);
+        anim.getChannel().setAnim("mutant_idle");
+        anim.getChannel().setLoopMode(LoopMode.Cycle);
         mEnemy.getComponent(BBAnimComponent.class).getChannel().setSpeed(1f);
         
-        // CapWe also put the player in its starting position.
-        CapsuleCollisionShape enShape = new CapsuleCollisionShape(.7f, 7f, 1);
-        CharacterControl eControler = new CharacterControl(enShape, .05f);
-        eControler.setJumpSpeed(20);
-        eControler.setFallSpeed(30);
-        eControler.setGravity(30);
-        eControler.setUseViewDirection(true);       
+        //Set up physic controler component
+        CollisionShape shape = BBPhysicsManager.getInstance().createPhysicShape(ShapeType.CAPSULE, mEnemy);
+        BBCollisionComponent colCp = mEnemy.addComponent(CompType.COLSHAPE);
+        colCp.attachShape(shape);
 
-        mEnemy.getComponent(BBNodeComponent.class).addControl(eControler);
+        PhysicsControl eControler = BBAnimManager.getInstance().createControl(BBControlComponent.ControlType.CHARACTER, mEnemy);
+        BBControlComponent ctrlCp = mEnemy.addComponent(CompType.CONTROLLER);
+        //ctrlCp.attachControl(eControler);
         
-        BBSceneManager.getInstance().addChild(mEnemy.getComponent(BBNodeComponent.class));
-        //BBPhysicsManager.getInstance().getPhysicsSpace().add(mEnemy.mTrasform.getControl(CharacterControl.class));
         BBPhysicsManager.getInstance().getPhysicsSpace().addAll(mEnemy.getComponent(BBNodeComponent.class));
+                
+        //Set up enemy's sound component
+        //Define the listener
+        BBListenerComponent lst = mEnemy.addComponent(CompType.LISTENER);
+        lst.setLocation(mEnemy.getComponent(BBNodeComponent.class).getWorldTranslation());
+        BBAudioManager.getInstance().getAudioRenderer().setListener(lst);
+        //Create associated audio
+        BBAudioComponent audnde = mEnemy.addComponent(CompType.AUDIO);
+        audnde.setSoundName("Sounds/growling1.wav", false);
+        audnde.setLooping(true);
+        audnde.setVolume(1);
+        mEnemy.getComponent(BBAudioComponent.class).play();
+        
         //Add it the map of Enemies
         mapEnemies.put(new Long(1), (mEnemy.getComponent(BBNodeComponent.class)));
-        
-        loadScene();
-        
-        //init music
-        //BBAudioManager.getInstance().getListener().setLocation(humanStalker.getWorldTranslation());
-        music = BBAudioManager.getInstance().createAudio("Sounds/game.wav", false);
-        music.setVolume(3);
-        music.setLooping(true);
-        music.play();
-        
-        step = BBAudioManager.getInstance().createAudio("Sounds/step1.wav", false);
-        step.setVolume(10);
-        
-        //TEST enemy sound
-        BBAudioManager.getInstance().getAudioRenderer().setListener(mEnemy.listener);
-        mEnemy.createAudio("Sounds/growling1.wav");
-        mEnemy.getComponent(BBAudioComponent.class).setLooping(true);
-        mEnemy.getComponent(BBAudioComponent.class).setVolume(1);
-        mEnemy.getComponent(BBAudioComponent.class).play();
     }
     
     @Override

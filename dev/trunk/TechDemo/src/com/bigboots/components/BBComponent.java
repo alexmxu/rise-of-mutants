@@ -24,24 +24,30 @@ public interface BBComponent {
     /**
      * The type of the Component.
      */
-    public enum Type {
+    public enum CompType {
+        NONE,
         NODE,
         LIGHT,
         MESH,
         AUDIO,
+        LISTENER,
         ANIMATION,
-        PHYSICS
+        CONTROLLER,
+        COLSHAPE
     }
     
     /**
      * The Family of the Component.
      */
-    public enum Family {
+    public enum CompFamily {
+        NONE,
         VISUAL,
-        AI
+        AI,
+        AUDIBLE,
+        PHYSICS
     }
     
-    public Type getType();
+    public CompType getType();
     
-    public Family getFamily();
+    public CompFamily getFamily();
 }

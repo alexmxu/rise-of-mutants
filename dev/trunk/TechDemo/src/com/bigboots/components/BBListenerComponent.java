@@ -15,27 +15,25 @@
  */
 package com.bigboots.components;
 
-import com.jme3.scene.Node;
-
+import com.jme3.audio.Listener;
 /**
  *
  * @author @author Ulrich Nzuzi <ulrichnz@code.google.com>
  */
-public class BBNodeComponent extends Node implements BBComponent{
-    
-    public BBNodeComponent(){
+public class BBListenerComponent extends Listener implements BBComponent{
+    public BBListenerComponent(){
         super();
     }
     
-    public BBNodeComponent(String name){
-        super(name);
+    public BBListenerComponent(Listener source){
+        super(source);
     }
     
     public CompType getType(){
-        return CompType.NODE;
+        return CompType.LISTENER;
     }
     
     public CompFamily getFamily(){
-        return CompFamily.VISUAL;
+        return CompFamily.AUDIBLE;
     }
 }

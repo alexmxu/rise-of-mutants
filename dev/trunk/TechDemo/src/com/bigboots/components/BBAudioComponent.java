@@ -15,7 +15,10 @@
  */
 package com.bigboots.components;
 
+import com.bigboots.core.BBSceneManager;
 import com.jme3.asset.AssetManager;
+import com.jme3.audio.AudioData;
+import com.jme3.audio.AudioKey;
 import com.jme3.audio.AudioNode;
 
 /**
@@ -23,19 +26,25 @@ import com.jme3.audio.AudioNode;
  * @author @author Ulrich Nzuzi <ulrichnz@code.google.com>
  */
 public class BBAudioComponent extends AudioNode implements BBComponent{
+    private String mSoundName;
+    private boolean streamCache = false;
     public BBAudioComponent(){
         super();
     }
     
-    public BBAudioComponent(AssetManager assetManager, String name, boolean stream){
-        super(assetManager, name, stream, false);
+    public BBAudioComponent(String name, boolean stream){
+        super(BBSceneManager.getInstance().getAssetManager(), name, stream, false);
+    }
+    public void setSoundName(String name, boolean stream){
+        mSoundName = name;
+        this.audioKey = new AudioKey(name, stream, streamCache);
+        this.data = (AudioData) BBSceneManager.getInstance().getAssetManager().loadAsset(audioKey);
+    }
+    public CompType getType(){
+        return CompType.AUDIO;
     }
     
-    public Type getType(){
-        return Type.AUDIO;
-    }
-    
-    public Family getFamily(){
-        return Family.VISUAL;
+    public CompFamily getFamily(){
+        return CompFamily.VISUAL;
     }
 }

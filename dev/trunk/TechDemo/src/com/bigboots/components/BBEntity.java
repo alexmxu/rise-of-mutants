@@ -15,7 +15,7 @@
  */
 package com.bigboots.components;
 
-import com.bigboots.audio.BBAudioManager;
+import com.bigboots.components.BBComponent.CompType;
 import com.bigboots.core.BBSceneManager;
 import com.jme3.animation.AnimControl;
 import com.jme3.bullet.collision.shapes.CollisionShape;
@@ -24,7 +24,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import java.util.ArrayList;
 import java.util.List;
-import com.jme3.audio.Listener;
+
 
 /**
  *
@@ -33,14 +33,16 @@ import com.jme3.audio.Listener;
  * Composite of our Object component Design
  */
 public class BBEntity extends BBObject{
-    private BBNodeComponent mNode;
-    private BBAudioComponent mAudio;
-    private BBAnimComponent mAnimation;
+    private BBComponent mNode;
+    private BBComponent mAudio;
+    private BBComponent mAnimation;
+    private BBComponent mLstr;
+    private BBCollisionComponent mCollision;
     
     protected Geometry mDisplay;
     protected CollisionShape mRigidBody;
     protected Light mLight;
-    public Listener listener;
+    
     protected boolean mEnable;
     private Spatial tmpSpatial;
 
@@ -49,32 +51,18 @@ public class BBEntity extends BBObject{
     
     public BBEntity(String name){
         super(name);
-        //mTransform = new Node(name);
-        mNode = new BBNodeComponent(name);
-        listener = new Listener();
-        listener.setLocation(mNode.getWorldTranslation());
+       
     }
     
-    public void createEntity(String mesh){
+    public void loadModel(String mesh){
        tmpSpatial =  BBSceneManager.getInstance().loadSpatial(mesh);
        tmpSpatial.setLocalTranslation(0, -.85f, 0);
-       mNode.attachChild(tmpSpatial);
+       mDisplay = new Geometry();
+       this.getComponent(BBNodeComponent.class).attachChild(tmpSpatial);
     }
-    
-    public void createAnimation(){
-        mAnimation = new BBAnimComponent(tmpSpatial.getControl(AnimControl.class).createChannel());
-    }
-    
-    public void createAudio(String name){
-        mAudio = BBAudioManager.getInstance().createAudio(name, false);
-    }
-    
-    public void createPhysic(){
-        
-    }
-    
+   
     private void attachModel(Spatial sp){
-        mNode.attachChild(sp);
+        this.getComponent(BBNodeComponent.class).attachChild(sp);
     }
     
     public void setEnabled(boolean enabled) {
@@ -93,7 +81,32 @@ public class BBEntity extends BBObject{
     public void removeObjectComponent(BBObject obj) {
         mChildComponents.remove(obj);
     }
-       
+    
+    public <T extends BBComponent>T addComponent(CompType type){
+        if(type.equals(CompType.NODE)){
+            mNode = new BBNodeComponent(name);
+            return (T)mNode;
+        }
+        if(type.equals(CompType.ANIMATION)){
+            mAnimation = new BBAnimComponent(tmpSpatial.getControl(AnimControl.class).createChannel());
+            return (T)mAnimation;
+        }
+        if(type.equals(CompType.AUDIO)){
+            mAudio = new BBAudioComponent();
+            return (T)mAudio;
+        }
+        if(type.equals(CompType.LISTENER)){
+            mLstr = new BBListenerComponent();
+            return (T)mLstr;
+        }
+        if(type.equals(CompType.COLSHAPE)){
+            mCollision = new BBCollisionComponent();
+            return (T)mCollision;
+        }
+        
+        return null;
+    }
+    
     public <T extends BBComponent>T getComponent(Class<T> name){
         if(name.equals(BBNodeComponent.class)){
             return (T)mNode;
@@ -104,24 +117,22 @@ public class BBEntity extends BBObject{
         if(name.equals(BBAnimComponent.class)){
             return (T)mAnimation;
         }
-       return null;
-        /*
-        for (BBObject obj : mChildComponents) {
-            if(obj.getType().equals("ENTITY")){
-                ((BBEntity)obj).display();
-            }
-            else{
-                obj.print(strBuff);
-            }
+        if(name.equals(BBListenerComponent.class)){
+            return (T)mLstr;
         }
-        */
+        if(name.equals(BBCollisionComponent.class)){
+            return (T)mCollision;
+        }
+
+       return null;
+
     }
     
     public void getChildComponent(){
         
     }
-    public Geometry getMesh(){
-        return (Geometry)tmpSpatial;
+    public Geometry getGeometry(){
+        return mDisplay;
     }
    
 }
