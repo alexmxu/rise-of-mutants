@@ -37,7 +37,8 @@ public class BBEntity extends BBObject{
     private BBComponent mAudio;
     private BBComponent mAnimation;
     private BBComponent mLstr;
-    private BBCollisionComponent mCollision;
+    private BBComponent mCollision;
+    private BBComponent mControl;
     
     protected Geometry mDisplay;
     protected CollisionShape mRigidBody;
@@ -61,9 +62,6 @@ public class BBEntity extends BBObject{
        this.getComponent(BBNodeComponent.class).attachChild(tmpSpatial);
     }
    
-    private void attachModel(Spatial sp){
-        this.getComponent(BBNodeComponent.class).attachChild(sp);
-    }
     
     public void setEnabled(boolean enabled) {
         mEnable = enabled;
@@ -103,6 +101,10 @@ public class BBEntity extends BBObject{
             mCollision = new BBCollisionComponent();
             return (T)mCollision;
         }
+        if(type.equals(CompType.CONTROLLER)){
+            mControl = new BBControlComponent();
+            return (T)mControl;
+        }
         
         return null;
     }
@@ -123,6 +125,9 @@ public class BBEntity extends BBObject{
         if(name.equals(BBCollisionComponent.class)){
             return (T)mCollision;
         }
+        if(name.equals(BBControlComponent.class)){
+            return (T)mControl;
+        }
 
        return null;
 
@@ -133,6 +138,19 @@ public class BBEntity extends BBObject{
     }
     public Geometry getGeometry(){
         return mDisplay;
+    }
+    
+    public void destroy(){
+        ((BBNodeComponent)mNode).detachAllChildren();
+        ((BBNodeComponent)mNode).removeFromParent();
+        ((BBNodeComponent)mNode).getWorldLightList().clear();
+        ((BBNodeComponent)mNode).getLocalLightList().clear();
+        mNode = null;
+        mAudio = null;
+        mAnimation = null;
+        mLstr = null;
+        mCollision = null;
+        mControl = null;
     }
    
 }

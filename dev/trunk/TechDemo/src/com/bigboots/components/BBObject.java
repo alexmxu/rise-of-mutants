@@ -15,17 +15,21 @@
  */
 package com.bigboots.components;
 
+import com.bigboots.components.BBComponent.CompType;
+
+
 /**
  *
  * @author @author Ulrich Nzuzi <ulrichnz@code.google.com>
  */
 public class BBObject {
-    //The name of the object.
-    public String name;
-    //The id of the object
-    public String id;
     
-    public String type = "NONE";
+    //The name of the object.
+    protected String name;
+    //The id of the object
+    private String id;
+    
+    private CompType type = CompType.NONE;
     
     public BBObject(String name){
         this.name = name;
@@ -38,11 +42,11 @@ public class BBObject {
     public String getObjectID(){
         return id;
     }
-    protected String getType(){
+    protected CompType getType(){
         return type;
     }
     
-    protected void setType(String type){
+    protected void setType(CompType type){
         this.type = type;
     }
     

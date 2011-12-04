@@ -16,6 +16,7 @@
 package com.bigboots.states;
 
 import com.bigboots.BBGlobals;
+import com.bigboots.audio.BBAudioManager;
 import com.bigboots.core.BBEngineSystem;
 import com.bigboots.gui.BBGuiManager;
 import com.bigboots.input.BBInputManager;
@@ -28,6 +29,7 @@ import de.lessvoid.nifty.screen.ScreenController;
 
 import com.bigboots.core.BBSettings;
 import com.bigboots.core.BBSceneManager;
+import com.bigboots.physics.BBPhysicsManager;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
@@ -40,9 +42,7 @@ import com.jme3.scene.Spatial;
  */
 public class BBCreditState extends BBAbstractState implements ScreenController {
     private Nifty mNifty;
-    
-    protected Node human;
-    protected Spatial player;
+    private Camera cam;
     
     @Override
     public void initialize(BBEngineSystem engineSystem) {
@@ -57,7 +57,7 @@ public class BBCreditState extends BBAbstractState implements ScreenController {
         BBInputManager.getInstance().getInputManager().setCursorVisible(true);
         
         //Load first scene and camera
-        Camera cam = new Camera(BBSettings.getInstance().getSettings().getWidth(), BBSettings.getInstance().getSettings().getHeight());
+        cam = new Camera(BBSettings.getInstance().getSettings().getWidth(), BBSettings.getInstance().getSettings().getHeight());
         cam.setFrustumPerspective(45f, (float)cam.getWidth() / cam.getHeight(), 1f, 1000f);
         cam.setLocation(new Vector3f(25f, 10f, 0f));
         cam.lookAt(new Vector3f(0f, 0f, 0f), Vector3f.UNIT_Y);
@@ -70,15 +70,6 @@ public class BBCreditState extends BBAbstractState implements ScreenController {
         BBSceneManager.getInstance().setupLight();
         BBSceneManager.getInstance().createSky();
         
-        
-        human = new Node("human");
-
-        player = BBSceneManager.getInstance().loadSpatial("Models/Sinbad/Sinbad.mesh.j3o");
-        human.attachChild(player);
-        human.setLocalTranslation(new Vector3f(0f, 0f, 0f));
-        
-        //Attach to scene root node
-        BBSceneManager.getInstance().addChild(human);
         
     }
     
@@ -97,26 +88,14 @@ public class BBCreditState extends BBAbstractState implements ScreenController {
     public void stateDetached() {
         super.stateDetached();
         
-        //player.getLocalLightList().clear();
-        //player.getWorldLightList().clear(); 
-        //player.removeFromParent();
-        //player.getWorldLightList().clear();
-        player = null;
+        cam.clearViewportChanged();
+        cam = null;
+        BBAudioManager.getInstance().destroy();
+        BBPhysicsManager.getInstance().destroy();
         
-        //human.getLocalLightList().clear();
-        //human.getWorldLightList().clear(); 
-        //human.detachAllChildren();
-        //human.removeFromParent();
-        human.setCullHint(Spatial.CullHint.Always);
-        human = null;
-      
-        BBSceneManager.getInstance().destroy();
-        BBSceneManager.getInstance().getViewPort().clearScenes();
-        
-        this.engineSystem.getRenderManager().clearQueue(BBSceneManager.getInstance().getViewPort());        
-        
+        this.engineSystem.getRenderManager().clearQueue(BBSceneManager.getInstance().getViewPort());              
+         BBSceneManager.getInstance().destroy();
         this.engineSystem.getRenderManager().getRenderer().cleanup();
-        //this.engineSystem.getRenderManager().getRenderer().onFrame();
         this.engineSystem.getRenderManager().removeMainView("TEST"); 
         
     }
@@ -156,8 +135,8 @@ public class BBCreditState extends BBAbstractState implements ScreenController {
           }
 
           if (name.equals(BBGlobals.INPUT_MAPPING_EXIT)) {
-              //mNifty.gotoScreen("credit");
-              engineSystem.stop(false);
+              mNifty.gotoScreen("credit");
+              //engineSystem.stop(false);
           } 
       }
     }

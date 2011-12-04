@@ -24,7 +24,9 @@ public class BBListenerComponent extends Listener implements BBComponent{
     public BBListenerComponent(){
         super();
     }
-    
+    /**
+     * @return The {@link Listener listener} object for audio
+     */
     public BBListenerComponent(Listener source){
         super(source);
     }
@@ -35,5 +37,9 @@ public class BBListenerComponent extends Listener implements BBComponent{
     
     public CompFamily getFamily(){
         return CompFamily.AUDIBLE;
+    }
+    
+    public void destroy(){
+        
     }
 }
