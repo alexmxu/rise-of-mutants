@@ -27,8 +27,7 @@ import com.jme3.bounding.BoundingBox;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.PhysicsSpace;
 import com.jme3.bullet.collision.shapes.*;
-import com.jme3.math.Vector3f;
-import com.jme3.scene.Geometry;
+
 
 /**
  *
@@ -70,15 +69,10 @@ public class BBPhysicsManager extends Application implements BBUpdateListener{
    
     public CollisionShape createPhysicShape(ShapeType type, BBEntity ent){
         if(type.equals(ShapeType.CAPSULE)){
-           
-            //Geometry geom = ent.getGeometry();
+
             BoundingBox vol = (BoundingBox)ent.getComponent(BBNodeComponent.class).getWorldBound();
-            //Vector3f vec = new Vector3f();
-            //vol.getExtent(vec);
-            //System.out.println("******** BOUNDING : "+vec.toString()) ;
             CapsuleCollisionShape enShape = new CapsuleCollisionShape(vol.getZExtent()/2, vol.getYExtent(), 1);
-            //(3.9071, 5.7911577, 1.5598426)
-            //CapsuleCollisionShape(.7f, 7f, 1)
+
             return enShape;
         }
         return null;
@@ -90,7 +84,10 @@ public class BBPhysicsManager extends Application implements BBUpdateListener{
     }  
     @Override
     public void destroy(){
-        stateManager.cleanup();
+        
+        stateManager.detach(bulletAppState);
+        bulletAppState.getPhysicsSpace().destroy();
+        super.destroy();
     }
     @Override
     public void handleError(String errMsg, Throwable t){        

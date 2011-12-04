@@ -90,10 +90,9 @@ public class BBMainMenuState extends BBAbstractState implements ScreenController
         BBInputManager.getInstance().getInputManager().clearMappings();
         BBInputManager.getInstance().resetInput();        
         //Change Game state
-        BBInGameState ingame = new BBInGameState();
-        BBStateManager.getInstance().attach(ingame);
-        //BBCreditState credit = new BBCreditState();
-        //BBStateManager.getInstance().attach(credit);
+        BBInGameState state = new BBInGameState();
+        //BBCreditState state = new BBCreditState();
+        BBStateManager.getInstance().attach(state);
         
     }
 

@@ -84,7 +84,7 @@ public class BBSceneManager {
     
     public void update(float tpf) {
         rootNode.updateLogicalState(tpf);
-        rootNode.updateGeometricState();
+        rootNode.updateGeometricState();        
     }
     
     //TODO : To be changed
@@ -126,19 +126,22 @@ public class BBSceneManager {
     }
     
     public void destroy(){
-        //sky.getLocalLightList().clear();
-        //sky.getWorldLightList().clear();
-        //sky.removeFromParent();
-       
-        //rootNode.getLocalLightList().clear();
-        //rootNode.getWorldLightList().clear();       
-        rootNode.removeLight(al);        
+        sky.getLocalLightList().clear();
+        sky.getWorldLightList().clear();
+        sky.removeFromParent();
+        sky = null;
+        
+        rootNode.removeLight(al); 
+        rootNode.getLocalLightList().clear();
+        rootNode.getWorldLightList().clear();              
         rootNode.detachAllChildren();
         rootNode.removeFromParent();
-        
-        sky = null;
+    
         al = null;
         rootNode = null;
+        
+        viewPort.clearScenes();
+        viewPort = null;
     }
                
     /**

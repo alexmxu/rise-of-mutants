@@ -16,9 +16,11 @@
 package com.bigboots.animation;
 
 import com.bigboots.components.BBCollisionComponent;
+import com.bigboots.components.BBControlComponent;
 import com.bigboots.components.BBControlComponent.*;
 import com.bigboots.components.BBEntity;
 import com.bigboots.components.BBNodeComponent;
+import com.jme3.bullet.collision.PhysicsCollisionObject;
 import com.jme3.bullet.control.CharacterControl;
 import com.jme3.bullet.control.PhysicsControl;
 //import com.jme3.scene.control.Control;
@@ -37,16 +39,14 @@ public class BBAnimManager {
         return instance; 
     }
     
-    public PhysicsControl createControl(ControlType type, BBEntity ent){
+    public PhysicsCollisionObject createControl(ControlType type, BBEntity ent){
         
         if(type.equals(ControlType.CHARACTER)){
             
             CharacterControl eControler = new CharacterControl(ent.getComponent(BBCollisionComponent.class).getShape(), .05f);
-            eControler.setJumpSpeed(20);
-            eControler.setFallSpeed(30);
-            eControler.setGravity(30);
-            eControler.setUseViewDirection(true); 
-            ent.getComponent(BBNodeComponent.class).addControl(eControler);
+            //ent.getComponent(BBControlComponent.class).attachControl(eControler);
+            
+            //ent.getComponent(BBNodeComponent.class).addControl(eControler);
             return eControler;
         }
         return null;

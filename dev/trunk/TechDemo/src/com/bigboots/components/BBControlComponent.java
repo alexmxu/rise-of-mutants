@@ -16,7 +16,9 @@
 package com.bigboots.components;
 
 //import com.jme3.bullet.control.PhysicsControl;
-import com.jme3.scene.control.Control;
+import com.jme3.bullet.collision.PhysicsCollisionObject;
+import com.jme3.bullet.control.*;
+
 
 /**
  *
@@ -29,18 +31,25 @@ public class BBControlComponent implements BBComponent{
         CHARACTER
     }
     
-    private Control mControl;
+    private PhysicsCollisionObject mControl;
+    private ControlType mType;
     
     public BBControlComponent(){
-        
+        mType = ControlType.NONE;
     }
     
-    public void attachControl(Control ctrl){
+    public void attachControl(PhysicsCollisionObject ctrl){
         mControl = ctrl;
     }
+    public void setControlType(ControlType tp){
+        mType  = tp;
+    }
     
-    public Control getControl(){
-        return mControl;
+    public PhysicsCollisionObject getControl(){
+        if(mType.equals(ControlType.CHARACTER)){
+            return (CharacterControl) mControl;
+        }
+        return null;
     }
     
     public CompType getType(){

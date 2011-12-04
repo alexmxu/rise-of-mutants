@@ -15,14 +15,12 @@
  */
 package com.bigboots.audio;
 
-import com.bigboots.components.BBAudioComponent;
+
 import com.bigboots.core.BBEngineSystem;
-import com.bigboots.core.BBSceneManager;
 import com.bigboots.core.BBSettings;
 import com.bigboots.core.BBUpdateListener;
 import com.bigboots.core.BBUpdateManager;
 import com.jme3.audio.AudioContext;
-import com.jme3.audio.AudioNode;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.audio.Listener;
 import com.jme3.system.JmeContext.Type;
@@ -42,7 +40,6 @@ public class BBAudioManager implements BBUpdateListener{
     }
     
     protected AudioRenderer audioRenderer;
-    protected Listener listener;
     private BBEngineSystem engineSystem;
     
     public void initAudio(BBEngineSystem eng){
@@ -52,9 +49,6 @@ public class BBAudioManager implements BBUpdateListener{
             audioRenderer = JmeSystem.newAudioRenderer(BBSettings.getInstance().getSettings());
             audioRenderer.initialize();
             AudioContext.setAudioRenderer(audioRenderer);
-
-            listener = new Listener();
-            audioRenderer.setListener(listener);
         }
         
         BBUpdateManager.getInstance().register(this);
@@ -78,12 +72,6 @@ public class BBAudioManager implements BBUpdateListener{
         return audioRenderer;
     }
     
-    /**
-     * @return The {@link Listener listener} object for audio
-     */
-    public Listener getListener() {
-        return listener;
-    }
     
     public void setListener(Listener lstr) {
         audioRenderer.setListener(lstr);
