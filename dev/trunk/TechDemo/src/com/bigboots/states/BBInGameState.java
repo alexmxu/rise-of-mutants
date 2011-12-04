@@ -33,6 +33,7 @@ import com.bigboots.core.BBSceneManager;
 import com.bigboots.core.BBSettings;
 import com.bigboots.gui.BBGuiManager;
 import com.bigboots.input.BBInputManager;
+import com.bigboots.input.BBPlayerActions;
 import com.bigboots.physics.BBPhysicsManager;
 import com.jme3.animation.AnimChannel;
 import com.jme3.scene.Spatial;
@@ -57,7 +58,7 @@ import com.jme3.asset.BlenderKey;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.control.CharacterControl;
 import com.jme3.bullet.control.RigidBodyControl;
-import com.jme3.bullet.objects.PhysicsCharacter;
+
 import com.jme3.bullet.util.CollisionShapeFactory;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
@@ -70,8 +71,6 @@ import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
 import java.util.HashMap;
@@ -99,22 +98,16 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
 
     protected Node ndmd, physicsModels;
     
-    private BBEntity mPlayer;
     private BBNodeComponent humanStalker;
-        
-    float hasJumped = 0;
-    boolean hasBeenOnGround = false;
-    private int pressed=0;
-    private boolean walk, jump = false;
+
     // Temp workaround, speed is reset after blending.
     private float smallManSpeed = .6f;
     
     //music
     private BBAudioComponent music;
-    private BBAudioComponent step;
     
     private GameActionListener actionListener = new GameActionListener();
-    private static final Logger logger = Logger.getLogger(BBInGameState.class.getName());
+    private BBPlayerActions playerListener = new BBPlayerActions();
     
     private HashMap<Long, BBEntity> mapEnemies = new HashMap<Long, BBEntity>();
     
@@ -135,13 +128,13 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
         BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_JUMP, new KeyTrigger(KeyInput.KEY_SPACE));
         BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_EXIT, new KeyTrigger(KeyInput.KEY_ESCAPE));
         
-        BBInputManager.getInstance().getInputManager().addListener(actionListener, 
+        BBInputManager.getInstance().getInputManager().addListener(actionListener, BBGlobals.INPUT_MAPPING_EXIT);
+        BBInputManager.getInstance().getInputManager().addListener(playerListener, 
                                                                     BBGlobals.INPUT_MAPPING_LEFT,
                                                                     BBGlobals.INPUT_MAPPING_RIGHT, 
                                                                     BBGlobals.INPUT_MAPPING_UP, 
                                                                     BBGlobals.INPUT_MAPPING_DOWN,
-                                                                    BBGlobals.INPUT_MAPPING_JUMP,
-                                                                    BBGlobals.INPUT_MAPPING_EXIT);
+                                                                    BBGlobals.INPUT_MAPPING_JUMP);
         
         BBInputManager.getInstance().getInputManager().setCursorVisible(false);
         
@@ -166,15 +159,12 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
         music.setLooping(true);
         music.play();
         
-        step = new BBAudioComponent("Sounds/step1.wav", false);
-        step.setVolume(10);
-        
         // Load the main map (here blend loading)
         loadScene();
         
+        //*******************************************
         //Create the main Character
         BBPlayerManager.getInstance().createMainPlayer("PLAYER_NAME", "Scenes/TestScene/character.mesh.xml");
-        mPlayer = BBPlayerManager.getInstance().getMainPlayer();
                 
         // Create a component Node for camera 
         humanStalker = new BBNodeComponent("HumanStalker");
@@ -185,7 +175,6 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
         camNode.setLocalTranslation(new Vector3f(25, 10, 0));
         camNode.lookAt(humanStalker.getLocalTranslation(), Vector3f.UNIT_Y);
         humanStalker.attachChild(camNode);
-        
         
         //*******************************************
         //TEST AND LOAD ENEMY WITH ENTITY SYSTEM
@@ -244,9 +233,6 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
         music.destroy();
         music = null;
         
-        step.destroy();
-        step = null;
-        
         BBPlayerManager.getInstance().destroy();
     
         humanStalker.detachAllChildren();
@@ -298,7 +284,7 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
         //*************************************************
         // Update Enemies
         for(BBEntity object:mapEnemies.values()){
-            Vector3f humanPos = mPlayer.getComponent(BBNodeComponent.class).getLocalTranslation().clone();
+            Vector3f humanPos = BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getLocalTranslation().clone();
             Quaternion newRot = new Quaternion().fromAngleAxis(FastMath.rand.nextFloat()*2-.5f, Vector3f.UNIT_Y);
             humanPos.y = object.getComponent(BBNodeComponent.class).getLocalTranslation().y;            
             object.getComponent(BBNodeComponent.class).lookAt(humanPos,Vector3f.UNIT_Y);
@@ -333,53 +319,11 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
         
         //******************************************************
         // Update character
-        Vector3f pos = mPlayer.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).getPhysicsLocation();
+        Vector3f pos = BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getControl(CharacterControl.class).getPhysicsLocation();
         humanStalker.setLocalTranslation(pos);
         
-         PhysicsCharacter anv = mPlayer.getComponent(BBNodeComponent.class).getControl(CharacterControl.class);
-        
-        if(anv.onGround()){
-            if(jump)
-            {
-                boolean hasBeenOnGroundCopy = hasBeenOnGround;
-                if(!hasBeenOnGround)
-                    hasBeenOnGround=true;
-         
-                if(hasBeenOnGroundCopy)
-                {
-                    hasJumped+=tpf;
-
-                    logger.log(Level.INFO,"Character jumping end.");
-                    jump = false;
-                    hasJumped = 0;
-                    if(walk){
-                        
-                        logger.log(Level.INFO,"Character jumping end. Start stand.");
-
-                        mPlayer.getComponent(BBAnimComponent.class).getChannel().setAnim("run_01", 0.50f);
-                        mPlayer.getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.Loop);
-                    }
-                    else{
-                        logger.log(Level.INFO,"Character jumping end. Start stand.");
-
-                        mPlayer.getComponent(BBAnimComponent.class).getChannel().setAnim("base_stand", 0.50f);
-                        mPlayer.getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.DontLoop);                           
-                        mPlayer.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(Vector3f.ZERO);
-                    }
-                    hasBeenOnGround = false;
-                }
-            }
-        }
-        else if(!jump){
-            logger.log(Level.INFO,"Character jumping start.");
-            jump = true;
-            
-            mPlayer.getComponent(BBAnimComponent.class).getChannel().setAnim("jump", 0.50f); // TODO: Must be activated after a certain time after "JumpStart"
-            mPlayer.getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.DontLoop);
-        }
-       
-        
-        
+        BBPlayerManager.getInstance().udpate(tpf);
+   
     }
 
     public void bind(Nifty nifty, Screen screen){
@@ -397,6 +341,7 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
         BBStateManager.getInstance().detach(this);
         //reset input
         BBInputManager.getInstance().getInputManager().removeListener(actionListener);
+        BBInputManager.getInstance().getInputManager().removeListener(playerListener);
         BBInputManager.getInstance().getInputManager().clearMappings();
         BBInputManager.getInstance().resetInput(); 
         //Change Game state
@@ -406,15 +351,6 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
     
     }
    
-      
-    private static final class Directions{
-        private static final Quaternion rot = new Quaternion().fromAngleAxis(-FastMath.HALF_PI, Vector3f.UNIT_Y);
-        private static final Quaternion upDir = Quaternion.DIRECTION_Z.mult(rot);
-        private static final Quaternion rightDir = upDir.mult(rot);
-        private static final Quaternion downDir = rightDir.mult(rot);
-        private static final Quaternion leftDir = downDir.mult(rot);
-    }
-    private float time = 0;
     private class GameActionListener implements AnimEventListener, ActionListener, AnalogListener {
 
         public void onAction(String binding, boolean value, float tpf) {
@@ -424,80 +360,11 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
               engineSystem.stop(false);
               //return;
             } 
-            
-            if(value == true){
-              pressed++;
-            }
-            else{
-              pressed--;                      
-            }
-            if(pressed == 1 && value& !binding.equals("Jump") && !walk){
-              walk = true;
-              if(!jump){
-              logger.log(Level.INFO,"Character walking init.");
-              //playerChannel.setAnim("RunTop", 0.50f); // TODO: Must activate "RunBase" after a certain time.
-              mPlayer.getComponent(BBAnimComponent.class).getChannel().setAnim("run_01", 0.50f); // TODO: Must be activated after a certain time after "RunTop"
-              mPlayer.getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.Loop);
-              
-              //Trying to repeat the walk sound
-              time += tpf;
-              if (time > 0f) {
-                step.play();
-                time = 0;
-              }
-
-              }
-            }
-            else if (pressed==0&!value&!binding.equals("Jump")) {
-              walk = false;
-              if(!jump){
-                  logger.log(Level.INFO,"Character walking end.");
-                  //playerChannel.setAnim("IdleTop", 0.50f);
-                  mPlayer.getComponent(BBAnimComponent.class).getChannel().setAnim("base_stand", 0.50f);          
-                  mPlayer.getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.DontLoop);
-                  step.stop();
-              }
-            }
-            if (binding.equals("Jump") &! jump ) {
-                if (value){
-                    logger.log(Level.INFO,"Character jumping start.");
-                    jump = true;
-                    // channel.setAnim("JumpStart", 0.5f); // TODO: Must activate "JumpLoop" after a certain time.
-                    mPlayer.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).jump();
-                    mPlayer.getComponent(BBAnimComponent.class).getChannel().setAnim("jump", 0.50f); // TODO: Must be activated after a certain time after "JumpStart"
-                    mPlayer.getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.DontLoop);
-                }
-            }
         }//end onAAction
         
               
         public void onAnalog(String binding, float value, float tpf) {
-            //System.out.println("******** BINDING :"+ binding.toString() +"********");
-            //System.out.println("******** JUMP VALUE  :"+ jump +"********");
-            if(!jump){
-                if (binding.equals(BBGlobals.INPUT_MAPPING_LEFT)) {
-                    Quaternion newRot = new Quaternion().slerp(mPlayer.getComponent(BBNodeComponent.class).getLocalRotation(),Directions.leftDir, tpf*8);
-                    mPlayer.getComponent(BBNodeComponent.class).setLocalRotation(newRot);
-                }
-                else if (binding.equals("Right")) {
-                    Quaternion newRot = new Quaternion().slerp(mPlayer.getComponent(BBNodeComponent.class).getLocalRotation(),Directions.rightDir, tpf*8);
-                    mPlayer.getComponent(BBNodeComponent.class).setLocalRotation(newRot);        
-                } else if (binding.equals("Up")) {
-                    Quaternion newRot = new Quaternion().slerp(mPlayer.getComponent(BBNodeComponent.class).getLocalRotation(),Directions.upDir, tpf*8);
-                    mPlayer.getComponent(BBNodeComponent.class).setLocalRotation(newRot);
-                } else if (binding.equals("Down")) {
-                    Quaternion newRot = new Quaternion().slerp(mPlayer.getComponent(BBNodeComponent.class).getLocalRotation(),Directions.downDir, tpf*8);
-                    mPlayer.getComponent(BBNodeComponent.class).setLocalRotation(newRot);
-                }
-
-                if(walk){
-                    mPlayer.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setViewDirection(mPlayer.getComponent(BBNodeComponent.class).getWorldRotation().mult(Vector3f.UNIT_Z));                     
-                    mPlayer.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(mPlayer.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).getViewDirection().multLocal(.2f));                  
-                }        
-                else{
-                    mPlayer.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(Vector3f.ZERO);
-                }
-            }
+            
         }//end onAnalog
         
         // Abstract funtion coming with animation

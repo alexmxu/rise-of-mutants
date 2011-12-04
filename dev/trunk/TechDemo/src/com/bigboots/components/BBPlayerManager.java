@@ -16,6 +16,7 @@
 package com.bigboots.components;
 
 import com.bigboots.animation.BBAnimManager;
+import com.bigboots.audio.BBAudioManager;
 import com.bigboots.components.BBCollisionComponent.ShapeType;
 import com.bigboots.components.BBComponent.CompType;
 import com.bigboots.core.BBSceneManager;
@@ -23,7 +24,10 @@ import com.bigboots.physics.BBPhysicsManager;
 import com.jme3.animation.LoopMode;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.control.CharacterControl;
+import com.jme3.bullet.objects.PhysicsCharacter;
 import com.jme3.math.Vector3f;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -41,6 +45,11 @@ public class BBPlayerManager {
     
     private BBEntity mMainPlayer;
     private Vector3f mMainLocation = new Vector3f(0, 10, 0);
+    private boolean mIsWalking = false;
+    private boolean mIsJumping = false;
+    private float hasJumped = 0;
+    private boolean hasBeenOnGround = false;
+    private static final Logger logger = Logger.getLogger(BBPlayerManager.class.getName());
     
     public void createMainPlayer(String name, String file){
         //Create the main Character       
@@ -72,6 +81,77 @@ public class BBPlayerManager {
         mMainPlayer.getComponent(BBNodeComponent.class).addControl(pControler);
         BBPhysicsManager.getInstance().getPhysicsSpace().addAll(mMainPlayer.getComponent(BBNodeComponent.class));
         
+        //Define the listener
+        BBListenerComponent lst = mMainPlayer.addComponent(CompType.LISTENER);
+        lst.setLocation(mMainPlayer.getComponent(BBNodeComponent.class).getWorldTranslation());
+        BBAudioManager.getInstance().getAudioRenderer().setListener(lst);
+        //Create associated audio
+        BBAudioComponent audnde = mMainPlayer.addComponent(CompType.AUDIO);
+        audnde.setSoundName("Sounds/step1.wav", false);
+        audnde.setLooping(false);
+        audnde.setVolume(10);
+        
+    }
+    
+    public void udpate(float tpf){
+       PhysicsCharacter anv = mMainPlayer.getComponent(BBNodeComponent.class).getControl(CharacterControl.class);
+        
+        if(anv.onGround()){
+            if(mIsJumping)
+            {
+                boolean hasBeenOnGroundCopy = hasBeenOnGround;
+                if(!hasBeenOnGround){
+                    hasBeenOnGround=true;
+                }   
+         
+                if(hasBeenOnGroundCopy)
+                {
+                    hasJumped+=tpf;
+
+                    logger.log(Level.INFO,"Character jumping end.");
+                    mIsJumping = false;
+                    hasJumped = 0;
+                    if(mIsWalking){
+                        
+                        logger.log(Level.INFO,"Character jumping end. Start stand.");
+
+                        mMainPlayer.getComponent(BBAnimComponent.class).getChannel().setAnim("run_01", 0.50f);
+                        mMainPlayer.getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.Loop);
+                    }
+                    else{
+                        logger.log(Level.INFO,"Character jumping end. Start stand.");
+
+                        mMainPlayer.getComponent(BBAnimComponent.class).getChannel().setAnim("base_stand", 0.50f);
+                        mMainPlayer.getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.DontLoop);                           
+                        mMainPlayer.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(Vector3f.ZERO);
+                    }
+                    hasBeenOnGround = false;
+                }
+            }
+        }
+        else if(!mIsJumping){
+            logger.log(Level.INFO,"Character jumping start.");
+            mIsJumping = true;
+            
+            mMainPlayer.getComponent(BBAnimComponent.class).getChannel().setAnim("jump", 0.50f); // TODO: Must be activated after a certain time after "JumpStart"
+            mMainPlayer.getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.DontLoop);
+        }
+    }
+    
+    public void setIsWalking(boolean val){
+        mIsWalking = val;
+    }
+
+    public void setIsJumping(boolean val){
+        mIsJumping = val;
+    }
+
+    public boolean isWalking(){
+        return mIsWalking;
+    }
+
+    public boolean isJumping(){
+        return mIsJumping;
     }
     
     public BBEntity getMainPlayer(){
