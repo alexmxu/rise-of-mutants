@@ -146,7 +146,10 @@ public class BBEntity extends BBObject{
         ((BBNodeComponent)mNode).getWorldLightList().clear();
         ((BBNodeComponent)mNode).getLocalLightList().clear();
         mNode = null;
+        
+        ((BBAudioComponent)mAudio).destroy();
         mAudio = null;
+        
         mAnimation = null;
         mLstr = null;
         mCollision = null;
