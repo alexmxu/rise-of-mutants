@@ -24,11 +24,22 @@ import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
+import com.jme3.post.Filter;
+import com.jme3.post.FilterPostProcessor;
 
 import com.jme3.scene.Node;
 import com.jme3.system.JmeSystem;
 import java.net.MalformedURLException;
 import java.net.URL;
+
+import com.jme3.post.filters.*;
+import com.jme3.renderer.queue.RenderQueue.ShadowMode;
+import com.jme3.shadow.PssmShadowRenderer;
+import com.jme3.shadow.PssmShadowRenderer.CompareMode;
+import com.jme3.shadow.PssmShadowRenderer.FilterMode;
+import java.util.HashMap;
+import java.util.Map.Entry;
+import java.util.Iterator;
 /**
  * Manage our specific SceneGraph
  * @author @author Ulrich Nzuzi <ulrichnz@code.google.com>
@@ -43,10 +54,23 @@ public class BBSceneManager {
         return instance; 
     }
     
+    public enum FilterType {
+        NONE,
+        BLOOM,
+        DEPHT,
+        LIGHT,
+        CARTOON,
+        FADE,
+        FOG,
+        GAMMA
+    }
     
-    protected ViewPort viewPort;
-    protected Node rootNode = new Node("Root Node");
-    protected AssetManager assetManager;
+    private ViewPort viewPort;
+    private Node rootNode = new Node("Root Node");
+    private AssetManager assetManager;
+    private FilterPostProcessor mFilterProcessor;
+    private HashMap<String, Filter> mFilterMap = new HashMap<String, Filter>();
+    
     private  AmbientLight al;
     private Spatial sky;
     
@@ -55,12 +79,33 @@ public class BBSceneManager {
         if (assetManager == null){
             initAssetManager();
         }
+        rootNode.setShadowMode(ShadowMode.Off);
     }
     
     public void setViewPort(ViewPort vp){
         viewPort = vp;
         viewPort.setEnabled(true);
         viewPort.attachScene(rootNode);
+    }
+    
+    public void createFilterProcessor(){
+        if(viewPort == null){
+            return;
+        }
+        if(mFilterProcessor != null){
+            return;
+        }
+        mFilterProcessor = new FilterPostProcessor(assetManager);
+        viewPort.addProcessor(mFilterProcessor);
+        
+        PssmShadowRenderer pssmRenderer = new PssmShadowRenderer(assetManager, 1024, 3);
+        pssmRenderer.setDirection(new Vector3f(-1, -1, -1).normalizeLocal());
+        //pssmRenderer.setLambda(0.55f);
+        pssmRenderer.setShadowIntensity(0.6f);
+        //pssmRenderer.setCompareMode(CompareMode.Software);
+        //pssmRenderer.setFilterMode(FilterMode.Bilinear);
+        //pssmRenderer.displayDebug();
+        viewPort.addProcessor(pssmRenderer);
     }
     
     public Spatial loadSpatial(String name){
@@ -73,6 +118,52 @@ public class BBSceneManager {
         this.addChild(sky);
     }
     
+    public void createFilter(String name, FilterType type){
+        
+        switch (type) {
+            case BLOOM :
+                BloomFilter bf = new BloomFilter(BloomFilter.GlowMode.Objects);
+                mFilterProcessor.addFilter(bf);                
+                mFilterMap.put(name, bf);
+            break;               
+            case FOG :
+                FogFilter fog=new FogFilter();
+                mFilterProcessor.addFilter(fog);
+                mFilterMap.put(name, fog);
+            break;
+            case DEPHT :
+                DepthOfFieldFilter dofFilter = new DepthOfFieldFilter();
+                mFilterProcessor.addFilter(dofFilter);
+                mFilterMap.put(name, dofFilter);
+            break;
+            case LIGHT :
+                LightScatteringFilter lgtFilter = new LightScatteringFilter();
+                mFilterProcessor.addFilter(lgtFilter);
+                mFilterMap.put(name, lgtFilter);
+            break;
+            default: 
+                throw new RuntimeException("None or unsupported Filter Type");
+        }
+    }
+    
+    public Filter getFilterbyName(String name) {
+        return mFilterMap.get(name);
+    }
+    
+    /**
+     * finds the entity name of a given Filter if there is one
+     * @param filter
+     * @return String name
+     */
+    public String getFilterName(Filter filter) {
+        for (Iterator<Entry<String, Filter>> it = mFilterMap.entrySet().iterator(); it.hasNext();) {
+            Entry<String, Filter> entry = it.next();
+            if (entry.getValue() == filter) {
+                return entry.getKey();
+            }
+        }
+        return "NONE";
+    }
     
     public void addChild(Spatial sp){
         rootNode.attachChild(sp);
@@ -95,7 +186,7 @@ public class BBSceneManager {
         rootNode.addLight(al); 
         DirectionalLight dl = new DirectionalLight();
         dl.setColor(ColorRGBA.White);
-        dl.setDirection(new Vector3f(2.8f, -2.8f, -2.8f).normalizeLocal());
+        dl.setDirection(new Vector3f(0.8f, -2.8f, 0.8f).normalizeLocal());
         rootNode.addLight(dl);   
     }  
     
