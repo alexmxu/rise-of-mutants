@@ -64,11 +64,16 @@ import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
+import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
+import com.jme3.post.filters.BloomFilter;
+import com.jme3.post.filters.DepthOfFieldFilter;
+import com.jme3.post.filters.LightScatteringFilter;
+import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 
@@ -152,7 +157,7 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
         
         BBSceneManager.getInstance().setupLight();
         BBSceneManager.getInstance().createSky();
-        
+                
         //init global music
         music = new BBAudioComponent("Sounds/game.wav", false);
         music.setVolume(3);
@@ -175,6 +180,7 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
         camNode.setLocalTranslation(new Vector3f(25, 10, 0));
         camNode.lookAt(humanStalker.getLocalTranslation(), Vector3f.UNIT_Y);
         humanStalker.attachChild(camNode);
+        //BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).attachChild(camNode);
         
         //*******************************************
         //TEST AND LOAD ENEMY WITH ENTITY SYSTEM
@@ -224,6 +230,31 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
         
         //Add it the map of Enemies
         mapEnemies.put(new Long(1), mEnemy);
+        
+        //Create post effect processor
+        BBSceneManager.getInstance().createFilterProcessor();
+        BBSceneManager.getInstance().createFilter("GAME_BLOOM", BBSceneManager.FilterType.BLOOM);
+        BloomFilter tmpFilter = (BloomFilter) BBSceneManager.getInstance().getFilterbyName("GAME_BLOOM");
+        tmpFilter.setBloomIntensity(2.0f);
+        tmpFilter.setExposurePower(1.3f);
+        
+        BBSceneManager.getInstance().createFilter("GAME_BLEUR", BBSceneManager.FilterType.DEPHT);
+        DepthOfFieldFilter tmpFltrBleur= (DepthOfFieldFilter) BBSceneManager.getInstance().getFilterbyName("GAME_BLEUR");
+        tmpFltrBleur.setFocusDistance(0);
+        tmpFltrBleur.setFocusRange(150);
+        tmpFltrBleur.setBlurScale(1.4f);
+        
+        //Create sun
+        DirectionalLight sun = new DirectionalLight();
+        Vector3f lightDir = new Vector3f(35.12f, -0.3729129f, 3.74847335f);
+        sun.setDirection(lightDir);
+        sun.setColor(ColorRGBA.White.clone().multLocal(2));
+        BBSceneManager.getInstance().getRootNode().addLight(sun);
+        /*
+        BBSceneManager.getInstance().createFilter("GAME_LIGHT", BBSceneManager.FilterType.LIGHT);
+        LightScatteringFilter tmpFltrLight = (LightScatteringFilter) BBSceneManager.getInstance().getFilterbyName("GAME_LIGHT");
+        Vector3f lightPos = lightDir.multLocal(-5000);
+        tmpFltrLight.setLightPosition(lightPos);*/
     }
     
     @Override
@@ -313,7 +344,6 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
                     object.getComponent(BBAnimComponent.class).getChannel().setAnim("mutant_idle", 0.50f);
                     object.getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.Loop);
                 }
-               
             }
         }//end for
         
@@ -321,6 +351,7 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
         // Update character
         Vector3f pos = BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getControl(CharacterControl.class).getPhysicsLocation();
         humanStalker.setLocalTranslation(pos);
+        //BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).setLocalTranslation(pos);
         
         BBPlayerManager.getInstance().udpate(tpf);
    
@@ -393,21 +424,25 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
         obj01 = BBSceneManager.getInstance().loadSpatial("Scenes/TestScene/obj01.obj"); 
         obj01.setName("obj01");
         obj01.setMaterial(mat);
+        obj01.setShadowMode(ShadowMode.Receive);
         ndmd.attachChild(obj01);
       
         obj02 = BBSceneManager.getInstance().loadSpatial("Scenes/TestScene/obj02.obj"); 
         obj02.setName("obj02");
         obj02.setMaterial(mat);
+        obj02.setShadowMode(ShadowMode.Receive);
         ndmd.attachChild(obj02);
 
         obj03 = BBSceneManager.getInstance().loadSpatial("Scenes/TestScene/obj03.obj"); 
         obj03.setName("obj03");
         obj03.setMaterial(mat);
+        obj03.setShadowMode(ShadowMode.Receive);
         ndmd.attachChild(obj03);
 
         ledder = BBSceneManager.getInstance().loadSpatial("Scenes/TestScene/ledder.obj"); 
         ledder.setName("ledder");
         ledder.setMaterial(mat);
+        //ledder.setShadowMode(ShadowMode.Receive);
         ndmd.attachChild(ledder);
 
         // Spawn Points of Mutants
@@ -417,6 +452,7 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
         mat_box = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
         mat_box.setColor("m_Color", ColorRGBA.Blue);
         geom_a.setMaterial(mat_box);
+        //geom_a.setShadowMode(ShadowMode.Receive);
         ndmd.attachChild(geom_a);
                
         //Collision Shapes
@@ -466,12 +502,13 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
                         foundMainLocation = true;
                     }                   
                     Spatial ndGet =  ndmd.getChild(j).clone(false);
-                    //System.out.println("VisTEST"+ndmd.getChild(j).getName());                
+                    System.out.println("***** VisTEST : "+ndmd.getChild(j).getName());                
                     ndGet.setName(strndscene);
                     Transform a = new Transform();
                     a = nd.getChild(i).getWorldTransform().clone();
                     a.setTranslation(a.getTranslation().subtract(mainLocation));
                     ndGet.setLocalTransform(a);
+                    //ndGet.setShadowMode(ShadowMode.Receive);
 
                     mainNode.attachChild(ndGet);
                 }    
@@ -527,9 +564,9 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
         CollisionShape myComplexShape = CollisionShapeFactory.createMeshShape(physicsModelsFinal);
         physicsModelsFinal.detachAllChildren();
         RigidBodyControl worldPhysics = new RigidBodyControl(myComplexShape,0);  
-        worldPhysics.createDebugShape(BBSceneManager.getInstance().getAssetManager());        
+        //worldPhysics.createDebugShape(BBSceneManager.getInstance().getAssetManager());        
         BBPhysicsManager.getInstance().getPhysicsSpace().add(worldPhysics); 
-        BBSceneManager.getInstance().getRootNode().attachChild(worldPhysics.debugShape());
+        //BBSceneManager.getInstance().getRootNode().attachChild(worldPhysics.debugShape());
         physicsModelsFinal = null;
         
     }

@@ -20,6 +20,7 @@ import com.bigboots.core.BBSceneManager;
 import com.jme3.animation.AnimControl;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.light.Light;
+import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import java.util.ArrayList;
@@ -58,6 +59,7 @@ public class BBEntity extends BBObject{
     public void loadModel(String mesh){
        tmpSpatial =  BBSceneManager.getInstance().loadSpatial(mesh);
        tmpSpatial.setLocalTranslation(0, -.85f, 0);
+       tmpSpatial.setShadowMode(ShadowMode.Cast);
        mDisplay = new Geometry();
        this.getComponent(BBNodeComponent.class).attachChild(tmpSpatial);
     }
