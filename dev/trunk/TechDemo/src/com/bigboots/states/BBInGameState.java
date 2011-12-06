@@ -250,11 +250,13 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
         sun.setDirection(lightDir);
         sun.setColor(ColorRGBA.White.clone().multLocal(2));
         BBSceneManager.getInstance().getRootNode().addLight(sun);
-        /*
+        
         BBSceneManager.getInstance().createFilter("GAME_LIGHT", BBSceneManager.FilterType.LIGHT);
         LightScatteringFilter tmpFltrLight = (LightScatteringFilter) BBSceneManager.getInstance().getFilterbyName("GAME_LIGHT");
         Vector3f lightPos = lightDir.multLocal(-5000);
-        tmpFltrLight.setLightPosition(lightPos);*/
+        tmpFltrLight.setLightPosition(lightPos);
+        
+        BBSceneManager.getInstance().createFilter("GAME_TOON", BBSceneManager.FilterType.CARTOON);
     }
     
     @Override
