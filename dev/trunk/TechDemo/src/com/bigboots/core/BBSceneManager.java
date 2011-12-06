@@ -141,6 +141,11 @@ public class BBSceneManager {
                 mFilterProcessor.addFilter(lgtFilter);
                 mFilterMap.put(name, lgtFilter);
             break;
+            case CARTOON :
+                CartoonEdgeFilter toon=new CartoonEdgeFilter();
+                mFilterProcessor.addFilter(toon);
+                mFilterMap.put(name, toon);
+            break;
             default: 
                 throw new RuntimeException("None or unsupported Filter Type");
         }
