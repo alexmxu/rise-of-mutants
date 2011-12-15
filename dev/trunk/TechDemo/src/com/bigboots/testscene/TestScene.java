@@ -4,6 +4,7 @@ package com.bigboots.testscene;
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.BlenderKey;
 import com.jme3.asset.DesktopAssetManager;
+import com.jme3.asset.ModelKey;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
@@ -106,7 +107,7 @@ public class TestScene extends SimpleApplication {
         
         // Load a blender file. 
         DesktopAssetManager dsk = (DesktopAssetManager) assetManager;        
-        BlenderKey bk = new BlenderKey("Scenes/TestScene/test_scene_01_1.blend");
+        ModelKey bk = new ModelKey("Scenes/TestScene/test_scene_01_1.blend");
       //  bk.setFixUpAxis(false);
         Node nd =  (Node) dsk.loadModel(bk); 
         
