@@ -24,6 +24,7 @@ import com.jme3.animation.LoopMode;
 //physic
 import com.jme3.asset.BlenderKey;
 import com.jme3.asset.DesktopAssetManager;
+import com.jme3.asset.ModelKey;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.collision.PhysicsRayTestResult;
 
@@ -583,7 +584,7 @@ public class TestCharacterOnTrack extends SimpleApplication implements AnimEvent
         
         // Load a blender file. 
         DesktopAssetManager dsk = (DesktopAssetManager) assetManager;        
-        BlenderKey bk = new BlenderKey("Scenes/TestScene/test_scene_01_1.blend");
+        ModelKey bk = new ModelKey("Scenes/TestScene/test_scene_01_1.blend");
         Node nd =  (Node) dsk.loadModel(bk); 
         
         //Create empty Scene Node
