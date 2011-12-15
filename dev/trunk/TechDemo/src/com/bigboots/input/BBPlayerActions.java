@@ -20,13 +20,25 @@ import com.bigboots.components.BBAnimComponent;
 import com.bigboots.components.BBAudioComponent;
 import com.bigboots.components.BBNodeComponent;
 import com.bigboots.components.BBPlayerManager;
+import com.bigboots.core.BBSceneManager;
+import com.bigboots.physics.BBBulletPhysic;
+import com.bigboots.physics.BBPhysicsManager;
 import com.jme3.animation.LoopMode;
+import com.jme3.bullet.collision.shapes.SphereCollisionShape;
 import com.jme3.bullet.control.CharacterControl;
+import com.jme3.bullet.control.RigidBodyControl;
+import com.jme3.effect.ParticleEmitter;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.AnalogListener;
+import com.jme3.material.Material;
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
+import com.jme3.renderer.queue.RenderQueue.ShadowMode;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.shape.Sphere;
+import com.jme3.scene.shape.Sphere.TextureMode;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -35,9 +47,20 @@ import java.util.logging.Logger;
  * @author @author Ulrich Nzuzi <ulrichnz@code.google.com>
  */
 public class BBPlayerActions implements ActionListener, AnalogListener{
+    private Material matBullet;
+    //bullet
+    private Sphere bullet;
+    private SphereCollisionShape bulletCollisionShape;
+    //explosion
+    //private ParticleEmitter effect;
+    private Quaternion newRot;
     private float time = 0;
     private int pressed=0;
     private static final Logger logger = Logger.getLogger(BBPlayerActions.class.getName());
+    
+    public BBPlayerActions(){
+        prepareBullet();
+    }
     
     private static final class Directions{
         private static final Quaternion rot = new Quaternion().fromAngleAxis(-FastMath.HALF_PI, Vector3f.UNIT_Y);
@@ -73,6 +96,7 @@ public class BBPlayerActions implements ActionListener, AnalogListener{
                     logger.log(Level.INFO,"******  Character Attack 1.");
                     BBPlayerManager.getInstance().getMainPlayer().getComponent(BBAnimComponent.class).getChannel().setAnim("shoot", 0.05f);
                     BBPlayerManager.getInstance().getMainPlayer().getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.DontLoop);
+                    bulletControl();
                 }
                 
             }
@@ -117,17 +141,17 @@ public class BBPlayerActions implements ActionListener, AnalogListener{
         public void onAnalog(String binding, float value, float tpf) {
             if(!BBPlayerManager.getInstance().isJumping()){
                 if (binding.equals(BBGlobals.INPUT_MAPPING_LEFT)) {
-                    Quaternion newRot = new Quaternion().slerp(BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getLocalRotation(),Directions.leftDir, tpf*8);
+                    newRot = new Quaternion().slerp(BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getLocalRotation(),Directions.leftDir, tpf*8);
                     BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).setLocalRotation(newRot);
                 }
                 else if (binding.equals("Right")) {
-                    Quaternion newRot = new Quaternion().slerp(BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getLocalRotation(),Directions.rightDir, tpf*8);
+                    newRot = new Quaternion().slerp(BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getLocalRotation(),Directions.rightDir, tpf*8);
                     BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).setLocalRotation(newRot);        
                 } else if (binding.equals("Up")) {
-                    Quaternion newRot = new Quaternion().slerp(BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getLocalRotation(),Directions.upDir, tpf*8);
+                    newRot = new Quaternion().slerp(BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getLocalRotation(),Directions.upDir, tpf*8);
                     BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).setLocalRotation(newRot);
                 } else if (binding.equals("Down")) {
-                    Quaternion newRot = new Quaternion().slerp(BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getLocalRotation(),Directions.downDir, tpf*8);
+                    newRot = new Quaternion().slerp(BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getLocalRotation(),Directions.downDir, tpf*8);
                     BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).setLocalRotation(newRot);
                 }
 
@@ -140,4 +164,31 @@ public class BBPlayerActions implements ActionListener, AnalogListener{
                 }
             }
         }//end onAnalog
+        
+        
+        private void prepareBullet() {
+            bullet = new Sphere(32, 32, 0.4f, true, false);
+            bullet.setTextureMode(TextureMode.Projected);
+            bulletCollisionShape = new SphereCollisionShape(0.4f);
+            matBullet = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
+            matBullet.setColor("Color", ColorRGBA.Green);
+            matBullet.setColor("m_GlowColor", ColorRGBA.Green);
+            //BBPhysicsManager.getInstance().getPhysicsSpace().addCollisionListener(this);
+        }
+        
+        private void bulletControl() {
+            
+            CharacterControl character = BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getControl(CharacterControl.class);
+            
+            Geometry bulletg = new Geometry("bullet", bullet);
+            bulletg.setMaterial(matBullet);
+            bulletg.setShadowMode(ShadowMode.CastAndReceive);
+            bulletg.setLocalTranslation(character.getPhysicsLocation().add(character.getViewDirection().mult(5)));
+            RigidBodyControl bulletControl = new BBBulletPhysic(bulletCollisionShape, 1);
+            bulletControl.setCcdMotionThreshold(0.1f);
+            bulletControl.setLinearVelocity(character.getViewDirection().mult(180));
+            bulletg.addControl(bulletControl);
+            BBSceneManager.getInstance().addChild(bulletg);
+            BBPhysicsManager.getInstance().getPhysicsSpace().add(bulletControl);
+    }
 }
