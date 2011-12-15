@@ -167,7 +167,7 @@ public class BBPlayerActions implements ActionListener, AnalogListener{
         
         
         private void prepareBullet() {
-            bullet = new Sphere(32, 32, 0.4f, true, false);
+            bullet = new Sphere(8, 8, 0.4f, true, false);
             bullet.setTextureMode(TextureMode.Projected);
             bulletCollisionShape = new SphereCollisionShape(0.4f);
             matBullet = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
@@ -183,10 +183,10 @@ public class BBPlayerActions implements ActionListener, AnalogListener{
             Geometry bulletg = new Geometry("bullet", bullet);
             bulletg.setMaterial(matBullet);
             bulletg.setShadowMode(ShadowMode.CastAndReceive);
-            bulletg.setLocalTranslation(character.getPhysicsLocation().add(character.getViewDirection().mult(5)));
+            bulletg.setLocalTranslation(character.getPhysicsLocation().add(character.getViewDirection().mult(8)));
             RigidBodyControl bulletControl = new BBBulletPhysic(bulletCollisionShape, 1);
             bulletControl.setCcdMotionThreshold(0.1f);
-            bulletControl.setLinearVelocity(character.getViewDirection().mult(180));
+            bulletControl.setLinearVelocity(character.getViewDirection().mult(100));
             bulletg.addControl(bulletControl);
             BBSceneManager.getInstance().addChild(bulletg);
             BBPhysicsManager.getInstance().getPhysicsSpace().add(bulletControl);

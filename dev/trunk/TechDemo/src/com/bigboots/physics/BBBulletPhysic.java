@@ -23,6 +23,7 @@ import com.jme3.bullet.collision.PhysicsCollisionListener;
 import com.jme3.bullet.collision.PhysicsCollisionObject;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.collision.shapes.SphereCollisionShape;
+import com.jme3.bullet.control.CharacterControl;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.bullet.objects.PhysicsGhostObject;
 import com.jme3.bullet.objects.PhysicsRigidBody;
@@ -97,7 +98,9 @@ public class BBBulletPhysic extends RigidBodyControl implements PhysicsCollision
         if (space == null) {
             return;
         }
+        
         if (event.getObjectA() == this || event.getObjectB() == this) {
+            System.out.println("*******!!! COLLISION FOR BULLET !!!**********");
             space.add(ghostObject);
             ghostObject.setPhysicsLocation(getPhysicsLocation(vector));
             space.addTickListener(this);
@@ -109,6 +112,16 @@ public class BBBulletPhysic extends RigidBodyControl implements PhysicsCollision
             }
             space.remove(this);
             spatial.removeFromParent();
+            
+            if (event.getObjectA() instanceof CharacterControl){
+                System.out.println("*******!!! BULLET HIT OBJECT ["+ event.getObjectA().toString() +"] ON Object A !!!**********");
+                System.out.println("*******!!! BULLET HIT NODE ["+ event.getNodeA().getName() +"] ON Object A !!!**********");
+            }
+            if(event.getObjectB() instanceof CharacterControl){
+                System.out.println("*******!!! BULLET HIT OBJECT ["+ event.getObjectB().toString() +"] ON Object B !!!**********");
+                System.out.println("*******!!! BULLET HIT NODE ["+ event.getNodeB().getName() +"] ON Object B !!!**********");
+            }
+            
         }
     }
     
@@ -121,8 +134,8 @@ public class BBBulletPhysic extends RigidBodyControl implements PhysicsCollision
         for (Iterator<PhysicsCollisionObject> it = ghostObject.getOverlappingObjects().iterator(); it.hasNext();) {            
             PhysicsCollisionObject physicsCollisionObject = it.next();
             if (physicsCollisionObject instanceof PhysicsRigidBody) {
-                PhysicsRigidBody rBody = (PhysicsRigidBody) physicsCollisionObject;
-                rBody.getPhysicsLocation(vector2);
+                PhysicsRigidBody prBody = (PhysicsRigidBody) physicsCollisionObject;
+                prBody.getPhysicsLocation(vector2);
                 vector2.subtractLocal(vector);
                 float force = explosionRadius - vector2.length();
                 force *= forceFactor;
