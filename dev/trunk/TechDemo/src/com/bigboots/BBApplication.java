@@ -23,6 +23,7 @@ import com.bigboots.core.BBSettings;
 import com.bigboots.core.BBUpdateManager;
 import com.bigboots.gui.BBGuiManager;
 import com.bigboots.input.BBInputManager;
+import com.bigboots.states.BBInGameState;
 import com.bigboots.states.BBMainMenuState;
 import com.bigboots.states.BBStateManager;
 import com.jme3.system.SystemListener;
@@ -73,14 +74,12 @@ public class BBApplication implements SystemListener {
         //init Audio
         BBAudioManager.getInstance().initAudio(engineSystem);
         
-        BBDebugInfo.getInstance().loadFPSText();
-        BBDebugInfo.getInstance().loadStatsView(engineSystem.getRenderer());
-        BBDebugInfo.getInstance().setDisplayFps(true);
-        BBDebugInfo.getInstance().setDisplayStatView(true);
+        BBDebugInfo.getInstance().init(engineSystem.getRenderer());
         
         //Launch the main menu screen
-        BBMainMenuState menu = new BBMainMenuState();
-        BBStateManager.getInstance().attach(menu);
+        BBMainMenuState window = new BBMainMenuState();
+        //BBInGameState window = new BBInGameState();
+        BBStateManager.getInstance().attach(window);
   
     }
 

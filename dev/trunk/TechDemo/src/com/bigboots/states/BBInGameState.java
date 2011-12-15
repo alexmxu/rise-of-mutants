@@ -28,12 +28,14 @@ import com.bigboots.components.BBEntity;
 import com.bigboots.components.BBListenerComponent;
 import com.bigboots.components.BBNodeComponent;
 import com.bigboots.components.BBPlayerManager;
+import com.bigboots.core.BBDebugInfo;
 import com.bigboots.core.BBEngineSystem;
 import com.bigboots.core.BBSceneManager;
 import com.bigboots.core.BBSettings;
 import com.bigboots.gui.BBGuiManager;
 import com.bigboots.input.BBInputManager;
 import com.bigboots.input.BBPlayerActions;
+import com.bigboots.physics.BBBasicCollisionListener;
 import com.bigboots.physics.BBPhysicsManager;
 import com.jme3.animation.AnimChannel;
 import com.jme3.scene.Spatial;
@@ -61,9 +63,11 @@ import com.jme3.bullet.control.RigidBodyControl;
 
 import com.jme3.bullet.util.CollisionShapeFactory;
 import com.jme3.input.KeyInput;
+import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
+import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
@@ -132,18 +136,24 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
         BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_DOWN, new KeyTrigger(KeyInput.KEY_K));
         BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_JUMP, new KeyTrigger(KeyInput.KEY_SPACE));
         BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_EXIT, new KeyTrigger(KeyInput.KEY_ESCAPE));
+        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_DEBUG, new KeyTrigger(KeyInput.KEY_F1));
+        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_MLEFT, new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
+        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_MRIGHT, new MouseButtonTrigger(MouseInput.BUTTON_RIGHT));
         
-        BBInputManager.getInstance().getInputManager().addListener(actionListener, BBGlobals.INPUT_MAPPING_EXIT);
+        BBInputManager.getInstance().getInputManager().addListener(actionListener, BBGlobals.INPUT_MAPPING_EXIT, BBGlobals.INPUT_MAPPING_DEBUG);
         BBInputManager.getInstance().getInputManager().addListener(playerListener, 
                                                                     BBGlobals.INPUT_MAPPING_LEFT,
                                                                     BBGlobals.INPUT_MAPPING_RIGHT, 
                                                                     BBGlobals.INPUT_MAPPING_UP, 
                                                                     BBGlobals.INPUT_MAPPING_DOWN,
-                                                                    BBGlobals.INPUT_MAPPING_JUMP);
+                                                                    BBGlobals.INPUT_MAPPING_JUMP,
+                                                                    BBGlobals.INPUT_MAPPING_MLEFT,
+                                                                    BBGlobals.INPUT_MAPPING_MRIGHT);
         
         BBInputManager.getInstance().getInputManager().setCursorVisible(false);
         
         mNifty = BBGuiManager.getInstance().getNifty();
+        //mNifty.gotoScreen("null");
         
         //Load first scene and camera
         Camera cam = new Camera(BBSettings.getInstance().getSettings().getWidth(), BBSettings.getInstance().getSettings().getHeight());
@@ -231,6 +241,13 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
         //Add it the map of Enemies
         mapEnemies.put(new Long(1), mEnemy);
         
+        //********************************************
+        //Set collision listener
+        BBBasicCollisionListener basicCol = new BBBasicCollisionListener();
+        BBPhysicsManager.getInstance().getPhysicsSpace().addCollisionListener(basicCol);
+        
+        
+ /*       
         //Create post effect processor
         BBSceneManager.getInstance().createFilterProcessor();
         BBSceneManager.getInstance().createFilter("GAME_BLOOM", BBSceneManager.FilterType.BLOOM);
@@ -255,8 +272,9 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
         LightScatteringFilter tmpFltrLight = (LightScatteringFilter) BBSceneManager.getInstance().getFilterbyName("GAME_LIGHT");
         Vector3f lightPos = lightDir.multLocal(-5000);
         tmpFltrLight.setLightPosition(lightPos);
-        
+      
         BBSceneManager.getInstance().createFilter("GAME_TOON", BBSceneManager.FilterType.CARTOON);
+  */
     }
     
     @Override
@@ -386,12 +404,18 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
    
     private class GameActionListener implements AnimEventListener, ActionListener, AnalogListener {
 
-        public void onAction(String binding, boolean value, float tpf) {
+        public void onAction(String binding, boolean keyPressed, float tpf) {
             
             if (binding.equals(BBGlobals.INPUT_MAPPING_EXIT)) { 
               //mNifty.gotoScreen("game");
               engineSystem.stop(false);
               //return;
+            }
+            if (binding.equals(BBGlobals.INPUT_MAPPING_DEBUG) && !keyPressed) { 
+                
+              BBPhysicsManager.getInstance().setDebugInfo(!BBPhysicsManager.getInstance().isShowDebug());
+              BBDebugInfo.getInstance().setDisplayFps(!BBDebugInfo.getInstance().isShowFPS());
+              BBDebugInfo.getInstance().setDisplayStatView(!BBDebugInfo.getInstance().isShowStat());
             } 
         }//end onAAction
         

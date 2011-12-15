@@ -40,11 +40,18 @@ public class BBDebugInfo {
     protected BitmapText fpsText;
     protected BitmapFont guiFont;
     protected StatsView statsView;
-    protected boolean showSettings = true;
-    private  boolean showFps = true;
+    protected boolean showStat = false;
+    private  boolean showFps = false;
     protected float secondCounter = 0.0f;
     protected int frameCounter = 0;
     
+    
+    public void init(Renderer renderer){
+        this.loadFPSText();
+        this.loadStatsView(renderer);
+        this.setDisplayFps(showFps);
+        this.setDisplayStatView(showStat);
+    }
     /**
      * Attaches FPS statistics to guiNode and displays it on the screen.
      *
@@ -85,12 +92,20 @@ public class BBDebugInfo {
         }
     }
     
+    public boolean isShowFPS(){
+        return showFps;
+    }
+    public boolean isShowStat(){
+        return showStat;
+    }
+    
     public void setDisplayFps(boolean show) {
         showFps = show;
         fpsText.setCullHint(show ? CullHint.Never : CullHint.Always);
     }
     
     public void setDisplayStatView(boolean show) {
+        showStat = show;
         statsView.setEnabled(show);
         statsView.setCullHint(show ? CullHint.Never : CullHint.Always);
     }

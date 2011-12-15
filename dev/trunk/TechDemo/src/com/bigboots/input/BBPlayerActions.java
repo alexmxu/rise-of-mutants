@@ -47,16 +47,45 @@ public class BBPlayerActions implements ActionListener, AnalogListener{
         private static final Quaternion leftDir = downDir.mult(rot);
     }
         
-    public void onAction(String binding, boolean value, float tpf) {
+    public void onAction(String binding, boolean keyPressed, float tpf) {
                     
-            if(value == true){
+            if(keyPressed == true){
                 pressed++;
             }
             else{
                 pressed--;                      
             }
+            //System.out.println("******* BINDING PRESSED : "+ binding);
             
-            if(pressed == 1 && value& !binding.equals("Jump") && !BBPlayerManager.getInstance().isWalking()){
+            if (keyPressed==false && BBPlayerManager.getInstance().isWalking()==true) {
+                BBPlayerManager.getInstance().setIsWalking(false);
+                if(!BBPlayerManager.getInstance().isJumping()){
+                    logger.log(Level.INFO,"Character walking end.");
+                    BBPlayerManager.getInstance().getMainPlayer().getComponent(BBAnimComponent.class).getChannel().setAnim("base_stand", 0.50f);          
+                    BBPlayerManager.getInstance().getMainPlayer().getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.DontLoop);
+                    BBPlayerManager.getInstance().getMainPlayer().getComponent(BBAudioComponent.class).stop();
+                }
+            }
+            
+            if(!keyPressed && binding.equals("MOUSE_LEFT")){
+                BBPlayerManager.getInstance().setIsWalking(false);
+                if(!BBPlayerManager.getInstance().isJumping()){
+                    logger.log(Level.INFO,"******  Character Attack 1.");
+                    BBPlayerManager.getInstance().getMainPlayer().getComponent(BBAnimComponent.class).getChannel().setAnim("shoot", 0.05f);
+                    BBPlayerManager.getInstance().getMainPlayer().getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.DontLoop);
+                }
+                
+            }
+            if(!keyPressed && binding.equals("MOUSE_RIGHT")){
+                BBPlayerManager.getInstance().setIsWalking(false);
+                if(!BBPlayerManager.getInstance().isJumping()){
+                    logger.log(Level.INFO,"******  Character Attack 2.");
+                    BBPlayerManager.getInstance().getMainPlayer().getComponent(BBAnimComponent.class).getChannel().setAnim("strike_sword", 0.05f);
+                    BBPlayerManager.getInstance().getMainPlayer().getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.DontLoop);
+                }
+                
+            }
+            if(keyPressed && !binding.equals("Jump") && !binding.equals("MOUSE_LEFT") && !binding.equals("MOUSE_RIGHT") && !BBPlayerManager.getInstance().isWalking()){
                 BBPlayerManager.getInstance().setIsWalking(true);
                 
                 if(!BBPlayerManager.getInstance().isJumping()){
@@ -72,17 +101,9 @@ public class BBPlayerActions implements ActionListener, AnalogListener{
                     }
                 }
             }
-            else if (pressed==0&!value&!binding.equals("Jump")) {
-                BBPlayerManager.getInstance().setIsWalking(false);
-                if(!BBPlayerManager.getInstance().isJumping()){
-                    logger.log(Level.INFO,"Character walking end.");
-                    BBPlayerManager.getInstance().getMainPlayer().getComponent(BBAnimComponent.class).getChannel().setAnim("base_stand", 0.50f);          
-                    BBPlayerManager.getInstance().getMainPlayer().getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.DontLoop);
-                    BBPlayerManager.getInstance().getMainPlayer().getComponent(BBAudioComponent.class).stop();
-                }
-            }
+            
             if (binding.equals("Jump") &! BBPlayerManager.getInstance().isJumping() ) {
-                if (value){
+                if (keyPressed){
                     logger.log(Level.INFO,"Character jumping start.");
                     BBPlayerManager.getInstance().setIsJumping(true);
                     BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getControl(CharacterControl.class).jump();

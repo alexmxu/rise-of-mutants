@@ -23,6 +23,8 @@ import com.jme3.light.Light;
 import com.jme3.material.Material;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Mesh;
+import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.util.TangentBinormalGenerator;
 import java.util.ArrayList;
@@ -59,14 +61,16 @@ public class BBEntity extends BBObject{
     }
     
     public void loadModel(String mesh){
-       tmpSpatial =  BBSceneManager.getInstance().loadSpatial(mesh);
+       tmpSpatial =  (Spatial)BBSceneManager.getInstance().loadSpatial(mesh);
        tmpSpatial.setLocalTranslation(0, -.85f, 0);
        tmpSpatial.setShadowMode(ShadowMode.Cast);
        Material mat = BBSceneManager.getInstance().getAssetManager().loadMaterial("Materials/Scene/Character/CharacterSkin.j3m");
        tmpSpatial.setMaterial(mat);
        TangentBinormalGenerator.generate(tmpSpatial);
-       mDisplay = new Geometry();
+       //mDisplay = new Geometry();
        //mDisplay = (Geometry) tmpSpatial.clone();
+       Node nd_temp = (Node) tmpSpatial;
+       mDisplay = (Geometry) nd_temp.getChild(0);
        this.getComponent(BBNodeComponent.class).attachChild(tmpSpatial);
     }
    
@@ -146,6 +150,10 @@ public class BBEntity extends BBObject{
     }
     public Geometry getGeometry(){
         return mDisplay;
+    }
+    
+    public Mesh getMesh(){
+        return mDisplay.getMesh();
     }
     
     public void destroy(){

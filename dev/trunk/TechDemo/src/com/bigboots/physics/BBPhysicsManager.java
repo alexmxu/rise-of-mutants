@@ -19,6 +19,7 @@ import com.bigboots.components.BBCollisionComponent.ShapeType;
 import com.bigboots.components.BBEntity;
 import com.bigboots.components.BBNodeComponent;
 import com.bigboots.core.BBEngineSystem;
+import com.bigboots.core.BBSceneManager;
 import com.bigboots.core.BBUpdateListener;
 import com.bigboots.core.BBUpdateManager;
 import com.jme3.app.Application;
@@ -45,7 +46,7 @@ public class BBPhysicsManager extends Application implements BBUpdateListener{
     
     private BulletAppState bulletAppState;
     private BBEngineSystem engineSystem;
-    
+    private boolean mShowPhysicDebug = false;
     
     public void update(float tpf) {
         //throw new UnsupportedOperationException("Not supported yet.");
@@ -68,14 +69,28 @@ public class BBPhysicsManager extends Application implements BBUpdateListener{
     }
    
     public CollisionShape createPhysicShape(ShapeType type, BBEntity ent){
+        
+        BoundingBox vol = (BoundingBox)ent.getComponent(BBNodeComponent.class).getWorldBound();
+        
         if(type.equals(ShapeType.CAPSULE)){
-
-            BoundingBox vol = (BoundingBox)ent.getComponent(BBNodeComponent.class).getWorldBound();
             CapsuleCollisionShape enShape = new CapsuleCollisionShape(vol.getZExtent()/2, vol.getYExtent(), 1);
-
             return enShape;
         }
+        if(type.equals(ShapeType.MESH)){
+            MeshCollisionShape mshShape = new MeshCollisionShape(ent.getMesh());
+            return mshShape;
+        }
+        
         return null;
+    }
+    
+    public void setDebugInfo(boolean value){
+        mShowPhysicDebug = value;
+        if(value){
+            bulletAppState.getPhysicsSpace().enableDebug(BBSceneManager.getInstance().getAssetManager());
+        }else {
+            bulletAppState.getPhysicsSpace().disableDebug();
+        }
     }
     
     @Override
@@ -112,4 +127,9 @@ public class BBPhysicsManager extends Application implements BBUpdateListener{
     public PhysicsSpace getPhysicsSpace() {
         return bulletAppState.getPhysicsSpace();
     }
+    
+    public boolean isShowDebug(){
+        return mShowPhysicDebug;
+    }
+    
 }

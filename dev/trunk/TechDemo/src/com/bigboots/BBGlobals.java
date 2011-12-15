@@ -40,4 +40,16 @@ public class BBGlobals {
     public static final String INPUT_MAPPING_UP = "Up";
     public static final String INPUT_MAPPING_DOWN = "Down";
     public static final String INPUT_MAPPING_JUMP = "Jump";
+    public static final String INPUT_MAPPING_MLEFT = "MOUSE_LEFT";
+    public static final String INPUT_MAPPING_DEBUG = "SHOW_DEBUG";
+    public static final String INPUT_MAPPING_MRIGHT = "MOUSE_RIGHT";
+    
+    public enum ActionType {
+        IDLE,
+        ATTACK,
+        BLOCK,
+        JUMP,
+        WALK,
+        DIED
+    }
 }

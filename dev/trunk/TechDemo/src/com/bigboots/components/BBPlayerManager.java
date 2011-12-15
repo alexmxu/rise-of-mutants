@@ -15,6 +15,7 @@
  */
 package com.bigboots.components;
 
+import com.bigboots.BBGlobals;
 import com.bigboots.animation.BBAnimManager;
 import com.bigboots.audio.BBAudioManager;
 import com.bigboots.components.BBCollisionComponent.ShapeType;
@@ -45,8 +46,11 @@ public class BBPlayerManager {
     
     private BBEntity mMainPlayer;
     private Vector3f mMainLocation = new Vector3f(0, 10, 0);
+    
     private boolean mIsWalking = false;
     private boolean mIsJumping = false;
+    private BBGlobals.ActionType mAction = BBGlobals.ActionType.IDLE;
+    
     private float hasJumped = 0;
     private boolean hasBeenOnGround = false;
     private static final Logger logger = Logger.getLogger(BBPlayerManager.class.getName());
@@ -67,6 +71,7 @@ public class BBPlayerManager {
         panim.getChannel().setLoopMode(LoopMode.Cycle);
         
         CollisionShape pShape = BBPhysicsManager.getInstance().createPhysicShape(ShapeType.CAPSULE, mMainPlayer);
+        //CollisionShape pShape = BBPhysicsManager.getInstance().createPhysicShape(ShapeType.MESH, mMainPlayer);
         BBCollisionComponent pColCp = mMainPlayer.addComponent(CompType.COLSHAPE);
         pColCp.attachShape(pShape);
         
@@ -138,6 +143,14 @@ public class BBPlayerManager {
         }
     }
     
+    public void setAction(BBGlobals.ActionType act){
+        mAction = act;
+    }
+
+    public BBGlobals.ActionType getAction(){
+        return mAction;
+    }
+    
     public void setIsWalking(boolean val){
         mIsWalking = val;
     }
@@ -145,7 +158,7 @@ public class BBPlayerManager {
     public void setIsJumping(boolean val){
         mIsJumping = val;
     }
-
+    
     public boolean isWalking(){
         return mIsWalking;
     }

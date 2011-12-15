@@ -44,7 +44,7 @@ public class BBMainMenuState extends BBAbstractState implements ScreenController
         BBInputManager.getInstance().getInputManager().addListener(actionListener, BBGlobals.INPUT_MAPPING_EXIT);
         
         mNifty = BBGuiManager.getInstance().getNifty();
-                
+        //mNifty.gotoScreen("start");        
         BBInputManager.getInstance().getInputManager().setCursorVisible(true);
     }
     
