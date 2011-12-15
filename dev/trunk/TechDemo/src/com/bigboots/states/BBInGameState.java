@@ -52,6 +52,7 @@ import com.jme3.scene.control.CameraControl.ControlDirection;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.scene.Node;
 import com.jme3.asset.BlenderKey;
+import com.jme3.asset.ModelKey;
 
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.control.CharacterControl;
@@ -478,7 +479,7 @@ public class BBInGameState extends BBAbstractState{
        
         // Load a blender file. 
         DesktopAssetManager dsk = (DesktopAssetManager) BBSceneManager.getInstance().getAssetManager();        
-        BlenderKey bk = new BlenderKey("Scenes/TestScene/test_scene_01_1.blend");
+        ModelKey bk = new ModelKey("Scenes/TestScene/test_scene_01_1.blend");
         Node nd =  (Node) dsk.loadModel(bk); 
         
         //Create empty Scene Node
