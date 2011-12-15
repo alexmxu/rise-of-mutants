@@ -15,9 +15,7 @@
  */
 package com.bigboots.gui;
 
-//import java.util.Properties;
-
-
+import com.bigboots.input.BBInputManager;
 import com.bigboots.states.BBInGameState;
 import com.bigboots.states.BBMainMenuState;
 import com.bigboots.states.BBStateManager;
@@ -29,14 +27,12 @@ import de.lessvoid.nifty.screen.Screen;
 import de.lessvoid.nifty.screen.ScreenController;
 import de.lessvoid.xml.xpp3.Attributes;
 import java.util.Properties;
-
-
 /**
  *
  * @author @author Ulrich Nzuzi <ulrichnz@code.google.com>
  */
-public class BBMainMenuController implements ScreenController, Controller{
-    private Nifty mNifty;
+public class BBInGameController implements ScreenController, Controller{
+        private Nifty mNifty;
     private Screen mScreen;
 
     public void bind(Nifty nifty, 
@@ -73,28 +69,17 @@ public class BBMainMenuController implements ScreenController, Controller{
         return true;
     }
     
-       /** custom methods */ 
-    public void startGame() {     
-        mNifty.gotoScreen("progress"); 
-        BBGuiManager.getInstance().update(0.1f);
-        //TODO : Next time use message notification to notify the change
-        BBStateManager.getInstance().detach(BBStateManager.getInstance().getState(BBMainMenuState.class));
+    public void quitToWin(){
         // switch to another screen
-              
+        //mNifty.gotoScreen("null");
+        BBStateManager.getInstance().detach(BBStateManager.getInstance().getState(BBInGameState.class));
+
+        BBInputManager.getInstance().getInputManager().clearMappings();
+        BBInputManager.getInstance().resetInput(); 
         //Change Game state
-        BBInGameState state = new BBInGameState();
-        //BBCreditState state = new BBCreditState();
-        BBStateManager.getInstance().attach(state);
-        
-        
-    }
-
-    public void optionGame() {
-
-    }
+        mNifty.gotoScreen("start");
+        BBMainMenuState menu = new BBMainMenuState();
+        BBStateManager.getInstance().attach(menu);
     
-    public void quit() {
-        System.out.println("******** Quit");
-        BBStateManager.getInstance().getEngine().stop(false);
     }
 }

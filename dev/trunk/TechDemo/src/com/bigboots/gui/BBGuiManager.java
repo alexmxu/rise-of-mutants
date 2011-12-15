@@ -64,8 +64,9 @@ public class BBGuiManager implements BBUpdateListener{
                                               guiViewPort);
         mNifty = niftyDisplay.getNifty();
 
-        mNifty.fromXml("Interface/mainmenu.xml", "start");
-
+        mNifty.fromXml("Interface/mainmenu.xml", "null");
+        //mNifty.setDebugOptionPanelColors(true);
+        
         // attach the nifty display to the gui view port as a processor
         guiViewPort.addProcessor(niftyDisplay);
         guiViewPort.attachScene(guiNode);

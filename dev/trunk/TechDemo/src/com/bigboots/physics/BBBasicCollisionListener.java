@@ -35,12 +35,12 @@ public class BBBasicCollisionListener implements PhysicsCollisionListener{
         //System.out.println("*******!!! BASIC COLLISION EVENT "+ event.getNodeA().getName()+" !!!**********");
         if ( event.getNodeA().getName().equals("PLAYER") ) {
             final Spatial node = event.getNodeA();
-            System.out.println("*******!!! COLLISION FOR PLAYER in Node A !!!**********");
+            //System.out.println("*******!!! COLLISION FOR PLAYER in Node A !!!**********");
             
         } 
         else{
             final Spatial node = event.getNodeB();
-            System.out.println("*******!!! COLLISION FOR PLAYER in Node B !!!**********");
+            //System.out.println("*******!!! COLLISION FOR PLAYER in Node B !!!**********");
         }
     }
 }

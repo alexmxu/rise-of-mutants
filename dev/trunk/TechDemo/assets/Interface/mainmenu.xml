@@ -8,11 +8,18 @@
     <attributes color="#0000" border="4px" />
   </style>
 
-  
+   <!-- this is our nifty little progressbar control -->
+  <controlDefinition name="progressbar" controller="com.bigboots.gui.BBProgressbarCtrl">
+    <image filename="Interface/progressbar-outer.png" imageMode="resize:15,2,15,15,15,2,15,2,15,2,15,15" childLayout="absolute">
+      <image id="#progress" x="0" y="0" filename="Interface/progressbar-inner.png" width="32px" height="100%" imageMode="resize:15,2,15,15,15,2,15,2,15,2,15,15" />
+      <text id="#progress-text" font="Interface/Fonts/Default.fnt" text="" textHAlign="center" textVAlign="center" width="100%" height="100%" x="0" y="0" color="#f00f" />
+    </image>
+  </controlDefinition>
+ 
   <!-- note: no useStyles or useControls in here backgroundColor="#f60f" -->
   <!-- note: you can't use that file on its own -->
   <!-- note: this file is only demonstrating loading additional screens -->
-  <screen id="start" controller="com.bigboots.states.BBMainMenuState">
+  <screen id="start" controller="com.bigboots.gui.BBMainMenuController">
     <layer id="layer" childLayout="center">
         <panel id="panel" style="myStyle" height="30%" width="35%" align="center" valign="center" childLayout="vertical">   
           <effect>
@@ -49,13 +56,13 @@
     </layer>
   </screen>
   
-  <screen id="game" controller="com.bigboots.states.BBInGameState">
+  <screen id="game" controller="com.bigboots.gui.BBInGameController">
     <layer id="layer" childLayout="center">
         <panel id="panel" style="myStyle" height="30%" width="35%" align="center" valign="center" childLayout="vertical">   
            
           <panel id="panquit" height="25%" width="35%" align="center" valign="center" childLayout="center" visibleToMouse="true">
             <control id="backm" name="button" label="Back" color="#000" align="center" valign="center">
-                <interact onClick="quitToMain()" />
+                <interact onClick="quitToWin()" />
             </control>
           </panel>
          </panel>
@@ -75,6 +82,14 @@
     </layer>
   </screen>
   
+    <!-- a simple screen -->
+  <screen id="progress">
+    <layer id="prgBar" childLayout="center">
+      <control id="my-progress" name="progressbar" align="center" valign="center" width="400px" height="32px" />
+    </layer>
+  </screen>
+
+
   <screen id="null" controller="com.bigboots.states.BBMainMenuState">
   </screen>
 </nifty>

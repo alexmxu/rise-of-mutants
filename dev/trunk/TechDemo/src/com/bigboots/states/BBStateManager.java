@@ -61,7 +61,10 @@ public class BBStateManager {
     private BBState[] stateArray;
     private BBEngineSystem engineSystem;
 
-
+    public BBEngineSystem getEngine(){
+        return engineSystem;
+    }
+    
     protected BBState[] getInitializing() { 
         synchronized (states){
             return initializing.getArray();

@@ -43,10 +43,6 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
 
-//for gui
-import de.lessvoid.nifty.screen.ScreenController;
-import de.lessvoid.nifty.Nifty;
-import de.lessvoid.nifty.screen.Screen;
 //for player
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.AnimEventListener;
@@ -88,9 +84,9 @@ import java.util.HashMap;
  *
  * @author Ulrich Nzuzi <ulrichnz@code.google.com>
  */
-public class BBInGameState extends BBAbstractState implements ScreenController{
+public class BBInGameState extends BBAbstractState{
 
-    private Nifty mNifty;
+    //private Nifty mNifty;
     
     Geometry geom_a;
     Material mat_box;
@@ -119,6 +115,10 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
     private BBPlayerActions playerListener = new BBPlayerActions();
     
     private HashMap<Long, BBEntity> mapEnemies = new HashMap<Long, BBEntity>();
+    
+    public BBInGameState() {
+        
+    }
     
     @Override
     public void initialize(BBEngineSystem eng) {
@@ -152,8 +152,7 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
         
         BBInputManager.getInstance().getInputManager().setCursorVisible(false);
         
-        mNifty = BBGuiManager.getInstance().getNifty();
-        //mNifty.gotoScreen("null");
+        BBGuiManager.getInstance().getNifty().gotoScreen("null");
         
         //Load first scene and camera
         Camera cam = new Camera(BBSettings.getInstance().getSettings().getWidth(), BBSettings.getInstance().getSettings().getHeight());
@@ -244,17 +243,15 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
         //********************************************
         //Set collision listener
         BBBasicCollisionListener basicCol = new BBBasicCollisionListener();
-        BBPhysicsManager.getInstance().getPhysicsSpace().addCollisionListener(basicCol);
-        
-        
- /*       
+        BBPhysicsManager.getInstance().getPhysicsSpace().addCollisionListener(basicCol);     
+      
         //Create post effect processor
         BBSceneManager.getInstance().createFilterProcessor();
         BBSceneManager.getInstance().createFilter("GAME_BLOOM", BBSceneManager.FilterType.BLOOM);
         BloomFilter tmpFilter = (BloomFilter) BBSceneManager.getInstance().getFilterbyName("GAME_BLOOM");
         tmpFilter.setBloomIntensity(2.0f);
         tmpFilter.setExposurePower(1.3f);
-        
+ /*         
         BBSceneManager.getInstance().createFilter("GAME_BLEUR", BBSceneManager.FilterType.DEPHT);
         DepthOfFieldFilter tmpFltrBleur= (DepthOfFieldFilter) BBSceneManager.getInstance().getFilterbyName("GAME_BLEUR");
         tmpFltrBleur.setFocusDistance(0);
@@ -280,6 +277,10 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
     @Override
     public void stateDetached() {
         super.stateDetached();
+        
+        //reset input
+        BBInputManager.getInstance().getInputManager().removeListener(actionListener);
+        BBInputManager.getInstance().getInputManager().removeListener(playerListener);
         
         music.destroy();
         music = null;
@@ -377,39 +378,15 @@ public class BBInGameState extends BBAbstractState implements ScreenController{
    
     }
 
-    public void bind(Nifty nifty, Screen screen){
-        mNifty = nifty;
-    }
-    public void onStartScreen(){
-        
-    }
-    public void onEndScreen(){
-        
-    }
-    public void quitToMain(){
-        // switch to another screen
-        //mNifty.gotoScreen("null");
-        BBStateManager.getInstance().detach(this);
-        //reset input
-        BBInputManager.getInstance().getInputManager().removeListener(actionListener);
-        BBInputManager.getInstance().getInputManager().removeListener(playerListener);
-        BBInputManager.getInstance().getInputManager().clearMappings();
-        BBInputManager.getInstance().resetInput(); 
-        //Change Game state
-        mNifty.gotoScreen("start");
-        BBMainMenuState menu = new BBMainMenuState();
-        BBStateManager.getInstance().attach(menu);
-    
-    }
-   
     private class GameActionListener implements AnimEventListener, ActionListener, AnalogListener {
 
         public void onAction(String binding, boolean keyPressed, float tpf) {
             
-            if (binding.equals(BBGlobals.INPUT_MAPPING_EXIT)) { 
-              //mNifty.gotoScreen("game");
-              engineSystem.stop(false);
-              //return;
+            if (binding.equals(BBGlobals.INPUT_MAPPING_EXIT)) {
+              BBInputManager.getInstance().getInputManager().setCursorVisible(true);  
+              BBGuiManager.getInstance().getNifty().gotoScreen("game");
+              return;
+              //engineSystem.stop(false);
             }
             if (binding.equals(BBGlobals.INPUT_MAPPING_DEBUG) && !keyPressed) { 
                 
