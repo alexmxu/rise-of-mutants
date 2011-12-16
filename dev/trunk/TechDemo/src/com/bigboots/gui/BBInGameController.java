@@ -69,7 +69,7 @@ public class BBInGameController implements ScreenController, Controller{
         return true;
     }
     
-    public void quitToWin(){
+    public void quitToMain(){
         // switch to another screen
         //mNifty.gotoScreen("null");
         BBStateManager.getInstance().detach(BBStateManager.getInstance().getState(BBInGameState.class));
@@ -80,6 +80,13 @@ public class BBInGameController implements ScreenController, Controller{
         mNifty.gotoScreen("start");
         BBMainMenuState menu = new BBMainMenuState();
         BBStateManager.getInstance().attach(menu);
+    
+    }
+    
+    public void quitToWin(){
+        // switch to another screen
+        //mNifty.gotoScreen("null");
+        BBStateManager.getInstance().getEngine().stop(false);
     
     }
 }

@@ -51,7 +51,6 @@ import com.jme3.scene.CameraNode;
 import com.jme3.scene.control.CameraControl.ControlDirection;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.scene.Node;
-import com.jme3.asset.BlenderKey;
 import com.jme3.asset.ModelKey;
 
 import com.jme3.bullet.collision.shapes.CollisionShape;
@@ -103,7 +102,6 @@ public class BBInGameState extends BBAbstractState{
     Geometry ledder_l;
 
     protected Node ndmd, physicsModels;
-    
     private BBNodeComponent humanStalker;
 
     // Temp workaround, speed is reset after blending.
@@ -123,6 +121,9 @@ public class BBInGameState extends BBAbstractState{
     
     @Override
     public void initialize(BBEngineSystem eng) {
+        BBGuiManager.getInstance().getNifty().gotoScreen("progress");
+        BBGuiManager.getInstance().enableProgressBar(true);
+        
         super.initialize(eng);
         
         BBPhysicsManager.getInstance().init(engineSystem);
@@ -153,7 +154,6 @@ public class BBInGameState extends BBAbstractState{
         
         BBInputManager.getInstance().getInputManager().setCursorVisible(false);
         
-        BBGuiManager.getInstance().getNifty().gotoScreen("null");
         
         //Load first scene and camera
         Camera cam = new Camera(BBSettings.getInstance().getSettings().getWidth(), BBSettings.getInstance().getSettings().getHeight());
@@ -164,9 +164,6 @@ public class BBInGameState extends BBAbstractState{
         ViewPort vp = engineSystem.getRenderManager().createMainView("TEST", cam);
         vp.setClearFlags(true, true, true);
         BBSceneManager.getInstance().setViewPort(vp);
-        
-        BBSceneManager.getInstance().setupLight();
-        BBSceneManager.getInstance().createSky();
                 
         //init global music
         music = new BBAudioComponent("Sounds/game.wav", false);
@@ -174,8 +171,7 @@ public class BBInGameState extends BBAbstractState{
         music.setLooping(true);
         music.play();
         
-        // Load the main map (here blend loading)
-        loadScene();
+        
         
         //*******************************************
         //Create the main Character
@@ -273,6 +269,13 @@ public class BBInGameState extends BBAbstractState{
       
         BBSceneManager.getInstance().createFilter("GAME_TOON", BBSceneManager.FilterType.CARTOON);
   */
+        
+        //BBGuiManager.getInstance().getNifty().gotoScreen("null");
+        
+        // Load the main map (here blend loading)
+        BBSceneManager.getInstance().setupLight();
+        BBSceneManager.getInstance().createSky();
+        loadScene();
     }
     
     @Override
@@ -411,8 +414,7 @@ public class BBInGameState extends BBAbstractState{
             // unused
         }
     }//end GameActionListener
-    
-    
+
     
      
     public void loadScene(){
