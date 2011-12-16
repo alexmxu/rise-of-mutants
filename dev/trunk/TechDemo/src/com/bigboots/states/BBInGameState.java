@@ -75,6 +75,7 @@ import com.jme3.post.filters.DepthOfFieldFilter;
 import com.jme3.post.filters.LightScatteringFilter;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.plugins.blender.BlenderModelLoader;
 import com.jme3.scene.shape.Box;
 
 
@@ -166,7 +167,8 @@ public class BBInGameState extends BBAbstractState{
         BBSceneManager.getInstance().setViewPort(vp);
                 
         //init global music
-        music = new BBAudioComponent("Sounds/game.wav", false);
+        music = new BBAudioComponent("Sounds/battle.ogg", false);
+        //music = new BBAudioComponent("Sounds/ingame.ogg", false);
         music.setVolume(3);
         music.setLooping(true);
         music.play();
@@ -297,31 +299,6 @@ public class BBInGameState extends BBAbstractState{
         humanStalker.getLocalLightList().clear();
         humanStalker = null;
         
-        ndmd.detachAllChildren();
-        ndmd.removeFromParent();
-        ndmd.getWorldLightList().clear();
-        ndmd.getLocalLightList().clear();
-        ndmd = null;
-        
-        obj01.removeFromParent();
-        obj01 = null;
-        obj02.removeFromParent();
-        obj02 = null;
-        obj03.removeFromParent();
-        obj03 = null;
-        ledder.removeFromParent();
-        ledder = null;
-        
-        obj01_l = null;
-        obj02_l = null;
-        obj03_l = null;
-        ledder_l = null;
-        
-        physicsModels.detachAllChildren();
-        physicsModels.removeFromParent();
-        physicsModels.getWorldLightList().clear();        
-        physicsModels.getLocalLightList().clear();
-        physicsModels = null;
         
         BBAudioManager.getInstance().destroy();
         BBPhysicsManager.getInstance().destroy();
@@ -419,161 +396,35 @@ public class BBInGameState extends BBAbstractState{
      
     public void loadScene(){
         
-        ndmd = new Node("Models");
-        physicsModels = new Node("PhysicsModels");
+        BBSceneManager.getInstance().getAssetManager().registerLoader(BlenderModelLoader.class, "blend");
+        // Load a blender file. 
+        //DesktopAssetManager dsk = (DesktopAssetManager) assetManager;        
+        ModelKey bk = new ModelKey("Scenes/TestScene/test_scene_01_1.blend");
+      //  bk.setFixUpAxis(false);
+        Node nd =  (Node) BBSceneManager.getInstance().getAssetManager().loadModel(bk);
+        BBSceneManager.getInstance().addChild(nd);
         
         // Material
-        Material mat = BBSceneManager.getInstance().getAssetManager().loadMaterial("Scenes/TestScene/TestSceneMaterial.j3m"); 
-         
-        // Models
+        Material woodMat = BBSceneManager.getInstance().getAssetManager().loadMaterial("Scenes/TestScene/TestSceneMaterial.j3m");
+        Material boxMat = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
+        boxMat.setColor("m_Color", ColorRGBA.Blue);
         
-        obj01 = BBSceneManager.getInstance().loadSpatial("Scenes/TestScene/obj01.obj"); 
-        obj01.setName("obj01");
-        obj01.setMaterial(mat);
-        obj01.setShadowMode(ShadowMode.Receive);
-        ndmd.attachChild(obj01);
-      
-        obj02 = BBSceneManager.getInstance().loadSpatial("Scenes/TestScene/obj02.obj"); 
-        obj02.setName("obj02");
-        obj02.setMaterial(mat);
-        obj02.setShadowMode(ShadowMode.Receive);
-        ndmd.attachChild(obj02);
-
-        obj03 = BBSceneManager.getInstance().loadSpatial("Scenes/TestScene/obj03.obj"); 
-        obj03.setName("obj03");
-        obj03.setMaterial(mat);
-        obj03.setShadowMode(ShadowMode.Receive);
-        ndmd.attachChild(obj03);
-
-        ledder = BBSceneManager.getInstance().loadSpatial("Scenes/TestScene/ledder.obj"); 
-        ledder.setName("ledder");
-        ledder.setMaterial(mat);
-        //ledder.setShadowMode(ShadowMode.Receive);
-        ndmd.attachChild(ledder);
-
-        // Spawn Points of Mutants
-        Box box_a = new Box(Vector3f.ZERO, 0.3f, 0.3f, 0.3f);
-        geom_a = new Geometry("spawn", box_a);
-
-        mat_box = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
-        mat_box.setColor("m_Color", ColorRGBA.Blue);
-        geom_a.setMaterial(mat_box);
-        //geom_a.setShadowMode(ShadowMode.Receive);
-        ndmd.attachChild(geom_a);
-               
-        //Collision Shapes
-        obj01_l =  (Geometry) BBSceneManager.getInstance().loadSpatial("Scenes/TestScene/obj01_l.obj");
-        obj01_l.setName("obj01_l");
-        physicsModels.attachChild(obj01_l);
-        
-        obj02_l =  (Geometry) BBSceneManager.getInstance().loadSpatial("Scenes/TestScene/obj02_l.obj"); 
-        obj02_l.setName("obj02_l");    
-        physicsModels.attachChild(obj02_l);
-        
-        obj03_l =  (Geometry) BBSceneManager.getInstance().loadSpatial("Scenes/TestScene/obj03_l.obj"); 
-        obj03_l.setName("obj03_l");    
-        physicsModels.attachChild(obj03_l);
-        
-        ledder_l =  (Geometry) BBSceneManager.getInstance().loadSpatial("Scenes/TestScene/ledder_l.obj"); 
-        ledder_l.setName("ledder_l");
-        physicsModels.attachChild(ledder_l);
-        
-       
-        // Load a blender file. 
-        DesktopAssetManager dsk = (DesktopAssetManager) BBSceneManager.getInstance().getAssetManager();        
-        ModelKey bk = new ModelKey("Scenes/TestScene/test_scene_01_1.blend");
-        Node nd =  (Node) dsk.loadModel(bk); 
-        
-        //Create empty Scene Node
-        Node ndscene = new Node("Scene");
-        
-        // Attach boxes with names and transformations of the blend file to a Scene
-        for (int j=0; j < ndmd.getChildren().size(); j++){
-            Node mainNode = new Node();
-            String strmd = ndmd.getChild(j).getName();
-            mainNode.setName(strmd);
-
-            Vector3f mainLocation = Vector3f.ZERO;
-            boolean foundMainLocation = false;
-            for (int i=0; i<nd.getChildren().size(); i++) {            
-                String strndscene = nd.getChild(i).getName();
-                if (strmd.length() < strndscene.length()){
-                    strndscene = strndscene.substring(0, strmd.length());
-                }
-                if (strndscene.equals(strmd)){
-                    if(!foundMainLocation){
-                        mainLocation = nd.getChild(i).getWorldTransform().getTranslation();
-
-                        mainNode.setLocalTranslation(mainLocation);
-                        foundMainLocation = true;
-                    }                   
-                    Spatial ndGet =  ndmd.getChild(j).clone(false);
-                    System.out.println("***** VisTEST : "+ndmd.getChild(j).getName());                
-                    ndGet.setName(strndscene);
-                    Transform a = new Transform();
-                    a = nd.getChild(i).getWorldTransform().clone();
-                    a.setTranslation(a.getTranslation().subtract(mainLocation));
-                    ndGet.setLocalTransform(a);
-                    //ndGet.setShadowMode(ShadowMode.Receive);
-
-                    mainNode.attachChild(ndGet);
-                }    
+        for (int i=0; i<nd.getChildren().size(); i++) {                     
+            String strndscene = nd.getChild(i).getName();
+            //System.out.println("***** VISIT NODE : "+strndscene);
+            
+            if (strndscene.startsWith("spawn") == true){
+                nd.getChild(i).setMaterial(boxMat);
+            }else{
+                nd.getChild(i).setMaterial(woodMat);
             }
-            ndscene.attachChild(mainNode);
-        }
-        BBSceneManager.getInstance().addChild(ndscene);
+         } 
         
-        
-        // Physics: retrieval of positions
-        Node physicsModelsFinal = new Node();
-        for (int j=0; j<physicsModels.getChildren().size();j++){
-            Node mainNode = new Node();
-            String strmd = ndmd.getChild(j).getName();
-            mainNode.setName(strmd);
-
-            Vector3f mainLocation = Vector3f.ZERO;
-            boolean foundMainLocation = false;
-            for (int i=0; i<nd.getChildren().size(); i++) {            
-                String strndscene = nd.getChild(i).getName();
-
-                if (strmd.length() < strndscene.length()){
-                    strndscene = strndscene.substring(0, strmd.length());
-                }
-                if (strmd.length() > strndscene.length()){
-                    strmd = strmd.substring(0, strndscene.length());
-                }
-                if (strndscene.equals(strmd) == true){                
-                    if(!foundMainLocation)
-                    {
-                        mainLocation = nd.getChild(i).getWorldTransform().getTranslation();                
-                        mainNode.setLocalTranslation(mainLocation);
-                        foundMainLocation = true;
-                    }                   
-                    Spatial ndGet =  physicsModels.getChild(j).clone(false);
-                    //System.out.println("PHYSTEST"+physicsModels.getChild(j).getName());
-                    ndGet.setName(strndscene);
-
-                    Transform a = nd.getChild(i).getWorldTransform().clone();
-                    a.setTranslation(a.getTranslation().subtract(mainLocation));
-                    ndGet.setLocalTransform(a);  
-                    mainNode.attachChild(ndGet);
-                }
-            }
-        physicsModelsFinal.attachChild(mainNode);
-        }
-
-        // Clear Cache
-        nd.detachAllChildren();
-        nd.removeFromParent();
-        dsk.clearCache();
-        
-        CollisionShape myComplexShape = CollisionShapeFactory.createMeshShape(physicsModelsFinal);
-        physicsModelsFinal.detachAllChildren();
+        CollisionShape myComplexShape = CollisionShapeFactory.createMeshShape(nd);
         RigidBodyControl worldPhysics = new RigidBodyControl(myComplexShape,0);  
-        //worldPhysics.createDebugShape(BBSceneManager.getInstance().getAssetManager());        
+        worldPhysics.createDebugShape(BBSceneManager.getInstance().getAssetManager());        
         BBPhysicsManager.getInstance().getPhysicsSpace().add(worldPhysics); 
         //BBSceneManager.getInstance().getRootNode().attachChild(worldPhysics.debugShape());
-        physicsModelsFinal = null;
         
     }
 }

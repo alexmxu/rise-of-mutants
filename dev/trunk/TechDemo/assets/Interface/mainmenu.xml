@@ -20,7 +20,11 @@
   <!-- note: you can't use that file on its own -->
   <!-- note: this file is only demonstrating loading additional screens -->
   <screen id="start" controller="com.bigboots.gui.BBMainMenuController">
+    <layer id="background" childLayout="center">
+      <image filename="Interface/executioner2.jpg"></image>
+    </layer>
     <layer id="start_main_layer" childLayout="center">
+        
         <panel id="panel" style="myStyle" height="30%" width="35%" align="center" valign="center" childLayout="vertical">   
 <!--          <effect>
             <onStartScreen  name="fade" startColor="#0000" endColor="#000f" length="1500"/>
@@ -52,6 +56,7 @@
         </panel>
         </panel>
     </layer>
+    
   </screen>
   
   <screen id="game" controller="com.bigboots.gui.BBInGameController">
@@ -59,8 +64,8 @@
         <panel id="panel" style="myStyle" height="30%" width="35%" align="center" valign="center" childLayout="vertical">   
            
           <panel id="panquit" height="25%" width="35%" align="center" valign="center" childLayout="center" visibleToMouse="true">
-            <control id="backm" name="button" label="Back" color="#000" align="center" valign="center">
-                <interact onClick="quitToWin()" />
+            <control id="backm" name="button" label="Quit to Desktop" color="#000" align="center" valign="center">
+                <interact onClick="quitToDesk()" />
             </control>
           </panel>
          </panel>
