@@ -72,7 +72,7 @@ public class BBApplication implements SystemListener {
         BBGuiManager.getInstance().init(engineSystem);
         //init Audio
         BBAudioManager.getInstance().initAudio(engineSystem);
-        
+        //Init Debug info
         BBDebugInfo.getInstance().init(engineSystem.getRenderer());
         
         //Launch the main menu screen
@@ -90,7 +90,7 @@ public class BBApplication implements SystemListener {
         float tpf = engineSystem.getTimer().getTimePerFrame();
         //Display stats
         BBDebugInfo.getInstance().update(tpf);
-        
+        //update all states
         BBStateManager.getInstance().update(tpf);
 
         //update all updater : rootnode, input, etc
@@ -98,12 +98,12 @@ public class BBApplication implements SystemListener {
         
         //Update RootNode
         BBSceneManager.getInstance().update(tpf);
-        
+        //Set render
         BBStateManager.getInstance().render(engineSystem.getRenderManager());
         
         //update state of the scene graph after rootNode.updateGeometricState() call
         engineSystem.update();
-        
+        //Update post render
         BBStateManager.getInstance().postRender();
         
     }

@@ -16,6 +16,7 @@
 package com.bigboots.states;
 
 import com.bigboots.BBGlobals;
+import com.bigboots.components.BBAudioComponent;
 import com.bigboots.core.BBEngineSystem;
 import com.bigboots.gui.BBGuiManager;
 import com.bigboots.input.BBInputManager;
@@ -28,7 +29,9 @@ import com.jme3.input.controls.KeyTrigger;
  * @author @author Ulrich Nzuzi <ulrichnz@code.google.com>
  */
 public class BBMainMenuState extends BBAbstractState {
-
+    //music
+    private BBAudioComponent music;
+    
     @Override
     public void initialize(BBEngineSystem eng) {
         super.initialize(eng);
@@ -40,6 +43,12 @@ public class BBMainMenuState extends BBAbstractState {
         BBGuiManager.getInstance().getNifty().gotoScreen("start");
         
         BBInputManager.getInstance().getInputManager().setCursorVisible(true);
+        
+        //init global music
+        music = new BBAudioComponent("Sounds/mainmenu.ogg", false);
+        music.setVolume(3);
+        music.setLooping(true);
+        music.play();
     }
     
     @Override
@@ -56,7 +65,9 @@ public class BBMainMenuState extends BBAbstractState {
     @Override
     public void stateDetached() {
         super.stateDetached();
-                
+
+        music.destroy();
+        music = null;        
         //reset input
         BBInputManager.getInstance().getInputManager().removeListener(actionListener);
         BBInputManager.getInstance().getInputManager().clearMappings();

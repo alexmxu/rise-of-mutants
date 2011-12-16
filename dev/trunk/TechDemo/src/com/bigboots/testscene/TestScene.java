@@ -11,6 +11,7 @@ import com.jme3.material.Material;
 import com.jme3.math.*;
 import com.jme3.scene.*;
 import com.jme3.scene.Node;
+import com.jme3.scene.plugins.blender.BlenderModelLoader;
 import com.jme3.scene.shape.*;
 
 
@@ -101,7 +102,7 @@ public class TestScene extends SimpleApplication {
     
     @Override
     public void simpleInitApp() {
-        
+   /*     
         Models();
         
         
@@ -142,7 +143,31 @@ public class TestScene extends SimpleApplication {
         nd.removeFromParent();
         dsk.clearCache();
   
+        */
         
+        assetManager.registerLoader(BlenderModelLoader.class, "blend");
+        // Load a blender file. 
+        //DesktopAssetManager dsk = (DesktopAssetManager) assetManager;        
+        ModelKey bk = new ModelKey("Scenes/TestScene/test_scene_01_1.blend");
+      //  bk.setFixUpAxis(false);
+        Node nd =  (Node) assetManager.loadModel(bk);
+        rootNode.attachChild(nd);
+        
+        // Material
+        Material woodMat = assetManager.loadMaterial("Scenes/TestScene/TestSceneMaterial.j3m");
+        Material boxMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        boxMat.setColor("m_Color", ColorRGBA.Blue);
+        
+        for (int i=0; i<nd.getChildren().size(); i++) {                     
+            String strndscene = nd.getChild(i).getName();
+            System.out.println("***** VISIT NODE : "+strndscene);
+            
+            if (strndscene.startsWith("spawn") == true){
+                nd.getChild(i).setMaterial(boxMat);
+            }else{
+                nd.getChild(i).setMaterial(woodMat);
+            }
+         } 
         
         // Add a light Source
         DirectionalLight dl = new DirectionalLight();

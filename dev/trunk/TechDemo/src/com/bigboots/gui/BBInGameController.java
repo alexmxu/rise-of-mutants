@@ -83,7 +83,7 @@ public class BBInGameController implements ScreenController, Controller{
     
     }
     
-    public void quitToWin(){
+    public void quitToDesk(){
         // switch to another screen
         //mNifty.gotoScreen("null");
         BBStateManager.getInstance().getEngine().stop(false);
