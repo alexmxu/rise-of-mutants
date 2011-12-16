@@ -57,15 +57,14 @@ public class BBApplication implements SystemListener {
     public void initialize(){
         //set up scene by initializing rootnode
         BBSceneManager.getInstance().init();
-        BBUpdateManager.getInstance();      
+        BBUpdateManager.getInstance();  
+        //init timer and render
+        engineSystem.initialize();
         //State
         BBStateManager.getInstance().init(engineSystem);
         
         // aquire settings config from the context
         BBSettings.getInstance().loadFromContext(engineSystem.getContext());
-        
-        //init timer and render
-        engineSystem.initialize();
         
         //init input and listener
         BBInputManager.getInstance().init(engineSystem);

@@ -66,9 +66,8 @@ public class BBEntity extends BBObject{
        tmpSpatial.setShadowMode(ShadowMode.Cast);
        Material mat = BBSceneManager.getInstance().getAssetManager().loadMaterial("Materials/Scene/Character/CharacterSkin.j3m");
        tmpSpatial.setMaterial(mat);
-       TangentBinormalGenerator.generate(tmpSpatial);
-       //mDisplay = new Geometry();
-       //mDisplay = (Geometry) tmpSpatial.clone();
+       //TangentBinormalGenerator.generate(tmpSpatial);
+       
        Node nd_temp = (Node) tmpSpatial;
        mDisplay = (Geometry) nd_temp.getChild(0);
        this.getComponent(BBNodeComponent.class).attachChild(tmpSpatial);

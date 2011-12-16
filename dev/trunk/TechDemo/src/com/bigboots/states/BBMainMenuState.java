@@ -22,17 +22,13 @@ import com.bigboots.input.BBInputManager;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
-import de.lessvoid.nifty.Nifty;
-
 
 /**
  *
  * @author @author Ulrich Nzuzi <ulrichnz@code.google.com>
  */
 public class BBMainMenuState extends BBAbstractState {
-    private Nifty mNifty;
 
-    
     @Override
     public void initialize(BBEngineSystem eng) {
         super.initialize(eng);
@@ -49,7 +45,7 @@ public class BBMainMenuState extends BBAbstractState {
     @Override
     public void update(float tpf) {
         super.update(tpf);
-
+    
     }
     @Override
     public void stateAttached() {

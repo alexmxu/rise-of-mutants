@@ -29,7 +29,7 @@ import java.util.List;
 public class BBStateManager {
     private static BBStateManager instance = new BBStateManager();
 
-    private BBStateManager() {
+    private BBStateManager() {       
     }
     
     public static BBStateManager getInstance() { 
@@ -84,7 +84,7 @@ public class BBStateManager {
     }
 
     public void init(BBEngineSystem engine){
-        engineSystem = engine;
+        engineSystem = engine;   
     }
     
     /**
@@ -209,7 +209,7 @@ public class BBStateManager {
      * @param tpf Time per frame.
      */
     public void update(float tpf){
-    
+                  
         // Cleanup any states pending
         terminatePending();
 
