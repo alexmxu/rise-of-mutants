@@ -17,7 +17,6 @@ package com.bigboots.input;
 
 import com.bigboots.BBGlobals;
 import com.bigboots.components.BBAnimComponent;
-import com.bigboots.components.BBAudioComponent;
 import com.bigboots.components.BBNodeComponent;
 import com.bigboots.components.BBPlayerManager;
 import com.bigboots.core.BBSceneManager;
@@ -27,7 +26,6 @@ import com.jme3.animation.LoopMode;
 import com.jme3.bullet.collision.shapes.SphereCollisionShape;
 import com.jme3.bullet.control.CharacterControl;
 import com.jme3.bullet.control.RigidBodyControl;
-import com.jme3.effect.ParticleEmitter;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.AnalogListener;
 import com.jme3.material.Material;
@@ -86,7 +84,7 @@ public class BBPlayerActions implements ActionListener, AnalogListener{
                     logger.log(Level.INFO,"Character walking end.");
                     BBPlayerManager.getInstance().getMainPlayer().getComponent(BBAnimComponent.class).getChannel().setAnim("base_stand", 0.50f);          
                     BBPlayerManager.getInstance().getMainPlayer().getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.DontLoop);
-                    BBPlayerManager.getInstance().getMainPlayer().getComponent(BBAudioComponent.class).stop();
+                    BBPlayerManager.getInstance().getMainPlayer().getAudio("STEP").stop();
                 }
             }
             
@@ -94,6 +92,7 @@ public class BBPlayerActions implements ActionListener, AnalogListener{
                 BBPlayerManager.getInstance().setIsWalking(false);
                 if(!BBPlayerManager.getInstance().isJumping()){
                     logger.log(Level.INFO,"******  Character Attack 1.");
+                    BBPlayerManager.getInstance().getMainPlayer().getAudio("FIRE").play();
                     BBPlayerManager.getInstance().getMainPlayer().getComponent(BBAnimComponent.class).getChannel().setAnim("shoot", 0.05f);
                     BBPlayerManager.getInstance().getMainPlayer().getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.DontLoop);
                     bulletControl();
@@ -120,7 +119,7 @@ public class BBPlayerActions implements ActionListener, AnalogListener{
                     //Trying to repeat the walk sound
                     time += tpf;
                     if (time > 0f) {
-                        BBPlayerManager.getInstance().getMainPlayer().getComponent(BBAudioComponent.class).play();
+                        BBPlayerManager.getInstance().getMainPlayer().getAudio("STEP").play();
                         time = 0;
                     }
                 }
@@ -167,12 +166,12 @@ public class BBPlayerActions implements ActionListener, AnalogListener{
         
         
         private void prepareBullet() {
-            bullet = new Sphere(8, 8, 0.4f, true, false);
+            bullet = new Sphere(8, 8, 0.2f, true, false);
             bullet.setTextureMode(TextureMode.Projected);
             bulletCollisionShape = new SphereCollisionShape(0.4f);
             matBullet = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
-            matBullet.setColor("Color", ColorRGBA.Green);
-            matBullet.setColor("m_GlowColor", ColorRGBA.Green);
+            matBullet.setColor("Color", ColorRGBA.Yellow);
+            matBullet.setColor("m_GlowColor", ColorRGBA.Orange);
             //BBPhysicsManager.getInstance().getPhysicsSpace().addCollisionListener(this);
         }
         
@@ -183,7 +182,10 @@ public class BBPlayerActions implements ActionListener, AnalogListener{
             Geometry bulletg = new Geometry("bullet", bullet);
             bulletg.setMaterial(matBullet);
             bulletg.setShadowMode(ShadowMode.CastAndReceive);
-            bulletg.setLocalTranslation(character.getPhysicsLocation().add(character.getViewDirection().mult(8)));
+            Vector3f pos = character.getPhysicsLocation().add(character.getViewDirection().mult(8));
+            pos.y = pos.y + 1.0f;
+            pos.z = pos.z + 0.4f;
+            bulletg.setLocalTranslation(pos);
             RigidBodyControl bulletControl = new BBBulletPhysic(bulletCollisionShape, 1);
             bulletControl.setCcdMotionThreshold(0.1f);
             bulletControl.setLinearVelocity(character.getViewDirection().mult(100));

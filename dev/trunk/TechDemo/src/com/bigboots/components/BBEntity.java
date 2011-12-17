@@ -28,6 +28,7 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.util.TangentBinormalGenerator;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -54,6 +55,7 @@ public class BBEntity extends BBObject{
 
     //Collection of child graphics.
     private List<BBObject> mChildComponents = new ArrayList<BBObject>();
+    private HashMap<String, BBAudioComponent> mapAudioNode = new HashMap<String, BBAudioComponent>();
     
     public BBEntity(String name){
         super(name);
@@ -63,7 +65,7 @@ public class BBEntity extends BBObject{
     public void loadModel(String mesh){
        tmpSpatial =  (Spatial)BBSceneManager.getInstance().loadSpatial(mesh);
        tmpSpatial.setLocalTranslation(0, -.85f, 0);
-       tmpSpatial.setShadowMode(ShadowMode.Cast);
+       tmpSpatial.setShadowMode(ShadowMode.CastAndReceive);
        Material mat = BBSceneManager.getInstance().getAssetManager().loadMaterial("Materials/Scene/Character/CharacterSkin.j3m");
        tmpSpatial.setMaterial(mat);
        //TangentBinormalGenerator.generate(tmpSpatial);
@@ -91,6 +93,11 @@ public class BBEntity extends BBObject{
         mChildComponents.remove(obj);
     }
     
+    public void addAudio(String name, BBAudioComponent audio){
+        //TODO : Check if name or audio instance already exist in the map
+        mapAudioNode.put(name, audio);
+    }
+    
     public <T extends BBComponent>T addComponent(CompType type){
         if(type.equals(CompType.NODE)){
             mNode = new BBNodeComponent(name);
@@ -100,10 +107,10 @@ public class BBEntity extends BBObject{
             mAnimation = new BBAnimComponent(tmpSpatial.getControl(AnimControl.class).createChannel());
             return (T)mAnimation;
         }
-        if(type.equals(CompType.AUDIO)){
+/*        if(type.equals(CompType.AUDIO)){
             mAudio = new BBAudioComponent();
             return (T)mAudio;
-        }
+        }*/
         if(type.equals(CompType.LISTENER)){
             mLstr = new BBListenerComponent();
             return (T)mLstr;
@@ -124,9 +131,9 @@ public class BBEntity extends BBObject{
         if(name.equals(BBNodeComponent.class)){
             return (T)mNode;
         }
-        if(name.equals(BBAudioComponent.class)){
+/*        if(name.equals(BBAudioComponent.class)){
             return (T)mAudio;
-        }
+        }*/
         if(name.equals(BBAnimComponent.class)){
             return (T)mAnimation;
         }
@@ -142,6 +149,10 @@ public class BBEntity extends BBObject{
 
        return null;
 
+    }
+    
+    public BBAudioComponent getAudio(String name){
+        return mapAudioNode.get(name);
     }
     
     public void getChildComponent(){

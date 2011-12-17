@@ -91,14 +91,20 @@ public class BBPlayerManager {
         lst.setLocation(mMainPlayer.getComponent(BBNodeComponent.class).getWorldTranslation());
         BBAudioManager.getInstance().getAudioRenderer().setListener(lst);
         //Create associated audio
-        BBAudioComponent audnde = mMainPlayer.addComponent(CompType.AUDIO);
-        audnde.setSoundName("Sounds/step1.wav", false);
-        audnde.setLooping(false);
-        audnde.setVolume(10);
+        BBAudioComponent stepSound = new BBAudioComponent();
+        stepSound.setSoundName("Sounds/step1.wav", false);
+        stepSound.setLooping(false);
+        stepSound.setVolume(10);
+        mMainPlayer.addAudio("STEP", stepSound);
         
+        BBAudioComponent fireSound = new BBAudioComponent();
+        fireSound.setSoundName("Sounds/explosionSmall.ogg", false);
+        fireSound.setLooping(false);
+        fireSound.setVolume(10);
+        mMainPlayer.addAudio("FIRE", fireSound);
     }
     
-    public void udpate(float tpf){
+    public void update(float tpf){
        PhysicsCharacter anv = mMainPlayer.getComponent(BBNodeComponent.class).getControl(CharacterControl.class);
         
         if(anv.onGround()){

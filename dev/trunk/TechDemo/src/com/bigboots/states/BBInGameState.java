@@ -16,16 +16,9 @@
 package com.bigboots.states;
 
 import com.bigboots.BBGlobals;
-import com.bigboots.animation.BBAnimManager;
 import com.bigboots.audio.BBAudioManager;
-import com.bigboots.components.BBAnimComponent;
 import com.bigboots.components.BBAudioComponent;
-import com.bigboots.components.BBCollisionComponent;
-import com.bigboots.components.BBCollisionComponent.ShapeType;
-import com.bigboots.components.BBComponent.CompType;
-import com.bigboots.components.BBControlComponent;
-import com.bigboots.components.BBEntity;
-import com.bigboots.components.BBListenerComponent;
+import com.bigboots.components.BBMonsterManager;
 import com.bigboots.components.BBNodeComponent;
 import com.bigboots.components.BBPlayerManager;
 import com.bigboots.core.BBDebugInfo;
@@ -46,10 +39,8 @@ import com.jme3.renderer.ViewPort;
 //for player
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.AnimEventListener;
-import com.jme3.animation.LoopMode;
 import com.jme3.scene.CameraNode;
 import com.jme3.scene.control.CameraControl.ControlDirection;
-import com.jme3.asset.DesktopAssetManager;
 import com.jme3.scene.Node;
 import com.jme3.asset.ModelKey;
 
@@ -67,19 +58,12 @@ import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
-import com.jme3.math.FastMath;
-import com.jme3.math.Quaternion;
-import com.jme3.math.Transform;
 import com.jme3.post.filters.BloomFilter;
 import com.jme3.post.filters.DepthOfFieldFilter;
 import com.jme3.post.filters.LightScatteringFilter;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.plugins.blender.BlenderModelLoader;
-import com.jme3.scene.shape.Box;
-
-
-import java.util.HashMap;
 
 /**
  *
@@ -87,35 +71,12 @@ import java.util.HashMap;
  */
 public class BBInGameState extends BBAbstractState{
 
-    //private Nifty mNifty;
-    
-    Geometry geom_a;
-    Material mat_box;
-    // models
-    Spatial obj01;
-    Spatial obj02;
-    Spatial obj03;
-    Spatial ledder;
-    // collision shapes
-    Geometry obj01_l;
-    Geometry obj02_l;
-    Geometry obj03_l;
-    Geometry ledder_l;
-
-    protected Node ndmd, physicsModels;
     private BBNodeComponent humanStalker;
-
-    // Temp workaround, speed is reset after blending.
-    private float smallManSpeed = .6f;
-    
     //music
-    private BBAudioComponent music;
-    
+    private BBAudioComponent music;   
     private GameActionListener actionListener = new GameActionListener();
     private BBPlayerActions playerListener = new BBPlayerActions();
-    
-    private HashMap<Long, BBEntity> mapEnemies = new HashMap<Long, BBEntity>();
-    
+
     public BBInGameState() {
         
     }
@@ -169,12 +130,10 @@ public class BBInGameState extends BBAbstractState{
         //init global music
         music = new BBAudioComponent("Sounds/battle.ogg", false);
         //music = new BBAudioComponent("Sounds/ingame.ogg", false);
-        music.setVolume(3);
+        music.setVolume(1);
         music.setLooping(true);
         music.play();
-        
-        
-        
+
         //*******************************************
         //Create the main Character
         BBPlayerManager.getInstance().createMainPlayer("PLAYER_NAME", "Scenes/TestScene/character.mesh.xml");
@@ -191,72 +150,30 @@ public class BBInGameState extends BBAbstractState{
         //BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).attachChild(camNode);
         
         //*******************************************
-        //TEST AND LOAD ENEMY WITH ENTITY SYSTEM
-        //set up out enemy object entity and put it in scene
-        BBEntity mEnemy = new BBEntity("ENEMY");
-        BBNodeComponent node = mEnemy.addComponent(CompType.NODE);
-        mEnemy.loadModel("Scenes/TestScene/mutant.j3o");
-        node.scale(5);
-        node.setLocalTranslation(-0.44354653f, 3f, -90.836426f);
-        BBSceneManager.getInstance().addChild(mEnemy.getComponent(BBNodeComponent.class));
-        
-        //Set up animation component      
-        //mEnemy.createAnimation();
-        BBAnimComponent anim = mEnemy.addComponent(CompType.ANIMATION);
-        anim.getChannel().setAnim("mutant_idle");
-        anim.getChannel().setLoopMode(LoopMode.Cycle);
-        mEnemy.getComponent(BBAnimComponent.class).getChannel().setSpeed(1f);
-        
-        //Set up physic controler component
-        CollisionShape shape = BBPhysicsManager.getInstance().createPhysicShape(ShapeType.CAPSULE, mEnemy);
-        BBCollisionComponent colCp = mEnemy.addComponent(CompType.COLSHAPE);
-        colCp.attachShape(shape);
-               
-        CharacterControl eControler = (CharacterControl) BBAnimManager.getInstance().createControl(BBControlComponent.ControlType.CHARACTER, mEnemy); 
-        eControler.setJumpSpeed(20);
-        eControler.setFallSpeed(30);
-        eControler.setGravity(30);
-        eControler.setUseViewDirection(true);
-        BBControlComponent ctrlCp = mEnemy.addComponent(CompType.CONTROLLER);
-        ctrlCp.setControlType(BBControlComponent.ControlType.CHARACTER);
-        ctrlCp.attachControl(eControler);
-        mEnemy.getComponent(BBNodeComponent.class).addControl(eControler);
-        
-        BBPhysicsManager.getInstance().getPhysicsSpace().addAll(mEnemy.getComponent(BBNodeComponent.class));
-                
-        //Set up enemy's sound component
-        //Define the listener
-        BBListenerComponent lst = mEnemy.addComponent(CompType.LISTENER);
-        lst.setLocation(mEnemy.getComponent(BBNodeComponent.class).getWorldTranslation());
-        BBAudioManager.getInstance().getAudioRenderer().setListener(lst);
-        //Create associated audio
-        BBAudioComponent audnde = mEnemy.addComponent(CompType.AUDIO);
-        audnde.setSoundName("Sounds/growling1.wav", false);
-        audnde.setLooping(true);
-        audnde.setVolume(1);
-        audnde.play();
-        
-        //Add it the map of Enemies
-        mapEnemies.put(new Long(1), mEnemy);
-        
+        //Create enemies
+        Vector3f mPos = new Vector3f(-0.44354653f, 3f, -80.836426f);
+        BBMonsterManager.getInstance().createMonter("ENEMY", "Scenes/TestScene/mutant.j3o", mPos);
+
         //********************************************
         //Set collision listener
         BBBasicCollisionListener basicCol = new BBBasicCollisionListener();
-        BBPhysicsManager.getInstance().getPhysicsSpace().addCollisionListener(basicCol);     
-      
-        //Create post effect processor
+        BBPhysicsManager.getInstance().getPhysicsSpace().addCollisionListener(basicCol);
+        
         BBSceneManager.getInstance().createFilterProcessor();
+        
+/*      
+        //Create post effect processor
         BBSceneManager.getInstance().createFilter("GAME_BLOOM", BBSceneManager.FilterType.BLOOM);
         BloomFilter tmpFilter = (BloomFilter) BBSceneManager.getInstance().getFilterbyName("GAME_BLOOM");
         tmpFilter.setBloomIntensity(2.0f);
         tmpFilter.setExposurePower(1.3f);
- /*         
+ */         
         BBSceneManager.getInstance().createFilter("GAME_BLEUR", BBSceneManager.FilterType.DEPHT);
         DepthOfFieldFilter tmpFltrBleur= (DepthOfFieldFilter) BBSceneManager.getInstance().getFilterbyName("GAME_BLEUR");
         tmpFltrBleur.setFocusDistance(0);
         tmpFltrBleur.setFocusRange(150);
         tmpFltrBleur.setBlurScale(1.4f);
-        
+/*        
         //Create sun
         DirectionalLight sun = new DirectionalLight();
         Vector3f lightDir = new Vector3f(35.12f, -0.3729129f, 3.74847335f);
@@ -268,9 +185,9 @@ public class BBInGameState extends BBAbstractState{
         LightScatteringFilter tmpFltrLight = (LightScatteringFilter) BBSceneManager.getInstance().getFilterbyName("GAME_LIGHT");
         Vector3f lightPos = lightDir.multLocal(-5000);
         tmpFltrLight.setLightPosition(lightPos);
-      
+     
         BBSceneManager.getInstance().createFilter("GAME_TOON", BBSceneManager.FilterType.CARTOON);
-  */
+ */  
         
         //BBGuiManager.getInstance().getNifty().gotoScreen("null");
         
@@ -298,8 +215,7 @@ public class BBInGameState extends BBAbstractState{
         humanStalker.getWorldLightList().clear();
         humanStalker.getLocalLightList().clear();
         humanStalker = null;
-        
-        
+
         BBAudioManager.getInstance().destroy();
         BBPhysicsManager.getInstance().destroy();
         
@@ -314,48 +230,14 @@ public class BBInGameState extends BBAbstractState{
     public void update(float tpf) {
         super.update(tpf);
         
-        //*************************************************
-        // Update Enemies
-        for(BBEntity object:mapEnemies.values()){
-            Vector3f humanPos = BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getLocalTranslation().clone();
-            Quaternion newRot = new Quaternion().fromAngleAxis(FastMath.rand.nextFloat()*2-.5f, Vector3f.UNIT_Y);
-            humanPos.y = object.getComponent(BBNodeComponent.class).getLocalTranslation().y;            
-            object.getComponent(BBNodeComponent.class).lookAt(humanPos,Vector3f.UNIT_Y);
-            object.getComponent(BBNodeComponent.class).getLocalRotation().slerp(newRot,tpf);
-            //System.out.println("**** POS : "+humanPos.toString());           
-            float distSquared = humanPos.distanceSquared(object.getComponent(BBNodeComponent.class).getLocalTranslation());
-            if(distSquared > 9){      
-                object.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setViewDirection(object.getComponent(BBNodeComponent.class).getLocalRotation().mult(Vector3f.UNIT_Z));            
-                object.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(object.getComponent(BBNodeComponent.class).getLocalRotation().mult(Vector3f.UNIT_Z).mult(tpf*1.8f));
-                if(!object.getComponent(BBAnimComponent.class).getChannel().getAnimationName().equals("mutant_base_walk"))
-                {
-                    //a.getChild(0).getControl(AnimControl.class).getChannel(0).setAnim("RunTop", 0.50f); // TODO: Must activate "RunBase" after a certain time.                    
-                    object.getComponent(BBAnimComponent.class).getChannel().setAnim("mutant_base_walk", 0.50f);
-                    object.getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.Loop);
-                }
-                // Workaround
-                if(object.getComponent(BBAnimComponent.class).getChannel().getSpeed()!=smallManSpeed){
-                    object.getComponent(BBAnimComponent.class).getChannel().setSpeed(smallManSpeed);
-                }            
-            }
-            else
-            {
-                object.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(Vector3f.ZERO);
-                if(!object.getComponent(BBAnimComponent.class).getChannel().getAnimationName().equals("mutant_idle"))
-                {
-                    object.getComponent(BBAnimComponent.class).getChannel().setAnim("mutant_idle", 0.50f);
-                    object.getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.Loop);
-                }
-            }
-        }//end for
-        
         //******************************************************
         // Update character
         Vector3f pos = BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getControl(CharacterControl.class).getPhysicsLocation();
         humanStalker.setLocalTranslation(pos);
-        //BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).setLocalTranslation(pos);
         
-        BBPlayerManager.getInstance().udpate(tpf);
+        BBPlayerManager.getInstance().update(tpf);
+        
+        BBMonsterManager.getInstance().update(tpf);
    
     }
 
@@ -367,7 +249,6 @@ public class BBInGameState extends BBAbstractState{
               BBInputManager.getInstance().getInputManager().setCursorVisible(true);  
               BBGuiManager.getInstance().getNifty().gotoScreen("game");
               return;
-              //engineSystem.stop(false);
             }
             if (binding.equals(BBGlobals.INPUT_MAPPING_DEBUG) && !keyPressed) { 
                 
@@ -397,10 +278,9 @@ public class BBInGameState extends BBAbstractState{
     public void loadScene(){
         
         BBSceneManager.getInstance().getAssetManager().registerLoader(BlenderModelLoader.class, "blend");
-        // Load a blender file. 
-        //DesktopAssetManager dsk = (DesktopAssetManager) assetManager;        
+        // Load a blender file.       
         ModelKey bk = new ModelKey("Scenes/TestScene/test_scene_01_1.blend");
-      //  bk.setFixUpAxis(false);
+
         Node nd =  (Node) BBSceneManager.getInstance().getAssetManager().loadModel(bk);
         BBSceneManager.getInstance().addChild(nd);
         
@@ -410,13 +290,12 @@ public class BBInGameState extends BBAbstractState{
         boxMat.setColor("m_Color", ColorRGBA.Blue);
         
         for (int i=0; i<nd.getChildren().size(); i++) {                     
-            String strndscene = nd.getChild(i).getName();
-            //System.out.println("***** VISIT NODE : "+strndscene);
-            
+            String strndscene = nd.getChild(i).getName();            
             if (strndscene.startsWith("spawn") == true){
                 nd.getChild(i).setMaterial(boxMat);
             }else{
                 nd.getChild(i).setMaterial(woodMat);
+                nd.setShadowMode(ShadowMode.Receive);
             }
          } 
         
