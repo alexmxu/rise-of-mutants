@@ -15,6 +15,7 @@
  */
 package com.bigboots.physics;
 
+import com.bigboots.components.BBAudioComponent;
 import com.bigboots.core.BBSceneManager;
 import com.jme3.bullet.PhysicsSpace;
 import com.jme3.bullet.PhysicsTickListener;
@@ -53,12 +54,17 @@ public class BBBulletPhysic extends RigidBodyControl implements PhysicsCollision
     private float maxTime = 4f;
     private float curTime = -1.0f;
     private float timer;
-    
+    private BBAudioComponent expSound;
 
     public BBBulletPhysic(CollisionShape shape, float mass) {
         super(shape, mass);
         createGhostObject();
         prepareEffect();
+        
+        expSound = new BBAudioComponent();
+        expSound.setSoundName("Sounds/explosionLarge2.ogg", false);
+        expSound.setLooping(false);
+        expSound.setVolume(10);
     }
 
     @Override
@@ -109,6 +115,7 @@ public class BBBulletPhysic extends RigidBodyControl implements PhysicsCollision
                 effect.setLocalTranslation(spatial.getLocalTranslation());
                 spatial.getParent().attachChild(effect);
                 effect.emitAllParticles();
+                expSound.play();
             }
             space.remove(this);
             spatial.removeFromParent();
@@ -155,6 +162,7 @@ public class BBBulletPhysic extends RigidBodyControl implements PhysicsCollision
         if(enabled){
             timer+=tpf;
             if(timer>maxTime){
+                //expSound.stop();
                 if(spatial.getParent()!=null){
                     space.removeCollisionListener(this);
                     space.remove(this);
