@@ -43,16 +43,27 @@ public class BBMonsterManager {
         return instance; 
     }
     
-    private HashMap<Long, BBEntity> mapEnemies = new HashMap<Long, BBEntity>();
-    private Long mMonsterID = new Long(0);
+    private HashMap<String, BBEntity> mapEnemies = new HashMap<String, BBEntity>();
+    //private String mMonsterID = new Long(0);
         // Temp workaround, speed is reset after blending.
     private float smallManSpeed = .6f;
     
     
-    public void addToMap(BBEntity ent){
+    public void addMonster(BBEntity ent){
         //Add it the map of Enemies
-        mMonsterID++;
-        mapEnemies.put(mMonsterID, ent);
+        mapEnemies.put(ent.getObjectName(), ent);
+    }
+    
+    public BBEntity getMonster(String name){
+        
+        if(mapEnemies.containsKey(name)){
+            BBEntity tmpEnt = mapEnemies.get(name);
+            return tmpEnt;
+        }else{
+            throw new IllegalStateException("Try retreiving an unexisting monster.\n"
+                    + "Problem spatial name: " + name);
+        }
+        
     }
     
     public void createMonter(String name, String file, Vector3f pos){
@@ -60,6 +71,7 @@ public class BBMonsterManager {
         //TEST AND LOAD ENEMY WITH ENTITY SYSTEM
         //set up out enemy object entity and put it in scene
         BBEntity mEnemy = new BBEntity(name);
+        mEnemy.mTag = BBObject.ObjectTag.MONSTER;
         BBNodeComponent node = mEnemy.addComponent(CompType.NODE);
         mEnemy.loadModel(file);
         node.scale(5);
@@ -102,45 +114,47 @@ public class BBMonsterManager {
         audnde.setVolume(1);
         mEnemy.addAudio("GROWLING", audnde);
         
-        this.addToMap(mEnemy);
+        this.addMonster(mEnemy);
     }
     
     public void update(float tpf){
         //*************************************************
         // Update Enemies
         for(BBEntity object:mapEnemies.values()){
-            Vector3f humanPos = BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getLocalTranslation().clone();
-            Quaternion newRot = new Quaternion().fromAngleAxis(FastMath.rand.nextFloat()*2-.5f, Vector3f.UNIT_Y);
-            humanPos.y = object.getComponent(BBNodeComponent.class).getLocalTranslation().y;            
-            object.getComponent(BBNodeComponent.class).lookAt(humanPos,Vector3f.UNIT_Y);
-            object.getComponent(BBNodeComponent.class).getLocalRotation().slerp(newRot,tpf);
-            //System.out.println("**** POS : "+humanPos.toString());           
-            float distSquared = humanPos.distanceSquared(object.getComponent(BBNodeComponent.class).getLocalTranslation());
-            if(distSquared > 9){      
-                object.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setViewDirection(object.getComponent(BBNodeComponent.class).getLocalRotation().mult(Vector3f.UNIT_Z));            
-                object.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(object.getComponent(BBNodeComponent.class).getLocalRotation().mult(Vector3f.UNIT_Z).mult(tpf*1.8f));
-                if(!object.getComponent(BBAnimComponent.class).getChannel().getAnimationName().equals("mutant_base_walk"))
-                {
-                    object.getAudio("GROWLING").stop();
-                    //a.getChild(0).getControl(AnimControl.class).getChannel(0).setAnim("RunTop", 0.50f); // TODO: Must activate "RunBase" after a certain time.                    
-                    object.getComponent(BBAnimComponent.class).getChannel().setAnim("mutant_base_walk", 0.50f);
-                    object.getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.Loop);
+            if(object.isEnabled()){
+                Vector3f humanPos = BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getLocalTranslation().clone();
+                Quaternion newRot = new Quaternion().fromAngleAxis(FastMath.rand.nextFloat()*2-.5f, Vector3f.UNIT_Y);
+                humanPos.y = object.getComponent(BBNodeComponent.class).getLocalTranslation().y;            
+                object.getComponent(BBNodeComponent.class).lookAt(humanPos,Vector3f.UNIT_Y);
+                object.getComponent(BBNodeComponent.class).getLocalRotation().slerp(newRot,tpf);
+                //System.out.println("**** POS : "+humanPos.toString());           
+                float distSquared = humanPos.distanceSquared(object.getComponent(BBNodeComponent.class).getLocalTranslation());
+                if(distSquared > 9){      
+                    object.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setViewDirection(object.getComponent(BBNodeComponent.class).getLocalRotation().mult(Vector3f.UNIT_Z));            
+                    object.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(object.getComponent(BBNodeComponent.class).getLocalRotation().mult(Vector3f.UNIT_Z).mult(tpf*1.8f));
+                    if(!object.getComponent(BBAnimComponent.class).getChannel().getAnimationName().equals("mutant_base_walk"))
+                    {
+                        object.getAudio("GROWLING").stop();
+                        //a.getChild(0).getControl(AnimControl.class).getChannel(0).setAnim("RunTop", 0.50f); // TODO: Must activate "RunBase" after a certain time.                    
+                        object.getComponent(BBAnimComponent.class).getChannel().setAnim("mutant_base_walk", 0.50f);
+                        object.getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.Loop);
+                    }
+                    // Workaround
+                    if(object.getComponent(BBAnimComponent.class).getChannel().getSpeed()!=smallManSpeed){
+                        object.getComponent(BBAnimComponent.class).getChannel().setSpeed(smallManSpeed);
+                    }            
                 }
-                // Workaround
-                if(object.getComponent(BBAnimComponent.class).getChannel().getSpeed()!=smallManSpeed){
-                    object.getComponent(BBAnimComponent.class).getChannel().setSpeed(smallManSpeed);
-                }            
-            }
-            else
-            {
-                object.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(Vector3f.ZERO);
-                if(!object.getComponent(BBAnimComponent.class).getChannel().getAnimationName().equals("mutant_strike"))
+                else
                 {
-                    object.getComponent(BBAnimComponent.class).getChannel().setAnim("mutant_strike", 0.05f);
-                    object.getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.Loop);
-                    object.getAudio("GROWLING").play();
-                }
-            }
+                    object.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(Vector3f.ZERO);
+                    if(!object.getComponent(BBAnimComponent.class).getChannel().getAnimationName().equals("mutant_strike"))
+                    {
+                        object.getComponent(BBAnimComponent.class).getChannel().setAnim("mutant_strike", 0.05f);
+                        object.getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.Loop);
+                        object.getAudio("GROWLING").play();
+                    }
+                }//end if dist
+            }//is enable
         }//end for
     }
 }

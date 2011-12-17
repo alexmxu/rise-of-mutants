@@ -15,8 +15,12 @@
  */
 package com.bigboots.physics;
 
+import com.bigboots.components.BBAnimComponent;
 import com.bigboots.components.BBAudioComponent;
+import com.bigboots.components.BBEntity;
+import com.bigboots.components.BBMonsterManager;
 import com.bigboots.core.BBSceneManager;
+import com.jme3.animation.LoopMode;
 import com.jme3.bullet.PhysicsSpace;
 import com.jme3.bullet.PhysicsTickListener;
 import com.jme3.bullet.collision.PhysicsCollisionEvent;
@@ -121,12 +125,45 @@ public class BBBulletPhysic extends RigidBodyControl implements PhysicsCollision
             spatial.removeFromParent();
             
             if (event.getObjectA() instanceof CharacterControl){
-                System.out.println("*******!!! BULLET HIT OBJECT ["+ event.getObjectA().toString() +"] ON Object A !!!**********");
+/*                System.out.println("*******!!! BULLET HIT OBJECT ["+ event.getObjectA().toString() +"] ON Object A !!!**********");
                 System.out.println("*******!!! BULLET HIT NODE ["+ event.getNodeA().getName() +"] ON Object A !!!**********");
-            }
-            if(event.getObjectB() instanceof CharacterControl){
-                System.out.println("*******!!! BULLET HIT OBJECT ["+ event.getObjectB().toString() +"] ON Object B !!!**********");
-                System.out.println("*******!!! BULLET HIT NODE ["+ event.getNodeB().getName() +"] ON Object B !!!**********");
+                System.out.println("*******!!! COLLISION A IMPULSE : "+event.getAppliedImpulse());
+                System.out.println("*******!!! COLLISION A FRICTION : "+event.getCombinedFriction());
+                System.out.println("*******!!! COLLISION A RESTITUTION : "+event.getCombinedRestitution());
+                System.out.println("*******!!! COLLISION A DISTANCE : "+event.getDistance1());
+ */             
+                //TODO : Next time retreive the entity object from the world manager and not from monster manager
+                // with entity TAG check if it is player or monster
+                BBEntity tmpEnt = BBMonsterManager.getInstance().getMonster(event.getNodeA().getName());
+                int health = (Integer) tmpEnt.getSkills("HEALTH");
+                health = (int) (health - event.getCombinedFriction());
+                System.out.println("*******!!! HEAlTH : "+health);
+                if(health <= 0){
+                    tmpEnt.stopAllAudio();
+                    tmpEnt.setSkills("HEALTH", 0);
+                    tmpEnt.setEnabled(false);
+                    tmpEnt.getComponent(BBAnimComponent.class).getChannel().setAnim("mutant_death", 0.50f);
+                    tmpEnt.getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.DontLoop);
+                }else{
+                    tmpEnt.setSkills("HEALTH", health);
+                }
+                
+            }else if(event.getObjectB() instanceof CharacterControl){
+                //TODO : Next time retreive the entity object from the world manager and not from monster manager
+                // with entity TAG check if it is player or monster
+                BBEntity tmpEnt = BBMonsterManager.getInstance().getMonster(event.getNodeB().getName());
+                int health = (Integer) tmpEnt.getSkills("HEALTH");
+                health = (int) (health - event.getCombinedFriction());
+                System.out.println("*******!!! HEAlTH : "+health);
+                if(health <= 0){
+                    tmpEnt.stopAllAudio();
+                    tmpEnt.setSkills("HEALTH", 0);
+                    tmpEnt.setEnabled(false);
+                    tmpEnt.getComponent(BBAnimComponent.class).getChannel().setAnim("mutant_death", 0.50f);
+                    tmpEnt.getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.DontLoop);
+                }else{
+                    tmpEnt.setSkills("HEALTH", health);
+                }
             }
             
         }

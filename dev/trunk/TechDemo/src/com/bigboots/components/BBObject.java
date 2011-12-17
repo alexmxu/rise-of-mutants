@@ -24,12 +24,20 @@ import com.bigboots.components.BBComponent.CompType;
  */
 public class BBObject {
     
+    public enum ObjectTag{
+        NONE,
+        PLAYER,
+        MONSTER,
+        BUILDING
+    }
+    
+    
     //The name of the object.
     protected String name;
     //The id of the object
     private String id;
-    
     private CompType type = CompType.NONE;
+    protected ObjectTag mTag = ObjectTag.NONE;
     
     public BBObject(String name){
         this.name = name;
@@ -49,7 +57,6 @@ public class BBObject {
     protected void setType(CompType type){
         this.type = type;
     }
-    
    
 
 }

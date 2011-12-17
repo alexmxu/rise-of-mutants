@@ -50,7 +50,7 @@ public class BBEntity extends BBObject{
     protected CollisionShape mRigidBody;
     protected Light mLight;
     
-    protected boolean mEnable;
+    protected boolean mEnable = true;
     private Spatial tmpSpatial;
 
     //Collection of child graphics.
@@ -73,8 +73,19 @@ public class BBEntity extends BBObject{
        Node nd_temp = (Node) tmpSpatial;
        mDisplay = (Geometry) nd_temp.getChild(0);
        this.getComponent(BBNodeComponent.class).attachChild(tmpSpatial);
+       
+       this.setSkills("HEALTH", 100);
+       
+       
     }
    
+    public <T> T getSkills(String key) {
+        return tmpSpatial.getUserData(key);
+    }
+    
+    public void setSkills(String key, Object data) {
+         tmpSpatial.setUserData(key, data);
+    }
     
     public void setEnabled(boolean enabled) {
         mEnable = enabled;
@@ -96,6 +107,12 @@ public class BBEntity extends BBObject{
     public void addAudio(String name, BBAudioComponent audio){
         //TODO : Check if name or audio instance already exist in the map
         mapAudioNode.put(name, audio);
+    }
+    
+    public void stopAllAudio(){
+        for (BBAudioComponent audio : mapAudioNode.values()) {
+            audio.stop();
+        }
     }
     
     public <T extends BBComponent>T addComponent(CompType type){
