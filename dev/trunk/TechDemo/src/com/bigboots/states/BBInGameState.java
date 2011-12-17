@@ -64,6 +64,7 @@ import com.jme3.post.filters.LightScatteringFilter;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.plugins.blender.BlenderModelLoader;
+import com.jme3.util.TangentBinormalGenerator;
 
 /**
  *
@@ -289,13 +290,14 @@ public class BBInGameState extends BBAbstractState{
         Material boxMat = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
         boxMat.setColor("m_Color", ColorRGBA.Blue);
         
-        for (int i=0; i<nd.getChildren().size(); i++) {                     
+        for (int i=0; i < nd.getChildren().size(); i++) {                     
             String strndscene = nd.getChild(i).getName();            
             if (strndscene.startsWith("spawn") == true){
                 nd.getChild(i).setMaterial(boxMat);
             }else{
                 nd.getChild(i).setMaterial(woodMat);
                 nd.setShadowMode(ShadowMode.Receive);
+                //TangentBinormalGenerator.generate(nd);
             }
          } 
         
