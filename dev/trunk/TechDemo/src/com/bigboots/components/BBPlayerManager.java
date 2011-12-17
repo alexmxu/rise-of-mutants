@@ -58,6 +58,7 @@ public class BBPlayerManager {
     public void createMainPlayer(String name, String file){
         //Create the main Character       
         mMainPlayer = new BBEntity("PLAYER");
+        mMainPlayer.mTag = BBObject.ObjectTag.PLAYER;
         BBNodeComponent pnode = mMainPlayer.addComponent(CompType.NODE);
         pnode.scale(2);
         pnode.setLocalTranslation(this.getMainLocation());
