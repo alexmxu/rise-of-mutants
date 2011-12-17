@@ -102,7 +102,7 @@ public class TestScene extends SimpleApplication {
     
     @Override
     public void simpleInitApp() {
-   /*     
+        
         Models();
         
         
@@ -143,8 +143,8 @@ public class TestScene extends SimpleApplication {
         nd.removeFromParent();
         dsk.clearCache();
   
-        */
         
+        /*
         assetManager.registerLoader(BlenderModelLoader.class, "blend");
         // Load a blender file. 
         //DesktopAssetManager dsk = (DesktopAssetManager) assetManager;        
@@ -168,7 +168,7 @@ public class TestScene extends SimpleApplication {
                 nd.getChild(i).setMaterial(woodMat);
             }
          } 
-        
+        */
         // Add a light Source
         DirectionalLight dl = new DirectionalLight();
         dl.setDirection(new Vector3f(-0.8f, -0.6f, -0.08f).normalizeLocal());
