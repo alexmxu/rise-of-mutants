@@ -53,7 +53,10 @@ public class TestScene extends SimpleApplication {
          
         // Material
         Material mat = assetManager.loadMaterial("Scenes/TestScene/TestSceneMaterial.j3m"); 
-         
+        
+        // set Image Based Lighting
+        mat.setBoolean("SphereMap", true);
+        mat.setTexture("IblMap", assetManager.loadTexture("Textures/skyboxes/skybox_01_low.png")); 
         
         Mesh sph_test = new Sphere(20, 20, 5);
         Geometry geo_test = new Geometry("geo_test", sph_test);
@@ -63,7 +66,7 @@ public class TestScene extends SimpleApplication {
         geo_test.rotate(1.6f, 0, 0);
         rootNode.attachChild(geo_test);
         
-
+        // set Skybox. 
         TextureKey skyhi = new TextureKey("Textures/skyboxes/skybox_01.png", true);
         skyhi.setGenerateMips(true);
         skyhi.setAsCube(false);

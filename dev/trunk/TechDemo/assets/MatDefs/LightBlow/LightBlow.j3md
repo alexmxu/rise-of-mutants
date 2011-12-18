@@ -51,7 +51,7 @@ MaterialDef LightBlow {
         Boolean Nor_Inv_Z
 
         // IBL Map for Image Based Lighting
-        TextureCubeMap IblMap
+        Texture2D IblMap
         Float iblIntensity : 1
 
         // Switch Hemispherical Lighting on/off
