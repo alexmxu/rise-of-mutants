@@ -55,8 +55,8 @@ public class BBEngineSystem {
     protected JmeContext context;
     protected Timer timer;
     protected boolean pauseOnFocus = true;
-    protected float speed = 1f;
-    protected boolean paused = false;
+    //protected float speed = 1f;
+    protected boolean mSystemPaused = false;
    
     private final ConcurrentLinkedQueue<AppTask<?>> taskQueue = new ConcurrentLinkedQueue<AppTask<?>>();
     
@@ -115,7 +115,7 @@ public class BBEngineSystem {
      * Do not call manually.
      * Callback from ContextListener.
      */
-    public void update(){
+    public void update(float tpf){
         //execute AppTasks
         AppTask<?> task = taskQueue.poll();
         toploop: do {
@@ -127,17 +127,17 @@ public class BBEngineSystem {
             task.invoke();
         } while (((task = taskQueue.poll()) != null));
         
-        if (speed == 0 || paused)
-            return;
+        //if (speed == 0 || mSystemPaused)
+        //    return;
         
-        timer.update();
+        //timer.update();
        
-        float tpf = timer.getTimePerFrame() * speed;
+        //float tpf = timer.getTimePerFrame() * speed;
         renderManager.render(tpf, context.isRenderable());
 
     }
     
-        
+      
     public void setContextListener(SystemListener lstr){
         context.setSystemListener(lstr);
     }
@@ -158,14 +158,14 @@ public class BBEngineSystem {
     
     public void gainFocus(){
         if (pauseOnFocus){
-            paused = false;
+            mSystemPaused = false;
             context.setAutoFlushFrames(true);
         }
     }
     
     public void loseFocus(){
         if (pauseOnFocus){
-            paused = true;
+            mSystemPaused = true;
             context.setAutoFlushFrames(false);
         }
     }
@@ -226,6 +226,12 @@ public class BBEngineSystem {
         return timer;
     }
     
+    public void setSystemPause(boolean val){
+        mSystemPaused = val;
+    }
     
+    public boolean isSystemPause(){
+        return mSystemPaused;
+    }
     
 }

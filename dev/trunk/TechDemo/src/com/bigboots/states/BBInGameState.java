@@ -75,7 +75,7 @@ public class BBInGameState extends BBAbstractState{
     private BBNodeComponent humanStalker;
     //music
     private BBAudioComponent music;   
-    private GameActionListener actionListener = new GameActionListener();
+    private GameActionListener actionListener;
     private BBPlayerActions playerListener = new BBPlayerActions();
 
     public BBInGameState() {
@@ -83,11 +83,13 @@ public class BBInGameState extends BBAbstractState{
     }
     
     @Override
-    public void initialize(BBEngineSystem eng) {
+    public void initialize(BBEngineSystem eng) {       
+        super.initialize(eng);
+        
         BBGuiManager.getInstance().getNifty().gotoScreen("progress");
         BBGuiManager.getInstance().enableProgressBar(true);
         
-        super.initialize(eng);
+        actionListener = new GameActionListener(eng);
         
         BBPhysicsManager.getInstance().init(engineSystem);
         
@@ -243,12 +245,18 @@ public class BBInGameState extends BBAbstractState{
     }
 
     private class GameActionListener implements AnimEventListener, ActionListener, AnalogListener {
-
+        private BBEngineSystem engineSystem;
+        public GameActionListener(BBEngineSystem eng){
+             engineSystem = eng;
+        }
+        
         public void onAction(String binding, boolean keyPressed, float tpf) {
             
-            if (binding.equals(BBGlobals.INPUT_MAPPING_EXIT)) {
+            if (binding.equals(BBGlobals.INPUT_MAPPING_EXIT) && !keyPressed) {
               BBInputManager.getInstance().getInputManager().setCursorVisible(true);  
               BBGuiManager.getInstance().getNifty().gotoScreen("game");
+              //TODO : pause the game by disabling render and actions update. Let the input enabled
+              //this.engineSystem.setSystemPause(!this.engineSystem.isSystemPause());
               return;
             }
             if (binding.equals(BBGlobals.INPUT_MAPPING_DEBUG) && !keyPressed) { 
