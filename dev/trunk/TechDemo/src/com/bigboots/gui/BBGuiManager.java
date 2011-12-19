@@ -96,12 +96,11 @@ public class BBGuiManager implements BBUpdateListener{
           if (now - start > 50) { // add one percent every 50 ms
             start = now;
             progress++;
-            System.out.println("UUUUUUUUUUUUUUUUUUUUUU : "+progress);
+            
             Screen mScreen = mNifty.getScreen("progress");
             mScreen.findControl("my-progress", BBProgressbarController.class).setProgress(progress / 100.0f);
 
             if (progress >= 100) {
-              System.out.println("BBBBBBBBBBB DONE BBBBBBBBB");
               mEnableProgBar = false;
               mNifty.gotoScreen("null");
             }

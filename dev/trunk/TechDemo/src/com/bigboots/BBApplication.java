@@ -23,7 +23,7 @@ import com.bigboots.core.BBSettings;
 import com.bigboots.core.BBUpdateManager;
 import com.bigboots.gui.BBGuiManager;
 import com.bigboots.input.BBInputManager;
-import com.bigboots.states.BBInGameState;
+//import com.bigboots.states.BBInGameState;
 import com.bigboots.states.BBMainMenuState;
 import com.bigboots.states.BBStateManager;
 import com.jme3.system.SystemListener;
@@ -36,7 +36,10 @@ import com.jme3.system.SystemListener;
  */
 public class BBApplication implements SystemListener {
         
-    private BBEngineSystem engineSystem;
+    protected BBEngineSystem engineSystem;
+    protected float mSpeed = 1f;
+    
+
     
     /*
      * Main game loop.
@@ -87,25 +90,35 @@ public class BBApplication implements SystemListener {
      * to the back buffer.
      */
     public void update(){
-        float tpf = engineSystem.getTimer().getTimePerFrame();
-        //Display stats
-        BBDebugInfo.getInstance().update(tpf);
+        
+        if (mSpeed == 0 || this.engineSystem.isSystemPause())
+            return;
+        
+        engineSystem.getTimer().update();
+        
+        float tpf = engineSystem.getTimer().getTimePerFrame() * mSpeed;
+//System.out.println("UUUUUUUUUUUUUUUUUUUUUU : "+tpf);
         //update all states
         BBStateManager.getInstance().update(tpf);
-
+//System.out.println("UUUUUUUUUUU STATE : "+engineSystem.getTimer().getTimePerFrame());
         //update all updater : rootnode, input, etc
         BBUpdateManager.getInstance().update(tpf);
-        
+//System.out.println("UUUUUUUUUUU UPDATe : "+engineSystem.getTimer().getTimePerFrame());        
         //Update RootNode
         BBSceneManager.getInstance().update(tpf);
+//System.out.println("UUUUUUUUUUU SCENE : "+engineSystem.getTimer().getTimePerFrame());        
         //Set render
         BBStateManager.getInstance().render(engineSystem.getRenderManager());
-        
+//System.out.println("UUUUUUUUUUU STATE RENDER : "+engineSystem.getTimer().getTimePerFrame());
         //update state of the scene graph after rootNode.updateGeometricState() call
-        engineSystem.update();
+        engineSystem.update(tpf);
+//System.out.println("UUUUUUUUUUU ENGINE : "+engineSystem.getTimer().getTimePerFrame());        
         //Update post render
         BBStateManager.getInstance().postRender();
-        
+//System.out.println("UUUUUUUUUUU STATE POST RENDER : "+engineSystem.getTimer().getTimePerFrame());        
+        //Display stats
+        BBDebugInfo.getInstance().update(tpf);
+//System.out.println("UUUUUUUUUUU DEBUG : "+engineSystem.getTimer().getTimePerFrame());        
     }
     
     /**
