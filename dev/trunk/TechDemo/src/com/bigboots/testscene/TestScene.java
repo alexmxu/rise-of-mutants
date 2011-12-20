@@ -55,8 +55,7 @@ public class TestScene extends SimpleApplication {
         Material mat = assetManager.loadMaterial("Scenes/TestScene/TestSceneMaterial.j3m"); 
         
         // set Image Based Lighting
-        mat.setBoolean("SphereMap", true);
-        mat.setTexture("IblMap", assetManager.loadTexture("Textures/skyboxes/sky_box_01/skybox_01_low.png")); 
+        mat.setTexture("IblMap_Simple", assetManager.loadTexture("Textures/skyboxes/sky_box_01/skybox_01_low.png")); 
         
         Mesh sph_test = new Sphere(20, 20, 5);
         Geometry geo_test = new Geometry("geo_test", sph_test);
