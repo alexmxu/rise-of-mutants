@@ -56,7 +56,7 @@ public class TestScene extends SimpleApplication {
         
         // set Image Based Lighting
         mat.setBoolean("SphereMap", true);
-        mat.setTexture("IblMap", assetManager.loadTexture("Textures/skyboxes/skybox_01_low.png")); 
+        mat.setTexture("IblMap", assetManager.loadTexture("Textures/skyboxes/sky_box_01/skybox_01_low.png")); 
         
         Mesh sph_test = new Sphere(20, 20, 5);
         Geometry geo_test = new Geometry("geo_test", sph_test);
@@ -65,14 +65,6 @@ public class TestScene extends SimpleApplication {
         geo_test.setLocalTranslation(0, 0, 10);
         geo_test.rotate(1.6f, 0, 0);
         rootNode.attachChild(geo_test);
-        
-        // set Skybox. 
-        TextureKey skyhi = new TextureKey("Textures/skyboxes/skybox_01.png", true);
-        skyhi.setGenerateMips(true);
-        skyhi.setAsCube(false);
-        Texture texhi = assetManager.loadTexture(skyhi);
-        Geometry sp = (Geometry) SkyFactory.createSky(assetManager, texhi, true);
-        rootNode.attachChild(sp);
         
         
         // Models
@@ -133,9 +125,31 @@ public class TestScene extends SimpleApplication {
     public void simpleInitApp() {
         
         Models();
+             
+        // set Skybox. 
+        TextureKey key_west = new TextureKey("Textures/skyboxes/sky_box_01/skybox_01_west.png", true);
+        key_west.setGenerateMips(true);
+        Texture sky_west = assetManager.loadTexture(key_west);
+        TextureKey key_east = new TextureKey("Textures/skyboxes/sky_box_01/skybox_01_east.png", true);
+        key_east.setGenerateMips(true);
+        Texture sky_east = assetManager.loadTexture(key_east);        
+        TextureKey key_north = new TextureKey("Textures/skyboxes/sky_box_01/skybox_01_north.png", true);
+        key_north.setGenerateMips(true);
+        Texture sky_north = assetManager.loadTexture(key_north);        
+        TextureKey key_south = new TextureKey("Textures/skyboxes/sky_box_01/skybox_01_south.png", true);
+        key_south.setGenerateMips(true);
+        Texture sky_south = assetManager.loadTexture(key_south);        
+        TextureKey key_top = new TextureKey("Textures/skyboxes/sky_box_01/skybox_01_top.png", true);
+        key_top.setGenerateMips(true);
+        Texture sky_top = assetManager.loadTexture(key_top);        
+        TextureKey key_bottom = new TextureKey("Textures/skyboxes/sky_box_01/skybox_01_bottom.png", true);
+        key_bottom.setGenerateMips(true);
+        Texture sky_bottom = assetManager.loadTexture(key_bottom);        
         
+        Vector3f normalScale = new Vector3f(1, 1, 1);
         
-
+        Spatial sky = SkyFactory.createSky(assetManager, sky_west, sky_east, sky_north, sky_south, sky_top, sky_bottom, normalScale);
+        rootNode.attachChild(sky);
         
         
         // Load a blender file. 
@@ -210,7 +224,7 @@ public class TestScene extends SimpleApplication {
         // Add a light Source
         DirectionalLight dl = new DirectionalLight();
         dl.setDirection(new Vector3f(-0.8f, -0.6f, -0.08f).normalizeLocal());
-        dl.setColor(new ColorRGBA(1.1f,1.1f,1.1f,1));
+        dl.setColor(new ColorRGBA(1.0f,1.0f,1.0f,1));
         rootNode.addLight(dl);
         
         flyCam.setMoveSpeed(30);
