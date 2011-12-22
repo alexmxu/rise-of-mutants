@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<nifty xmlns="http://nifty-gui.sourceforge.net/nifty-1.3.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://nifty-gui.sourceforge.net/nifty-1.3.xsd http://nifty-gui.sourceforge.net/nifty-1.3.xsd">
+<nifty xmlns="http://nifty-gui.sourceforge.net/nifty-1.3.xsd" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://nifty-gui.sourceforge.net/nifty-1.3.xsd">
   
   <useControls filename="nifty-default-controls.xml" />
   <useStyles filename="nifty-default-styles.xml" />
@@ -21,7 +23,7 @@
   <!-- note: this file is only demonstrating loading additional screens -->
   <screen id="start" controller="com.bigboots.gui.BBMainMenuController">
     <layer id="background" childLayout="center">
-      <image filename="Interface/executioner2.jpg"></image>
+      <image filename="Interface/executioner2.jpg" width="100%" height="80%"></image>
     </layer>
     <layer id="start_main_layer" childLayout="center">
         
@@ -59,18 +61,7 @@
     
   </screen>
   
-  <screen id="game" controller="com.bigboots.gui.BBInGameController">
-    <layer id="layer" childLayout="center">
-        <panel id="panel" style="myStyle" height="30%" width="35%" align="center" valign="center" childLayout="vertical">   
-           
-          <panel id="panquit" height="25%" width="35%" align="center" valign="center" childLayout="center" visibleToMouse="true">
-            <control id="backm" name="button" label="Quit to Desktop" color="#000" align="center" valign="center">
-                <interact onClick="quitToDesk()" />
-            </control>
-          </panel>
-         </panel>
-    </layer>
-  </screen>
+
 
   <screen id="credit" controller="com.bigboots.states.BBCreditState">
     <layer id="layer" childLayout="center">
@@ -93,6 +84,6 @@
   </screen>
 
 
-  <screen id="null" controller="com.bigboots.states.BBMainMenuState">
+  <screen id="null">
   </screen>
 </nifty>

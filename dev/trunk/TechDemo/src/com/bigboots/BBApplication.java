@@ -97,28 +97,21 @@ public class BBApplication implements SystemListener {
         engineSystem.getTimer().update();
         
         float tpf = engineSystem.getTimer().getTimePerFrame() * mSpeed;
-//System.out.println("UUUUUUUUUUUUUUUUUUUUUU : "+tpf);
         //update all states
         BBStateManager.getInstance().update(tpf);
-//System.out.println("UUUUUUUUUUU STATE : "+engineSystem.getTimer().getTimePerFrame());
         //update all updater : rootnode, input, etc
-        BBUpdateManager.getInstance().update(tpf);
-//System.out.println("UUUUUUUUUUU UPDATe : "+engineSystem.getTimer().getTimePerFrame());        
+        BBUpdateManager.getInstance().update(tpf);       
         //Update RootNode
-        BBSceneManager.getInstance().update(tpf);
-//System.out.println("UUUUUUUUUUU SCENE : "+engineSystem.getTimer().getTimePerFrame());        
+        BBSceneManager.getInstance().update(tpf);       
         //Set render
         BBStateManager.getInstance().render(engineSystem.getRenderManager());
-//System.out.println("UUUUUUUUUUU STATE RENDER : "+engineSystem.getTimer().getTimePerFrame());
         //update state of the scene graph after rootNode.updateGeometricState() call
-        engineSystem.update(tpf);
-//System.out.println("UUUUUUUUUUU ENGINE : "+engineSystem.getTimer().getTimePerFrame());        
+        engineSystem.update(tpf);       
         //Update post render
-        BBStateManager.getInstance().postRender();
-//System.out.println("UUUUUUUUUUU STATE POST RENDER : "+engineSystem.getTimer().getTimePerFrame());        
+        BBStateManager.getInstance().postRender();      
         //Display stats
         BBDebugInfo.getInstance().update(tpf);
-//System.out.println("UUUUUUUUUUU DEBUG : "+engineSystem.getTimer().getTimePerFrame());        
+      
     }
     
     /**

@@ -86,8 +86,8 @@ public class BBInGameState extends BBAbstractState{
     public void initialize(BBEngineSystem eng) {       
         super.initialize(eng);
         
-        BBGuiManager.getInstance().getNifty().gotoScreen("progress");
-        BBGuiManager.getInstance().enableProgressBar(true);
+        //BBGuiManager.getInstance().getNifty().gotoScreen("progress");
+        //BBGuiManager.getInstance().enableProgressBar(true);
         
         actionListener = new GameActionListener(eng);
         
@@ -170,13 +170,13 @@ public class BBInGameState extends BBAbstractState{
         BloomFilter tmpFilter = (BloomFilter) BBSceneManager.getInstance().getFilterbyName("GAME_BLOOM");
         tmpFilter.setBloomIntensity(2.0f);
         tmpFilter.setExposurePower(1.3f);
- */         
+         
         BBSceneManager.getInstance().createFilter("GAME_BLEUR", BBSceneManager.FilterType.DEPHT);
         DepthOfFieldFilter tmpFltrBleur= (DepthOfFieldFilter) BBSceneManager.getInstance().getFilterbyName("GAME_BLEUR");
         tmpFltrBleur.setFocusDistance(0);
         tmpFltrBleur.setFocusRange(150);
         tmpFltrBleur.setBlurScale(1.4f);
-/*        
+        
         //Create sun
         DirectionalLight sun = new DirectionalLight();
         Vector3f lightDir = new Vector3f(35.12f, -0.3729129f, 3.74847335f);
@@ -192,7 +192,7 @@ public class BBInGameState extends BBAbstractState{
         BBSceneManager.getInstance().createFilter("GAME_TOON", BBSceneManager.FilterType.CARTOON);
  */  
         
-        //BBGuiManager.getInstance().getNifty().gotoScreen("null");
+        BBGuiManager.getInstance().getNifty().gotoScreen("hud");
         
         // Load the main map (here blend loading)
         BBSceneManager.getInstance().setupLight();
