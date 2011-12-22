@@ -73,7 +73,10 @@ public class BBGuiManager implements BBUpdateListener{
                                               guiViewPort);
         mNifty = niftyDisplay.getNifty();
 
-        mNifty.fromXml("Interface/mainmenu.xml", "null");
+        //mNifty.fromXml("Interface/mainmenu.xml", "null");
+        this.addXmlGui("Interface/mainmenu.xml");
+        this.addXmlGui("Interface/ingame.xml");
+        mNifty.gotoScreen("null");
         //mNifty.setDebugOptionPanelColors(true);
         
         // attach the nifty display to the gui view port as a processor
@@ -85,6 +88,10 @@ public class BBGuiManager implements BBUpdateListener{
     
     public Nifty getNifty() {
         return mNifty;
+    }
+    
+    public void addXmlGui(String file){
+        mNifty.addXml(file);
     }
     
     public void update(float tpf) {
