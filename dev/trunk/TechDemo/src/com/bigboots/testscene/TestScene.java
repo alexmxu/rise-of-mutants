@@ -2,17 +2,14 @@ package com.bigboots.testscene;
 
 
 import com.jme3.app.SimpleApplication;
-import com.jme3.asset.BlenderKey;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.asset.ModelKey;
 import com.jme3.asset.TextureKey;
-import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.*;
 import com.jme3.scene.*;
 import com.jme3.scene.Node;
-import com.jme3.scene.plugins.blender.BlenderModelLoader;
 import com.jme3.scene.shape.*;
 import com.jme3.texture.Texture;
 import com.jme3.util.SkyFactory;
@@ -173,7 +170,7 @@ public class TestScene extends SimpleApplication {
          
             if (strndscene.equals(strmd) == true){
                 Spatial ndGet =  ndmd.getChild(j).clone(false);
-                ndGet.setName(strndscene);
+                ndGet.setName(nd.getChild(i).getName());
                 ndGet.setLocalTransform(nd.getChild(i).getWorldTransform());
                 ndscene.attachChild(ndGet);   
                 
@@ -184,40 +181,31 @@ public class TestScene extends SimpleApplication {
         rootNode.attachChild(ndscene);
 
 
-        
+//Search for geometries        
+ SceneGraphVisitor sgv = new SceneGraphVisitor() {
+
+            public void visit(Spatial spatial) {
+                System.out.println(spatial);
+
+                if (spatial instanceof Geometry) {
+            
+                Geometry geom = (Geometry) spatial;
+                System.out.println(geom.getMesh());
+                
+        }
+            }
+        };
+ 
+  rootNode.depthFirstTraversal(sgv);    
+ // rootNode.breadthFirstTraversal(sgv);    
+         
         
         // Clear Cache
         nd.detachAllChildren();
         nd.removeFromParent();
         dsk.clearCache();
   
-        
-        /*
-        assetManager.registerLoader(BlenderModelLoader.class, "blend");
-        // Load a blender file. 
-        //DesktopAssetManager dsk = (DesktopAssetManager) assetManager;        
-        ModelKey bk = new ModelKey("Scenes/TestScene/test_scene_01_1.blend");
-      //  bk.setFixUpAxis(false);
-        Node nd =  (Node) assetManager.loadModel(bk);
-        rootNode.attachChild(nd);
-        
-        // Material
-        Material woodMat = assetManager.loadMaterial("Scenes/TestScene/TestSceneMaterial.j3m");
-        Material boxMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        boxMat.setColor("m_Color", ColorRGBA.Blue);
-        
-        for (int i=0; i<nd.getChildren().size(); i++) {                     
-            String strndscene = nd.getChild(i).getName();
-            System.out.println("***** VISIT NODE : "+strndscene);
-            
-            if (strndscene.startsWith("spawn") == true){
-                nd.getChild(i).setMaterial(boxMat);
-            }else{
-                nd.getChild(i).setMaterial(woodMat);
-            }
-         } 
-        */
-        
+    
         
         
         // Add a light Source

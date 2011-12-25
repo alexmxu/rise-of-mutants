@@ -1,6 +1,5 @@
 package com.bigboots.testscene;
 
-import com.bigboots.*;
 import com.jme3.app.SimpleApplication;
 import java.util.logging.Logger;
 import java.util.logging.Level;
@@ -22,23 +21,18 @@ import com.jme3.animation.AnimControl;
 import com.jme3.animation.AnimEventListener;
 import com.jme3.animation.LoopMode;
 //physic
-import com.jme3.asset.BlenderKey;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.asset.ModelKey;
 import com.jme3.bullet.BulletAppState;
-import com.jme3.bullet.collision.PhysicsRayTestResult;
 
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.control.CharacterControl;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.bullet.collision.shapes.CollisionShape;
-import com.jme3.bullet.collision.shapes.CompoundCollisionShape;
-import com.jme3.bullet.control.PhysicsControl;
 import com.jme3.bullet.objects.PhysicsCharacter;
 import com.jme3.bullet.util.CollisionShapeFactory;
 
 //settings
-import com.jme3.collision.CollisionResults;
 import com.jme3.system.AppSettings;
 
 //Input
@@ -50,18 +44,10 @@ import com.jme3.input.controls.KeyTrigger;
 //terrain
 import com.jme3.material.Material;
 //import com.jme3.terrain.geomipmap.TerrainLodControl;
-import com.jme3.math.Matrix3f;
-import com.jme3.math.Ray;
 import com.jme3.math.Transform;
-import com.jme3.math.Vector2f;
-import com.jme3.terrain.heightmap.AbstractHeightMap;
 import com.jme3.terrain.geomipmap.TerrainQuad;
 //import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
 //import com.jme3.terrain.heightmap.HillHeightMap; // for exercise 2
-import com.jme3.terrain.heightmap.ImageBasedHeightMap;
-import com.jme3.texture.Texture;
-import com.jme3.texture.Texture.WrapMode;
-import jme3tools.converters.ImageToAwt;
 
 //Camera
 import com.jme3.scene.CameraNode;
@@ -78,7 +64,6 @@ import com.jme3.post.filters.DepthOfFieldFilter;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import java.util.HashMap;
-import java.util.LinkedList;
 //audio
 
 /**
