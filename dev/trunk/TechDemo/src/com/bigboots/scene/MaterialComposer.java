@@ -5,8 +5,12 @@
 package com.bigboots.scene;
 
 
+import com.jme3.asset.AssetManager;
+import com.jme3.asset.TextureKey;
 import com.jme3.material.*;
 import com.jme3.scene.*;
+import com.jme3.texture.Texture;
+import java.io.File;
 
 
 /**
@@ -15,11 +19,17 @@ import com.jme3.scene.*;
  */
 public class MaterialComposer {
     
+    private AssetManager asset;
+    private Geometry geo;
     private Material mat_geo;
     private String mat_name;    
+    private File texDir;
     
-    MaterialComposer (Geometry geo) {
+    MaterialComposer (Geometry geom_mc, File dir, AssetManager assetManager) {
     
+    asset = assetManager;    
+    texDir = dir;
+    geo = geom_mc;
     mat_geo = geo.getMaterial();
     mat_name = geo.getMaterial().getName();
         
@@ -48,27 +58,77 @@ public class MaterialComposer {
    //search for mix base 
    if (mat_name.indexOf("bb") >= 0) {
    
-       mixBase(mix_base);
+       
+       mat_geo.setTexture("DiffuseMap", asset.loadTexture(getTexture(mixFolder(mix_base), mixFile(mix_base))));
 
    }    
        
    }
 
-private void mixBase(int mix) {
+   
+private int mixFolder(int mix) {
     
-   //Search of a number of a folder "base_xx"   
+//Search of a number of a folder "base_xx"   
    int bb1 = Character.getNumericValue(mat_name.charAt(mix + 1));
    bb1 *= 10;
    int bb2 = Character.getNumericValue(mat_name.charAt(mix + 2));
    int bb_folder = bb1 + bb2;
+    
+   return bb_folder;
+}   
    
+private int mixFile(int mix) {
+    
    //Search of a number of a file "base_xx"
    int bb3 = Character.getNumericValue(mat_name.charAt(mix + 3));
    bb3 *= 10;
    int bb4 = Character.getNumericValue(mat_name.charAt(mix + 4));
    int bb_file = bb3 + bb4;              
+   
+   return bb_file;
     
 }   
-   
-   
+
+   private TextureKey getTexture(int foldID, int fileID) {
+
+       
+       
+       
+String[] children = texDir.list();
+if (children == null) {
+    // Either dir does not exist or is not a directory
+} else {
+    for (int i=0; i<children.length; i++) {
+        // Get filename of file or directory
+        String filename = children[i];
+        
+        if (filename.indexOf(foldID) >= 0) {
+
+    File fileTex = new File(texDir.getPath() + filename);
+
+    String[] children2 = fileTex.list();
+if (children == null) {
+    // Either dir does not exist or is not a directory
+} else {
+    for (int j=0; j<children2.length; i++) {
+        // Get filename of file or directory
+        String filename2 = children[j];
+        if (filename.indexOf(fileID) >= 0) {
+            //HERE I ENDED
+            
+        }
+    }
+}
+            
+            
+        }
+    }
+}       
+ 
+TextureKey tk = new TextureKey(string); //HERE I ENDED
+
+       return tk;  
+   }
+
+
 }

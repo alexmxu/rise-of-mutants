@@ -5,8 +5,10 @@
 package com.bigboots.scene;
 
 
+import com.jme3.asset.AssetManager;
 import com.jme3.material.*;
 import com.jme3.scene.*;
+import java.io.File;
 
 
 /**
@@ -15,11 +17,15 @@ import com.jme3.scene.*;
  */
 public class SceneComposer {
     
+private AssetManager assett;
+    
+    
+    SceneComposer (Node scene, String texFolder, AssetManager assetM) {
+    
+        assett = assetM;
 
-    
-    
-    SceneComposer (Node scene, String texFolder) {
-    
+        final File dir = new File(texFolder);
+
         
 //Search for geometries        
  SceneGraphVisitor sgv = new SceneGraphVisitor() {
@@ -29,9 +35,9 @@ public class SceneComposer {
 
                 if (spatial instanceof Geometry) {
             
-                Geometry geom = (Geometry) spatial;
-                System.out.println(geom.getMaterial().getName());
-                MaterialComposer matComp = new MaterialComposer(geom);
+                Geometry geom_sc = (Geometry) spatial;
+                System.out.println(geom_sc.getMaterial().getName());
+                MaterialComposer matComp = new MaterialComposer(geom_sc, dir, assett);
                 matComp.generateMaterial();
                 
         }
