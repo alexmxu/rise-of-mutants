@@ -9,6 +9,7 @@ import com.jme3.light.DirectionalLight;
 import com.jme3.math.*;
 import com.jme3.scene.*;
 import com.jme3.scene.Node;
+import com.jme3.util.TangentBinormalGenerator;
 import java.io.File;
 
 
@@ -51,6 +52,8 @@ public class TestSceneComposer extends SimpleApplication {
         Node nd =  (Node) dsk.loadModel(bk); 
         nd.setName("nd");
         
+    //    TangentBinormalGenerator.generate(nd);
+        
         
 //        // Attach boxes with names and transformations of the blend file to a Scene
 //         for (int j=0; j<ndmd.getChildren().size();j++){
@@ -77,6 +80,7 @@ SceneComposer sc = new SceneComposer(nd, "assets/Textures/base_textures", assetM
 sc.composeMaterial();
 
         rootNode.attachChild(nd);
+        
 
 
         

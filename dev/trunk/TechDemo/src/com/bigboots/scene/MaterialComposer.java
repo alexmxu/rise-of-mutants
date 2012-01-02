@@ -6,10 +6,8 @@ package com.bigboots.scene;
 
 
 import com.jme3.asset.AssetManager;
-import com.jme3.asset.TextureKey;
 import com.jme3.material.*;
 import com.jme3.scene.*;
-import com.jme3.scene.plugins.blender.materials.MaterialHelper.DiffuseShader;
 import com.jme3.texture.Texture;
 import java.io.File;
 
@@ -69,8 +67,7 @@ public class MaterialComposer {
        
        Material matd = new Material(asset, "MatDefs/LightBlow/LightBlow.j3md");
        matd.setName(mat_name);
-       Texture diffuseTex = asset.loadTexture(getTexture(folderStr, fileStr));
-       matd.setTexture("DiffuseMap", diffuseTex);
+       setYourTexture(matd, folderStr, fileStr);
        
        geo.setMaterial(matd);
        
@@ -78,28 +75,31 @@ public class MaterialComposer {
        
    }
 
+private void setNormal () {
+    
+}
 
+   private void setYourTexture(Material mat, String foldID, String fileID) {
 
-   public String getTexture(String foldID, String fileID) {
-
+  Material matThis = mat;     
   String texPath = texDir.toString();
-  String texPath3 = new String();
   String texPath2 = new String();
+  String texPath3 = new String();
+  String texPath3_nor = new String();
        
-  //Searching foldID
+  //Searching folderID
   String[] children = texDir.list();
 if (children == null) {
     // Either dir does not exist or is not a directory
 } 
 else {
     for (int i=0; i<children.length; i++) {
-        // Get filename of file or directory
+        // Get filename of directory
         String filename = children[i];
         
         if (filename.indexOf(foldID) >= 0) {
        
     //Searching fileID        
-    
     texPath2 = texPath + "/" + filename;
     File fileTex = new File(texPath2);
     System.out.println("folder " + texPath2);
@@ -107,32 +107,41 @@ else {
     String[] children2 = fileTex.list();
 if (children2 == null) {
     // Either dir does not exist or is not a directory
-} else {
+   } else {
     
     for (int j=0; j<children2.length; j++) {
-        // Get filename of file or directory
+        // Get filename of file
         String filename2 = children2[j];
-        System.out.println("folder " + texPath2);
-        if (filename2.substring(filename.indexOf(foldID) + 2).indexOf(fileID) >= 0 && filename2.indexOf("_nor") < 0) {
-            texPath3 = texPath2 + "/" + filename2; 
-            System.out.println(texPath3 + " file");
-            
 
-            
+        if (filename2.substring(filename.indexOf(foldID) + 2).indexOf(fileID) >= 0 && filename2.indexOf("_nor") < 0) {
+        texPath3 = texPath2 + "/" + filename2; 
+        System.out.println("file " + texPath3);
+        }
+        else if (filename2.substring(filename.indexOf(foldID) + 2).indexOf(fileID) >= 0 && filename2.indexOf("_nor") > 0) {
+            texPath3_nor = texPath2 + "/" + filename2;
+            System.out.println("file NormalMap " + texPath3_nor);
         }
     }
 }
-            
-            
+             
         }
     }
 }       
  
-if (texPath3.indexOf("assets/") >= 0) return texPath3.substring(7); 
-System.out.println("aaa" + texPath3);
+if (texPath3.indexOf("assets/") == 0) texPath3 = texPath3.substring(7); 
+       
+       Texture diffuseTex = asset.loadTexture(texPath3);
+       diffuseTex.setWrap(Texture.WrapMode.Repeat);
+       matThis.setTexture("DiffuseMap", diffuseTex);
 
-
-       return texPath3;  
+        if (texPath3_nor.length() > 0) {
+            if (texPath3_nor.indexOf("assets/") == 0) texPath3_nor = texPath3_nor.substring(7);
+          Texture normalTex = asset.loadTexture(texPath3_nor);
+          normalTex.setWrap(Texture.WrapMode.Repeat);
+          matThis.setTexture("NormalMap", normalTex);
+    
+        }       
+       
    }
 
 
