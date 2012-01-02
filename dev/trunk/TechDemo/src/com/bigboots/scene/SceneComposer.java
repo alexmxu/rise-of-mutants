@@ -18,16 +18,21 @@ import java.io.File;
 public class SceneComposer {
     
 private AssetManager assett;
+private Node sc;    
+private File dir;
     
-    
-    SceneComposer (Node scene, String texFolder, AssetManager assetM) {
+  public  SceneComposer (Node scene, String texFolder, AssetManager assetM) {
     
         assett = assetM;
-
-        final File dir = new File(texFolder);
-
+        sc = scene;
+        dir = new File(texFolder);                  
         
-//Search for geometries        
+    }
+    
+    
+public void composeMaterial() {
+    
+    //Search for geometries        
  SceneGraphVisitor sgv = new SceneGraphVisitor() {
 
             public void visit(Spatial spatial) {
@@ -36,7 +41,7 @@ private AssetManager assett;
                 if (spatial instanceof Geometry) {
             
                 Geometry geom_sc = (Geometry) spatial;
-                System.out.println(geom_sc.getMaterial().getName());
+                System.out.println("Composing Material: " + geom_sc.getMaterial().getName() + " for Geometry " + geom_sc.getName());
                 MaterialComposer matComp = new MaterialComposer(geom_sc, dir, assett);
                 matComp.generateMaterial();
                 
@@ -44,11 +49,10 @@ private AssetManager assett;
             }
         };
  
-  scene.depthFirstTraversal(sgv);            
-        
-    }
+  sc.depthFirstTraversal(sgv);  
+//  sc.breadthFirstTraversal(sgv);   
     
-
+}
    
    
 }
