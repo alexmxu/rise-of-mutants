@@ -244,8 +244,7 @@ public class TestAPIFrameWork extends SimpleApplication implements AnimEventList
     AbstractHeightMap heightmap = null;
     Texture heightMapImage = assetManager.loadTexture(
             "Textures/Terrain/splat/mountains512.png");
-    heightmap = new ImageBasedHeightMap(
-      ImageToAwt.convert(heightMapImage.getImage(), false, true, 0));
+    heightmap = new ImageBasedHeightMap(heightMapImage.getImage(), 0.5f);
     heightmap.load();
  
     /** 3. We have prepared material and heightmap. 
