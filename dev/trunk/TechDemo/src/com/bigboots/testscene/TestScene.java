@@ -53,7 +53,6 @@ public class TestScene extends SimpleApplication {
         
         // set Image Based Lighting
         Texture ibl = assetManager.loadTexture("Textures/skyboxes/sky_box_01/skybox_01_low.png");
-        ibl.setWrap(Texture.WrapMode.Repeat);
         mat.setTexture("IblMap_Simple", ibl); 
         
         
