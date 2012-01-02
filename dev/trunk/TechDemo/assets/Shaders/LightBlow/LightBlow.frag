@@ -490,9 +490,9 @@ diffuseColor.rgb *= m_Diffuse.rgb;
        // IBL - Image Based Lighting. The lighting based on either cube map or sphere map.
        iblVec.y = -iblVec.y;
            #if  defined (IBL_SIMPLE) && defined (NORMALMAP)
-            vec3 iblLight = texture2D(m_IblMap_Simple, ((iblVec.xy - mat.xy * normal.xy) * vec2(0.5)) + vec2(0.43)).rgb;
+            vec3 iblLight = texture2D(m_IblMap_Simple, ((iblVec.xy - mat.xy * normal.xy) * vec2(0.49)) + vec2(0.49)).rgb;
            #elif  defined (IBL_SIMPLE) && !defined (NORMALMAP)
-            vec3 iblLight = texture2D(m_IblMap_Simple,  (iblVec.xy * vec2(0.5)) + vec2(0.43)).rgb;
+            vec3 iblLight = texture2D(m_IblMap_Simple,  (iblVec.xy * vec2(0.49)) + vec2(0.49)).rgb;
            #endif
         
         //Albedo 

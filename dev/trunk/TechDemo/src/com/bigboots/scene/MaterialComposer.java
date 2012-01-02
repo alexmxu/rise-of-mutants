@@ -70,7 +70,6 @@ public class MaterialComposer {
        Material matd = new Material(asset, "MatDefs/LightBlow/LightBlow.j3md");
        matd.setName(mat_name);
        Texture diffuseTex = asset.loadTexture(getTexture(folderStr, fileStr));
-       diffuseTex.setWrap(Texture.WrapMode.Repeat);
        matd.setTexture("DiffuseMap", diffuseTex);
        
        geo.setMaterial(matd);
