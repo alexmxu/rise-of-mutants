@@ -9,6 +9,7 @@ import com.jme3.asset.AssetManager;
 import com.jme3.asset.TextureKey;
 import com.jme3.material.*;
 import com.jme3.scene.*;
+import com.jme3.scene.plugins.blender.materials.MaterialHelper.DiffuseShader;
 import com.jme3.texture.Texture;
 import java.io.File;
 
@@ -21,17 +22,16 @@ public class MaterialComposer {
     
     private AssetManager asset;
     private Geometry geo;
-    private Material mat_geo;
     private String mat_name;    
     private File texDir;
     
-    MaterialComposer (Geometry geom_mc, File dir, AssetManager assetManager) {
+    
+   public MaterialComposer (Geometry geom_mc, File dir, AssetManager assetManager) {
     
     asset = assetManager;    
     texDir = dir;
     geo = geom_mc;
-    mat_geo = geo.getMaterial();
-    mat_name = geo.getMaterial().getName();
+    mat_name = geo.getMaterial().getName().toString();
         
     }
     
@@ -58,63 +58,67 @@ public class MaterialComposer {
    //search for mix base 
    if (mat_name.indexOf("bb") >= 0) {
    
-       
-       mat_geo.setTexture("DiffuseMap", asset.loadTexture(getTexture(mixFolder(mix_base), mixFile(mix_base))));
+     //  mat_geo = new Material(asset, "MatDefs/LightBlow/LightBlow.j3md");
+       System.out.println("Found mix_base");
 
+       String folderStr = mat_name.substring(mat_name.indexOf("bb") + 2, mat_name.indexOf("bb") + 4);
+       String fileStr = mat_name.substring(mat_name.indexOf("bb") + 4, mat_name.indexOf("bb") + 6);
+       
+       System.out.println(folderStr);
+       System.out.println(fileStr);
+       
+       Material matd = new Material(asset, "MatDefs/LightBlow/LightBlow.j3md");
+       matd.setName(mat_name);
+       Texture diffuseTex = asset.loadTexture(getTexture(folderStr, fileStr));
+       diffuseTex.setWrap(Texture.WrapMode.Repeat);
+       matd.setTexture("DiffuseMap", diffuseTex);
+       
+       geo.setMaterial(matd);
+       
    }    
        
    }
 
-   
-private int mixFolder(int mix) {
-    
-//Search of a number of a folder "base_xx"   
-   int bb1 = Character.getNumericValue(mat_name.charAt(mix + 1));
-   bb1 *= 10;
-   int bb2 = Character.getNumericValue(mat_name.charAt(mix + 2));
-   int bb_folder = bb1 + bb2;
-    
-   return bb_folder;
-}   
-   
-private int mixFile(int mix) {
-    
-   //Search of a number of a file "base_xx"
-   int bb3 = Character.getNumericValue(mat_name.charAt(mix + 3));
-   bb3 *= 10;
-   int bb4 = Character.getNumericValue(mat_name.charAt(mix + 4));
-   int bb_file = bb3 + bb4;              
-   
-   return bb_file;
-    
-}   
 
-   private TextureKey getTexture(int foldID, int fileID) {
 
+   public String getTexture(String foldID, String fileID) {
+
+  String texPath = texDir.toString();
+  String texPath3 = new String();
+  String texPath2 = new String();
        
-       
-       
-String[] children = texDir.list();
+  //Searching foldID
+  String[] children = texDir.list();
 if (children == null) {
     // Either dir does not exist or is not a directory
-} else {
+} 
+else {
     for (int i=0; i<children.length; i++) {
         // Get filename of file or directory
         String filename = children[i];
         
         if (filename.indexOf(foldID) >= 0) {
-
-    File fileTex = new File(texDir.getPath() + filename);
+       
+    //Searching fileID        
+    
+    texPath2 = texPath + "/" + filename;
+    File fileTex = new File(texPath2);
+    System.out.println("folder " + texPath2);
 
     String[] children2 = fileTex.list();
-if (children == null) {
+if (children2 == null) {
     // Either dir does not exist or is not a directory
 } else {
-    for (int j=0; j<children2.length; i++) {
+    
+    for (int j=0; j<children2.length; j++) {
         // Get filename of file or directory
-        String filename2 = children[j];
-        if (filename.indexOf(fileID) >= 0) {
-            //HERE I ENDED
+        String filename2 = children2[j];
+        System.out.println("folder " + texPath2);
+        if (filename2.substring(filename.indexOf(foldID) + 2).indexOf(fileID) >= 0 && filename2.indexOf("_nor") < 0) {
+            texPath3 = texPath2 + "/" + filename2; 
+            System.out.println(texPath3 + " file");
+            
+
             
         }
     }
@@ -125,9 +129,11 @@ if (children == null) {
     }
 }       
  
-TextureKey tk = new TextureKey(string); //HERE I ENDED
+if (texPath3.indexOf("assets/") >= 0) return texPath3.substring(7); 
+System.out.println("aaa" + texPath3);
 
-       return tk;  
+
+       return texPath3;  
    }
 
 

@@ -1,6 +1,7 @@
 package com.bigboots.testscene;
 
 
+import com.bigboots.scene.SceneComposer;
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.asset.ModelKey;
@@ -8,6 +9,7 @@ import com.jme3.light.DirectionalLight;
 import com.jme3.math.*;
 import com.jme3.scene.*;
 import com.jme3.scene.Node;
+import java.io.File;
 
 
 public class TestSceneComposer extends SimpleApplication {
@@ -70,26 +72,13 @@ public class TestSceneComposer extends SimpleApplication {
 //         }
 //         }
            
+        
+SceneComposer sc = new SceneComposer(nd, "assets/Textures/base_textures", assetManager);
+sc.composeMaterial();
+
         rootNode.attachChild(nd);
 
-//Search for geometries        
- SceneGraphVisitor sgv = new SceneGraphVisitor() {
 
-            public void visit(Spatial spatial) {
-                System.out.println(spatial);
-
-                if (spatial instanceof Geometry) {
-            
-                Geometry geom = (Geometry) spatial;
-                System.out.println(geom.getMaterial().getName());
-                
-        }
-            }
-        };
- 
-  rootNode.depthFirstTraversal(sgv);    
-//  rootNode.breadthFirstTraversal(sgv); 
-        
         
 //        // Clear Cache
 //        nd.detachAllChildren();
@@ -97,12 +86,24 @@ public class TestSceneComposer extends SimpleApplication {
 //        dsk.clearCache();
   
         
+        File dir = new File("assets/Scenes/levels");
         
-        
+        System.out.println(dir.toString());
+        String[] children = dir.list();
+        if (children == null) {
+            System.out.println("null");
+    // Either dir does not exist or is not a directory
+} else {
+    for (int i=0; i<children.length; i++) {
+        // Get filename of file or directory
+        String filename = children[i];
+        System.out.println(filename);
+    }
+        }  
         
         // Add a light Source
         DirectionalLight dl = new DirectionalLight();
-        dl.setDirection(new Vector3f(-0.8f, -0.6f, -0.08f).normalizeLocal());
+        dl.setDirection(new Vector3f(0.5432741f, -0.58666015f, -0.6005691f).normalizeLocal());
         dl.setColor(new ColorRGBA(1.1f,1.1f,1.1f,1));
         rootNode.addLight(dl);
         
