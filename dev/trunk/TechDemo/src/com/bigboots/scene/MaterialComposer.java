@@ -1,12 +1,27 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (C) 2011  BigBoots Team
+ *  
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *  
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *  
+ * See <http://www.gnu.org/licenses/>.
  */
+
 package com.bigboots.scene;
 
 
 import com.jme3.asset.AssetManager;
 import com.jme3.material.*;
+import com.jme3.material.RenderState.BlendMode;
+import com.jme3.math.ColorRGBA;
+import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.*;
 import com.jme3.texture.Texture;
 import java.io.File;
@@ -20,65 +35,51 @@ public class MaterialComposer {
     
     private AssetManager asset;
     private Geometry geo;
-    private String mat_name;    
+    private String matName;    
+    private String texMasks;
     private File texDir;
     
     
-   public MaterialComposer (Geometry geom_mc, File dir, AssetManager assetManager) {
+   public MaterialComposer (Geometry geom_mc, String dirBase, String dirLevel, AssetManager assetManager) {
     
+       
     asset = assetManager;    
-    texDir = dir;
     geo = geom_mc;
-    mat_name = geo.getMaterial().getName().toString();
-        
-    }
     
+    if (geo.getMaterial().getName().indexOf("l") == 0) {
+        matName = geo.getMaterial().getName().toString().substring(1);
+        texDir = new File(dirLevel);
+    }
+    else {
+        matName = geo.getMaterial().getName().toString();
+        texDir = new File(dirBase);
+    }
+   
+    //Texture Path of Ambient Occlusion and Composing Masks Textures
+    texMasks = dirLevel + "/" + "masks";
+    
+    }
+   
+   
+   
    public void  generateMaterial () {
     
-    int length = mat_name.length();
+       System.out.println("Generating Material");
 
-    
-    //Search for mixes of a material name
-    int mix_base = mat_name.indexOf("bb"); //search for base mix (diffuse map)
-    int mix_emissive = mat_name.indexOf("be"); //search for mix with emissive map (diffuse map + emissive map)
-    int mix_specular = mat_name.indexOf("bs"); //search for mix with specular map (diffuse map + specular map)
-    int mix_alpha = mat_name.indexOf("ba"); //search for mix with specular map (diffuse map + alpha map)
-    int mix_alpha_specular = mat_name.indexOf("as"); //search for mix with specular map (diffuse map + specular map + alpha map)
-    int mix_emissive_specular = mat_name.indexOf("es"); //search for mix with specular map (diffuse map + emissive map + specular map)
-
-    int mix_compound = mat_name.indexOf("cc"); //search for base mix (two diffuse maps)    
-    int mix_compound_specular = mat_name.indexOf("cc"); //search for base mix (two diffuse maps + specular)        
-
-    int mix_mask = mat_name.indexOf("m"); //search for base mix (diffuse map)
-    int mix_occlusion = mat_name.indexOf("o"); //search for base mix (diffuse map)    
-    
-    
-   //search for mix base 
-   if (mat_name.indexOf("bb") >= 0) {
-   
-     //  mat_geo = new Material(asset, "MatDefs/LightBlow/LightBlow.j3md");
-       System.out.println("Found mix_base");
-
-       String folderStr = mat_name.substring(mat_name.indexOf("bb") + 2, mat_name.indexOf("bb") + 4);
-       String fileStr = mat_name.substring(mat_name.indexOf("bb") + 4, mat_name.indexOf("bb") + 6);
+       String folderStr = matName.substring(2, 4);
+       String fileStr = matName.substring(4, 6);
        
        System.out.println(folderStr);
        System.out.println(fileStr);
        
-       Material matd = new Material(asset, "MatDefs/LightBlow/LightBlow.j3md");
-       matd.setName(mat_name);
-       setYourTexture(matd, folderStr, fileStr);
+       Material matNew = new Material(asset, "MatDefs/LightBlow/LightBlow.j3md");
+       matNew.setName(matName);
+       setYourTexture(matNew, folderStr, fileStr);
        
-       geo.setMaterial(matd);
-       
-   }    
-       
+       geo.setMaterial(matNew);       
    }
 
-private void setNormal () {
-    
-}
-
+   
    private void setYourTexture(Material mat, String foldID, String fileID) {
 
   Material matThis = mat;     
@@ -96,10 +97,10 @@ else {
     for (int i=0; i<children.length; i++) {
         // Get filename of directory
         String filename = children[i];
-        
+                
         if (filename.indexOf(foldID) >= 0) {
        
-    //Searching fileID        
+    //Searching file        
     texPath2 = texPath + "/" + filename;
     File fileTex = new File(texPath2);
     System.out.println("folder " + texPath2);
@@ -113,11 +114,13 @@ if (children2 == null) {
         // Get filename of file
         String filename2 = children2[j];
 
-        if (filename2.substring(filename.indexOf(foldID) + 2).indexOf(fileID) >= 0 && filename2.indexOf("_nor") < 0) {
+        // Get Diffuse Map
+        if (filename2.substring(filename.indexOf(foldID) + 2).indexOf(fileID) >= 0 && filename2.indexOf("_nor") < 0 && filename2.indexOf(".blend") < 0 && filename2.indexOf(".psd") < 0) {
         texPath3 = texPath2 + "/" + filename2; 
         System.out.println("file " + texPath3);
         }
-        else if (filename2.substring(filename.indexOf(foldID) + 2).indexOf(fileID) >= 0 && filename2.indexOf("_nor") > 0) {
+        // Get Normal Map
+        else if (filename2.substring(filename.indexOf(foldID) + 2).indexOf(fileID) >= 0 && filename2.indexOf("_nor") > 0 && filename2.indexOf(".blend") < 0 && filename2.indexOf(".psd") < 0) {
             texPath3_nor = texPath2 + "/" + filename2;
             System.out.println("file NormalMap " + texPath3_nor);
         }
@@ -128,21 +131,251 @@ if (children2 == null) {
     }
 }       
  
-if (texPath3.indexOf("assets/") == 0) texPath3 = texPath3.substring(7); 
+
+       if (texPath3.indexOf("assets/") == 0) texPath3 = texPath3.substring(7); 
        
+       // Set Diffuse Map
        Texture diffuseTex = asset.loadTexture(texPath3);
        diffuseTex.setWrap(Texture.WrapMode.Repeat);
        matThis.setTexture("DiffuseMap", diffuseTex);
 
-        if (texPath3_nor.length() > 0) {
+
+       // Set Normal Map if you have a "texPath3_nor.png" 
+        if (texPath3_nor.length() > 3) {
             if (texPath3_nor.indexOf("assets/") == 0) texPath3_nor = texPath3_nor.substring(7);
           Texture normalTex = asset.loadTexture(texPath3_nor);
           normalTex.setWrap(Texture.WrapMode.Repeat);
           matThis.setTexture("NormalMap", normalTex);
-    
         }       
+        
+        // Set Specular Lighting
+        if (matName.indexOf("s") == 0) {
+            matThis.setBoolean("Specular_Lighting", true);
+            matThis.setColor("Specular", ColorRGBA.White);
+            matThis.setBoolean("Spec_A_Dif", true);
+            matThis.setFloat("Shininess", 3.0f);
+        } else if (matName.indexOf("s") == 1) {
+            matThis.setBoolean("Specular_Lighting", true);
+            matThis.setColor("Specular", ColorRGBA.White);
+            matThis.setBoolean("Spec_A_Nor", true);
+            matThis.setFloat("Shininess", 3.0f);
+        }
        
+        
+        // Set Transparency
+        if (matName.indexOf("a") == 0) {
+            matThis.setBoolean("Alpha_A_Dif", true);
+            matThis.setFloat("AlphaDiscardThreshold", 0.01f);
+            matThis.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
+           // geo.setQueueBucket(Bucket.Transparent);            
+        } else if (matName.indexOf("a") == 1) {
+            matThis.setBoolean("Alpha_A_Nor", true);
+            matThis.setFloat("AlphaDiscardThreshold", 0.01f);
+            matThis.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
+           // geo.setQueueBucket(Bucket.Transparent);            
+        }
+        
+        // Set Emission (Illumination)
+        if (matName.indexOf("e") == 0) matThis.setBoolean("EmissiveMap", true);
+        
+        
+        //Set Composite Material
+        if (matName.indexOf("c") == 0) {
+            compoundMat(matThis, matName.substring(6, 8), matName.substring(8, 10));
+            
+        }
+        
+       // Set Ambient Occlusion Texture
+   if (matName.indexOf("o") >= 0) {     
+       File aoDir = new File(texMasks);
+       Texture textureAO;
+       
+       String[] childrenAO = aoDir.list();
+        if (childrenAO == null) {
+          // Either dir does not exist or is not a directory
+         } else {
+         for (int i=0; i<childrenAO.length; i++) {
+            // Get filename of file or directory
+         String fileAO = childrenAO[i];
+            
+         if (fileAO.indexOf(matName.substring(matName.indexOf("o") + 1, matName.indexOf("o") + 3)) >= 0 
+             && fileAO.indexOf("ao") >= 0) {
+         String strAO = aoDir + "/" + fileAO;
+             
+            if (strAO.indexOf("assets/") == 0) {
+                textureAO = asset.loadTexture(strAO.substring(7));
+            }
+            else {
+                textureAO = asset.loadTexture(strAO);
+            }
+    
+            matThis.setTexture("LightMap", textureAO);       
+            matThis.setBoolean("SeperateTexCoord", true);
+                    
+            }
+          }
+        }
+       }        
+        
+    
    }
 
+   
+   
+   //This method is used for compound materials
+   private void compoundMat(Material mat, String foldID, String fileID) {
+  
+  Material matThat = mat;     
+  String ctexPath = texDir.toString();
+  String ctexPath2 = new String();
+  String ctexPath3 = new String();
+  String ctexPath3_nor = new String();
+       
+  //Searching folderID
+  String[] childrenC = texDir.list();
+if (childrenC == null) {
+    // Either dir does not exist or is not a directory
+} 
+else {
+    for (int i=0; i<childrenC.length; i++) {
+        // Get filename of directory
+        String filename = childrenC[i];
+        
+        if (filename.indexOf(foldID) >= 0) {
+       
+    //Searching file        
+    ctexPath2 = ctexPath + "/" + filename;
+    File fileTexC = new File(ctexPath2);
+    System.out.println("compound folder " + ctexPath2);
 
+    String[] childrenC2 = fileTexC.list();
+if (childrenC2 == null) {
+    // Either dir does not exist or is not a directory
+   } else {
+    
+    for (int j=0; j<childrenC2.length; j++) {
+        // Get filename of file
+        String filename2 = childrenC2[j];
+
+        // Get Diffuse Map
+        if (filename2.substring(filename.indexOf(foldID) + 2).indexOf(fileID) >= 0 && filename2.indexOf("_nor") < 0 && filename2.indexOf(".blend") < 0 && filename2.indexOf(".psd") < 0) {
+        ctexPath3 = ctexPath2 + "/" + filename2; 
+        System.out.println("compound file " + ctexPath3);
+        }
+        // Get Normal Map
+        else if (filename2.substring(filename.indexOf(foldID) + 2).indexOf(fileID) >= 0 && filename2.indexOf("_nor") > 0 && filename2.indexOf(".blend") < 0 && filename2.indexOf(".psd") < 0) {
+            ctexPath3_nor = ctexPath2 + "/" + filename2;
+            System.out.println("compound file NormalMap " + ctexPath3_nor);
+        }
+    }
+}
+             
+        }
+    }
+}      
+
+
+       
+       if (ctexPath3.indexOf("assets/") == 0) ctexPath3 = ctexPath3.substring(7); 
+       
+       
+        int uvScale = Integer.parseInt(matName.substring(matName.indexOf("m") + 1,matName.indexOf("m") + 3)); 
+        
+       // Set Diffuse Map R channel
+       if (matName.indexOf("cR") >= 0) {
+       Texture diffuseTexR = asset.loadTexture(ctexPath3);
+       diffuseTexR.setWrap(Texture.WrapMode.Repeat);
+       matThat.setTexture("DiffuseMap_1", diffuseTexR);
+        matThat.setFloat("uv_1_scale", (float) uvScale);            
+       }
+       // Set Diffuse Map G channel
+       else if (matName.indexOf("cG") >= 0) {
+       Texture diffuseTexG = asset.loadTexture(ctexPath3);
+       diffuseTexG.setWrap(Texture.WrapMode.Repeat);
+       matThat.setTexture("DiffuseMap_2", diffuseTexG);
+       matThat.setFloat("uv_2_scale", (float) uvScale);            
+       }
+       // Set Diffuse Map B channel
+       else if (matName.indexOf("cB") >= 0) {
+       Texture diffuseTexB = asset.loadTexture(ctexPath3);
+       diffuseTexB.setWrap(Texture.WrapMode.Repeat);
+       matThat.setTexture("DiffuseMap_3", diffuseTexB);
+       matThat.setFloat("uv_3_scale", (float) uvScale);
+       }
+
+
+       // Set Normal Map if you have a "texPath3_nor.png" 
+       if (ctexPath3_nor.length() > 3) {
+        
+       if (ctexPath3_nor.indexOf("assets/") == 0) ctexPath3_nor = ctexPath3_nor.substring(7);
+            
+       // Set Normal Map R channel
+       if (matName.indexOf("cR") >= 0) {
+       Texture normalTexR = asset.loadTexture(ctexPath3_nor);
+       normalTexR.setWrap(Texture.WrapMode.Repeat);
+       matThat.setTexture("NormalMap_1", normalTexR);
+       }
+       // Set Normal Map G channel
+       else if (matName.indexOf("cG") >= 0) {
+       Texture normalTexG = asset.loadTexture(ctexPath3_nor);
+       normalTexG.setWrap(Texture.WrapMode.Repeat);
+       matThat.setTexture("NormalMap_2", normalTexG);
+       }
+       // Set Normal Map B channel
+       else if (matName.indexOf("cB") >= 0) {
+       Texture normalTexB = asset.loadTexture(ctexPath3_nor);
+       normalTexB.setWrap(Texture.WrapMode.Repeat);
+       matThat.setTexture("NormalMap_3", normalTexB);
+       }
+           
+        }      
+
+       // Set Specular Map 
+       if (matName.indexOf("s") > 3) {
+       matThat.setBoolean("Specular_Lighting", true);
+       matThat.setColor("Specular", ColorRGBA.White);
+       matThat.setBoolean("Spec_A_Nor", true);
+       matThat.setFloat("Shininess", 3.0f);           
+           
+       }
+
+       
+
+       // Set Mask Texture
+       File maskDir = new File(texMasks);
+       Texture textureMask;
+       
+       String[] childrenMask = maskDir.list();
+        if (childrenMask == null) {
+          // Either dir does not exist or is not a directory
+         } else {
+         for (int i=0; i<childrenMask.length; i++) {
+            // Get filename of file or directory
+         String fileMask = childrenMask[i];
+            
+         if (fileMask.indexOf(matName.substring(matName.indexOf("m") + 1, matName.indexOf("m") + 3)) >= 0 
+             && fileMask.indexOf("mask") >= 0) {
+                  
+            String strMask = maskDir + "/" + fileMask; 
+             
+            if (strMask.indexOf("assets/") == 0) {
+                textureMask = asset.loadTexture(strMask.substring(7));
+            }
+            else {
+                textureMask = asset.loadTexture(strMask);
+            }
+            
+            matThat.setTexture("TextureMask", textureMask);       
+                    
+            }
+          }
+        }
+
+
+ 
+
+   }
+
+   
+   
 }

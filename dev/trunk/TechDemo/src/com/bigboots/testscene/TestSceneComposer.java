@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2011  BigBoots Team
+ *  
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *  
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *  
+ * See <http://www.gnu.org/licenses/>.
+ */
+
 package com.bigboots.testscene;
 
 
@@ -7,10 +23,8 @@ import com.jme3.asset.DesktopAssetManager;
 import com.jme3.asset.ModelKey;
 import com.jme3.light.DirectionalLight;
 import com.jme3.math.*;
-import com.jme3.scene.*;
 import com.jme3.scene.Node;
 import com.jme3.util.TangentBinormalGenerator;
-import java.io.File;
 
 
 public class TestSceneComposer extends SimpleApplication {
@@ -32,11 +46,7 @@ public class TestSceneComposer extends SimpleApplication {
         
          //Create an empty node for models 
          ndmd = new Node("Models");
-         
-         
-
-        
-        
+           
         }
      
      
@@ -52,31 +62,12 @@ public class TestSceneComposer extends SimpleApplication {
         Node nd =  (Node) dsk.loadModel(bk); 
         nd.setName("nd");
         
-    //    TangentBinormalGenerator.generate(nd);
-        
-        
-//        // Attach boxes with names and transformations of the blend file to a Scene
-//         for (int j=0; j<ndmd.getChildren().size();j++){
-//            String strmd = ndmd.getChild(j).getName();
-//                
-//            for (int i=0; i<nd.getChildren().size(); i++) {
-//                      
-//               String strndscene = nd.getChild(i).getName();
-//             if (strmd.length() < strndscene.length())  strndscene = strndscene.substring(0, strmd.length());
-//               
-//         
-//            if (strndscene.equals(strmd) == true){
-//                Spatial ndGet =  ndmd.getChild(j).clone(false);
-//                ndGet.setName(strndscene);
-//                ndGet.setLocalTransform(nd.getChild(i).getWorldTransform());
-//                ndscene.attachChild(ndGet);   
-//                
-//         }    
-//         }
-//         }
+// BUG in TangentBinormalGenerator     
+     //   TangentBinormalGenerator.generate(nd);
+
            
         
-SceneComposer sc = new SceneComposer(nd, "assets/Textures/base_textures", assetManager);
+SceneComposer sc = new SceneComposer(nd, "assets/Textures/base_textures", "assets/Textures/level_textures", assetManager);
 sc.composeMaterial();
 
         rootNode.attachChild(nd);
@@ -89,21 +80,6 @@ sc.composeMaterial();
 //        nd.removeFromParent();
 //        dsk.clearCache();
   
-        
-        File dir = new File("assets/Scenes/levels");
-        
-        System.out.println(dir.toString());
-        String[] children = dir.list();
-        if (children == null) {
-            System.out.println("null");
-    // Either dir does not exist or is not a directory
-} else {
-    for (int i=0; i<children.length; i++) {
-        // Get filename of file or directory
-        String filename = children[i];
-        System.out.println(filename);
-    }
-        }  
         
         // Add a light Source
         DirectionalLight dl = new DirectionalLight();
@@ -118,7 +94,3 @@ sc.composeMaterial();
 
 
     }
-
-
-
-
