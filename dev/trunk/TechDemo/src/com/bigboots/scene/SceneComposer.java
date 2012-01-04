@@ -109,6 +109,7 @@ private String levelFold;
                 MaterialComposer matComp = new MaterialComposer(geom_sc, dirbase, dirlevel, assett);
                 matComp.generateMaterial();
         TextureKey tkk = new TextureKey("Textures/skyboxes/sky_box_01/skybox_01_low.png", false);
+        tkk.setGenerateMips(true);
         Texture ibl = assett.loadTexture(tkk);
         geom_sc.getMaterial().setTexture("IblMap_Simple", ibl); 
                 

@@ -139,6 +139,8 @@ if (children2 == null) {
        
        // Set Diffuse Map
        TextureKey tkDif = new TextureKey(texPath3, false);
+       tkDif.setAnisotropy(4);
+       System.out.println(tkDif.getAnisotropy() + "ANISOTROPYYY");
        tkDif.setGenerateMips(true);
        Texture diffuseTex = asset.loadTexture(tkDif);
        diffuseTex.setWrap(Texture.WrapMode.Repeat);
@@ -149,6 +151,7 @@ if (children2 == null) {
         if (texPath3_nor.length() > 3) {
             if (texPath3_nor.indexOf("assets/") == 0) texPath3_nor = texPath3_nor.substring(7);
           TextureKey tkNor = new TextureKey(texPath3_nor, false);
+          tkNor.setAnisotropy(4);
           tkNor.setGenerateMips(true);
           Texture normalTex = asset.loadTexture(tkNor);
           normalTex.setWrap(Texture.WrapMode.Repeat);
@@ -204,29 +207,39 @@ if (children2 == null) {
          for (int i=0; i<childrenAO.length; i++) {
             // Get filename of file or directory
          String fileAO = childrenAO[i];
+        
+        String matCheck = new String(); 
+        if (matName.indexOf("oR") > 0 || matName.indexOf("oG") > 0 || matName.indexOf("oB") > 0) 
+            matCheck =matName.substring(matName.indexOf("o") + 2, matName.indexOf("o") + 4);   
+       else if (matName.indexOf("oR") < 0 && matName.indexOf("oG") < 0 && matName.indexOf("oB") < 0) 
+            matCheck =matName.substring(matName.indexOf("o") + 1, matName.indexOf("o") + 3);
          
-            
-         if (fileAO.indexOf(matName.substring(matName.indexOf("o") + 1, matName.indexOf("o") + 3)) >= 0 
-             && fileAO.indexOf("lightmap") >= 0 && fileAO.indexOf(".blend") < 0 && fileAO.indexOf(".psd") < 0) {
+         if (fileAO.indexOf(matCheck) >= 0 && fileAO.indexOf("lightmap") >= 0 
+             && fileAO.indexOf(".blend") < 0 && fileAO.indexOf(".psd") < 0) {
          String strAO = aoDir + "/" + fileAO;
-             System.out.println(strAO + "IIIIIIII");
+             System.out.println(strAO + " LightMap Loading");
             if (strAO.indexOf("assets/") == 0) {
                 TextureKey tkAO = new TextureKey(strAO.substring(7), false);
+                tkAO.setAnisotropy(4);
                 tkAO.setGenerateMips(true);
                 textureAO = asset.loadTexture(tkAO);
                 textureAO.setWrap(Texture.WrapMode.Repeat);                
             }
             else {
                 TextureKey tkAO = new TextureKey(strAO, false);
+                tkAO.setAnisotropy(4);
                 tkAO.setGenerateMips(true);
                 textureAO = asset.loadTexture(tkAO);
                 textureAO.setWrap(Texture.WrapMode.Repeat);
             }
             
             matThis.setTexture("LightMap", textureAO);
-            matThis.setBoolean("LightMap_R", true);
             matThis.setBoolean("SeperateTexCoord", true);
-                    
+            
+            if (matName.indexOf("oR") >= 0) matThis.setBoolean("LightMap_R", true);
+            if (matName.indexOf("oG") >= 0) matThis.setBoolean("LightMap_G", true);
+            if (matName.indexOf("oB") >= 0) matThis.setBoolean("LightMap_B", true);
+            
             }
           }
         }
@@ -300,7 +313,8 @@ if (childrenC2 == null) {
         
        // Set Diffuse Map R channel
        if (matName.indexOf("cR") >= 0) {
-       TextureKey tkDifR = new TextureKey(ctexPath3, false);   
+       TextureKey tkDifR = new TextureKey(ctexPath3, false);
+       tkDifR.setAnisotropy(4);
        tkDifR.setGenerateMips(true);
        Texture diffuseTexR = asset.loadTexture(tkDifR);
        diffuseTexR.setWrap(Texture.WrapMode.Repeat);
@@ -310,6 +324,7 @@ if (childrenC2 == null) {
        // Set Diffuse Map G channel
        else if (matName.indexOf("cG") >= 0) {
        TextureKey tkDifG = new TextureKey(ctexPath3, false);
+       tkDifG.setAnisotropy(4);
        tkDifG.setGenerateMips(true);
        Texture diffuseTexG = asset.loadTexture(tkDifG);
        diffuseTexG.setWrap(Texture.WrapMode.Repeat);
@@ -319,6 +334,7 @@ if (childrenC2 == null) {
        // Set Diffuse Map B channel
        else if (matName.indexOf("cB") >= 0) {
        TextureKey tkDifB = new TextureKey(ctexPath3, false);
+       tkDifB.setAnisotropy(4);
        tkDifB.setGenerateMips(true);
        Texture diffuseTexB = asset.loadTexture(tkDifB);
        diffuseTexB.setWrap(Texture.WrapMode.Repeat);
@@ -335,6 +351,7 @@ if (childrenC2 == null) {
        // Set Normal Map R channel
        if (matName.indexOf("cR") >= 0) {
        TextureKey tkNorR = new TextureKey(ctexPath3_nor, false);   
+       tkNorR.setAnisotropy(4);
        tkNorR.setGenerateMips(true);
        Texture normalTexR = asset.loadTexture(tkNorR);
        normalTexR.setWrap(Texture.WrapMode.Repeat);
@@ -343,6 +360,7 @@ if (childrenC2 == null) {
        // Set Normal Map G channel
        else if (matName.indexOf("cG") >= 0) {
        TextureKey tkNorG = new TextureKey(ctexPath3_nor, false);  
+       tkNorG.setAnisotropy(4);
        tkNorG.setGenerateMips(true);
        Texture normalTexG = asset.loadTexture(tkNorG);
        normalTexG.setWrap(Texture.WrapMode.Repeat);
@@ -351,6 +369,7 @@ if (childrenC2 == null) {
        // Set Normal Map B channel
        else if (matName.indexOf("cB") >= 0) {
        TextureKey tkNorB = new TextureKey(ctexPath3_nor, false);
+       tkNorB.setAnisotropy(4);
        tkNorB.setGenerateMips(true);
        Texture normalTexB = asset.loadTexture(tkNorB);
        normalTexB.setWrap(Texture.WrapMode.Repeat);
@@ -389,12 +408,14 @@ if (childrenC2 == null) {
              
             if (strMask.indexOf("assets/") == 0) {
                 TextureKey tkMask = new TextureKey(strMask.substring(7), false);
+                tkMask.setAnisotropy(4);
                 tkMask.setGenerateMips(true);
                 textureMask = asset.loadTexture(tkMask);
                 textureMask.setWrap(Texture.WrapMode.Repeat);
             }
             else {
                 TextureKey tkMask = new TextureKey(strMask, false);
+                tkMask.setAnisotropy(4);
                 tkMask.setGenerateMips(true);
                 textureMask = asset.loadTexture(tkMask);
                 textureMask.setWrap(Texture.WrapMode.Repeat);
