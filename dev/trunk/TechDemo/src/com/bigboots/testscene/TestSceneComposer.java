@@ -62,14 +62,15 @@ public class TestSceneComposer extends SimpleApplication {
         Node nd =  (Node) dsk.loadModel(bk); 
         nd.setName("nd");
         
-// BUG in TangentBinormalGenerator     
-     //   TangentBinormalGenerator.generate(nd);
+  
+        
 
            
         
-SceneComposer sc = new SceneComposer(nd, "assets/Textures/base_textures", "assets/Textures/level_textures", assetManager);
-sc.composeMaterial();
+SceneComposer sc = new SceneComposer(bk.getFolder() ,nd, "assets/Textures/base_textures", "assets/Textures/level_textures", assetManager);
 
+
+        TangentBinormalGenerator.generate(nd);
         rootNode.attachChild(nd);
         
 

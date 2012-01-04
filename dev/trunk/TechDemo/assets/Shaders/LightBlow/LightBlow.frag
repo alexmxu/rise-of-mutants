@@ -258,7 +258,7 @@ void main(){
 
 #ifdef TEXTURE_MASK
 vec4 textureBlend;
-   #ifdef SEPERATE_TEXCOORD
+   #ifdef SEPERATE_TEXCOORD2
     textureBlend = texture2D( m_TextureMask, texCoord2.xy);
         #else
     textureBlend = texture2D( m_TextureMask, texCoord.xy);
@@ -630,7 +630,7 @@ light.x = max(light.x, refColor);
         specularColor.rgb  *= lightMapColor.rgb;
         #endif
     #endif
-
+AmbientSum2.rgb = min(AmbientSum2.rgb,lightMapColor.r);
  #endif
 
 

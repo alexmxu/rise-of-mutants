@@ -18,6 +18,7 @@ package com.bigboots.scene;
 
 
 import com.jme3.asset.AssetManager;
+import com.jme3.asset.TextureKey;
 import com.jme3.material.*;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.ColorRGBA;
@@ -37,6 +38,7 @@ public class MaterialComposer {
     private Geometry geo;
     private String matName;    
     private String texMasks;
+    private String texLightMaps;    
     private File texDir;
     
     
@@ -57,6 +59,7 @@ public class MaterialComposer {
    
     //Texture Path of Ambient Occlusion and Composing Masks Textures
     texMasks = dirLevel + "/" + "masks";
+    texLightMaps = dirLevel + "/" + "lightmaps";
     
     }
    
@@ -69,8 +72,8 @@ public class MaterialComposer {
        String folderStr = matName.substring(2, 4);
        String fileStr = matName.substring(4, 6);
        
-       System.out.println(folderStr);
-       System.out.println(fileStr);
+       System.out.println("Get Folder " + folderStr);
+       System.out.println("Get File " + fileStr);
        
        Material matNew = new Material(asset, "MatDefs/LightBlow/LightBlow.j3md");
        matNew.setName(matName);
@@ -135,7 +138,9 @@ if (children2 == null) {
        if (texPath3.indexOf("assets/") == 0) texPath3 = texPath3.substring(7); 
        
        // Set Diffuse Map
-       Texture diffuseTex = asset.loadTexture(texPath3);
+       TextureKey tkDif = new TextureKey(texPath3, false);
+       tkDif.setGenerateMips(true);
+       Texture diffuseTex = asset.loadTexture(tkDif);
        diffuseTex.setWrap(Texture.WrapMode.Repeat);
        matThis.setTexture("DiffuseMap", diffuseTex);
 
@@ -143,7 +148,9 @@ if (children2 == null) {
        // Set Normal Map if you have a "texPath3_nor.png" 
         if (texPath3_nor.length() > 3) {
             if (texPath3_nor.indexOf("assets/") == 0) texPath3_nor = texPath3_nor.substring(7);
-          Texture normalTex = asset.loadTexture(texPath3_nor);
+          TextureKey tkNor = new TextureKey(texPath3_nor, false);
+          tkNor.setGenerateMips(true);
+          Texture normalTex = asset.loadTexture(tkNor);
           normalTex.setWrap(Texture.WrapMode.Repeat);
           matThis.setTexture("NormalMap", normalTex);
         }       
@@ -185,9 +192,9 @@ if (children2 == null) {
             
         }
         
-       // Set Ambient Occlusion Texture
+       // Set Lightmap(Ambient Occlusion) Texture
    if (matName.indexOf("o") >= 0) {     
-       File aoDir = new File(texMasks);
+       File aoDir = new File(texLightMaps);
        Texture textureAO;
        
        String[] childrenAO = aoDir.list();
@@ -197,19 +204,27 @@ if (children2 == null) {
          for (int i=0; i<childrenAO.length; i++) {
             // Get filename of file or directory
          String fileAO = childrenAO[i];
+         
             
          if (fileAO.indexOf(matName.substring(matName.indexOf("o") + 1, matName.indexOf("o") + 3)) >= 0 
-             && fileAO.indexOf("ao") >= 0) {
+             && fileAO.indexOf("lightmap") >= 0 && fileAO.indexOf(".blend") < 0 && fileAO.indexOf(".psd") < 0) {
          String strAO = aoDir + "/" + fileAO;
-             
+             System.out.println(strAO + "IIIIIIII");
             if (strAO.indexOf("assets/") == 0) {
-                textureAO = asset.loadTexture(strAO.substring(7));
+                TextureKey tkAO = new TextureKey(strAO.substring(7), false);
+                tkAO.setGenerateMips(true);
+                textureAO = asset.loadTexture(tkAO);
+                textureAO.setWrap(Texture.WrapMode.Repeat);                
             }
             else {
-                textureAO = asset.loadTexture(strAO);
+                TextureKey tkAO = new TextureKey(strAO, false);
+                tkAO.setGenerateMips(true);
+                textureAO = asset.loadTexture(tkAO);
+                textureAO.setWrap(Texture.WrapMode.Repeat);
             }
-    
-            matThis.setTexture("LightMap", textureAO);       
+            
+            matThis.setTexture("LightMap", textureAO);
+            matThis.setBoolean("LightMap_R", true);
             matThis.setBoolean("SeperateTexCoord", true);
                     
             }
@@ -279,25 +294,33 @@ if (childrenC2 == null) {
        if (ctexPath3.indexOf("assets/") == 0) ctexPath3 = ctexPath3.substring(7); 
        
        
-        int uvScale = Integer.parseInt(matName.substring(matName.indexOf("m") + 1,matName.indexOf("m") + 3)); 
+        int uvScale = Integer.parseInt(matName.substring(matName.indexOf("m") + 3,matName.indexOf("m") + 5)); 
+        System.out.println("UV Scale is: " + uvScale);
+        matThat.setFloat("uv_0_scale", (float) uvScale);
         
        // Set Diffuse Map R channel
        if (matName.indexOf("cR") >= 0) {
-       Texture diffuseTexR = asset.loadTexture(ctexPath3);
+       TextureKey tkDifR = new TextureKey(ctexPath3, false);   
+       tkDifR.setGenerateMips(true);
+       Texture diffuseTexR = asset.loadTexture(tkDifR);
        diffuseTexR.setWrap(Texture.WrapMode.Repeat);
        matThat.setTexture("DiffuseMap_1", diffuseTexR);
         matThat.setFloat("uv_1_scale", (float) uvScale);            
        }
        // Set Diffuse Map G channel
        else if (matName.indexOf("cG") >= 0) {
-       Texture diffuseTexG = asset.loadTexture(ctexPath3);
+       TextureKey tkDifG = new TextureKey(ctexPath3, false);
+       tkDifG.setGenerateMips(true);
+       Texture diffuseTexG = asset.loadTexture(tkDifG);
        diffuseTexG.setWrap(Texture.WrapMode.Repeat);
        matThat.setTexture("DiffuseMap_2", diffuseTexG);
        matThat.setFloat("uv_2_scale", (float) uvScale);            
        }
        // Set Diffuse Map B channel
        else if (matName.indexOf("cB") >= 0) {
-       Texture diffuseTexB = asset.loadTexture(ctexPath3);
+       TextureKey tkDifB = new TextureKey(ctexPath3, false);
+       tkDifB.setGenerateMips(true);
+       Texture diffuseTexB = asset.loadTexture(tkDifB);
        diffuseTexB.setWrap(Texture.WrapMode.Repeat);
        matThat.setTexture("DiffuseMap_3", diffuseTexB);
        matThat.setFloat("uv_3_scale", (float) uvScale);
@@ -311,19 +334,25 @@ if (childrenC2 == null) {
             
        // Set Normal Map R channel
        if (matName.indexOf("cR") >= 0) {
-       Texture normalTexR = asset.loadTexture(ctexPath3_nor);
+       TextureKey tkNorR = new TextureKey(ctexPath3_nor, false);   
+       tkNorR.setGenerateMips(true);
+       Texture normalTexR = asset.loadTexture(tkNorR);
        normalTexR.setWrap(Texture.WrapMode.Repeat);
        matThat.setTexture("NormalMap_1", normalTexR);
        }
        // Set Normal Map G channel
        else if (matName.indexOf("cG") >= 0) {
-       Texture normalTexG = asset.loadTexture(ctexPath3_nor);
+       TextureKey tkNorG = new TextureKey(ctexPath3_nor, false);  
+       tkNorG.setGenerateMips(true);
+       Texture normalTexG = asset.loadTexture(tkNorG);
        normalTexG.setWrap(Texture.WrapMode.Repeat);
        matThat.setTexture("NormalMap_2", normalTexG);
        }
        // Set Normal Map B channel
        else if (matName.indexOf("cB") >= 0) {
-       Texture normalTexB = asset.loadTexture(ctexPath3_nor);
+       TextureKey tkNorB = new TextureKey(ctexPath3_nor, false);
+       tkNorB.setGenerateMips(true);
+       Texture normalTexB = asset.loadTexture(tkNorB);
        normalTexB.setWrap(Texture.WrapMode.Repeat);
        matThat.setTexture("NormalMap_3", normalTexB);
        }
@@ -354,15 +383,21 @@ if (childrenC2 == null) {
          String fileMask = childrenMask[i];
             
          if (fileMask.indexOf(matName.substring(matName.indexOf("m") + 1, matName.indexOf("m") + 3)) >= 0 
-             && fileMask.indexOf("mask") >= 0) {
+             && fileMask.indexOf("mask") >= 0 && fileMask.indexOf(".blend") < 0 && fileMask.indexOf(".psd") < 0) {
                   
             String strMask = maskDir + "/" + fileMask; 
              
             if (strMask.indexOf("assets/") == 0) {
-                textureMask = asset.loadTexture(strMask.substring(7));
+                TextureKey tkMask = new TextureKey(strMask.substring(7), false);
+                tkMask.setGenerateMips(true);
+                textureMask = asset.loadTexture(tkMask);
+                textureMask.setWrap(Texture.WrapMode.Repeat);
             }
             else {
-                textureMask = asset.loadTexture(strMask);
+                TextureKey tkMask = new TextureKey(strMask, false);
+                tkMask.setGenerateMips(true);
+                textureMask = asset.loadTexture(tkMask);
+                textureMask.setWrap(Texture.WrapMode.Repeat);
             }
             
             matThat.setTexture("TextureMask", textureMask);       
