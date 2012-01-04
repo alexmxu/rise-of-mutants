@@ -607,14 +607,24 @@ light.x = max(light.x, refColor);
 
         #if defined(LIGHTMAP_R)
         diffuseColor.rgb  *= vec3(lightMapColor.r);
+        //AmbientSum2.rgb *= vec3(lightMapColor.r);
+        AmbientSum2.rgb = min(AmbientSum2.rgb,lightMapColor.r + 0.3);
         #elif defined(LIGHTMAP_G)
         diffuseColor.rgb  *= vec3(lightMapColor.g);
+        //AmbientSum2.rgb *= vec3(lightMapColor.g);
+        AmbientSum2.rgb = min(AmbientSum2.rgb,lightMapColor.g + 0.3);
         #elif defined(LIGHTMAP_B)
         diffuseColor.rgb  *= vec3(lightMapColor.b);
+        //AmbientSum2.rgb *= vec3(lightMapColor.b);
+        AmbientSum2.rgb = min(AmbientSum2.rgb,lightMapColor.b + 0.3);
         #elif defined(LIGHTMAP_A)
         diffuseColor.rgb  *= vec3(lightMapColor.a);
+        //AmbientSum2.rgb *= vec3(lightMapColor.a);
+        AmbientSum2.rgb = min(AmbientSum2.rgb,lightMapColor.a + 0.3);
         #else
         diffuseColor.rgb  *= lightMapColor.rgb;
+        //AmbientSum2.rgb *= lightMapColor.rgb;
+        AmbientSum2.rgb = min(AmbientSum2.rgb,lightMapColor.r + 0.3);
         #endif
 
      #ifdef SPECULAR_LIGHTING
@@ -630,7 +640,8 @@ light.x = max(light.x, refColor);
         specularColor.rgb  *= lightMapColor.rgb;
         #endif
     #endif
-AmbientSum2.rgb = min(AmbientSum2.rgb,lightMapColor.r);
+//AmbientSum2.rgb = min(AmbientSum2.rgb,lightMapColor.r + 0.2);
+
  #endif
 
 
