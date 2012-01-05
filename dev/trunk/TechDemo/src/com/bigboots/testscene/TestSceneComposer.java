@@ -19,59 +19,46 @@ package com.bigboots.testscene;
 
 import com.bigboots.scene.SceneComposer;
 import com.jme3.app.SimpleApplication;
+import com.jme3.asset.BlenderKey;
 import com.jme3.asset.DesktopAssetManager;
-import com.jme3.asset.ModelKey;
 import com.jme3.light.DirectionalLight;
 import com.jme3.math.*;
 import com.jme3.scene.Node;
 import com.jme3.util.TangentBinormalGenerator;
+import java.io.File;
 
 
 public class TestSceneComposer extends SimpleApplication {
 
-
-    Node ndmd;
-    
-
-     
       
     public static void main(String[] args) {
         TestSceneComposer app = new TestSceneComposer();
         app.start();
     }
 
-    
-    
-     public void Models () {
-        
-         //Create an empty node for models 
-         ndmd = new Node("Models");
-           
-        }
-     
-     
+
+
     
     @Override
     public void simpleInitApp() {
         
-        Models();
-        
         // Load a blender file. 
         DesktopAssetManager dsk = (DesktopAssetManager) assetManager;        
-        ModelKey bk = new ModelKey("Scenes/levels/level_01/level_01.blend");
+        BlenderKey bk = new BlenderKey("Scenes/levels/level_01/level_01.blend");
         Node nd =  (Node) dsk.loadModel(bk); 
         nd.setName("nd");
         
-  
+    String entities = new String("assets/Models");
+    entities.replaceAll("/", File.separator);
+    String baseTex = new String("assets/Textures/base_textures");
+    baseTex.replaceAll("/", File.separator);
+    String levelTex = new String("assets/Textures/level_textures");
+    levelTex.replaceAll("/", File.separator);
         
+    SceneComposer sc = new SceneComposer(nd, entities, bk.getFolder(), baseTex, levelTex, assetManager);
 
-           
-        
-SceneComposer sc = new SceneComposer(bk.getFolder() ,nd, "assets/Textures/base_textures", "assets/Textures/level_textures", assetManager);
-
-
-        TangentBinormalGenerator.generate(nd);
-        rootNode.attachChild(nd);
+    TangentBinormalGenerator.generate(nd);
+    rootNode.attachChild(nd);
         
 
 
@@ -80,7 +67,7 @@ SceneComposer sc = new SceneComposer(bk.getFolder() ,nd, "assets/Textures/base_t
 //        nd.detachAllChildren();
 //        nd.removeFromParent();
 //        dsk.clearCache();
-  
+ 
         
         // Add a light Source
         DirectionalLight dl = new DirectionalLight();
