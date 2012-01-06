@@ -39,6 +39,7 @@ public class MaterialComposer {
     private String texMasks;
     private String texLightMaps;    
     private File texDir;
+    private String tmpString;
     
     
    public MaterialComposer (Geometry geom_mc, String dirBase, String dirLevel, AssetManager assetManager) {
@@ -50,14 +51,16 @@ public class MaterialComposer {
     if (geo.getMaterial().getName().indexOf("L") == 0) {
         matName = geo.getMaterial().getName().toString().substring(1);
         texDir = new File(dirLevel);
+        tmpString = dirLevel;
     } else {
         matName = geo.getMaterial().getName().toString();
         texDir = new File(dirBase);
+        tmpString = dirBase;
     }
    
     //Texture Path of Ambient Occlusion and Composing Masks Textures
-    texMasks = dirLevel + File.separator + "masks";
-    texLightMaps = dirLevel + File.separator + "lightmaps";
+    texMasks = dirLevel + "/" + "masks";
+    texLightMaps = dirLevel + "/" + "lightmaps";
     
     }
    
@@ -74,6 +77,7 @@ public class MaterialComposer {
        // If this is Entity
        if (entPath != null) {
            texDir = new File(entPath);
+           tmpString = entPath;
            folderStr = "textures";
            fileStr = matName.substring(2, 4);
 
@@ -99,7 +103,7 @@ public class MaterialComposer {
    private void setYourTexture(Material mat, String foldID, String fileID, String entityPath) {
 
   Material matThis = mat;     
-  String texPath = texDir.toString();
+  String texPath = tmpString;//texDir.toString();
   String texPath2 = new String();
   String texPath3 = new String();
   String texPath3_nor = new String();
@@ -114,13 +118,13 @@ else {
     for (int i=0; i<children.length; i++) {
         // Get filename of directory
         String filename = children[i];
-                
+        System.out.println("********** File name in children : " + filename);        
         if (filename.indexOf(foldID) >= 0) {
        
     //Searching file        
-    texPath2 = texPath + File.separator + filename;
+    texPath2 = texPath + "/" + filename;
     File fileTex = new File(texPath2);
-    System.out.println("folder " + texPath2);
+    System.out.println("folder textPath2" + texPath2);
 
     String[] children2 = fileTex.list();
 if (children2 == null) {
@@ -130,6 +134,7 @@ if (children2 == null) {
     for (int j=0; j<children2.length; j++) {
         // Get filename of file
         String filename2 = children2[j];
+        System.out.println("********** File name 2 in children : " + filename2); 
         int ent;
         
     // Check for Entities   
@@ -141,15 +146,15 @@ if (children2 == null) {
         // Get Diffuse Map
         if (ent >= 0 && filename2.indexOf("_nor") < 0 && filename2.indexOf(".blend") < 0 
                 && filename2.indexOf(".psd") < 0  && filename2.indexOf(".xcf") < 0) {
-        texPath3 = texPath2 + File.separator + filename2;
-        texPath3.replaceAll(File.separator.toString(), "/");
+        texPath3 = texPath2 + "/" + filename2;
+        //texPath3.replaceAll(File.separator.toString(), "/");
         System.out.println("file " + texPath3);
         }
         // Get Normal Map
         else if (ent >= 0 && filename2.indexOf("_nor") > 0 && filename2.indexOf(".blend") < 0 
                 && filename2.indexOf(".psd") < 0  && filename2.indexOf(".xcf") < 0) {
-            texPath3_nor = texPath2 + File.separator + filename2;
-            texPath3_nor.replaceAll(File.separator.toString(), "/");
+            texPath3_nor = texPath2 + "/" + filename2;
+            //texPath3_nor.replaceAll(File.separator.toString(), "/");
             System.out.println("file NormalMap " + texPath3_nor);
 }
     }
@@ -160,7 +165,7 @@ if (children2 == null) {
 }       
  
 
-       if (texPath3.indexOf("assets" + File.separator) == 0) texPath3 = texPath3.substring(7); 
+       if (texPath3.indexOf("assets" + "/") == 0) texPath3 = texPath3.substring(7); 
        
        // Set Diffuse Map
        TextureKey tkDif = new TextureKey(texPath3, false);
@@ -174,7 +179,7 @@ if (children2 == null) {
 
        // Set Normal Map if you have a "texPath3_nor.png" 
         if (texPath3_nor.length() > 3) {
-            if (texPath3_nor.indexOf("assets" + File.separator) == 0) texPath3_nor = texPath3_nor.substring(7);
+            if (texPath3_nor.indexOf("assets" + "/") == 0) texPath3_nor = texPath3_nor.substring(7);
           TextureKey tkNor = new TextureKey(texPath3_nor, false);
           tkNor.setAnisotropy(2);
           tkNor.setGenerateMips(true);
@@ -228,7 +233,7 @@ if (children2 == null) {
         if (entiPath == null){ 
             aoDir = new File(texLightMaps);
         } else {
-            aoDir = new File(entiPath + File.separator + "textures");
+            aoDir = new File(entiPath + "/" + "textures");
         }
        
        String[] childrenAO = aoDir.list();
@@ -247,10 +252,10 @@ if (children2 == null) {
          
          if (fileAO.indexOf(matCheck) >= 0 && fileAO.indexOf("lightmap") >= 0 
              && fileAO.indexOf(".blend") < 0 && fileAO.indexOf(".psd") < 0 && fileAO.indexOf(".xcf") < 0) {
-         String strAO = aoDir + File.separator + fileAO;
-         strAO.replaceAll(File.separator.toString(), "/");
+         String strAO = texLightMaps + "/" + fileAO;
+         //strAO.replaceAll(File.separator.toString(), "/");
              System.out.println(strAO + " LightMap Loading");
-            if (strAO.indexOf("assets" + File.separator) == 0) {
+            if (strAO.indexOf("assets" + "/") == 0) {
                 TextureKey tkAO = new TextureKey(strAO.substring(7), false);
                 tkAO.setAnisotropy(2);
                 tkAO.setGenerateMips(true);
@@ -286,7 +291,7 @@ if (children2 == null) {
    private void compoundMat(Material mat, String foldID, String fileID, String entityPath2) {
   
   Material matThat = mat;     
-  String ctexPath = texDir.toString();
+  String ctexPath = tmpString; //texDir.toString();
   String ctexPath2 = new String();
   String ctexPath3 = new String();
   String ctexPath3_nor = new String();
@@ -304,7 +309,7 @@ else {
         if (filename.indexOf(foldID) >= 0) {
        
     //Searching file        
-    ctexPath2 = ctexPath + File.separator + filename;
+    ctexPath2 = ctexPath + "/" + filename;
     File fileTexC = new File(ctexPath2);
     System.out.println("compound folder " + ctexPath2);
 
@@ -328,15 +333,15 @@ if (childrenC2 == null) {
         // Get Diffuse Map
         if (ent >= 0 && filename2.indexOf("_nor") < 0 && filename2.indexOf(".blend") < 0 
                 && filename2.indexOf(".psd") < 0  && filename2.indexOf(".xcf") < 0) {
-        ctexPath3 = ctexPath2 + File.separator + filename2; 
-        ctexPath3.replaceAll(File.separator.toString(), "/");
+        ctexPath3 = ctexPath2 + "/" + filename2; 
+        //ctexPath3.replaceAll(File.separator.toString(), "/");
         System.out.println("compound file " + ctexPath3);
         }
         // Get Normal Map
         else if (ent >= 0 && filename2.indexOf("_nor") > 0 && filename2.indexOf(".blend") < 0 
                 && filename2.indexOf(".psd") < 0  && filename2.indexOf(".xcf") < 0) {
-            ctexPath3_nor = ctexPath2 + File.separator + filename2;
-            ctexPath3_nor.replaceAll(File.separator.toString(), "/");
+            ctexPath3_nor = ctexPath2 + "/" + filename2;
+            //ctexPath3_nor.replaceAll(File.separator.toString(), "/");
             System.out.println("compound file NormalMap " + ctexPath3_nor);
         }
     }
@@ -348,7 +353,7 @@ if (childrenC2 == null) {
 
 
        
-       if (ctexPath3.indexOf("assets" + File.separator) == 0) ctexPath3 = ctexPath3.substring(7); 
+       if (ctexPath3.indexOf("assets" + "/") == 0) ctexPath3 = ctexPath3.substring(7); 
        
        
         int uvScale = Integer.parseInt(matName.substring(matName.indexOf("m") + 3,matName.indexOf("m") + 5)); 
@@ -390,7 +395,7 @@ if (childrenC2 == null) {
        // Set Normal Map if you have a "texPath3_nor.png" 
        if (ctexPath3_nor.length() > 3) {
         
-       if (ctexPath3_nor.indexOf("assets" + File.separator) == 0) ctexPath3_nor = ctexPath3_nor.substring(7);
+       if (ctexPath3_nor.indexOf("assets" + "/") == 0) ctexPath3_nor = ctexPath3_nor.substring(7);
             
        // Set Normal Map R channel
        if (matName.indexOf("cR") >= 0) {
@@ -439,7 +444,7 @@ if (childrenC2 == null) {
         if (entityPath2 == null){ 
             maskDir = new File(texMasks);
         } else {
-            maskDir = new File(entityPath2 + File.separator + "textures");
+            maskDir = new File(entityPath2 + "/" + "textures");
         }
        
        String[] childrenMask = maskDir.list();
@@ -453,10 +458,11 @@ if (childrenC2 == null) {
          if (fileMask.indexOf(matName.substring(matName.indexOf("m") + 1, matName.indexOf("m") + 3)) >= 0 
              && fileMask.indexOf("mask") >= 0 && fileMask.indexOf(".blend") < 0 && fileMask.indexOf(".psd") < 0  && fileMask.indexOf(".xcf") < 0) {
                   
-            String strMask = maskDir + File.separator + fileMask; 
-            strMask.replaceAll(File.separator.toString(), "/");
+            //String strMask = maskDir + "/" + fileMask; 
+             String strMask = texMasks + "/" + fileMask;
+            //strMask.replaceAll(File.separator.toString(), "/");
              
-            if (strMask.indexOf("assets" + File.separator) == 0) {
+            if (strMask.indexOf("assets" + "/") == 0) {
                 TextureKey tkMask = new TextureKey(strMask.substring(7), false);
                 tkMask.setAnisotropy(2);
                 tkMask.setGenerateMips(true);

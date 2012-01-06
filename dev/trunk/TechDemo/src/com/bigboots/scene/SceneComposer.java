@@ -26,6 +26,7 @@ import com.jme3.texture.Texture;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 
 
 /**
@@ -116,8 +117,8 @@ System.out.println(alMaterials.size() + " - QUANTITY OF BASE MATERIALS");
            System.out.println(nodeOrigin.getName() + " scene node");
            
            if (nodeOrigin.getChildren().size() > 0) {
-           String strPath = path + File.separator + "ogre" + File.separator +  nodeOrigin.getName() + ".mesh.xml";
-           strPath.replaceAll(File.separator.toString(), "/");
+           String strPath = path + "/" + "ogre" + "/" +  nodeOrigin.getName() + ".mesh.xml";
+           //strPath.replaceAll("/".toString(), "/");
            ModelKey mkOgre = new ModelKey(strPath);           
            Node nodeOgre = (Node) assett.loadModel(mkOgre);
            List<Spatial> listOgre = nodeOgre.getChildren();
@@ -144,7 +145,8 @@ System.out.println(alMaterials.size() + " - QUANTITY OF BASE MATERIALS");
   
         // Load Entity
         private void loadEntity(String dirEntity, Node emptyNode) {
-        Node fullNode = emptyNode;    
+        Node fullNode = emptyNode;   
+        System.out.println("****** LOAD entity Dir : "+dirEntity);
         File dir = new File(dirEntity);
         File[] a = dir.listFiles();
 
@@ -153,8 +155,9 @@ System.out.println(alMaterials.size() + " - QUANTITY OF BASE MATERIALS");
                 // Recursive search
                 loadEntity(f.toString(), emptyNode);
             } else if (f.getName().indexOf(emptyNode.getName()) >= 0 && f.getName().endsWith(".blend")) {
-                String strF = f.toString();
-                strF.replaceAll(File.separator, "/");                        
+                //String strF = f.toString();
+                //strF = strF.replaceAll("/", Matcher.quoteReplacement(strF));
+                String strF = dirEntity + "/" + f.getName();
                 System.out.println(strF + " FOUND ENTITY");
                 
                 Node nodeEnt = (Node) assett.loadModel(strF.substring(7));
@@ -165,7 +168,7 @@ System.out.println(alMaterials.size() + " - QUANTITY OF BASE MATERIALS");
          //Search for Ogre Meshes and Path for Material Composer
          File[] flOgre = f.getParentFile().listFiles();
         for (File fPath : flOgre) {
-            if (fPath.isDirectory() && fPath.toString().endsWith(File.separator + "ogre")) {
+            if (fPath.isDirectory() && fPath.toString().endsWith("/" + "ogre")) {
                 replaceMeshWithOgre(fullNode, strF);
                }
               } 
