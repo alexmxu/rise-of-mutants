@@ -153,7 +153,9 @@ System.out.println(alMaterials.size() + " - QUANTITY OF BASE MATERIALS");
         for (File f : a) {
             if (f.isDirectory()) {
                 // Recursive search
-                loadEntity(f.toString(), emptyNode);
+                System.out.println("****** CHECKing Dir : "+f.getName());
+                String recursDir = dirEntity + "/" + f.getName();
+                loadEntity(recursDir, emptyNode);
             } else if (f.getName().indexOf(emptyNode.getName()) >= 0 && f.getName().endsWith(".blend")) {
                 //String strF = f.toString();
                 //strF = strF.replaceAll("/", Matcher.quoteReplacement(strF));
@@ -171,8 +173,9 @@ System.out.println(alMaterials.size() + " - QUANTITY OF BASE MATERIALS");
             if (fPath.isDirectory() && fPath.toString().endsWith("/" + "ogre")) {
                 replaceMeshWithOgre(fullNode, strF);
                }
-              } 
-               composeMaterial(fullNode, f.getParentFile().toString());  
+              }
+              System.out.println("****** GET PArent File : "+f.getParentFile().toString());
+               composeMaterial(fullNode, dirEntity);  
             }
            }
           }   
