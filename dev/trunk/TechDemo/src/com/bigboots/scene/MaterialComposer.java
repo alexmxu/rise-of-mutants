@@ -22,7 +22,6 @@ import com.jme3.asset.TextureKey;
 import com.jme3.material.*;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.ColorRGBA;
-import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.*;
 import com.jme3.texture.Texture;
 import java.io.File;
@@ -48,11 +47,10 @@ public class MaterialComposer {
     asset = assetManager;    
     geo = geom_mc;
     
-    if (geo.getMaterial().getName().indexOf("l") == 0) {
+    if (geo.getMaterial().getName().indexOf("L") == 0) {
         matName = geo.getMaterial().getName().toString().substring(1);
         texDir = new File(dirLevel);
-    }
-    else {
+    } else {
         matName = geo.getMaterial().getName().toString();
         texDir = new File(dirBase);
     }
@@ -65,25 +63,40 @@ public class MaterialComposer {
    
    
    
-   public void  generateMaterial () {
-    
-       System.out.println("Generating Material");
+   public void  generateMaterial (String entPath) {
 
-       String folderStr = matName.substring(2, 4);
-       String fileStr = matName.substring(4, 6);
+       System.out.println("Generating Material");
+       String fileStr = new String();
+       String folderStr = new String();
+       String strEntity = entPath; // Checking is it Entity or not
+
+
+       // If this is Entity
+       if (entPath != null) {
+           texDir = new File(entPath);
+           folderStr = "textures";
+           fileStr = matName.substring(2, 4);
+
+       } else {
+           folderStr = matName.substring(2, 4);
+           fileStr = matName.substring(4, 6);
+           
+       }
+
+       
        
        System.out.println("Get Folder " + folderStr);
        System.out.println("Get File " + fileStr);
        
        Material matNew = new Material(asset, "MatDefs/LightBlow/LightBlow.j3md");
        matNew.setName(matName);
-       setYourTexture(matNew, folderStr, fileStr);
+       setYourTexture(matNew, folderStr, fileStr, strEntity);
        
        geo.setMaterial(matNew);       
    }
 
    
-   private void setYourTexture(Material mat, String foldID, String fileID) {
+   private void setYourTexture(Material mat, String foldID, String fileID, String entPath2) {
 
   Material matThis = mat;     
   String texPath = texDir.toString();
@@ -116,19 +129,26 @@ if (children2 == null) {
     for (int j=0; j<children2.length; j++) {
         // Get filename of file
         String filename2 = children2[j];
-
+        int ent;
+        
+    // Check for Entities   
+    if (entPath2 == null){ 
+        ent = filename2.substring(filename.indexOf(foldID) + 2).indexOf(fileID);
+    } else {
+        ent = filename2.indexOf(fileID);
+    }
         // Get Diffuse Map
-        if (filename2.substring(filename.indexOf(foldID) + 2).indexOf(fileID) >= 0 && filename2.indexOf("_nor") < 0 && filename2.indexOf(".blend") < 0 && filename2.indexOf(".psd") < 0) {
+        if (ent >= 0 && filename2.indexOf("_nor") < 0 && filename2.indexOf(".blend") < 0 && filename2.indexOf(".psd") < 0) {
         texPath3 = texPath2 + File.separator + filename2;
         texPath3.replaceAll(File.separator, "/");
         System.out.println("file " + texPath3);
         }
         // Get Normal Map
-        else if (filename2.substring(filename.indexOf(foldID) + 2).indexOf(fileID) >= 0 && filename2.indexOf("_nor") > 0 && filename2.indexOf(".blend") < 0 && filename2.indexOf(".psd") < 0) {
+        else if (ent >= 0 && filename2.indexOf("_nor") > 0 && filename2.indexOf(".blend") < 0 && filename2.indexOf(".psd") < 0) {
             texPath3_nor = texPath2 + File.separator + filename2;
             texPath3_nor.replaceAll(File.separator, "/");
             System.out.println("file NormalMap " + texPath3_nor);
-        }
+}
     }
 }
              
@@ -137,7 +157,7 @@ if (children2 == null) {
 }       
  
 
-       if (texPath3.indexOf("assets") == 0) texPath3 = texPath3.substring(7); 
+       if (texPath3.indexOf("assets" + File.separator) == 0) texPath3 = texPath3.substring(7); 
        
        // Set Diffuse Map
        TextureKey tkDif = new TextureKey(texPath3, false);
@@ -151,7 +171,7 @@ if (children2 == null) {
 
        // Set Normal Map if you have a "texPath3_nor.png" 
         if (texPath3_nor.length() > 3) {
-            if (texPath3_nor.indexOf("assets") == 0) texPath3_nor = texPath3_nor.substring(7);
+            if (texPath3_nor.indexOf("assets" + File.separator) == 0) texPath3_nor = texPath3_nor.substring(7);
           TextureKey tkNor = new TextureKey(texPath3_nor, false);
           tkNor.setAnisotropy(2);
           tkNor.setGenerateMips(true);
@@ -221,7 +241,7 @@ if (children2 == null) {
          String strAO = aoDir + File.separator + fileAO;
          strAO.replaceAll(File.separator, "/");
              System.out.println(strAO + " LightMap Loading");
-            if (strAO.indexOf("assets") == 0) {
+            if (strAO.indexOf("assets" + File.separator) == 0) {
                 TextureKey tkAO = new TextureKey(strAO.substring(7), false);
                 tkAO.setAnisotropy(2);
                 tkAO.setGenerateMips(true);
@@ -309,7 +329,7 @@ if (childrenC2 == null) {
 
 
        
-       if (ctexPath3.indexOf("assets") == 0) ctexPath3 = ctexPath3.substring(7); 
+       if (ctexPath3.indexOf("assets" + File.separator) == 0) ctexPath3 = ctexPath3.substring(7); 
        
        
         int uvScale = Integer.parseInt(matName.substring(matName.indexOf("m") + 3,matName.indexOf("m") + 5)); 
@@ -351,7 +371,7 @@ if (childrenC2 == null) {
        // Set Normal Map if you have a "texPath3_nor.png" 
        if (ctexPath3_nor.length() > 3) {
         
-       if (ctexPath3_nor.indexOf("assets") == 0) ctexPath3_nor = ctexPath3_nor.substring(7);
+       if (ctexPath3_nor.indexOf("assets" + File.separator) == 0) ctexPath3_nor = ctexPath3_nor.substring(7);
             
        // Set Normal Map R channel
        if (matName.indexOf("cR") >= 0) {
@@ -412,7 +432,7 @@ if (childrenC2 == null) {
             String strMask = maskDir + File.separator + fileMask; 
             strMask.replaceAll(File.separator, "/");
              
-            if (strMask.indexOf("assets") == 0) {
+            if (strMask.indexOf("assets" + File.separator) == 0) {
                 TextureKey tkMask = new TextureKey(strMask.substring(7), false);
                 tkMask.setAnisotropy(2);
                 tkMask.setGenerateMips(true);

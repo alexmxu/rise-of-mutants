@@ -36,7 +36,7 @@ public class SceneComposer {
     
 private AssetManager assett;
 private Node sceneNode;    
-private String dirbase, levelFold, dirlevel, entFld;
+private String dirbase, levelFold, dirlevel, entFld, entPath;
 private ArrayList alMaterials, alNodesBase;
 
   public  SceneComposer (Node scene, String entityFolder, String levelFolder, String dirTexBase, String dirTexLevel, AssetManager assetM) {
@@ -64,13 +64,12 @@ private void startCompose() {
       
       if (origin instanceof Node && origin.getName().indexOf(".") < 0 && origin.getName().indexOf("E") != 0) {
         Node alNd = (Node) origin;  
-        replaceMeshWithOgre(alNd);
-        composeMaterial(alNd);
+        replaceMeshWithOgre(alNd, levelFold);
+        composeMaterial(alNd, null);
         alNodesBase.add(alNd);
       } else if (origin instanceof Node && origin.getName().indexOf(".") < 0 && origin.getName().indexOf("E") == 0){
           Node entNd = (Node) origin;
           loadEntity(entFld, entNd);
-      //    composeMaterial(entNd);
           alNodesBase.add(entNd);
           
       }
@@ -82,18 +81,17 @@ private void startCompose() {
     if (spatNode instanceof Node && spatNode.getName().indexOf(".") > 0) {
        Node ndNode = (Node) spatNode;
        String strCompare = ndNode.getName().toString();
-       System.out.println(strCompare);
        strCompare = strCompare.substring(0, ndNode.getName().indexOf("."));
        
        for (Object nodeTemp : alNodesBase.toArray()) {
        Node nodeSearch = (Node) nodeTemp;
        if (nodeSearch.getName().equals(strCompare)) {
-       Transform tr = ndNode.getWorldTransform();
        ndNode.detachAllChildren();
        for (Spatial sp : nodeSearch.getChildren()) {
         if (sp instanceof Geometry) {
             Geometry geo = (Geometry) sp.clone(false);
             ndNode.attachChild(geo);
+                   System.out.println("Attached " + geo + " to " + ndNode);
         }
         else if (sp instanceof Node) {
             Node nd = (Node) sp.clone(false);
@@ -110,14 +108,15 @@ System.out.println(alMaterials.size() + " - QUANTITY OF BASE MATERIALS");
   
 
   // Replace a mesh of blender with a mesh of ogre, because blender does not support texCoord2
+  // texCoord2 is neede for Lightmaps  
   // I hope Core Devs will add texCoord2 support for blender soon.
-  private void replaceMeshWithOgre(Node nd) {
+  private void replaceMeshWithOgre(Node nd, String path) {
               
            Node nodeOrigin = nd;   
            System.out.println(nodeOrigin.getName() + " scene node");
            
            if (nodeOrigin.getChildren().size() > 0) {
-           String strPath = levelFold + "ogre" + File.separator +  nodeOrigin.getName() + ".mesh.xml";
+           String strPath = path + File.separator + "ogre" + File.separator +  nodeOrigin.getName() + ".mesh.xml";
            strPath.replaceAll(File.separator, "/");
            ModelKey mkOgre = new ModelKey(strPath);           
            Node nodeOgre = (Node) assett.loadModel(mkOgre);
@@ -143,15 +142,48 @@ System.out.println(alMaterials.size() + " - QUANTITY OF BASE MATERIALS");
 
   }  
   
-    
+        // Load Entity
+        private void loadEntity(String dirEntity, Node emptyNode) {
+        Node fullNode = emptyNode;    
+        File dir = new File(dirEntity);
+        File[] a = dir.listFiles();
+
+        for (File f : a) {
+            if (f.isDirectory()) {
+                // Recursive search
+                loadEntity(f.toString(), emptyNode);
+            } else if (f.getName().indexOf(emptyNode.getName()) >= 0 && f.getName().endsWith(".blend")) {
+                String strF = f.toString();
+                strF.replaceAll(File.separator, "/");                        
+                System.out.println(strF + " FOUND ENTITY");
+                
+                Node nodeEnt = (Node) assett.loadModel(strF.substring(7));
+                for (Spatial sp : nodeEnt.getChildren()) {
+                Node ndThis = (Node) sp;
+                fullNode.attachChild(ndThis);
+             }
+         //Search for Ogre Meshes and Path for Material Composer
+         File[] flOgre = f.getParentFile().listFiles();
+        for (File fPath : flOgre) {
+            if (fPath.isDirectory() && fPath.toString().endsWith(File.separator + "ogre")) {
+                replaceMeshWithOgre(fullNode, strF);
+               }
+              } 
+               composeMaterial(fullNode, f.getParentFile().toString());  
+            }
+           }
+          }   
+        
+        
   //Generate a material for every geometry
-  private void composeMaterial(Node nd2) {
-    
+  private void composeMaterial(Node nd2, String entityPath) {
+  
+  entPath = entityPath; // Path for Entity Textures
   Node ndMat = nd2; 
   
  //Search for geometries        
  SceneGraphVisitor sgv = new SceneGraphVisitor() {
-
+    
   public void visit(Spatial spatial) {
     System.out.println(spatial + " Visited Spatial");
 
@@ -162,7 +194,7 @@ System.out.println(alMaterials.size() + " - QUANTITY OF BASE MATERIALS");
                 
                 
             if (alMaterials.isEmpty() == true){
-                setGenration(geom_sc);
+                setGeneration(geom_sc, entPath);
             }
             else{
                 //Generate Material
@@ -171,7 +203,7 @@ System.out.println(alMaterials.size() + " - QUANTITY OF BASE MATERIALS");
              
                if (geom_sc.getMaterial().getName().equals(matSearch.getName())) geom_sc.setMaterial(matSearch);
                else {
-               setGenration(geom_sc); 
+               setGeneration(geom_sc, entPath); 
                break;
             }  
            }
@@ -180,13 +212,14 @@ System.out.println(alMaterials.size() + " - QUANTITY OF BASE MATERIALS");
         }
 
   
-  private void setGenration(Geometry geo) {
+  private void setGeneration(Geometry geo, String entityPath2) {
       
+      String entPath3 = entityPath2; // Path for Entity Textures
       Geometry geomGen = geo;
       
             MaterialComposer matComp = new MaterialComposer(geomGen, dirbase, dirlevel, assett);
             System.out.println("Composing Material: " + geomGen.getMaterial().getName() + " for Geometry " + geomGen.getName());
-            matComp.generateMaterial();
+            matComp.generateMaterial(entPath3);
             alMaterials.add(geomGen.getMaterial());
                     
             // Test lighting. It will be removed soon.        
@@ -201,31 +234,6 @@ System.out.println(alMaterials.size() + " - QUANTITY OF BASE MATERIALS");
   ndMat.depthFirstTraversal(sgv);  
 //  sc.breadthFirstTraversal(sgv);   
     
-}
-   
-        private void loadEntity(String dirEntity, Node emptyNode) {
-        Node fullNode = emptyNode;    
-        File dir = new File(dirEntity);
-        File[] a = dir.listFiles();
-
-        for (File f : a) {
-            if (f.isDirectory()) {
-                // Recursive search
-                loadEntity(f.toString(), emptyNode);
-            } else if (f.getName().indexOf(emptyNode.getName()) >= 0) {
-                String strF = f.toString();
-                strF.replaceAll(File.separator, "/");                        
-                System.out.println(strF + " FOUND ENTITY");
-                
-                Node nodeEnt = (Node) assett.loadModel(strF.substring(7));
-                for (Spatial sp : nodeEnt.getChildren()) {
-                Node ndThis = (Node) sp;
-                fullNode.attachChild(sp);
-             }
-            }
-           }
-          }   
-        
-        
+}        
         
 }
