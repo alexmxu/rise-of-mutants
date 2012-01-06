@@ -21,9 +21,13 @@ import com.bigboots.scene.SceneComposer;
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.BlenderKey;
 import com.jme3.asset.DesktopAssetManager;
+import com.jme3.asset.TextureKey;
 import com.jme3.light.DirectionalLight;
 import com.jme3.math.*;
 import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
+import com.jme3.texture.Texture;
+import com.jme3.util.SkyFactory;
 import com.jme3.util.TangentBinormalGenerator;
 import java.io.File;
 
@@ -60,7 +64,30 @@ public class TestSceneComposer extends SimpleApplication {
     TangentBinormalGenerator.generate(nd);
     rootNode.attachChild(nd);
         
-
+        // set Skybox. 
+        TextureKey key_west = new TextureKey("Textures/skyboxes/sky_box_01/skybox_01_west.png", true);
+        key_west.setGenerateMips(true);
+        Texture sky_west = assetManager.loadTexture(key_west);
+        TextureKey key_east = new TextureKey("Textures/skyboxes/sky_box_01/skybox_01_east.png", true);
+        key_east.setGenerateMips(true);
+        Texture sky_east = assetManager.loadTexture(key_east);        
+        TextureKey key_north = new TextureKey("Textures/skyboxes/sky_box_01/skybox_01_north.png", true);
+        key_north.setGenerateMips(true);
+        Texture sky_north = assetManager.loadTexture(key_north);        
+        TextureKey key_south = new TextureKey("Textures/skyboxes/sky_box_01/skybox_01_south.png", true);
+        key_south.setGenerateMips(true);
+        Texture sky_south = assetManager.loadTexture(key_south);        
+        TextureKey key_top = new TextureKey("Textures/skyboxes/sky_box_01/skybox_01_top.png", true);
+        key_top.setGenerateMips(true);
+        Texture sky_top = assetManager.loadTexture(key_top);        
+        TextureKey key_bottom = new TextureKey("Textures/skyboxes/sky_box_01/skybox_01_bottom.png", true);
+        key_bottom.setGenerateMips(true);
+        Texture sky_bottom = assetManager.loadTexture(key_bottom);        
+        
+        Vector3f normalScale = new Vector3f(1, 1, 1);
+        
+        Spatial sky = SkyFactory.createSky(assetManager, sky_west, sky_east, sky_north, sky_south, sky_top, sky_bottom, normalScale);
+        rootNode.attachChild(sky);
 
         
 //        // Clear Cache
