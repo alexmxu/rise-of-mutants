@@ -117,7 +117,7 @@ System.out.println(alMaterials.size() + " - QUANTITY OF BASE MATERIALS");
            
            if (nodeOrigin.getChildren().size() > 0) {
            String strPath = path + File.separator + "ogre" + File.separator +  nodeOrigin.getName() + ".mesh.xml";
-           strPath.replaceAll(File.separator, "/");
+           strPath.replaceAll(File.separator.toString(), "/");
            ModelKey mkOgre = new ModelKey(strPath);           
            Node nodeOgre = (Node) assett.loadModel(mkOgre);
            List<Spatial> listOgre = nodeOgre.getChildren();
