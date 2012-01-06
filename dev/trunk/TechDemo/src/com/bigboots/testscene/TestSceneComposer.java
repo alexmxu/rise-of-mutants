@@ -54,9 +54,9 @@ public class TestSceneComposer extends SimpleApplication {
     baseTex.replaceAll("/", File.separator);
     String levelTex = new String("assets/Textures/level_textures");
     levelTex.replaceAll("/", File.separator);
-        
-    SceneComposer sc = new SceneComposer(nd, entities, bk.getFolder(), baseTex, levelTex, assetManager);
-
+  
+    System.out.println(bk.getFolder().toString());
+    SceneComposer sc = new SceneComposer(nd, entities, bk.getFolder().toString(), baseTex, levelTex, assetManager);
     TangentBinormalGenerator.generate(nd);
     rootNode.attachChild(nd);
         
