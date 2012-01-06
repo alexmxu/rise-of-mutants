@@ -117,7 +117,9 @@ System.out.println(alMaterials.size() + " - QUANTITY OF BASE MATERIALS");
            System.out.println(nodeOrigin.getName() + " scene node");
            
            if (nodeOrigin.getChildren().size() > 0) {
-           ModelKey mkOgre = new ModelKey(levelFold + "ogre" + File.separator +  nodeOrigin.getName() + ".mesh.xml");
+           String strPath = levelFold + "ogre" + File.separator +  nodeOrigin.getName() + ".mesh.xml";
+           strPath.replaceAll(File.separator, "/");
+           ModelKey mkOgre = new ModelKey(strPath);           
            Node nodeOgre = (Node) assett.loadModel(mkOgre);
            List<Spatial> listOgre = nodeOgre.getChildren();
            System.out.println(nodeOgre.getName() + " ogre node");
@@ -205,15 +207,17 @@ System.out.println(alMaterials.size() + " - QUANTITY OF BASE MATERIALS");
         Node fullNode = emptyNode;    
         File dir = new File(dirEntity);
         File[] a = dir.listFiles();
-        String str = new String();
 
         for (File f : a) {
             if (f.isDirectory()) {
                 // Recursive search
                 loadEntity(f.toString(), emptyNode);
             } else if (f.getName().indexOf(emptyNode.getName()) >= 0) {
-                System.out.println(str = f.toString() + " FOUND ENTITY");
-                Node nodeEnt = (Node) assett.loadModel(f.toString().substring(7));
+                String strF = f.toString();
+                strF.replaceAll(File.separator, "/");                        
+                System.out.println(strF + " FOUND ENTITY");
+                
+                Node nodeEnt = (Node) assett.loadModel(strF.substring(7));
                 for (Spatial sp : nodeEnt.getChildren()) {
                 Node ndThis = (Node) sp;
                 fullNode.attachChild(sp);
