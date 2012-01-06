@@ -20,12 +20,12 @@ import com.jme3.asset.AssetManager;
 import com.jme3.asset.ModelKey;
 import com.jme3.asset.TextureKey;
 import com.jme3.material.*;
-import com.jme3.math.Transform;
 import com.jme3.scene.*;
 import com.jme3.texture.Texture;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 
 
 /**
@@ -117,7 +117,7 @@ System.out.println(alMaterials.size() + " - QUANTITY OF BASE MATERIALS");
            
            if (nodeOrigin.getChildren().size() > 0) {
            String strPath = path + File.separator + "ogre" + File.separator +  nodeOrigin.getName() + ".mesh.xml";
-           strPath.replaceAll(File.separator.toString(), "/");
+           strPath.replaceAll(Matcher.quoteReplacement(File.separator.toString()), "/");
            ModelKey mkOgre = new ModelKey(strPath);           
            Node nodeOgre = (Node) assett.loadModel(mkOgre);
            List<Spatial> listOgre = nodeOgre.getChildren();
@@ -154,7 +154,7 @@ System.out.println(alMaterials.size() + " - QUANTITY OF BASE MATERIALS");
                 loadEntity(f.toString(), emptyNode);
             } else if (f.getName().indexOf(emptyNode.getName()) >= 0 && f.getName().endsWith(".blend")) {
                 String strF = f.toString();
-                strF.replaceAll(File.separator, "/");                        
+                strF.replaceAll(Matcher.quoteReplacement(File.separator.toString()), "/");                        
                 System.out.println(strF + " FOUND ENTITY");
                 
                 Node nodeEnt = (Node) assett.loadModel(strF.substring(7));

@@ -30,6 +30,7 @@ import com.jme3.texture.Texture;
 import com.jme3.util.SkyFactory;
 import com.jme3.util.TangentBinormalGenerator;
 import java.io.File;
+import java.util.regex.Matcher;
 
 
 public class TestSceneComposer extends SimpleApplication {
@@ -53,13 +54,13 @@ public class TestSceneComposer extends SimpleApplication {
         nd.setName("nd");
         
     String entities = new String("assets/Models");
-    entities.replaceAll("/", File.separator);
+    entities.replaceAll("/", Matcher.quoteReplacement(File.separator.toString()));
     String baseTex = new String("assets/Textures/base_textures");
-    baseTex.replaceAll("/", File.separator);
+    baseTex.replaceAll("/", Matcher.quoteReplacement(File.separator.toString()));
     String levelTex = new String("assets/Textures/level_textures");
-    levelTex.replaceAll("/", File.separator);
+    levelTex.replaceAll("/", Matcher.quoteReplacement(File.separator.toString()));
     String scenePath = bk.getFolder().substring(0, bk.getFolder().length() - 1); //BlenderKey sets "File.separator" in the end of String
-    scenePath.replaceAll("/", File.separator);
+    scenePath.replaceAll("/", Matcher.quoteReplacement(File.separator.toString()));
   
     
     SceneComposer sc = new SceneComposer(nd, entities, scenePath, baseTex, levelTex, assetManager);

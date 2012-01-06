@@ -25,6 +25,7 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.scene.*;
 import com.jme3.texture.Texture;
 import java.io.File;
+import java.util.regex.Matcher;
 
 
 /**
@@ -142,14 +143,14 @@ if (children2 == null) {
         if (ent >= 0 && filename2.indexOf("_nor") < 0 && filename2.indexOf(".blend") < 0 
                 && filename2.indexOf(".psd") < 0  && filename2.indexOf(".xcf") < 0) {
         texPath3 = texPath2 + File.separator + filename2;
-        texPath3.replaceAll(File.separator.toString(), "/");
+        texPath3.replaceAll(Matcher.quoteReplacement(File.separator.toString()), "/");
         System.out.println("file " + texPath3);
         }
         // Get Normal Map
         else if (ent >= 0 && filename2.indexOf("_nor") > 0 && filename2.indexOf(".blend") < 0 
                 && filename2.indexOf(".psd") < 0  && filename2.indexOf(".xcf") < 0) {
             texPath3_nor = texPath2 + File.separator + filename2;
-            texPath3_nor.replaceAll(File.separator.toString(), "/");
+            texPath3_nor.replaceAll(Matcher.quoteReplacement(File.separator.toString()), "/");
             System.out.println("file NormalMap " + texPath3_nor);
 }
     }
@@ -248,7 +249,7 @@ if (children2 == null) {
          if (fileAO.indexOf(matCheck) >= 0 && fileAO.indexOf("lightmap") >= 0 
              && fileAO.indexOf(".blend") < 0 && fileAO.indexOf(".psd") < 0 && fileAO.indexOf(".xcf") < 0) {
          String strAO = aoDir + File.separator + fileAO;
-         strAO.replaceAll(File.separator.toString(), "/");
+         strAO.replaceAll(Matcher.quoteReplacement(File.separator.toString()), "/");
              System.out.println(strAO + " LightMap Loading");
             if (strAO.indexOf("assets" + File.separator) == 0) {
                 TextureKey tkAO = new TextureKey(strAO.substring(7), false);
@@ -329,14 +330,14 @@ if (childrenC2 == null) {
         if (ent >= 0 && filename2.indexOf("_nor") < 0 && filename2.indexOf(".blend") < 0 
                 && filename2.indexOf(".psd") < 0  && filename2.indexOf(".xcf") < 0) {
         ctexPath3 = ctexPath2 + File.separator + filename2; 
-        ctexPath3.replaceAll(File.separator.toString(), "/");
+        ctexPath3.replaceAll(Matcher.quoteReplacement(File.separator.toString()), "/");
         System.out.println("compound file " + ctexPath3);
         }
         // Get Normal Map
         else if (ent >= 0 && filename2.indexOf("_nor") > 0 && filename2.indexOf(".blend") < 0 
                 && filename2.indexOf(".psd") < 0  && filename2.indexOf(".xcf") < 0) {
             ctexPath3_nor = ctexPath2 + File.separator + filename2;
-            ctexPath3_nor.replaceAll(File.separator.toString(), "/");
+            ctexPath3_nor.replaceAll(Matcher.quoteReplacement(File.separator.toString()), "/");
             System.out.println("compound file NormalMap " + ctexPath3_nor);
         }
     }
@@ -454,7 +455,7 @@ if (childrenC2 == null) {
              && fileMask.indexOf("mask") >= 0 && fileMask.indexOf(".blend") < 0 && fileMask.indexOf(".psd") < 0  && fileMask.indexOf(".xcf") < 0) {
                   
             String strMask = maskDir + File.separator + fileMask; 
-            strMask.replaceAll(File.separator.toString(), "/");
+            strMask.replaceAll(Matcher.quoteReplacement(File.separator.toString()), "/");
              
             if (strMask.indexOf("assets" + File.separator) == 0) {
                 TextureKey tkMask = new TextureKey(strMask.substring(7), false);
