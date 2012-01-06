@@ -52,14 +52,14 @@ public class TestSceneComposer extends SimpleApplication {
         Node nd =  (Node) dsk.loadModel(bk); 
         nd.setName("nd");
         
-    String entities = new String("assets/Models");
-    entities.replaceAll("/", File.separator);
-    String baseTex = new String("assets/Textures/base_textures");
-    baseTex.replaceAll("/", File.separator);
-    String levelTex = new String("assets/Textures/level_textures");
-    levelTex.replaceAll("/", File.separator);
+    String entities = "assets/Models";
+    //entities.replaceAll("/", File.separator.toString());
+    String baseTex = "assets/Textures/base_textures";
+    //baseTex.replaceAll("/", File.separator);
+    String levelTex = "assets/Textures/level_textures";
+    //levelTex.replaceAll("/", File.separator);
     String scenePath = bk.getFolder().substring(0, bk.getFolder().length() - 1); //BlenderKey sets "File.separator" in the end of String
-    scenePath.replaceAll("/", File.separator);
+    //scenePath.replaceAll("/", File.separator);
   
     
     SceneComposer sc = new SceneComposer(nd, entities, scenePath, baseTex, levelTex, assetManager);
