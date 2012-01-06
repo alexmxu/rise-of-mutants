@@ -124,7 +124,7 @@ else {
     //Searching file        
     texPath2 = texPath + "/" + filename;
     File fileTex = new File(texPath2);
-    System.out.println("folder textPath2" + texPath2);
+    System.out.println("folder textPath2 " + texPath2);
 
     String[] children2 = fileTex.list();
 if (children2 == null) {
