@@ -58,13 +58,15 @@ public class TestSceneComposer extends SimpleApplication {
     baseTex.replaceAll("/", File.separator);
     String levelTex = new String("assets/Textures/level_textures");
     levelTex.replaceAll("/", File.separator);
+    String scenePath = bk.getFolder().substring(0, bk.getFolder().length() - 1); //BlenderKey sets "File.separator" in the end of String
+    scenePath.replaceAll("/", File.separator);
   
-    System.out.println(bk.getFolder().toString());
-    SceneComposer sc = new SceneComposer(nd, entities, bk.getFolder().toString(), baseTex, levelTex, assetManager);
+    
+    SceneComposer sc = new SceneComposer(nd, entities, scenePath, baseTex, levelTex, assetManager);
     TangentBinormalGenerator.generate(nd);
     rootNode.attachChild(nd);
         
-        // set Skybox. 
+        // Set Skybox
         TextureKey key_west = new TextureKey("Textures/skyboxes/sky_box_01/skybox_01_west.png", true);
         key_west.setGenerateMips(true);
         Texture sky_west = assetManager.loadTexture(key_west);
