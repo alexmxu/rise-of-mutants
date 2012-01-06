@@ -96,14 +96,15 @@ public class MaterialComposer {
    }
 
    
-   private void setYourTexture(Material mat, String foldID, String fileID, String entPath2) {
+   private void setYourTexture(Material mat, String foldID, String fileID, String entityPath) {
 
   Material matThis = mat;     
   String texPath = texDir.toString();
   String texPath2 = new String();
   String texPath3 = new String();
   String texPath3_nor = new String();
-       
+  String entiPath = entityPath;
+  
   //Searching folderID
   String[] children = texDir.list();
 if (children == null) {
@@ -132,19 +133,21 @@ if (children2 == null) {
         int ent;
         
     // Check for Entities   
-    if (entPath2 == null){ 
+    if (entiPath == null){ 
         ent = filename2.substring(filename.indexOf(foldID) + 2).indexOf(fileID);
     } else {
         ent = filename2.indexOf(fileID);
     }
         // Get Diffuse Map
-        if (ent >= 0 && filename2.indexOf("_nor") < 0 && filename2.indexOf(".blend") < 0 && filename2.indexOf(".psd") < 0) {
+        if (ent >= 0 && filename2.indexOf("_nor") < 0 && filename2.indexOf(".blend") < 0 
+                && filename2.indexOf(".psd") < 0  && filename2.indexOf(".xcf") < 0) {
         texPath3 = texPath2 + File.separator + filename2;
         texPath3.replaceAll(File.separator, "/");
         System.out.println("file " + texPath3);
         }
         // Get Normal Map
-        else if (ent >= 0 && filename2.indexOf("_nor") > 0 && filename2.indexOf(".blend") < 0 && filename2.indexOf(".psd") < 0) {
+        else if (ent >= 0 && filename2.indexOf("_nor") > 0 && filename2.indexOf(".blend") < 0 
+                && filename2.indexOf(".psd") < 0  && filename2.indexOf(".xcf") < 0) {
             texPath3_nor = texPath2 + File.separator + filename2;
             texPath3_nor.replaceAll(File.separator, "/");
             System.out.println("file NormalMap " + texPath3_nor);
@@ -213,14 +216,20 @@ if (children2 == null) {
         
         //Set Composite Material
         if (matName.indexOf("c") == 0) {
-            compoundMat(matThis, matName.substring(6, 8), matName.substring(8, 10));
+            compoundMat(matThis, matName.substring(6, 8), matName.substring(8, 10), entiPath);
             
         }
         
        // Set Lightmap(Ambient Occlusion) Texture
    if (matName.indexOf("o") >= 0) {     
-       File aoDir = new File(texLightMaps);
+       File aoDir;
        Texture textureAO;
+
+        if (entiPath == null){ 
+            aoDir = new File(texLightMaps);
+        } else {
+            aoDir = new File(entiPath + File.separator + "textures");
+        }
        
        String[] childrenAO = aoDir.list();
         if (childrenAO == null) {
@@ -237,7 +246,7 @@ if (children2 == null) {
             matCheck =matName.substring(matName.indexOf("o") + 1, matName.indexOf("o") + 3);
          
          if (fileAO.indexOf(matCheck) >= 0 && fileAO.indexOf("lightmap") >= 0 
-             && fileAO.indexOf(".blend") < 0 && fileAO.indexOf(".psd") < 0) {
+             && fileAO.indexOf(".blend") < 0 && fileAO.indexOf(".psd") < 0 && fileAO.indexOf(".xcf") < 0) {
          String strAO = aoDir + File.separator + fileAO;
          strAO.replaceAll(File.separator, "/");
              System.out.println(strAO + " LightMap Loading");
@@ -274,7 +283,7 @@ if (children2 == null) {
    
    
    //This method is used for compound materials
-   private void compoundMat(Material mat, String foldID, String fileID) {
+   private void compoundMat(Material mat, String foldID, String fileID, String entityPath2) {
   
   Material matThat = mat;     
   String ctexPath = texDir.toString();
@@ -307,15 +316,25 @@ if (childrenC2 == null) {
     for (int j=0; j<childrenC2.length; j++) {
         // Get filename of file
         String filename2 = childrenC2[j];
-
+        int ent;
+        
+    // Check for Entities   
+    if (entityPath2 == null){ 
+        ent = filename2.substring(filename.indexOf(foldID) + 2).indexOf(fileID);
+    } else {
+        ent = filename2.indexOf(fileID);
+    }
+    
         // Get Diffuse Map
-        if (filename2.substring(filename.indexOf(foldID) + 2).indexOf(fileID) >= 0 && filename2.indexOf("_nor") < 0 && filename2.indexOf(".blend") < 0 && filename2.indexOf(".psd") < 0) {
+        if (ent >= 0 && filename2.indexOf("_nor") < 0 && filename2.indexOf(".blend") < 0 
+                && filename2.indexOf(".psd") < 0  && filename2.indexOf(".xcf") < 0) {
         ctexPath3 = ctexPath2 + File.separator + filename2; 
         ctexPath3.replaceAll(File.separator, "/");
         System.out.println("compound file " + ctexPath3);
         }
         // Get Normal Map
-        else if (filename2.substring(filename.indexOf(foldID) + 2).indexOf(fileID) >= 0 && filename2.indexOf("_nor") > 0 && filename2.indexOf(".blend") < 0 && filename2.indexOf(".psd") < 0) {
+        else if (ent >= 0 && filename2.indexOf("_nor") > 0 && filename2.indexOf(".blend") < 0 
+                && filename2.indexOf(".psd") < 0  && filename2.indexOf(".xcf") < 0) {
             ctexPath3_nor = ctexPath2 + File.separator + filename2;
             ctexPath3_nor.replaceAll(File.separator, "/");
             System.out.println("compound file NormalMap " + ctexPath3_nor);
@@ -344,7 +363,7 @@ if (childrenC2 == null) {
        Texture diffuseTexR = asset.loadTexture(tkDifR);
        diffuseTexR.setWrap(Texture.WrapMode.Repeat);
        matThat.setTexture("DiffuseMap_1", diffuseTexR);
-        matThat.setFloat("uv_1_scale", (float) uvScale);            
+       matThat.setFloat("uv_1_scale", (float) uvScale);            
        }
        // Set Diffuse Map G channel
        else if (matName.indexOf("cG") >= 0) {
@@ -415,8 +434,13 @@ if (childrenC2 == null) {
        
 
        // Set Mask Texture
-       File maskDir = new File(texMasks);
+       File maskDir;
        Texture textureMask;
+        if (entityPath2 == null){ 
+            maskDir = new File(texMasks);
+        } else {
+            maskDir = new File(entityPath2 + File.separator + "textures");
+        }
        
        String[] childrenMask = maskDir.list();
         if (childrenMask == null) {
@@ -427,7 +451,7 @@ if (childrenC2 == null) {
          String fileMask = childrenMask[i];
             
          if (fileMask.indexOf(matName.substring(matName.indexOf("m") + 1, matName.indexOf("m") + 3)) >= 0 
-             && fileMask.indexOf("mask") >= 0 && fileMask.indexOf(".blend") < 0 && fileMask.indexOf(".psd") < 0) {
+             && fileMask.indexOf("mask") >= 0 && fileMask.indexOf(".blend") < 0 && fileMask.indexOf(".psd") < 0  && fileMask.indexOf(".xcf") < 0) {
                   
             String strMask = maskDir + File.separator + fileMask; 
             strMask.replaceAll(File.separator, "/");
