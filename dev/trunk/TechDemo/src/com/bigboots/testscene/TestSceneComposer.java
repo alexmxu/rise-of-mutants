@@ -29,7 +29,6 @@ import com.jme3.scene.Spatial;
 import com.jme3.texture.Texture;
 import com.jme3.util.SkyFactory;
 import com.jme3.util.TangentBinormalGenerator;
-import java.io.File;
 
 
 public class TestSceneComposer extends SimpleApplication {
@@ -41,31 +40,24 @@ public class TestSceneComposer extends SimpleApplication {
     }
 
 
-
-    
     @Override
     public void simpleInitApp() {
-        
+
         // Load a blender file. 
         DesktopAssetManager dsk = (DesktopAssetManager) assetManager;        
         BlenderKey bk = new BlenderKey("Scenes/levels/level_01/level_01.blend");
         Node nd =  (Node) dsk.loadModel(bk); 
         nd.setName("nd");
-        
-    String entities = "assets/Models";
-    //entities.replaceAll("/", File.separator.toString());
-    String baseTex = "assets/Textures/base_textures";
-    //baseTex.replaceAll("/", File.separator);
-    String levelTex = "assets/Textures/level_textures";
-    //levelTex.replaceAll("/", File.separator);
-    String scenePath = bk.getFolder().substring(0, bk.getFolder().length() - 1); //BlenderKey sets "File.separator" in the end of String
-    //scenePath.replaceAll("/", File.separator);
-  
-    
-    SceneComposer sc = new SceneComposer(nd, entities, scenePath, baseTex, levelTex, assetManager);
-    TangentBinormalGenerator.generate(nd);
-    rootNode.attachChild(nd);
-        
+
+        String entities = "assets/Models";
+        String baseTex = "assets/Textures/base_textures";
+        String levelTex = "assets/Textures/level_textures";
+        String scenePath = bk.getFolder().substring(0, bk.getFolder().length() - 1); //BlenderKey sets "File.separator" in the end of String
+
+        SceneComposer sc = new SceneComposer(nd, entities, scenePath, baseTex, levelTex, assetManager);
+        TangentBinormalGenerator.generate(nd);
+        rootNode.attachChild(nd);
+
         // Set Skybox
         TextureKey key_west = new TextureKey("Textures/skyboxes/sky_box_01/skybox_01_west.png", true);
         key_west.setGenerateMips(true);
@@ -85,29 +77,26 @@ public class TestSceneComposer extends SimpleApplication {
         TextureKey key_bottom = new TextureKey("Textures/skyboxes/sky_box_01/skybox_01_bottom.png", true);
         key_bottom.setGenerateMips(true);
         Texture sky_bottom = assetManager.loadTexture(key_bottom);        
-        
+
         Vector3f normalScale = new Vector3f(1, 1, 1);
-        
+
         Spatial sky = SkyFactory.createSky(assetManager, sky_west, sky_east, sky_north, sky_south, sky_top, sky_bottom, normalScale);
         rootNode.attachChild(sky);
 
-        
-//        // Clear Cache
-//        nd.detachAllChildren();
-//        nd.removeFromParent();
-//        dsk.clearCache();
- 
-        
+        //        // Clear Cache
+        //        nd.detachAllChildren();
+        //        nd.removeFromParent();
+        //        dsk.clearCache();
+
         // Add a light Source
         DirectionalLight dl = new DirectionalLight();
         dl.setDirection(new Vector3f(0.5432741f, -0.58666015f, -0.6005691f).normalizeLocal());
         dl.setColor(new ColorRGBA(1.1f,1.1f,1.1f,1));
         rootNode.addLight(dl);
-        
+
         flyCam.setMoveSpeed(30);
         viewPort.setBackgroundColor(ColorRGBA.Gray);
 
-}
-
-
     }
+
+}

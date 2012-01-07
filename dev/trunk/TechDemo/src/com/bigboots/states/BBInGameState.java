@@ -30,6 +30,7 @@ import com.bigboots.input.BBInputManager;
 import com.bigboots.input.BBPlayerActions;
 import com.bigboots.physics.BBBasicCollisionListener;
 import com.bigboots.physics.BBPhysicsManager;
+import com.bigboots.scene.SceneComposer;
 import com.jme3.animation.AnimChannel;
 import com.jme3.scene.Spatial;
 import com.jme3.math.Vector3f;
@@ -58,6 +59,8 @@ import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
+import com.jme3.math.Quaternion;
 import com.jme3.post.filters.BloomFilter;
 import com.jme3.post.filters.DepthOfFieldFilter;
 import com.jme3.post.filters.LightScatteringFilter;
@@ -147,6 +150,7 @@ public class BBInGameState extends BBAbstractState{
         
         CameraNode camNode = new CameraNode("Camera Node", cam);
         camNode.setControlDir(ControlDirection.SpatialToCamera);
+        //camNode.rotate(new Quaternion().fromAngleAxis(-FastMath.HALF_PI, Vector3f.UNIT_Y));
         camNode.setLocalTranslation(new Vector3f(25, 10, 0));
         camNode.lookAt(humanStalker.getLocalTranslation(), Vector3f.UNIT_Y);
         humanStalker.attachChild(camNode);
@@ -288,11 +292,21 @@ public class BBInGameState extends BBAbstractState{
         
         BBSceneManager.getInstance().getAssetManager().registerLoader(BlenderModelLoader.class, "blend");
         // Load a blender file.       
-        ModelKey bk = new ModelKey("Scenes/TestScene/test_scene_01_1.blend");
-
+        ModelKey bk = new ModelKey("Scenes/levels/level_01/level_01.blend");
+        //("Scenes/TestScene/test_scene_01_1.blend");
         Node nd =  (Node) BBSceneManager.getInstance().getAssetManager().loadModel(bk);
-        BBSceneManager.getInstance().addChild(nd);
+        //nd.rotate(new Quaternion().fromAngleAxis(FastMath.HALF_PI, Vector3f.UNIT_Y));
         
+        String entities = "assets/Models";
+        String baseTex = "assets/Textures/base_textures";
+        String levelTex = "assets/Textures/level_textures";
+        String scenePath = bk.getFolder().substring(0, bk.getFolder().length() - 1); //BlenderKey sets "File.separator" in the end of String
+
+        SceneComposer sc = new SceneComposer(nd, entities, scenePath, baseTex, levelTex, BBSceneManager.getInstance().getAssetManager());
+        TangentBinormalGenerator.generate(nd);
+        
+        BBSceneManager.getInstance().addChild(nd);
+/*        
         // Material
         Material woodMat = BBSceneManager.getInstance().getAssetManager().loadMaterial("Scenes/TestScene/TestSceneMaterial.j3m");
         Material boxMat = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
@@ -308,10 +322,11 @@ public class BBInGameState extends BBAbstractState{
                 //TangentBinormalGenerator.generate(nd);
             }
          } 
-        
+ */       
         CollisionShape myComplexShape = CollisionShapeFactory.createMeshShape(nd);
         RigidBodyControl worldPhysics = new RigidBodyControl(myComplexShape,0);  
-        worldPhysics.createDebugShape(BBSceneManager.getInstance().getAssetManager());        
+        worldPhysics.createDebugShape(BBSceneManager.getInstance().getAssetManager());
+        
         BBPhysicsManager.getInstance().getPhysicsSpace().add(worldPhysics); 
         //BBSceneManager.getInstance().getRootNode().attachChild(worldPhysics.debugShape());
         

@@ -45,7 +45,7 @@ public class BBPlayerManager {
     }
     
     private BBEntity mMainPlayer;
-    private Vector3f mMainLocation = new Vector3f(0, 10, 0);
+    private Vector3f mMainLocation = new Vector3f(5, 10, 0);
     
     private boolean mIsWalking = false;
     private boolean mIsJumping = false;
