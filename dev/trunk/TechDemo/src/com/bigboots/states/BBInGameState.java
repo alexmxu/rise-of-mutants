@@ -30,6 +30,7 @@ import com.bigboots.input.BBInputManager;
 import com.bigboots.input.BBPlayerActions;
 import com.bigboots.physics.BBBasicCollisionListener;
 import com.bigboots.physics.BBPhysicsManager;
+import com.bigboots.scene.SceneComposer;
 import com.jme3.animation.AnimChannel;
 import com.jme3.scene.Spatial;
 import com.jme3.math.Vector3f;
@@ -58,12 +59,15 @@ import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
+import com.jme3.math.Quaternion;
 import com.jme3.post.filters.BloomFilter;
 import com.jme3.post.filters.DepthOfFieldFilter;
 import com.jme3.post.filters.LightScatteringFilter;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.plugins.blender.BlenderModelLoader;
+import com.jme3.util.BufferUtils;
 import com.jme3.util.TangentBinormalGenerator;
 
 /**
@@ -87,6 +91,7 @@ public class BBInGameState extends BBAbstractState{
         super.initialize(eng);
         
         //BBGuiManager.getInstance().getNifty().gotoScreen("progress");
+        BBGuiManager.getInstance().getNifty().gotoScreen("hud");
         //BBGuiManager.getInstance().enableProgressBar(true);
         
         actionListener = new GameActionListener(eng);
@@ -94,9 +99,9 @@ public class BBInGameState extends BBAbstractState{
         BBPhysicsManager.getInstance().init(engineSystem);
         
         //Set up keys
-        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_CAMERA_POS, new KeyTrigger(KeyInput.KEY_C));
-        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_MEMORY, new KeyTrigger(KeyInput.KEY_M));
-        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_HIDE_STATS, new KeyTrigger(KeyInput.KEY_F5));
+        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_CAMERA_POS, new KeyTrigger(KeyInput.KEY_F2));
+        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_MEMORY, new KeyTrigger(KeyInput.KEY_F3));
+        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_HIDE_STATS, new KeyTrigger(KeyInput.KEY_F4));
         BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_LEFT, new KeyTrigger(KeyInput.KEY_J));
         BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_RIGHT, new KeyTrigger(KeyInput.KEY_L));
         BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_UP, new KeyTrigger(KeyInput.KEY_I));
@@ -107,7 +112,11 @@ public class BBInGameState extends BBAbstractState{
         BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_MLEFT, new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
         BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_MRIGHT, new MouseButtonTrigger(MouseInput.BUTTON_RIGHT));
         
-        BBInputManager.getInstance().getInputManager().addListener(actionListener, BBGlobals.INPUT_MAPPING_EXIT, BBGlobals.INPUT_MAPPING_DEBUG);
+        BBInputManager.getInstance().getInputManager().addListener(actionListener, 
+                                                                    BBGlobals.INPUT_MAPPING_EXIT, 
+                                                                    BBGlobals.INPUT_MAPPING_DEBUG,
+                                                                    BBGlobals.INPUT_MAPPING_CAMERA_POS,
+                                                                    BBGlobals.INPUT_MAPPING_MEMORY);
         BBInputManager.getInstance().getInputManager().addListener(playerListener, 
                                                                     BBGlobals.INPUT_MAPPING_LEFT,
                                                                     BBGlobals.INPUT_MAPPING_RIGHT, 
@@ -147,14 +156,15 @@ public class BBInGameState extends BBAbstractState{
         
         CameraNode camNode = new CameraNode("Camera Node", cam);
         camNode.setControlDir(ControlDirection.SpatialToCamera);
-        camNode.setLocalTranslation(new Vector3f(25, 10, 0));
+        //camNode.rotate(new Quaternion().fromAngleAxis(-FastMath.HALF_PI, Vector3f.UNIT_Y));
+        camNode.setLocalTranslation(new Vector3f(0, 10, 35));
         camNode.lookAt(humanStalker.getLocalTranslation(), Vector3f.UNIT_Y);
         humanStalker.attachChild(camNode);
         //BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).attachChild(camNode);
         
         //*******************************************
         //Create enemies
-        Vector3f mPos = new Vector3f(-0.44354653f, 3f, -80.836426f);
+        Vector3f mPos = new Vector3f(5, 28, 0);
         BBMonsterManager.getInstance().createMonter("ENEMY", "Scenes/TestScene/mutant.j3o", mPos);
 
         //********************************************
@@ -191,8 +201,6 @@ public class BBInGameState extends BBAbstractState{
      
         BBSceneManager.getInstance().createFilter("GAME_TOON", BBSceneManager.FilterType.CARTOON);
  */  
-        
-        BBGuiManager.getInstance().getNifty().gotoScreen("hud");
         
         // Load the main map (here blend loading)
         BBSceneManager.getInstance().setupLight();
@@ -259,12 +267,22 @@ public class BBInGameState extends BBAbstractState{
               //this.engineSystem.setSystemPause(!this.engineSystem.isSystemPause());
               return;
             }
-            if (binding.equals(BBGlobals.INPUT_MAPPING_DEBUG) && !keyPressed) { 
+            else if (binding.equals(BBGlobals.INPUT_MAPPING_DEBUG) && !keyPressed) { 
                 
               BBPhysicsManager.getInstance().setDebugInfo(!BBPhysicsManager.getInstance().isShowDebug());
               BBDebugInfo.getInstance().setDisplayFps(!BBDebugInfo.getInstance().isShowFPS());
               BBDebugInfo.getInstance().setDisplayStatView(!BBDebugInfo.getInstance().isShowStat());
-            } 
+            }
+            else if (binding.equals(BBGlobals.INPUT_MAPPING_CAMERA_POS) && !keyPressed) {
+                    Vector3f loc = BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getControl(CharacterControl.class).getPhysicsLocation();
+                    Quaternion rot = BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getLocalRotation();
+                    System.out.println("***** Character Position: ("
+                            + loc.x + ", " + loc.y + ", " + loc.z + ")");
+                    System.out.println("***** Character Rotation: " + rot);
+                    System.out.println("***** Character Direction: " + BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getControl(CharacterControl.class).getViewDirection());
+            } else if (binding.equals(BBGlobals.INPUT_MAPPING_MEMORY) && !keyPressed) {
+                BufferUtils.printCurrentDirectMemory(null);
+            }
         }//end onAAction
         
               
@@ -288,11 +306,21 @@ public class BBInGameState extends BBAbstractState{
         
         BBSceneManager.getInstance().getAssetManager().registerLoader(BlenderModelLoader.class, "blend");
         // Load a blender file.       
-        ModelKey bk = new ModelKey("Scenes/TestScene/test_scene_01_1.blend");
-
+        ModelKey bk = new ModelKey("Scenes/levels/level_01/level_01.blend");
+        //("Scenes/TestScene/test_scene_01_1.blend");
         Node nd =  (Node) BBSceneManager.getInstance().getAssetManager().loadModel(bk);
-        BBSceneManager.getInstance().addChild(nd);
+        //nd.rotate(new Quaternion().fromAngleAxis(FastMath.HALF_PI, Vector3f.UNIT_Y));
         
+        String entities = "assets/Models";
+        String baseTex = "assets/Textures/base_textures";
+        String levelTex = "assets/Textures/level_textures";
+        String scenePath = bk.getFolder().substring(0, bk.getFolder().length() - 1); //BlenderKey sets "File.separator" in the end of String
+
+        SceneComposer sc = new SceneComposer(nd, entities, scenePath, baseTex, levelTex, BBSceneManager.getInstance().getAssetManager());
+        TangentBinormalGenerator.generate(nd);
+        
+        BBSceneManager.getInstance().addChild(nd);
+/*        
         // Material
         Material woodMat = BBSceneManager.getInstance().getAssetManager().loadMaterial("Scenes/TestScene/TestSceneMaterial.j3m");
         Material boxMat = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
@@ -308,10 +336,11 @@ public class BBInGameState extends BBAbstractState{
                 //TangentBinormalGenerator.generate(nd);
             }
          } 
-        
+ */       
         CollisionShape myComplexShape = CollisionShapeFactory.createMeshShape(nd);
         RigidBodyControl worldPhysics = new RigidBodyControl(myComplexShape,0);  
-        worldPhysics.createDebugShape(BBSceneManager.getInstance().getAssetManager());        
+        worldPhysics.createDebugShape(BBSceneManager.getInstance().getAssetManager());
+        
         BBPhysicsManager.getInstance().getPhysicsSpace().add(worldPhysics); 
         //BBSceneManager.getInstance().getRootNode().attachChild(worldPhysics.debugShape());
         

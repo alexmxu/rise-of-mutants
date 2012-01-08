@@ -21,6 +21,7 @@ import com.bigboots.audio.BBAudioManager;
 import com.bigboots.components.BBCollisionComponent.ShapeType;
 import com.bigboots.components.BBComponent.CompType;
 import com.bigboots.core.BBSceneManager;
+import com.bigboots.gui.BBGuiManager;
 import com.bigboots.physics.BBPhysicsManager;
 import com.jme3.animation.LoopMode;
 import com.jme3.bullet.collision.shapes.CollisionShape;
@@ -45,7 +46,7 @@ public class BBPlayerManager {
     }
     
     private BBEntity mMainPlayer;
-    private Vector3f mMainLocation = new Vector3f(0, 10, 0);
+    private Vector3f mMainLocation = new Vector3f(5, 10, 0);
     
     private boolean mIsWalking = false;
     private boolean mIsJumping = false;
@@ -77,7 +78,7 @@ public class BBPlayerManager {
         pColCp.attachShape(pShape);
         
         CharacterControl pControler = (CharacterControl) BBAnimManager.getInstance().createControl(BBControlComponent.ControlType.CHARACTER, mMainPlayer); 
-        pControler.setJumpSpeed(35);
+        pControler.setJumpSpeed(19);
         pControler.setFallSpeed(40);
         pControler.setGravity(35);
         pControler.setUseViewDirection(true);
@@ -103,6 +104,11 @@ public class BBPlayerManager {
         fireSound.setLooping(false);
         fireSound.setVolume(10);
         mMainPlayer.addAudio("FIRE", fireSound);
+        
+        //Get life bar
+        int health = (Integer) mMainPlayer.getSkills("HEALTH");
+        BBGuiManager.getInstance().getNifty().getScreen("hud").findControl("player_progress", com.bigboots.gui.BBProgressbarController.class).setProgress(health / 100.0f);
+        
     }
     
     public void update(float tpf){
