@@ -67,6 +67,7 @@ import com.jme3.post.filters.LightScatteringFilter;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.plugins.blender.BlenderModelLoader;
+import com.jme3.util.BufferUtils;
 import com.jme3.util.TangentBinormalGenerator;
 
 /**
@@ -90,6 +91,7 @@ public class BBInGameState extends BBAbstractState{
         super.initialize(eng);
         
         //BBGuiManager.getInstance().getNifty().gotoScreen("progress");
+        BBGuiManager.getInstance().getNifty().gotoScreen("hud");
         //BBGuiManager.getInstance().enableProgressBar(true);
         
         actionListener = new GameActionListener(eng);
@@ -97,9 +99,9 @@ public class BBInGameState extends BBAbstractState{
         BBPhysicsManager.getInstance().init(engineSystem);
         
         //Set up keys
-        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_CAMERA_POS, new KeyTrigger(KeyInput.KEY_C));
-        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_MEMORY, new KeyTrigger(KeyInput.KEY_M));
-        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_HIDE_STATS, new KeyTrigger(KeyInput.KEY_F5));
+        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_CAMERA_POS, new KeyTrigger(KeyInput.KEY_F2));
+        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_MEMORY, new KeyTrigger(KeyInput.KEY_F3));
+        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_HIDE_STATS, new KeyTrigger(KeyInput.KEY_F4));
         BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_LEFT, new KeyTrigger(KeyInput.KEY_J));
         BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_RIGHT, new KeyTrigger(KeyInput.KEY_L));
         BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_UP, new KeyTrigger(KeyInput.KEY_I));
@@ -110,7 +112,11 @@ public class BBInGameState extends BBAbstractState{
         BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_MLEFT, new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
         BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_MRIGHT, new MouseButtonTrigger(MouseInput.BUTTON_RIGHT));
         
-        BBInputManager.getInstance().getInputManager().addListener(actionListener, BBGlobals.INPUT_MAPPING_EXIT, BBGlobals.INPUT_MAPPING_DEBUG);
+        BBInputManager.getInstance().getInputManager().addListener(actionListener, 
+                                                                    BBGlobals.INPUT_MAPPING_EXIT, 
+                                                                    BBGlobals.INPUT_MAPPING_DEBUG,
+                                                                    BBGlobals.INPUT_MAPPING_CAMERA_POS,
+                                                                    BBGlobals.INPUT_MAPPING_MEMORY);
         BBInputManager.getInstance().getInputManager().addListener(playerListener, 
                                                                     BBGlobals.INPUT_MAPPING_LEFT,
                                                                     BBGlobals.INPUT_MAPPING_RIGHT, 
@@ -151,14 +157,14 @@ public class BBInGameState extends BBAbstractState{
         CameraNode camNode = new CameraNode("Camera Node", cam);
         camNode.setControlDir(ControlDirection.SpatialToCamera);
         //camNode.rotate(new Quaternion().fromAngleAxis(-FastMath.HALF_PI, Vector3f.UNIT_Y));
-        camNode.setLocalTranslation(new Vector3f(25, 10, 0));
+        camNode.setLocalTranslation(new Vector3f(0, 10, 35));
         camNode.lookAt(humanStalker.getLocalTranslation(), Vector3f.UNIT_Y);
         humanStalker.attachChild(camNode);
         //BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).attachChild(camNode);
         
         //*******************************************
         //Create enemies
-        Vector3f mPos = new Vector3f(-0.44354653f, 3f, -80.836426f);
+        Vector3f mPos = new Vector3f(5, 28, 0);
         BBMonsterManager.getInstance().createMonter("ENEMY", "Scenes/TestScene/mutant.j3o", mPos);
 
         //********************************************
@@ -195,8 +201,6 @@ public class BBInGameState extends BBAbstractState{
      
         BBSceneManager.getInstance().createFilter("GAME_TOON", BBSceneManager.FilterType.CARTOON);
  */  
-        
-        BBGuiManager.getInstance().getNifty().gotoScreen("hud");
         
         // Load the main map (here blend loading)
         BBSceneManager.getInstance().setupLight();
@@ -263,12 +267,22 @@ public class BBInGameState extends BBAbstractState{
               //this.engineSystem.setSystemPause(!this.engineSystem.isSystemPause());
               return;
             }
-            if (binding.equals(BBGlobals.INPUT_MAPPING_DEBUG) && !keyPressed) { 
+            else if (binding.equals(BBGlobals.INPUT_MAPPING_DEBUG) && !keyPressed) { 
                 
               BBPhysicsManager.getInstance().setDebugInfo(!BBPhysicsManager.getInstance().isShowDebug());
               BBDebugInfo.getInstance().setDisplayFps(!BBDebugInfo.getInstance().isShowFPS());
               BBDebugInfo.getInstance().setDisplayStatView(!BBDebugInfo.getInstance().isShowStat());
-            } 
+            }
+            else if (binding.equals(BBGlobals.INPUT_MAPPING_CAMERA_POS) && !keyPressed) {
+                    Vector3f loc = BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getControl(CharacterControl.class).getPhysicsLocation();
+                    Quaternion rot = BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getLocalRotation();
+                    System.out.println("***** Character Position: ("
+                            + loc.x + ", " + loc.y + ", " + loc.z + ")");
+                    System.out.println("***** Character Rotation: " + rot);
+                    System.out.println("***** Character Direction: " + BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getControl(CharacterControl.class).getViewDirection());
+            } else if (binding.equals(BBGlobals.INPUT_MAPPING_MEMORY) && !keyPressed) {
+                BufferUtils.printCurrentDirectMemory(null);
+            }
         }//end onAAction
         
               

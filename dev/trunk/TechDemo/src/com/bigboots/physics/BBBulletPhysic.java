@@ -20,6 +20,8 @@ import com.bigboots.components.BBAudioComponent;
 import com.bigboots.components.BBEntity;
 import com.bigboots.components.BBMonsterManager;
 import com.bigboots.core.BBSceneManager;
+import com.bigboots.gui.BBGuiManager;
+import com.bigboots.gui.BBProgressbarController;
 import com.jme3.animation.LoopMode;
 import com.jme3.bullet.PhysicsSpace;
 import com.jme3.bullet.PhysicsTickListener;
@@ -137,7 +139,8 @@ public class BBBulletPhysic extends RigidBodyControl implements PhysicsCollision
                 BBEntity tmpEnt = BBMonsterManager.getInstance().getMonster(event.getNodeA().getName());
                 int health = (Integer) tmpEnt.getSkills("HEALTH");
                 health = (int) (health - event.getCombinedFriction());
-                System.out.println("*******!!! HEAlTH : "+health);
+                BBGuiManager.getInstance().getNifty().getScreen("hud").findControl("enemy_progress", BBProgressbarController.class).setProgress(health / 100.0f);
+                //System.out.println("*******!!! HEAlTH : "+health);
                 if(health <= 0){
                     tmpEnt.stopAllAudio();
                     tmpEnt.setSkills("HEALTH", 0);
@@ -154,15 +157,18 @@ public class BBBulletPhysic extends RigidBodyControl implements PhysicsCollision
                 BBEntity tmpEnt = BBMonsterManager.getInstance().getMonster(event.getNodeB().getName());
                 int health = (Integer) tmpEnt.getSkills("HEALTH");
                 health = (int) (health - event.getCombinedFriction());
-                System.out.println("*******!!! HEAlTH : "+health);
+                BBGuiManager.getInstance().getNifty().getScreen("hud").findControl("enemy_progress", BBProgressbarController.class).setProgress(health / 100.0f);
+                //System.out.println("*******!!! HEAlTH : "+health);
                 if(health <= 0){
                     tmpEnt.stopAllAudio();
                     tmpEnt.setSkills("HEALTH", 0);
                     tmpEnt.setEnabled(false);
                     tmpEnt.getComponent(BBAnimComponent.class).getChannel().setAnim("mutant_death", 0.50f);
                     tmpEnt.getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.DontLoop);
+                    
                 }else{
                     tmpEnt.setSkills("HEALTH", health);
+                    
                 }
             }
             

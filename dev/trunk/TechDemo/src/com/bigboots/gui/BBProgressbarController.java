@@ -49,6 +49,8 @@ public class BBProgressbarController implements Controller{
   }
 
   public void onStartScreen() {
+      progressBarElement.setConstraintWidth(new SizeValue("96px"));
+      progressBarElement.getParent().layoutElements();
   }
 
   public void onFocus(final boolean getFocus) {
@@ -65,12 +67,12 @@ public class BBProgressbarController implements Controller{
     } else if (progress > 1.0f) {
       progress = 1.0f;
     }
-    final int MIN_WIDTH = 32; 
+    final int MIN_WIDTH = 3; 
     int pixelWidth = (int)(MIN_WIDTH + (progressBarElement.getParent().getWidth() - MIN_WIDTH) * progress);
     progressBarElement.setConstraintWidth(new SizeValue(pixelWidth + "px"));
     progressBarElement.getParent().layoutElements();
 
-    String progressText = String.format("%3.0f%%", progress * 100);
+    String progressText = String.format("%3.0f", progress * 100);
     progressTextElement.getRenderer(TextRenderer.class).setText(progressText);
   }
 

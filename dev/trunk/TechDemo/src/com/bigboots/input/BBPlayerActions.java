@@ -139,17 +139,21 @@ public class BBPlayerActions implements ActionListener, AnalogListener{
               
         public void onAnalog(String binding, float value, float tpf) {
             if(!BBPlayerManager.getInstance().isJumping()){
-                if (binding.equals(BBGlobals.INPUT_MAPPING_LEFT)) {
+                //We inverse the key because the map is align on X axis        
+                //left
+                if (binding.equals("Down")) {
                     newRot = new Quaternion().slerp(BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getLocalRotation(),Directions.leftDir, tpf*8);
                     BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).setLocalRotation(newRot);
-                }
-                else if (binding.equals("Right")) {
+                }//right
+                else if (binding.equals("Up")) {
                     newRot = new Quaternion().slerp(BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getLocalRotation(),Directions.rightDir, tpf*8);
                     BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).setLocalRotation(newRot);        
-                } else if (binding.equals("Up")) {
+                }//up 
+                else if (binding.equals(BBGlobals.INPUT_MAPPING_LEFT)) {
                     newRot = new Quaternion().slerp(BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getLocalRotation(),Directions.upDir, tpf*8);
                     BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).setLocalRotation(newRot);
-                } else if (binding.equals("Down")) {
+                } //down
+                else if (binding.equals("Right")) {
                     newRot = new Quaternion().slerp(BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getLocalRotation(),Directions.downDir, tpf*8);
                     BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).setLocalRotation(newRot);
                 }
