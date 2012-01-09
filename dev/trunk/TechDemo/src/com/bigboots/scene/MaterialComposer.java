@@ -40,12 +40,13 @@ public class MaterialComposer {
     private String texLightMaps;    
     private File texDir;
     private String tmpString;
+    private boolean BlenderOgreCheck;
     
-    
-    public MaterialComposer (Geometry geom_mc, String dirBase, String dirLevel, AssetManager assetManager) {
+    public MaterialComposer (Geometry geom_mc, String dirBase, String dirLevel, AssetManager assetManager, boolean BlenderOrOgre) {
         asset = assetManager;    
         geo = geom_mc;
-
+        BlenderOgreCheck = BlenderOrOgre;
+                
         if (geo.getMaterial().getName().indexOf("L") == 0) {
             matName = geo.getMaterial().getName().toString().substring(1);
             texDir = new File(dirLevel);
@@ -127,21 +128,18 @@ public class MaterialComposer {
                             System.out.println("********** File name 2 in children : " + filename2); 
                             int ent;
 
-                            // Check for Entities   
-                            if (entiPath == null){ 
-                                ent = filename2.substring(filename.indexOf(foldID) + 2).indexOf(fileID);
-                            } else {
-                                ent = filename2.indexOf(fileID);
-                            }
+
+
+
                             // Get Diffuse Map
-                            if (ent >= 0 && filename2.indexOf("_nor") < 0 && filename2.indexOf(".blend") < 0 
+                            if (filename2.indexOf(fileID + ".") >= 0 && filename2.indexOf("_nor") < 0 && filename2.indexOf(".blend") < 0 
                                     && filename2.indexOf(".psd") < 0  && filename2.indexOf(".xcf") < 0) {
                                 texPath3 = texPath2 + "/" + filename2;
                                 //texPath3.replaceAll(File.separator.toString(), "/");
                                 System.out.println("file " + texPath3);
                             }
                             // Get Normal Map
-                            else if (ent >= 0 && filename2.indexOf("_nor") > 0 && filename2.indexOf(".blend") < 0 
+                            else if (filename2.indexOf(fileID + "_nor.") >= 0 && filename2.indexOf(".blend") < 0 
                                     && filename2.indexOf(".psd") < 0  && filename2.indexOf(".xcf") < 0) {
                                 texPath3_nor = texPath2 + "/" + filename2;
                                 //texPath3_nor.replaceAll(File.separator.toString(), "/");
@@ -155,7 +153,7 @@ public class MaterialComposer {
  
         if (texPath3.indexOf("assets/") == 0) texPath3 = texPath3.substring(7); 
         // Set Diffuse Map
-        TextureKey tkDif = new TextureKey(texPath3, false);
+        TextureKey tkDif = new TextureKey(texPath3, BlenderOgreCheck);
         tkDif.setAnisotropy(2);
         //System.out.println("ANISOTROPYYY : " + tkDif.getAnisotropy());
         tkDif.setGenerateMips(true);
@@ -166,7 +164,7 @@ public class MaterialComposer {
         // Set Normal Map if you have a "texPath3_nor.png" 
         if (texPath3_nor.length() > 3) {
             if (texPath3_nor.indexOf("assets/") == 0) texPath3_nor = texPath3_nor.substring(7);
-            TextureKey tkNor = new TextureKey(texPath3_nor, false);
+            TextureKey tkNor = new TextureKey(texPath3_nor, BlenderOgreCheck);
             tkNor.setAnisotropy(2);
             tkNor.setGenerateMips(true);
             Texture normalTex = asset.loadTexture(tkNor);
@@ -209,6 +207,7 @@ public class MaterialComposer {
 
         }
         
+        
         // Set Lightmap(Ambient Occlusion) Texture
         if (matName.indexOf("o") >= 0) {     
             File aoDir;
@@ -242,14 +241,14 @@ public class MaterialComposer {
                         //strAO.replaceAll(File.separator.toString(), "/");
                         System.out.println(strAO + " LightMap Loading");
                         if (strAO.indexOf("assets" + "/") == 0) {
-                            TextureKey tkAO = new TextureKey(strAO.substring(7), false);
+                            TextureKey tkAO = new TextureKey(strAO.substring(7), BlenderOgreCheck);
                             tkAO.setAnisotropy(2);
                             tkAO.setGenerateMips(true);
                             textureAO = asset.loadTexture(tkAO);
                             textureAO.setWrap(Texture.WrapMode.Repeat);                
                         }
                         else {
-                            TextureKey tkAO = new TextureKey(strAO, false);
+                            TextureKey tkAO = new TextureKey(strAO, BlenderOgreCheck);
                             tkAO.setAnisotropy(2);
                             tkAO.setGenerateMips(true);
                             textureAO = asset.loadTexture(tkAO);
@@ -302,22 +301,15 @@ public class MaterialComposer {
                             String filename2 = childrenC2[j];
                             int ent;
 
-                            // Check for Entities   
-                            if (entityPath2 == null){ 
-                                ent = filename2.substring(filename.indexOf(foldID) + 2).indexOf(fileID);
-                            } else {
-                                ent = filename2.indexOf(fileID);
-                            }
-
                             // Get Diffuse Map
-                            if (ent >= 0 && filename2.indexOf("_nor") < 0 && filename2.indexOf(".blend") < 0 
+                            if (filename2.indexOf(fileID + ".") >= 0 && filename2.indexOf("_nor") < 0 && filename2.indexOf(".blend") < 0 
                             && filename2.indexOf(".psd") < 0  && filename2.indexOf(".xcf") < 0) {
                                 ctexPath3 = ctexPath2 + "/" + filename2; 
                                 //ctexPath3.replaceAll(File.separator.toString(), "/");
                                 System.out.println("compound file " + ctexPath3);
                             }
                             // Get Normal Map
-                            else if (ent >= 0 && filename2.indexOf("_nor") > 0 && filename2.indexOf(".blend") < 0 
+                            else if (filename2.indexOf(fileID + "_nor.") >= 0 && filename2.indexOf(".blend") < 0 
                             && filename2.indexOf(".psd") < 0  && filename2.indexOf(".xcf") < 0) {
                                 ctexPath3_nor = ctexPath2 + "/" + filename2;
                                 //ctexPath3_nor.replaceAll(File.separator.toString(), "/");
@@ -337,7 +329,7 @@ public class MaterialComposer {
 
         // Set Diffuse Map R channel
         if (matName.indexOf("cR") >= 0) {
-            TextureKey tkDifR = new TextureKey(ctexPath3, false);
+            TextureKey tkDifR = new TextureKey(ctexPath3, BlenderOgreCheck);
             tkDifR.setAnisotropy(2);
             tkDifR.setGenerateMips(true);
             Texture diffuseTexR = asset.loadTexture(tkDifR);
@@ -347,7 +339,7 @@ public class MaterialComposer {
         }
         // Set Diffuse Map G channel
         else if (matName.indexOf("cG") >= 0) {
-            TextureKey tkDifG = new TextureKey(ctexPath3, false);
+            TextureKey tkDifG = new TextureKey(ctexPath3, BlenderOgreCheck);
             tkDifG.setAnisotropy(2);
             tkDifG.setGenerateMips(true);
             Texture diffuseTexG = asset.loadTexture(tkDifG);
@@ -357,7 +349,7 @@ public class MaterialComposer {
         }
         // Set Diffuse Map B channel
         else if (matName.indexOf("cB") >= 0) {
-            TextureKey tkDifB = new TextureKey(ctexPath3, false);
+            TextureKey tkDifB = new TextureKey(ctexPath3, BlenderOgreCheck);
             tkDifB.setAnisotropy(2);
             tkDifB.setGenerateMips(true);
             Texture diffuseTexB = asset.loadTexture(tkDifB);
@@ -371,7 +363,7 @@ public class MaterialComposer {
             if (ctexPath3_nor.indexOf("assets" + "/") == 0) ctexPath3_nor = ctexPath3_nor.substring(7);
             // Set Normal Map R channel
             if (matName.indexOf("cR") >= 0) {
-                TextureKey tkNorR = new TextureKey(ctexPath3_nor, false);   
+                TextureKey tkNorR = new TextureKey(ctexPath3_nor, BlenderOgreCheck);   
                 tkNorR.setAnisotropy(2);
                 tkNorR.setGenerateMips(true);
                 Texture normalTexR = asset.loadTexture(tkNorR);
@@ -380,7 +372,7 @@ public class MaterialComposer {
             }
             // Set Normal Map G channel
             else if (matName.indexOf("cG") >= 0) {
-                TextureKey tkNorG = new TextureKey(ctexPath3_nor, false);  
+                TextureKey tkNorG = new TextureKey(ctexPath3_nor, BlenderOgreCheck);  
                 tkNorG.setAnisotropy(2);
                 tkNorG.setGenerateMips(true);
                 Texture normalTexG = asset.loadTexture(tkNorG);
@@ -389,7 +381,7 @@ public class MaterialComposer {
             }
             // Set Normal Map B channel
             else if (matName.indexOf("cB") >= 0) {
-                TextureKey tkNorB = new TextureKey(ctexPath3_nor, false);
+                TextureKey tkNorB = new TextureKey(ctexPath3_nor, BlenderOgreCheck);
                 tkNorB.setAnisotropy(2);
                 tkNorB.setGenerateMips(true);
                 Texture normalTexB = asset.loadTexture(tkNorB);
@@ -430,14 +422,14 @@ public class MaterialComposer {
                     //strMask.replaceAll(File.separator.toString(), "/");
 
                     if (strMask.indexOf("assets" + "/") == 0) {
-                        TextureKey tkMask = new TextureKey(strMask.substring(7), false);
+                        TextureKey tkMask = new TextureKey(strMask.substring(7), BlenderOgreCheck);
                         tkMask.setAnisotropy(2);
                         tkMask.setGenerateMips(true);
                         textureMask = asset.loadTexture(tkMask);
                         textureMask.setWrap(Texture.WrapMode.Repeat);
                     }
                     else {
-                        TextureKey tkMask = new TextureKey(strMask, false);
+                        TextureKey tkMask = new TextureKey(strMask, BlenderOgreCheck);
                         tkMask.setAnisotropy(2);
                         tkMask.setGenerateMips(true);
                         textureMask = asset.loadTexture(tkMask);

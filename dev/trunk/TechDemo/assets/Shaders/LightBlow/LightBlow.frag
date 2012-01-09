@@ -597,10 +597,13 @@ light.x = max(light.x, refColor);
      vec4 lightMapColor;
            #if defined(SEPERATE_TEXCOORD) && !defined(SEPERATE_TEXCOORD2)
             lightMapColor = texture2D(m_LightMap, texCoord2);
+            lightMapColor.rgb = max(lightMapColor.rgb, 0.3);
            #elif defined(SEPERATE_TEXCOORD) && defined(SEPERATE_TEXCOORD2)
             lightMapColor = texture2D(m_LightMap, texCoord3);
+            lightMapColor.rgb = max(lightMapColor.rgb, 0.3);
         #else
             lightMapColor = texture2D(m_LightMap, texCoord);
+            lightMapColor.rgb = max(lightMapColor.rgb, 0.3);
         #endif
     
 
@@ -608,23 +611,23 @@ light.x = max(light.x, refColor);
         #if defined(LIGHTMAP_R)
         diffuseColor.rgb  *= vec3(lightMapColor.r);
         //AmbientSum2.rgb *= vec3(lightMapColor.r);
-        AmbientSum2.rgb = min(AmbientSum2.rgb,lightMapColor.r + 0.3);
+       // AmbientSum2.rgb = min(AmbientSum2.rgb,lightMapColor.r);
         #elif defined(LIGHTMAP_G)
         diffuseColor.rgb  *= vec3(lightMapColor.g);
         //AmbientSum2.rgb *= vec3(lightMapColor.g);
-        AmbientSum2.rgb = min(AmbientSum2.rgb,lightMapColor.g + 0.3);
+        //AmbientSum2.rgb = min(AmbientSum2.rgb,lightMapColor.g);
         #elif defined(LIGHTMAP_B)
         diffuseColor.rgb  *= vec3(lightMapColor.b);
         //AmbientSum2.rgb *= vec3(lightMapColor.b);
-        AmbientSum2.rgb = min(AmbientSum2.rgb,lightMapColor.b + 0.3);
+        //AmbientSum2.rgb = min(AmbientSum2.rgb,lightMapColor.b);
         #elif defined(LIGHTMAP_A)
         diffuseColor.rgb  *= vec3(lightMapColor.a);
         //AmbientSum2.rgb *= vec3(lightMapColor.a);
-        AmbientSum2.rgb = min(AmbientSum2.rgb,lightMapColor.a + 0.3);
+        //AmbientSum2.rgb = min(AmbientSum2.rgb,lightMapColor.a);
         #else
         diffuseColor.rgb  *= lightMapColor.rgb;
         //AmbientSum2.rgb *= lightMapColor.rgb;
-        AmbientSum2.rgb = min(AmbientSum2.rgb,lightMapColor.r + 0.3);
+        //AmbientSum2.rgb = min(AmbientSum2.rgb,lightMapColor.r);
         #endif
 
      #ifdef SPECULAR_LIGHTING

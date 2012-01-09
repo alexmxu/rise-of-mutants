@@ -37,8 +37,12 @@ public class SceneComposer {
     private Node sceneNode;    
     private String dirbase, levelFold, dirlevel, entFld, entPath;
     private ArrayList alMaterials, alNodesBase;
+    private boolean isBlenderOrOgre;
 
     public  SceneComposer (Node scene, String entityFolder, String levelFolder, String dirTexBase, String dirTexLevel, AssetManager assetM) {
+        
+        isBlenderOrOgre = true;
+        
         entFld = entityFolder; 
         levelFold = levelFolder;
         assett = assetM;
@@ -55,7 +59,8 @@ public class SceneComposer {
   
   
     private void startCompose() {
-
+        
+        // Search for Clones and Original Objects
         for (Spatial origin : sceneNode.getChildren()) {        
             if (origin instanceof Node && origin.getName().indexOf(".") < 0){
                 if (origin.getName().indexOf("E") != 0){
@@ -63,22 +68,29 @@ public class SceneComposer {
                     replaceMeshWithOgre(alNd, levelFold);
                     composeMaterial(alNd, null);
                     alNodesBase.add(alNd);
+                    isBlenderOrOgre = true;
                 } else if (origin.getName().indexOf("E") == 0){
                     Node entNd = (Node) origin;
                     loadEntity(entFld, entNd);
                     alNodesBase.add(entNd);
+                    isBlenderOrOgre = true;
                 }   
             }
         }
         System.out.println("====================================================");
+        
+        // Cloning of Objects (shared meshes and Materials)
        for (Spatial spatNode : sceneNode.getChildren()) {
+           
            if (spatNode instanceof Node && spatNode.getName().indexOf(".") > 0) {
+               boolean cloneFound = false; // Check for existing Original Object
                Node ndNode = (Node) spatNode;
                String strCompare = ndNode.getName().toString();
                strCompare = strCompare.substring(0, ndNode.getName().indexOf("."));
                for (Object nodeTemp : alNodesBase.toArray()) {
                   Node nodeSearch = (Node) nodeTemp;
                   if (nodeSearch.getName().equals(strCompare)) {
+                      cloneFound = true;
                       ndNode.detachAllChildren();
                       for (Spatial sp : nodeSearch.getChildren()) {
                           if (sp instanceof Geometry) {
@@ -91,9 +103,23 @@ public class SceneComposer {
                               ndNode.attachChild(nd);
                           }
                       }
-                  }    
+                  }
                }
-           } 
+             
+              if (cloneFound == false) {
+                  ndNode.setName(strCompare);
+                    if (ndNode.getName().indexOf("E") != 0){
+                    replaceMeshWithOgre(ndNode, levelFold);
+                    composeMaterial(ndNode, null);
+                    alNodesBase.add(ndNode);
+                    isBlenderOrOgre = true;
+                } else if (ndNode.getName().indexOf("E") == 0){
+                    loadEntity(entFld, ndNode);
+                    alNodesBase.add(ndNode);
+                    isBlenderOrOgre = true;
+                }
+              }      
+           }         
         }
         System.out.println(alMaterials.size() + " - QUANTITY OF BASE MATERIALS");   
     }
@@ -110,7 +136,12 @@ public class SceneComposer {
         if (nodeOrigin.getChildren().size() > 0) {
             String strPath = path + "/" + "ogre" + "/" +  nodeOrigin.getName() + ".mesh.xml";
             //strPath.replaceAll("/".toString(), "/");
+            File fileOgreCheck = new File("assets/" + strPath);
+            
+            if (fileOgreCheck.exists() == true) {
+            isBlenderOrOgre = false;   
             ModelKey mkOgre = new ModelKey(strPath);           
+            //System.out.println(mkOgre + " "  + "yyyyyyyyyyyyyyy");
             Node nodeOgre = (Node) assett.loadModel(mkOgre);
             List<Spatial> listOgre = nodeOgre.getChildren();
             System.out.println(nodeOgre.getName() + " ogre node");
@@ -127,6 +158,7 @@ public class SceneComposer {
                // System.out.println(geoTempOgre.getMesh().getBuffer(VertexBuffer.Type.TexCoord2).toString() + "UUUVVV");                
 
                index += 1;
+               }
             }
         }
     }  
@@ -203,7 +235,7 @@ public class SceneComposer {
             String entPath3 = entityPath2; // Path for Entity Textures
             Geometry geomGen = geo;
 
-            MaterialComposer matComp = new MaterialComposer(geomGen, dirbase, dirlevel, assett);
+            MaterialComposer matComp = new MaterialComposer(geomGen, dirbase, dirlevel, assett, isBlenderOrOgre);
             System.out.println("Composing Material: " + geomGen.getMaterial().getName() + " for Geometry " + geomGen.getName());
             matComp.generateMaterial(entPath3);
             alMaterials.add(geomGen.getMaterial());
