@@ -240,11 +240,6 @@ public class BBSceneComposer {
             matComp.generateMaterial(entPath3);
             alMaterials.add(geomGen.getMaterial());
 
-            // Test lighting. It will be removed soon.        
-            TextureKey tkk = new TextureKey("Textures/skyboxes/sky_box_01/skybox_01_low.png", false);
-            tkk.setGenerateMips(true);
-            Texture ibl = assett.loadTexture(tkk);
-            geomGen.getMaterial().setTexture("IblMap_Simple", ibl); 
         }
     };
  
