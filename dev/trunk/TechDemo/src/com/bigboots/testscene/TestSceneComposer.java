@@ -18,6 +18,7 @@ package com.bigboots.testscene;
 
 
 import com.bigboots.scene.BBSceneComposer;
+import com.bigboots.scene.BBShaderManager;
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.BlenderKey;
 import com.jme3.asset.DesktopAssetManager;
@@ -56,11 +57,19 @@ public class TestSceneComposer extends SimpleApplication {
 
         BBSceneComposer sc = new BBSceneComposer(nd, entities, scenePath, baseTex, levelTex, assetManager);
         TangentBinormalGenerator.generate(nd);
+
+        
+        
+        BBShaderManager shm = new BBShaderManager(nd, assetManager);
+        shm.setSimpleIBLParam("Textures/skyboxes/sky_box_01/skybox_01_low.png");   
+        shm.setFogParam(new ColorRGBA(0.7f,0.6f,0.2f, 70f), null);
+        
         rootNode.attachChild(nd);
 
         // Set Skybox
         TextureKey key_west = new TextureKey("Textures/skyboxes/sky_box_01/skybox_01_west.png", true);
         key_west.setGenerateMips(true);
+        
         Texture sky_west = assetManager.loadTexture(key_west);
         TextureKey key_east = new TextureKey("Textures/skyboxes/sky_box_01/skybox_01_east.png", true);
         key_east.setGenerateMips(true);
@@ -83,11 +92,9 @@ public class TestSceneComposer extends SimpleApplication {
         Spatial sky = SkyFactory.createSky(assetManager, sky_west, sky_east, sky_north, sky_south, sky_top, sky_bottom, normalScale);
         rootNode.attachChild(sky);
 
-        //        // Clear Cache
-        //        nd.detachAllChildren();
-        //        nd.removeFromParent();
-        //        dsk.clearCache();
 
+        
+        
         // Add a light Source
         DirectionalLight dl = new DirectionalLight();
         dl.setDirection(new Vector3f(0.5432741f, -0.58666015f, -0.6005691f).normalizeLocal());
