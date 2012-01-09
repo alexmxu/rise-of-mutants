@@ -31,6 +31,7 @@ import com.bigboots.input.BBPlayerActions;
 import com.bigboots.physics.BBBasicCollisionListener;
 import com.bigboots.physics.BBPhysicsManager;
 import com.bigboots.scene.BBSceneComposer;
+import com.bigboots.scene.BBShaderManager;
 import com.jme3.animation.AnimChannel;
 import com.jme3.scene.Spatial;
 import com.jme3.math.Vector3f;
@@ -318,6 +319,11 @@ public class BBInGameState extends BBAbstractState{
 
         BBSceneComposer sc = new BBSceneComposer(nd, entities, scenePath, baseTex, levelTex, BBSceneManager.getInstance().getAssetManager());
         TangentBinormalGenerator.generate(nd);
+        
+        // Added scene effects (fog, ibl)
+        BBShaderManager shm = new BBShaderManager(nd, BBSceneManager.getInstance().getAssetManager());
+        shm.setSimpleIBLParam("Textures/skyboxes/sky_box_01/skybox_01_low.png");   
+        shm.setFogParam(new ColorRGBA(0.7f,0.6f,0.2f, 75f), null);
         
         BBSceneManager.getInstance().addChild(nd);
 /*        
