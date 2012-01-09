@@ -17,7 +17,7 @@
 package com.bigboots.testscene;
 
 
-import com.bigboots.scene.SceneComposer;
+import com.bigboots.scene.BBSceneComposer;
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.BlenderKey;
 import com.jme3.asset.DesktopAssetManager;
@@ -54,7 +54,7 @@ public class TestSceneComposer extends SimpleApplication {
         String levelTex = "assets/Textures/level_textures";
         String scenePath = bk.getFolder().substring(0, bk.getFolder().length() - 1); //BlenderKey sets "File.separator" in the end of String
 
-        SceneComposer sc = new SceneComposer(nd, entities, scenePath, baseTex, levelTex, assetManager);
+        BBSceneComposer sc = new BBSceneComposer(nd, entities, scenePath, baseTex, levelTex, assetManager);
         TangentBinormalGenerator.generate(nd);
         rootNode.attachChild(nd);
 

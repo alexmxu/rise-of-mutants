@@ -30,7 +30,7 @@ import com.bigboots.input.BBInputManager;
 import com.bigboots.input.BBPlayerActions;
 import com.bigboots.physics.BBBasicCollisionListener;
 import com.bigboots.physics.BBPhysicsManager;
-import com.bigboots.scene.SceneComposer;
+import com.bigboots.scene.BBSceneComposer;
 import com.jme3.animation.AnimChannel;
 import com.jme3.scene.Spatial;
 import com.jme3.math.Vector3f;
@@ -316,7 +316,7 @@ public class BBInGameState extends BBAbstractState{
         String levelTex = "assets/Textures/level_textures";
         String scenePath = bk.getFolder().substring(0, bk.getFolder().length() - 1); //BlenderKey sets "File.separator" in the end of String
 
-        SceneComposer sc = new SceneComposer(nd, entities, scenePath, baseTex, levelTex, BBSceneManager.getInstance().getAssetManager());
+        BBSceneComposer sc = new BBSceneComposer(nd, entities, scenePath, baseTex, levelTex, BBSceneManager.getInstance().getAssetManager());
         TangentBinormalGenerator.generate(nd);
         
         BBSceneManager.getInstance().addChild(nd);

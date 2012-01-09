@@ -212,13 +212,10 @@ public class BBSceneManager {
     //TODO : To be changed
     public void setupLight(){
         // We add light so we see the scene
-        al = new AmbientLight();
-        al.setColor(ColorRGBA.White.mult(1.3f));
-        rootNode.addLight(al); 
         DirectionalLight dl = new DirectionalLight();
-        dl.setColor(ColorRGBA.White);
-        dl.setDirection(new Vector3f(0.8f, -2.8f, 0.8f).normalizeLocal());
-        rootNode.addLight(dl);   
+        dl.setDirection(new Vector3f(0.5432741f, -0.58666015f, -0.6005691f).normalizeLocal());
+        dl.setColor(new ColorRGBA(1.1f,1.1f,1.1f,1));
+        rootNode.addLight(dl); 
     }  
     
     private void initAssetManager(){
