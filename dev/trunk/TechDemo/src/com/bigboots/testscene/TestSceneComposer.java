@@ -59,10 +59,10 @@ public class TestSceneComposer extends SimpleApplication {
         TangentBinormalGenerator.generate(nd);
 
         
-        
+        // ShaderManager test
         BBShaderManager shm = new BBShaderManager(nd, assetManager);
         shm.setSimpleIBLParam("Textures/skyboxes/sky_box_01/skybox_01_low.png");   
-        shm.setFogParam(new ColorRGBA(0.7f,0.6f,0.2f, 70f), null);
+        shm.setFogParam(new ColorRGBA(0.67f,0.55f,0.2f, 85f), null);
         
         rootNode.attachChild(nd);
 
