@@ -17,11 +17,13 @@ package com.bigboots.scene;
 
 
 import com.jme3.asset.AssetManager;
+import com.jme3.asset.DesktopAssetManager;
 import com.jme3.asset.ModelKey;
 import com.jme3.asset.TextureKey;
 import com.jme3.material.*;
 import com.jme3.scene.*;
 import com.jme3.texture.Texture;
+import com.jme3.util.TangentBinormalGenerator;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -67,11 +69,13 @@ public class BBSceneComposer {
                     Node alNd = (Node) origin;  
                     replaceMeshWithOgre(alNd, levelFold);
                     composeMaterial(alNd, null);
+                    TangentBinormalGenerator.generate(alNd);
                     alNodesBase.add(alNd);
                     isBlenderOrOgre = true;
                 } else if (origin.getName().indexOf("E") == 0){
                     Node entNd = (Node) origin;
                     loadEntity(entFld, entNd);
+                    TangentBinormalGenerator.generate(entNd);
                     alNodesBase.add(entNd);
                     isBlenderOrOgre = true;
                 }   
@@ -111,10 +115,12 @@ public class BBSceneComposer {
                     if (ndNode.getName().indexOf("E") != 0){
                     replaceMeshWithOgre(ndNode, levelFold);
                     composeMaterial(ndNode, null);
+                    TangentBinormalGenerator.generate(ndNode);
                     alNodesBase.add(ndNode);
                     isBlenderOrOgre = true;
                 } else if (ndNode.getName().indexOf("E") == 0){
                     loadEntity(entFld, ndNode);
+                    TangentBinormalGenerator.generate(ndNode);
                     alNodesBase.add(ndNode);
                     isBlenderOrOgre = true;
                 }
@@ -131,7 +137,7 @@ public class BBSceneComposer {
     private void replaceMeshWithOgre(Node nd, String path) {
 
         Node nodeOrigin = nd;   
-        System.out.println(nodeOrigin.getName() + " scene node");
+        System.out.println(nodeOrigin.getName() + " OGRE REPLACING NODE");
 
         if (nodeOrigin.getChildren().size() > 0) {
             String strPath = path + "/" + "ogre" + "/" +  nodeOrigin.getName() + ".mesh.xml";
@@ -141,7 +147,7 @@ public class BBSceneComposer {
             if (fileOgreCheck.exists() == true) {
             isBlenderOrOgre = false;   
             ModelKey mkOgre = new ModelKey(strPath);           
-            //System.out.println(mkOgre + " "  + "yyyyyyyyyyyyyyy");
+          //  System.out.println(mkOgre + " "  + "yyyyyyyyyyyyyyy");
             Node nodeOgre = (Node) assett.loadModel(mkOgre);
             List<Spatial> listOgre = nodeOgre.getChildren();
             System.out.println(nodeOgre.getName() + " ogre node");
@@ -182,18 +188,33 @@ public class BBSceneComposer {
                 String strF = dirEntity + "/" + f.getName();
                 System.out.println("========>>FOUND ENTITY :: " + strF);
 
-                Node nodeEnt = (Node) assett.loadModel(strF.substring(7));
+                // Load a blender file. 
+                DesktopAssetManager dsk = (DesktopAssetManager) assett;        
+                ModelKey bk = new ModelKey(strF.substring(7));
+                Node nodeEnt =  (Node) dsk.loadModel(bk);                 
+                // Node nodeEnt = (Node) assett.loadModel(strF.substring(7));
+                
                 for (Spatial sp : nodeEnt.getChildren()) {
                     Node ndThis = (Node) sp;
                     fullNode.attachChild(ndThis);
                 }
                 //Search for Ogre Meshes and Path for Material Composer
                 File[] flOgre = f.getParentFile().listFiles();
+                System.out.println(flOgre + "wwwwwwwww");
                 for (File fPath : flOgre) {
-                    if (fPath.isDirectory() && fPath.toString().endsWith("/" + "ogre")) {
-                        replaceMeshWithOgre(fullNode, strF);
+                    if (fPath.isDirectory() && fPath.toString().endsWith("ogre")) {
+                        for (Spatial sp2 : fullNode.getChildren()) {
+                        Node ndToOgre = (Node) sp2;    
+                        replaceMeshWithOgre(ndToOgre, f.getParentFile().toString().substring(7));
                     }
+                  }      
                 }
+        
+                //Clear Blend File
+                nodeEnt.detachAllChildren();
+                nodeEnt = null;
+                dsk.clearCache();
+                
                 System.out.println("****** GET PArent File : "+f.getParentFile().toString());
                 composeMaterial(fullNode, dirEntity);  
             }
@@ -213,14 +234,14 @@ public class BBSceneComposer {
             System.out.println(spatial + " Visited Spatial");
             if (spatial instanceof Geometry) {
                 Geometry geom_sc = (Geometry) spatial;
-                if (alMaterials.isEmpty() == true){
+                if (alMaterials.isEmpty() == true || entPath != null){
                     setGeneration(geom_sc, entPath);
                 }
                 else{
                     //Generate Material
                     for (Object matTemp : alMaterials.toArray()) {
                         Material matSearch = (Material) matTemp;
-                        if (geom_sc.getMaterial().getName().equals(matSearch.getName())){
+                        if (geom_sc.getMaterial().getName().equals(matSearch.getName()) && entPath == null){
                             geom_sc.setMaterial(matSearch);
                         }
                         else {
@@ -238,7 +259,7 @@ public class BBSceneComposer {
             BBMaterialComposer matComp = new BBMaterialComposer(geomGen, dirbase, dirlevel, assett, isBlenderOrOgre);
             System.out.println("Composing Material: " + geomGen.getMaterial().getName() + " for Geometry " + geomGen.getName());
             matComp.generateMaterial(entPath3);
-            alMaterials.add(geomGen.getMaterial());
+            if (entPath3 == null) alMaterials.add(geomGen.getMaterial());
 
         }
     };
