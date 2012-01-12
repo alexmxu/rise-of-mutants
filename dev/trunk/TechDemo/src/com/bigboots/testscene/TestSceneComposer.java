@@ -56,7 +56,7 @@ public class TestSceneComposer extends SimpleApplication {
         String scenePath = bk.getFolder().substring(0, bk.getFolder().length() - 1); //BlenderKey sets "File.separator" in the end of String
 
         BBSceneComposer sc = new BBSceneComposer(nd, entities, scenePath, baseTex, levelTex, assetManager);
-        TangentBinormalGenerator.generate(nd);
+        
 
         
         // ShaderManager test

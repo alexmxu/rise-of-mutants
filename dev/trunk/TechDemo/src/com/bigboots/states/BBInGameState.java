@@ -318,7 +318,6 @@ public class BBInGameState extends BBAbstractState{
         String scenePath = bk.getFolder().substring(0, bk.getFolder().length() - 1); //BlenderKey sets "File.separator" in the end of String
 
         BBSceneComposer sc = new BBSceneComposer(nd, entities, scenePath, baseTex, levelTex, BBSceneManager.getInstance().getAssetManager());
-        TangentBinormalGenerator.generate(nd);
         
         // Added scene effects (fog, ibl)
         BBShaderManager shm = new BBShaderManager(nd, BBSceneManager.getInstance().getAssetManager());
