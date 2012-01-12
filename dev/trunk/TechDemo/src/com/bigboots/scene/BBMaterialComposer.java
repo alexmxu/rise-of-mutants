@@ -133,14 +133,14 @@ public class BBMaterialComposer {
 
                             // Get Diffuse Map
                             if (filename2.indexOf(fileID + ".") >= 0 && filename2.indexOf("_nor") < 0 && filename2.indexOf(".blend") < 0 
-                                    && filename2.indexOf(".psd") < 0  && filename2.indexOf(".xcf") < 0) {
+                                    && filename2.indexOf(".psd") < 0  && filename2.indexOf(".xcf") < 0 && filename2.indexOf("lightmap_") < 0 && filename2.indexOf("mask_") < 0) {
                                 texPath3 = texPath2 + "/" + filename2;
                                 //texPath3.replaceAll(File.separator.toString(), "/");
                                 System.out.println("file " + texPath3);
                             }
                             // Get Normal Map
                             else if (filename2.indexOf(fileID + "_nor.") >= 0 && filename2.indexOf(".blend") < 0 
-                                    && filename2.indexOf(".psd") < 0  && filename2.indexOf(".xcf") < 0) {
+                                    && filename2.indexOf(".psd") < 0  && filename2.indexOf(".xcf") < 0 && filename2.indexOf("lightmap_") < 0 && filename2.indexOf("mask_") < 0) {
                                 texPath3_nor = texPath2 + "/" + filename2;
                                 //texPath3_nor.replaceAll(File.separator.toString(), "/");
                                 System.out.println("file NormalMap " + texPath3_nor);
@@ -213,12 +213,11 @@ public class BBMaterialComposer {
             File aoDir;
             Texture textureAO;
 
-            if (entiPath == null){ 
-                aoDir = new File(texLightMaps);
-            } else {
-                aoDir = new File(entiPath + "/" + "textures");
+            if (entiPath != null){ 
+                texLightMaps = entiPath + "/" + "textures";
             }
-
+            aoDir = new File(texLightMaps);
+            
             String[] childrenAO = aoDir.list();
             if (childrenAO == null) {
                 // Either dir does not exist or is not a directory
@@ -240,7 +239,7 @@ public class BBMaterialComposer {
                         String strAO = texLightMaps + "/" + fileAO;
                         //strAO.replaceAll(File.separator.toString(), "/");
                         System.out.println(strAO + " LightMap Loading");
-                        if (strAO.indexOf("assets" + "/") == 0) {
+                        if (strAO.indexOf("assets/") == 0) {
                             TextureKey tkAO = new TextureKey(strAO.substring(7), BlenderOgreCheck);
                             tkAO.setAnisotropy(2);
                             tkAO.setGenerateMips(true);
@@ -303,14 +302,14 @@ public class BBMaterialComposer {
 
                             // Get Diffuse Map
                             if (filename2.indexOf(fileID + ".") >= 0 && filename2.indexOf("_nor") < 0 && filename2.indexOf(".blend") < 0 
-                            && filename2.indexOf(".psd") < 0  && filename2.indexOf(".xcf") < 0) {
+                            && filename2.indexOf(".psd") < 0  && filename2.indexOf(".xcf") < 0 && filename2.indexOf("lightmap_") < 0 && filename2.indexOf("mask_") < 0) {
                                 ctexPath3 = ctexPath2 + "/" + filename2; 
                                 //ctexPath3.replaceAll(File.separator.toString(), "/");
                                 System.out.println("compound file " + ctexPath3);
                             }
                             // Get Normal Map
                             else if (filename2.indexOf(fileID + "_nor.") >= 0 && filename2.indexOf(".blend") < 0 
-                            && filename2.indexOf(".psd") < 0  && filename2.indexOf(".xcf") < 0) {
+                            && filename2.indexOf(".psd") < 0  && filename2.indexOf(".xcf") < 0 && filename2.indexOf("lightmap_") < 0 && filename2.indexOf("mask_") < 0) {
                                 ctexPath3_nor = ctexPath2 + "/" + filename2;
                                 //ctexPath3_nor.replaceAll(File.separator.toString(), "/");
                                 System.out.println("compound file NormalMap " + ctexPath3_nor);
