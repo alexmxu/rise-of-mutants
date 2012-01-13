@@ -322,7 +322,7 @@ public class BBInGameState extends BBAbstractState{
         // Added scene effects (fog, ibl)
         BBShaderManager shm = new BBShaderManager(nd, BBSceneManager.getInstance().getAssetManager());
         shm.setSimpleIBLParam("Textures/skyboxes/sky_box_01/skybox_01_low.png");   
-        shm.setFogParam(new ColorRGBA(0.7f,0.6f,0.2f, 105f), null);
+        shm.setFogParam(new ColorRGBA(0.7f,0.6f,0.2f, 43f), null);
         
         BBSceneManager.getInstance().addChild(nd);
 /*        
