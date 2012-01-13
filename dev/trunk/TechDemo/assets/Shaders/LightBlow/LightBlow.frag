@@ -597,13 +597,13 @@ light.x = max(light.x, refColor);
      vec4 lightMapColor;
            #if defined(SEPERATE_TEXCOORD) && !defined(SEPERATE_TEXCOORD2)
             lightMapColor = texture2D(m_LightMap, texCoord2);
-            lightMapColor.rgb = max(lightMapColor.rgb, 0.3);
+            lightMapColor.rgb = max(lightMapColor.rgb, 0.2);
            #elif defined(SEPERATE_TEXCOORD) && defined(SEPERATE_TEXCOORD2)
             lightMapColor = texture2D(m_LightMap, texCoord3);
-            lightMapColor.rgb = max(lightMapColor.rgb, 0.3);
+            lightMapColor.rgb = max(lightMapColor.rgb, 0.2);
         #else
             lightMapColor = texture2D(m_LightMap, texCoord);
-            lightMapColor.rgb = max(lightMapColor.rgb, 0.3);
+            lightMapColor.rgb = max(lightMapColor.rgb, 0.2);
         #endif
     
 
@@ -675,13 +675,11 @@ fogColor = m_FogColor;
 fogColor.rgb = Optics_GetEnvColor(m_FogSkyBox, I).rgb;
     #endif
 
-float fogDensity = 1.2;
 float fogDistance = fogColor.a;
-float depth = min(fog_z / fogDistance, fogDistance*0.8);
-float LOG2 = 1.442695;
- 
-fogFactor = exp2( -fogDensity * fogDensity * depth *  depth * LOG2 );
-fogFactor = clamp(fogFactor, 0.35, 1.0);
+float depth = (fog_z - fogDistance)/ fogDistance;
+depth = max(depth, 0.0);
+fogFactor = exp2(-depth*depth);
+fogFactor = clamp(fogFactor, 0.05, 1.0);
 
 gl_FragColor.rgb = mix(fogColor.rgb,gl_FragColor.rgb,vec3(fogFactor));
 
