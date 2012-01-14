@@ -160,8 +160,9 @@ public class BBPlayerManager {
         }
 
         else if(!mIsJumping){
-            logger.log(Level.INFO,"Character jumping start.");
-//            mIsJumping = true;
+          //  logger.log(Level.INFO,"Character jumping start.");
+          //  mIsJumping = true;
+
             
        //     mMainPlayer.getComponent(BBAnimComponent.class).getChannel().setAnim("jump", 0.50f); // TODO: Must be activated after a certain time after "JumpStart"
        //     mMainPlayer.getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.DontLoop);
