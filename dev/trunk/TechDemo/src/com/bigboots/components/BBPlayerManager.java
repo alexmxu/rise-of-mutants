@@ -124,35 +124,40 @@ public class BBPlayerManager {
          
                 if(hasBeenOnGroundCopy)
                 {
-                    hasJumped+=tpf;
-
-                    logger.log(Level.INFO,"Character jumping end.");
+//                    hasJumped+=tpf;
+//
+//                    logger.log(Level.INFO,"Character jumping end.");
                     mIsJumping = false;
-                    hasJumped = 0;
+//                    hasJumped = 0;
                     if(mIsWalking){
-                        
+//                        
                         logger.log(Level.INFO,"Character jumping end. Start stand.");
-
+//
                         mMainPlayer.getComponent(BBAnimComponent.class).getChannel().setAnim("run_01", 0.50f);
                         mMainPlayer.getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.Loop);
                     }
                     else{
                         logger.log(Level.INFO,"Character jumping end. Start stand.");
-
+//
                         mMainPlayer.getComponent(BBAnimComponent.class).getChannel().setAnim("base_stand", 0.50f);
                         mMainPlayer.getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.DontLoop);                           
-                        mMainPlayer.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(Vector3f.ZERO);
+                      //  mMainPlayer.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(Vector3f.ZERO);
                     }
                     hasBeenOnGround = false;
-                }
-            }
+                     }
+                  }
+            
+                if(!mIsWalking && !mIsJumping){
+                    mMainPlayer.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(Vector3f.ZERO);
+                }            
         }
+
         else if(!mIsJumping){
             logger.log(Level.INFO,"Character jumping start.");
-            mIsJumping = true;
+//            mIsJumping = true;
             
-            mMainPlayer.getComponent(BBAnimComponent.class).getChannel().setAnim("jump", 0.50f); // TODO: Must be activated after a certain time after "JumpStart"
-            mMainPlayer.getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.DontLoop);
+       //     mMainPlayer.getComponent(BBAnimComponent.class).getChannel().setAnim("jump", 0.50f); // TODO: Must be activated after a certain time after "JumpStart"
+       //     mMainPlayer.getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.DontLoop);
         }
     }
     

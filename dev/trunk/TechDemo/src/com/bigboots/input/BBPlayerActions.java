@@ -77,8 +77,26 @@ public class BBPlayerActions implements ActionListener, AnalogListener{
                 pressed--;                      
             }
             //System.out.println("******* BINDING PRESSED : "+ binding);
+
             
-            if (keyPressed==false && BBPlayerManager.getInstance().isWalking()==true) {
+            if(keyPressed && !binding.equals("Jump") && !binding.equals("MOUSE_LEFT") && !binding.equals("MOUSE_RIGHT") && !BBPlayerManager.getInstance().isWalking()){
+                BBPlayerManager.getInstance().setIsWalking(true);
+                
+                if(!BBPlayerManager.getInstance().isJumping()){
+                    logger.log(Level.INFO,"Character walking init.");
+                    BBPlayerManager.getInstance().getMainPlayer().getComponent(BBAnimComponent.class).getChannel().setAnim("run_01", 0.50f); // TODO: Must be activated after a certain time after "RunTop"
+                    BBPlayerManager.getInstance().getMainPlayer().getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.Loop);
+              
+                    //Trying to repeat the walk sound
+                    time += tpf;
+                    if (time > 0f) {
+                        BBPlayerManager.getInstance().getMainPlayer().getAudio("STEP").play();
+                        time = 0;
+                    }
+                }
+            }            
+            
+            else if (keyPressed==false && BBPlayerManager.getInstance().isWalking()==true) {
                 BBPlayerManager.getInstance().setIsWalking(false);
                 if(!BBPlayerManager.getInstance().isJumping()){
                     logger.log(Level.INFO,"Character walking end.");
@@ -108,22 +126,7 @@ public class BBPlayerActions implements ActionListener, AnalogListener{
                 }
                 
             }
-            if(keyPressed && !binding.equals("Jump") && !binding.equals("MOUSE_LEFT") && !binding.equals("MOUSE_RIGHT") && !BBPlayerManager.getInstance().isWalking()){
-                BBPlayerManager.getInstance().setIsWalking(true);
-                
-                if(!BBPlayerManager.getInstance().isJumping()){
-                    logger.log(Level.INFO,"Character walking init.");
-                    BBPlayerManager.getInstance().getMainPlayer().getComponent(BBAnimComponent.class).getChannel().setAnim("run_01", 0.50f); // TODO: Must be activated after a certain time after "RunTop"
-                    BBPlayerManager.getInstance().getMainPlayer().getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.Loop);
-              
-                    //Trying to repeat the walk sound
-                    time += tpf;
-                    if (time > 0f) {
-                        BBPlayerManager.getInstance().getMainPlayer().getAudio("STEP").play();
-                        time = 0;
-                    }
-                }
-            }
+
             
             if (binding.equals("Jump") &! BBPlayerManager.getInstance().isJumping() ) {
                 if (keyPressed){
@@ -165,6 +168,7 @@ public class BBPlayerActions implements ActionListener, AnalogListener{
                 else{
                     BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(Vector3f.ZERO);
                 }
+            
             }
         }//end onAnalog
         
