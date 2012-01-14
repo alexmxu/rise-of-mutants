@@ -442,8 +442,9 @@ public class TestCharacterOnTrack extends SimpleApplication implements AnimEvent
     public void simpleRender(RenderManager rm) {
         //TODO: add render code
     }
-
+        int timeBullet = 0;
     public void onAnalog(String binding, float value, float tpf) {
+                
         if(!jump)
         {
         if (binding.equals("Left")) {

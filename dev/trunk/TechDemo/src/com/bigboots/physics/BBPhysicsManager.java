@@ -73,7 +73,7 @@ public class BBPhysicsManager extends Application implements BBUpdateListener{
         BoundingBox vol = (BoundingBox)ent.getComponent(BBNodeComponent.class).getWorldBound();
         
         if(type.equals(ShapeType.CAPSULE)){
-            CapsuleCollisionShape enShape = new CapsuleCollisionShape(vol.getZExtent()/2, vol.getYExtent(), 1);
+            CapsuleCollisionShape enShape = new CapsuleCollisionShape(vol.getZExtent()*0.8f, vol.getYExtent(), 1);
             return enShape;
         }
         if(type.equals(ShapeType.MESH)){

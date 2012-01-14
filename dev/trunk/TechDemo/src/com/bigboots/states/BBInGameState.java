@@ -166,9 +166,9 @@ public class BBInGameState extends BBAbstractState{
         //*******************************************
         //Create enemies
         Vector3f mPos = new Vector3f(5, 20, -3);
-        Vector3f mPos2 = new Vector3f(10, 20, 8);
+        Vector3f mPos2 = new Vector3f(10, 18, 8);
         Vector3f mPos3 = new Vector3f(32, 20, -5);
-        Vector3f mPos4 = new Vector3f(10, 20, 1);
+        Vector3f mPos4 = new Vector3f(10, 25, 1);
         BBMonsterManager.getInstance().createMonter("ENEMY", "Scenes/TestScene/mutant.j3o", mPos);
         BBMonsterManager.getInstance().createMonter("ENEMY1", "Scenes/TestScene/mutant.j3o", mPos2);
         BBMonsterManager.getInstance().createMonter("ENEMY2", "Scenes/TestScene/mutant.j3o", mPos3);
@@ -351,13 +351,8 @@ public class BBInGameState extends BBAbstractState{
  */       
         CollisionShape myComplexShape = CollisionShapeFactory.createMeshShape(nd);
         RigidBodyControl worldPhysics = new RigidBodyControl(myComplexShape,0);  
-        
-        // set it static for a while
-        worldPhysics.setKinematic(true);
-        
         worldPhysics.createDebugShape(BBSceneManager.getInstance().getAssetManager());
-        
-        
+
         BBPhysicsManager.getInstance().getPhysicsSpace().add(worldPhysics); 
         //BBSceneManager.getInstance().getRootNode().attachChild(worldPhysics.debugShape());
         
