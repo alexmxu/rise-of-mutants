@@ -155,7 +155,8 @@ public class BBPlayerActions implements  ActionListener, AnalogListener{
 //                    if (shootBullets = true) {
 //                
 //                System.out.println(timeBullet + "  ******* Bullet cteated");
-//                if (timeBullet == 0.001) bulletControl();                    
+//                if (timeBullet == 0.001) bulletControl();   
+            
 //                 }
 //            }
             
@@ -169,8 +170,7 @@ public class BBPlayerActions implements  ActionListener, AnalogListener{
                 else if (binding.equals("Up")) {
                     newRot = new Quaternion().slerp(BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getLocalRotation(),Directions.rightDir, tpf*8);
                     BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).setLocalRotation(newRot);        
-                    timeBullet += tpf;
-                    System.out.println(timeBullet + "  ******* Bullet cteated");
+
                 }//up 
                 else if (binding.equals(BBGlobals.INPUT_MAPPING_LEFT)) {
                     newRot = new Quaternion().slerp(BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getLocalRotation(),Directions.upDir, tpf*8);
