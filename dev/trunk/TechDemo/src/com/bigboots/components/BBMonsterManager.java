@@ -74,7 +74,7 @@ public class BBMonsterManager {
         mEnemy.mTag = BBObject.ObjectTag.MONSTER;
         BBNodeComponent node = mEnemy.addComponent(CompType.NODE);
         mEnemy.loadModel(file);
-        node.scale(5);
+        node.scale(4);
         node.setLocalTranslation(pos);
         BBSceneManager.getInstance().addChild(mEnemy.getComponent(BBNodeComponent.class));
         
@@ -82,7 +82,7 @@ public class BBMonsterManager {
         //mEnemy.createAnimation();
         BBAnimComponent anim = mEnemy.addComponent(CompType.ANIMATION);
         anim.getChannel().setAnim("mutant_idle");
-        anim.getChannel().setLoopMode(LoopMode.Cycle);
+        anim.getChannel().setLoopMode(LoopMode.Loop);
         mEnemy.getComponent(BBAnimComponent.class).getChannel().setSpeed(1f);
         
         //Set up physic controler component

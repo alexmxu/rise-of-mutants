@@ -198,10 +198,11 @@ public class BBPlayerActions implements  ActionListener, AnalogListener{
         private void prepareBullet() {
             bullet = new Sphere(8, 8, 0.2f, true, false);
             bullet.setTextureMode(TextureMode.Projected);
-            bulletCollisionShape = new SphereCollisionShape(0.4f);
+            bulletCollisionShape = new SphereCollisionShape(0.3f);
             matBullet = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
             matBullet.setColor("Color", ColorRGBA.Yellow);
             matBullet.setColor("m_GlowColor", ColorRGBA.Orange);
+            
             //BBPhysicsManager.getInstance().getPhysicsSpace().addCollisionListener(this);
         }
         
@@ -212,7 +213,7 @@ public class BBPlayerActions implements  ActionListener, AnalogListener{
             Geometry bulletg = new Geometry("bullet", bullet);
             bulletg.setMaterial(matBullet);
             bulletg.setShadowMode(ShadowMode.Off);
-            Vector3f pos = character.getPhysicsLocation().add(character.getViewDirection().mult(8));
+            Vector3f pos = character.getPhysicsLocation().add(character.getViewDirection().mult(10));
             pos.y = pos.y + 1.0f;
             pos.z = pos.z + 0.4f;
             bulletg.setLocalTranslation(pos);
