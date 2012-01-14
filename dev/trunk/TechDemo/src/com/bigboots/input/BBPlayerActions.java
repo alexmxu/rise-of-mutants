@@ -47,7 +47,7 @@ import java.util.logging.Logger;
  *
  * @author @author Ulrich Nzuzi <ulrichnz@code.google.com>
  */
-public class BBPlayerActions implements AnimEventListener, ActionListener, AnalogListener{
+public class BBPlayerActions implements  ActionListener, AnalogListener{
     private Material matBullet;
     //bullet
     private Sphere bullet;
@@ -58,19 +58,13 @@ public class BBPlayerActions implements AnimEventListener, ActionListener, Analo
     private float time = 0;
     private int pressed=0;
     private static final Logger logger = Logger.getLogger(BBPlayerActions.class.getName());
-    
+    private boolean shootBullets = false;
+    int timeBullet = 0;
     
     public BBPlayerActions(){
         prepareBullet();
     }
 
-    public void onAnimCycleDone(AnimControl control, AnimChannel channel, String animName) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    public void onAnimChange(AnimControl control, AnimChannel channel, String animName) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
     
     private static final class Directions{
         private static final Quaternion rot = new Quaternion().fromAngleAxis(-FastMath.HALF_PI, Vector3f.UNIT_Y);
@@ -116,18 +110,21 @@ public class BBPlayerActions implements AnimEventListener, ActionListener, Analo
                 }
             }
             
-            if(!keyPressed && binding.equals("MOUSE_LEFT")){
+            if(binding.equals("MOUSE_LEFT")){
                 BBPlayerManager.getInstance().setIsWalking(false);
                 if(!BBPlayerManager.getInstance().isJumping()){
                     logger.log(Level.INFO,"******  Character Attack 1.");
                     BBPlayerManager.getInstance().getMainPlayer().getAudio("FIRE").play();
                     BBPlayerManager.getInstance().getMainPlayer().getComponent(BBAnimComponent.class).getChannel().setAnim("shoot", 0.05f);
                     BBPlayerManager.getInstance().getMainPlayer().getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.DontLoop);
+                    shootBullets = true;
                     bulletControl();
                 }
                 
+            } else {
+//                shootBullets = false;
             }
-            if(!keyPressed && binding.equals("MOUSE_RIGHT")){
+            if(keyPressed==false && binding.equals("MOUSE_RIGHT")){
                 BBPlayerManager.getInstance().setIsWalking(false);
                 if(!BBPlayerManager.getInstance().isJumping()){
                     logger.log(Level.INFO,"******  Character Attack 2.");
@@ -152,6 +149,16 @@ public class BBPlayerActions implements AnimEventListener, ActionListener, Analo
               
         public void onAnalog(String binding, float value, float tpf) {
             //BBPlayerManager.getInstance().setIsJumping(false);
+            
+//            if (binding.equals("MOUSE_LEFT")) {
+//                timeBullet += tpf;
+//                    if (shootBullets = true) {
+//                
+//                System.out.println(timeBullet + "  ******* Bullet cteated");
+//                if (timeBullet == 0.001) bulletControl();                    
+//                 }
+//            }
+            
             if(!BBPlayerManager.getInstance().isJumping()){
                 //We inverse the key because the map is align on X axis        
                 //left
@@ -162,6 +169,8 @@ public class BBPlayerActions implements AnimEventListener, ActionListener, Analo
                 else if (binding.equals("Up")) {
                     newRot = new Quaternion().slerp(BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getLocalRotation(),Directions.rightDir, tpf*8);
                     BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).setLocalRotation(newRot);        
+                    timeBullet += tpf;
+                    System.out.println(timeBullet + "  ******* Bullet cteated");
                 }//up 
                 else if (binding.equals(BBGlobals.INPUT_MAPPING_LEFT)) {
                     newRot = new Quaternion().slerp(BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getLocalRotation(),Directions.upDir, tpf*8);
@@ -209,7 +218,8 @@ public class BBPlayerActions implements AnimEventListener, ActionListener, Analo
             bulletg.setLocalTranslation(pos);
             RigidBodyControl bulletControl = new BBBulletPhysic(bulletCollisionShape, 1);
             bulletControl.setCcdMotionThreshold(0.1f);
-            bulletControl.setLinearVelocity(character.getViewDirection().add(new Vector3f(0,0.05f,0)).mult(100));
+            Vector3f vec = character.getViewDirection().add(new Vector3f(0,0.05f,0)).normalize();
+            bulletControl.setLinearVelocity(vec.mult(20));
             bulletg.addControl(bulletControl);
             BBSceneManager.getInstance().addChild(bulletg);
             BBPhysicsManager.getInstance().getPhysicsSpace().add(bulletControl);
