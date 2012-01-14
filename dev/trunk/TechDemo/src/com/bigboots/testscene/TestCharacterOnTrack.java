@@ -312,10 +312,11 @@ public class TestCharacterOnTrack extends SimpleApplication implements AnimEvent
       }
       if(pressed==1&&value&!binding.equals("Jump")&&!walk){
           walk = true;
+          
           if(!jump){
           logger.log(Level.INFO,"Character walking init.");
           //player.getControl(AnimControl.class).getChannel(0).setAnim("RunTop", 0.50f); // TODO: Must activate "RunBase" after a certain time.
-          player.getControl(AnimControl.class).getChannel(0).setAnim("run_01", 0.50f); // TODO: Must be activated after a certain time after "RunTop"
+          player.getControl(AnimControl.class).getChannel(0).setAnim("run_01", 0.20f); // TODO: Must be activated after a certain time after "RunTop"
           player.getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.Loop);
           }
       }
@@ -324,8 +325,9 @@ public class TestCharacterOnTrack extends SimpleApplication implements AnimEvent
           if(!jump){
           logger.log(Level.INFO,"Character walking end.");
           //playerChannel.setAnim("IdleTop", 0.50f);
-          player.getControl(AnimControl.class).getChannel(0).setAnim("base_stand", 0.50f);          
-          player.getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.DontLoop);          
+          player.getControl(AnimControl.class).getChannel(0).setAnim("base_stand", 0.20f);          
+          player.getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.DontLoop);  
+//          human.getControl(CharacterControl.class).setWalkDirection(Vector3f.ZERO);
           }
       }
     if (binding.equals("Jump") &! jump ) {
@@ -334,7 +336,7 @@ public class TestCharacterOnTrack extends SimpleApplication implements AnimEvent
         jump = true;
         // channel.setAnim("JumpStart", 0.5f); // TODO: Must activate "JumpLoop" after a certain time.
         human.getControl(CharacterControl.class).jump();
-        player.getControl(AnimControl.class).getChannel(0).setAnim("jump", 0.50f); // TODO: Must be activated after a certain time after "JumpStart"
+        player.getControl(AnimControl.class).getChannel(0).setAnim("jump", 0.20f); // TODO: Must be activated after a certain time after "JumpStart"
         player.getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.DontLoop);
         }
     }
@@ -390,9 +392,11 @@ public class TestCharacterOnTrack extends SimpleApplication implements AnimEvent
         if(anv.onGround()){
             if(jump)
             {
-                boolean hasBeenOnGroundCopy = hasBeenOnGround;
+                
                 if(!hasBeenOnGround)
                 hasBeenOnGround=true;
+                
+                boolean hasBeenOnGroundCopy = hasBeenOnGround;
          
                 if(hasBeenOnGroundCopy)
                 {
@@ -418,6 +422,11 @@ public class TestCharacterOnTrack extends SimpleApplication implements AnimEvent
                 hasBeenOnGround = false;
                 }
             }
+            
+            if(!walk && !jump){
+                    human.getControl(CharacterControl.class).setWalkDirection(Vector3f.ZERO);
+            }
+            
         }
         else if(!jump){
             logger.log(Level.INFO,"Character jumping start.");
@@ -425,6 +434,7 @@ public class TestCharacterOnTrack extends SimpleApplication implements AnimEvent
             //channel.setAnim("JumpStart", 0.5f); // TODO: Must activate "JumpLoop" after a certain time.
         player.getControl(AnimControl.class).getChannel(0).setAnim("jump", 0.50f); // TODO: Must be activated after a certain time after "JumpStart"
         player.getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.DontLoop);
+        
         }
     }
 
