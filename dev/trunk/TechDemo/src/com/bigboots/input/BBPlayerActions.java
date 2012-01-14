@@ -22,6 +22,9 @@ import com.bigboots.components.BBPlayerManager;
 import com.bigboots.core.BBSceneManager;
 import com.bigboots.physics.BBBulletPhysic;
 import com.bigboots.physics.BBPhysicsManager;
+import com.jme3.animation.AnimChannel;
+import com.jme3.animation.AnimControl;
+import com.jme3.animation.AnimEventListener;
 import com.jme3.animation.LoopMode;
 import com.jme3.bullet.collision.shapes.SphereCollisionShape;
 import com.jme3.bullet.control.CharacterControl;
@@ -44,7 +47,7 @@ import java.util.logging.Logger;
  *
  * @author @author Ulrich Nzuzi <ulrichnz@code.google.com>
  */
-public class BBPlayerActions implements ActionListener, AnalogListener{
+public class BBPlayerActions implements AnimEventListener, ActionListener, AnalogListener{
     private Material matBullet;
     //bullet
     private Sphere bullet;
@@ -56,8 +59,17 @@ public class BBPlayerActions implements ActionListener, AnalogListener{
     private int pressed=0;
     private static final Logger logger = Logger.getLogger(BBPlayerActions.class.getName());
     
+    
     public BBPlayerActions(){
         prepareBullet();
+    }
+
+    public void onAnimCycleDone(AnimControl control, AnimChannel channel, String animName) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public void onAnimChange(AnimControl control, AnimChannel channel, String animName) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
     
     private static final class Directions{
@@ -94,9 +106,7 @@ public class BBPlayerActions implements ActionListener, AnalogListener{
                         time = 0;
                     }
                 }
-            }            
-            
-            else if (keyPressed==false && BBPlayerManager.getInstance().isWalking()==true) {
+            } else if (keyPressed==false && BBPlayerManager.getInstance().isJumping()==false) {
                 BBPlayerManager.getInstance().setIsWalking(false);
                 if(!BBPlayerManager.getInstance().isJumping()){
                     logger.log(Level.INFO,"Character walking end.");
@@ -141,6 +151,7 @@ public class BBPlayerActions implements ActionListener, AnalogListener{
         
               
         public void onAnalog(String binding, float value, float tpf) {
+            //BBPlayerManager.getInstance().setIsJumping(false);
             if(!BBPlayerManager.getInstance().isJumping()){
                 //We inverse the key because the map is align on X axis        
                 //left
@@ -163,13 +174,15 @@ public class BBPlayerActions implements ActionListener, AnalogListener{
 
                 if(BBPlayerManager.getInstance().isWalking()){
                     BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setViewDirection(BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getWorldRotation().mult(Vector3f.UNIT_Z));                     
-                    BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getControl(CharacterControl.class).getViewDirection().multLocal(.2f));                  
+//                    BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getControl(CharacterControl.class).getViewDirection().multLocal(.2f));                  
                 }        
-                else{
-                    BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(Vector3f.ZERO);
-                }
+//                else{
+//                    BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(Vector3f.ZERO);
+//                }
             
             }
+                            
+
         }//end onAnalog
         
         
@@ -189,14 +202,14 @@ public class BBPlayerActions implements ActionListener, AnalogListener{
             
             Geometry bulletg = new Geometry("bullet", bullet);
             bulletg.setMaterial(matBullet);
-            bulletg.setShadowMode(ShadowMode.CastAndReceive);
+            bulletg.setShadowMode(ShadowMode.Off);
             Vector3f pos = character.getPhysicsLocation().add(character.getViewDirection().mult(8));
             pos.y = pos.y + 1.0f;
             pos.z = pos.z + 0.4f;
             bulletg.setLocalTranslation(pos);
             RigidBodyControl bulletControl = new BBBulletPhysic(bulletCollisionShape, 1);
             bulletControl.setCcdMotionThreshold(0.1f);
-            bulletControl.setLinearVelocity(character.getViewDirection().mult(100));
+            bulletControl.setLinearVelocity(character.getViewDirection().add(new Vector3f(0,0.05f,0)).mult(100));
             bulletg.addControl(bulletControl);
             BBSceneManager.getInstance().addChild(bulletg);
             BBPhysicsManager.getInstance().getPhysicsSpace().add(bulletControl);

@@ -355,8 +355,8 @@ public class TestCharacterOnTrack extends SimpleApplication implements AnimEvent
             Vector3f humanPos = human.getLocalTranslation().clone();
             Quaternion newRot = new Quaternion().fromAngleAxis(FastMath.rand.nextFloat()*2-.5f, Vector3f.UNIT_Y);
             humanPos.y = a.getLocalTranslation().y;            
-            a.lookAt(humanPos,Vector3f.UNIT_Y);
-            a.getLocalRotation().slerp(newRot,tpf);            
+//            a.lookAt(humanPos,Vector3f.UNIT_Y);
+//            a.getLocalRotation().slerp(newRot,tpf);            
             
             float distSquared = humanPos.distanceSquared(a.getLocalTranslation());
             if(distSquared>9){
