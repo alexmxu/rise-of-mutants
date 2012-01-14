@@ -27,6 +27,8 @@ import com.jme3.animation.LoopMode;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.control.CharacterControl;
 import com.jme3.bullet.objects.PhysicsCharacter;
+import com.jme3.math.FastMath;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -113,7 +115,7 @@ public class BBPlayerManager {
     
     public void update(float tpf){
        PhysicsCharacter anv = mMainPlayer.getComponent(BBNodeComponent.class).getControl(CharacterControl.class);
-        
+      
         if(anv.onGround()){
             if(mIsJumping)
             {
@@ -147,9 +149,14 @@ public class BBPlayerManager {
                      }
                   }
             
-                if(!mIsWalking && !mIsJumping){
-                    mMainPlayer.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(Vector3f.ZERO);
-                }            
+                
+            if(mIsWalking && !mIsJumping){
+            //  mMainPlayer.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setViewDirection(mMainPlayer.getComponent(BBNodeComponent.class).getLocalRotation().mult(Vector3f.UNIT_Z));                     
+            mMainPlayer.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(mMainPlayer.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).getViewDirection().multLocal(.2f));                  
+             }        
+             else{
+             mMainPlayer.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(Vector3f.ZERO);
+           }            
         }
 
         else if(!mIsJumping){

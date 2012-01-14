@@ -128,8 +128,8 @@ public class BBMonsterManager {
                 object.getComponent(BBNodeComponent.class).lookAt(humanPos,Vector3f.UNIT_Y);
                 object.getComponent(BBNodeComponent.class).getLocalRotation().slerp(newRot,tpf);
                 //System.out.println("**** POS : "+humanPos.toString());           
-                float distSquared = humanPos.distanceSquared(object.getComponent(BBNodeComponent.class).getLocalTranslation());
-                if(distSquared > 9){      
+                float dist = humanPos.distance(object.getComponent(BBNodeComponent.class).getLocalTranslation());
+                if(dist > 4 && dist < 20){      
                     object.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setViewDirection(object.getComponent(BBNodeComponent.class).getLocalRotation().mult(Vector3f.UNIT_Z));            
                     object.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(object.getComponent(BBNodeComponent.class).getLocalRotation().mult(Vector3f.UNIT_Z).mult(tpf*1.8f));
                     if(!object.getComponent(BBAnimComponent.class).getChannel().getAnimationName().equals("mutant_base_walk"))
@@ -143,8 +143,15 @@ public class BBMonsterManager {
                     if(object.getComponent(BBAnimComponent.class).getChannel().getSpeed()!=smallManSpeed){
                         object.getComponent(BBAnimComponent.class).getChannel().setSpeed(smallManSpeed);
                     }            
+                }  else if(dist > 20){      
+                    if(!object.getComponent(BBAnimComponent.class).getChannel().getAnimationName().equals("mutant_idle"))
+                    {
+                    object.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(Vector3f.ZERO);
+                    object.getComponent(BBAnimComponent.class).getChannel().setAnim("mutant_idle", 0.50f);
+                    object.getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.Loop);
+                    }
                 }
-                else
+                else if (dist < 4)
                 {
                     object.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(Vector3f.ZERO);
                     if(!object.getComponent(BBAnimComponent.class).getChannel().getAnimationName().equals("mutant_strike"))
