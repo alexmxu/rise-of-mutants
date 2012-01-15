@@ -171,7 +171,7 @@ public class BBInGameState extends BBAbstractState{
         //*******************************************
         //Create enemies
 
-        for (int i=0; i<12; i++){
+        for (int i=0; i<5; i++){
          Vector3f mPos = new Vector3f(100 + i*10, 100, 0f); 
 //        BBEntity mEnemy = new BBEntity("ee"+i);
 //      //  mEnemy.mTag = BBObject.ObjectTag.MONSTER;
@@ -334,17 +334,17 @@ public class BBInGameState extends BBAbstractState{
         
         BBSceneManager.getInstance().getAssetManager().registerLoader(BlenderModelLoader.class, "blend");
         // Load a blender file.       
-        ModelKey bk = new ModelKey("Scenes/levels/level_01/level_01.blend");
-        //("Scenes/TestScene/test_scene_01_1.blend");
+//        ModelKey bk = new ModelKey("Scenes/levels/level_01/level_01.blend");
+          ModelKey bk = new ModelKey("Scenes/TestScene/test_scene_01_2.blend");  
         Node nd =  (Node) BBSceneManager.getInstance().getAssetManager().loadModel(bk);
-        //nd.rotate(new Quaternion().fromAngleAxis(FastMath.HALF_PI, Vector3f.UNIT_Y));
+  
         
         String entities = "assets/Models";
         String baseTex = "assets/Textures/base_textures";
         String levelTex = "assets/Textures/level_textures";
         String scenePath = bk.getFolder().substring(0, bk.getFolder().length() - 1); //BlenderKey sets "File.separator" in the end of String
 
-        BBSceneComposer sc = new BBSceneComposer(nd, entities, scenePath, baseTex, levelTex, BBSceneManager.getInstance().getAssetManager());
+//        BBSceneComposer sc = new BBSceneComposer(nd, entities, scenePath, baseTex, levelTex, BBSceneManager.getInstance().getAssetManager());
         
         // Added scene effects (fog, ibl)
         BBShaderManager shm = new BBShaderManager(nd, BBSceneManager.getInstance().getAssetManager());
@@ -352,23 +352,6 @@ public class BBInGameState extends BBAbstractState{
         shm.setFogParam(new ColorRGBA(0.7f,0.6f,0.2f, 43f), null);
         
         BBSceneManager.getInstance().addChild(nd);
-/*        
-        // Material
-        Material woodMat = BBSceneManager.getInstance().getAssetManager().loadMaterial("Scenes/TestScene/TestSceneMaterial.j3m");
-        Material boxMat = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
-        boxMat.setColor("m_Color", ColorRGBA.Blue);
-        
-        for (int i=0; i < nd.getChildren().size(); i++) {                     
-            String strndscene = nd.getChild(i).getName();            
-            if (strndscene.startsWith("spawn") == true){
-                nd.getChild(i).setMaterial(boxMat);
-            }else{
-                nd.getChild(i).setMaterial(woodMat);
-                nd.setShadowMode(ShadowMode.Receive);
-                //TangentBinormalGenerator.generate(nd);
-            }
-         } 
- */       
         CollisionShape myComplexShape = CollisionShapeFactory.createMeshShape(nd);
         RigidBodyControl worldPhysics = new RigidBodyControl(myComplexShape,0);  
         worldPhysics.createDebugShape(BBSceneManager.getInstance().getAssetManager());

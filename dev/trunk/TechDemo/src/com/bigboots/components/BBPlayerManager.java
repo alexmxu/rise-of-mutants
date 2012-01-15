@@ -92,7 +92,6 @@ public class BBPlayerManager {
         pControler.setJumpSpeed(19);
         pControler.setFallSpeed(40);
         pControler.setGravity(35);
-        pControler.setCcdMotionThreshold(0.5f);
         pControler.setUseViewDirection(true);
         BBControlComponent pCtrl = mMainPlayer.addComponent(CompType.CONTROLLER);
         pCtrl.setControlType(BBControlComponent.ControlType.CHARACTER);
@@ -162,7 +161,7 @@ public class BBPlayerManager {
                 
             if(mIsWalking && !mIsJumping){
             //  mMainPlayer.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setViewDirection(mMainPlayer.getComponent(BBNodeComponent.class).getLocalRotation().mult(Vector3f.UNIT_Z));                     
-            mMainPlayer.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(mMainPlayer.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).getViewDirection().multLocal(.2f));                  
+            mMainPlayer.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(mMainPlayer.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).getViewDirection().mult(.2f));                  
              }        
              else{
              mMainPlayer.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(Vector3f.ZERO);
