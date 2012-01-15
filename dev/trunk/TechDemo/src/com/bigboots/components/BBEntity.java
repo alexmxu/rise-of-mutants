@@ -63,7 +63,7 @@ public class BBEntity extends BBObject{
     }
     
     public void loadModel(String mesh){
-       tmpSpatial =  (Spatial)BBSceneManager.getInstance().loadSpatial(mesh);
+       tmpSpatial =  (Node)BBSceneManager.getInstance().loadSpatial(mesh);
        tmpSpatial.setLocalTranslation(0, -.85f, 0);
        tmpSpatial.setShadowMode(ShadowMode.CastAndReceive);
        Material mat = BBSceneManager.getInstance().getAssetManager().loadMaterial("Materials/Scene/Character/CharacterSkin.j3m");

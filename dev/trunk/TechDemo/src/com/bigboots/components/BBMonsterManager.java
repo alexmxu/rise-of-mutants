@@ -96,7 +96,6 @@ public class BBMonsterManager {
         eControler.setFallSpeed(30);
         eControler.setGravity(30);
         eControler.setPhysicsLocation(pos);
-        eControler.setCcdMotionThreshold(0.5f);
         eControler.setUseViewDirection(true);
         BBControlComponent ctrlCp = mEnemy.addComponent(CompType.CONTROLLER);
         ctrlCp.setControlType(BBControlComponent.ControlType.CHARACTER);
@@ -135,7 +134,7 @@ public class BBMonsterManager {
                 if(dist > 4 && dist < 20){      
                     object.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setViewDirection(object.getComponent(BBNodeComponent.class).getLocalRotation().mult(Vector3f.UNIT_Z));            
                     object.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(object.getComponent(BBNodeComponent.class).
-                            getLocalRotation().mult(Vector3f.UNIT_Z).mult(tpf * 12));
+                            getLocalRotation().mult(Vector3f.UNIT_Z).mult(tpf * 5));
                     if(!object.getComponent(BBAnimComponent.class).getChannel().getAnimationName().equals("mutant_base_walk"))
                     {
                         object.getAudio("GROWLING").stop();

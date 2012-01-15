@@ -18,6 +18,7 @@ package com.bigboots.physics;
 import com.jme3.bullet.collision.PhysicsCollisionEvent;
 import com.jme3.bullet.collision.PhysicsCollisionListener;
 //import com.jme3.scene.Node;
+import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 
 /**
@@ -34,12 +35,12 @@ public class BBBasicCollisionListener implements PhysicsCollisionListener{
     public void collision(PhysicsCollisionEvent event) {
         //System.out.println("*******!!! BASIC COLLISION EVENT "+ event.getNodeA().getName()+" !!!**********");
         if ( event.getNodeA().getName().equals("PLAYER") ) {
-            final Spatial node = event.getNodeA();
+            final Node node = (Node) event.getNodeA();
             //System.out.println("*******!!! COLLISION FOR PLAYER in Node A !!!**********");
             
         } 
         else{
-            final Spatial node = event.getNodeB();
+            final Node node = (Node) event.getNodeB();
             //System.out.println("*******!!! COLLISION FOR PLAYER in Node B !!!**********");
         }
     }

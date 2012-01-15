@@ -111,7 +111,7 @@ public class BBSceneManager {
     }
     
     public Spatial loadSpatial(String name){
-        Spatial model = assetManager.loadModel(name);
+        Node model = (Node) assetManager.loadModel(name);
         return model;
     }
     // TODO : Change it next time
