@@ -28,13 +28,13 @@ import com.jme3.animation.AnimEventListener;
 import com.jme3.animation.LoopMode;
 import com.jme3.bullet.collision.shapes.SphereCollisionShape;
 import com.jme3.bullet.control.CharacterControl;
-import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.AnalogListener;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
+import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
@@ -60,6 +60,9 @@ public class BBPlayerActions implements  ActionListener, AnalogListener{
     private static final Logger logger = Logger.getLogger(BBPlayerActions.class.getName());
     private boolean shootBullets = false;
     int timeBullet = 0;
+    BBPlayerBulletControl bulletMove;
+    
+    
     
     public BBPlayerActions(){
         prepareBullet();
@@ -119,6 +122,9 @@ public class BBPlayerActions implements  ActionListener, AnalogListener{
                     BBPlayerManager.getInstance().getMainPlayer().getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.DontLoop);
                     shootBullets = true;
                     bulletControl();
+                    Geometry bulletx = bulletg.clone();
+                    bulletx.addControl(bulletMove = new BBPlayerBulletControl(bulletx, this));
+                    BBSceneManager.getInstance().getRootNode().attachChild(bulletx);
                 }
                 
             } else {
@@ -194,35 +200,80 @@ public class BBPlayerActions implements  ActionListener, AnalogListener{
 
         }//end onAnalog
         
+
         
+   // private Mesh bullet;
+ //   private Material matBullet;
+    Geometry bulletg;
+    private Transform bulletTrans;
+    private Vector3f frontVec;
         private void prepareBullet() {
             bullet = new Sphere(8, 8, 0.2f, true, false);
-            bullet.setTextureMode(TextureMode.Projected);
-            bulletCollisionShape = new SphereCollisionShape(0.3f);
+        //    bullet.setTextureMode(TextureMode.Projected);
             matBullet = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
             matBullet.setColor("Color", ColorRGBA.Yellow);
-            matBullet.setColor("m_GlowColor", ColorRGBA.Orange);
-            
+       //     matBullet.setColor("m_GlowColor", ColorRGBA.Orange);
+            bulletg = new Geometry("bullet", bullet);
+            bulletg.setMaterial(matBullet);
+            bulletg.setShadowMode(ShadowMode.Off);
             //BBPhysicsManager.getInstance().getPhysicsSpace().addCollisionListener(this);
         }
         
         private void bulletControl() {
             
-            CharacterControl character = BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getControl(CharacterControl.class);
             
-            Geometry bulletg = new Geometry("bullet", bullet);
-            bulletg.setMaterial(matBullet);
-            bulletg.setShadowMode(ShadowMode.Off);
-            Vector3f pos = character.getPhysicsLocation().add(character.getViewDirection().mult(10));
-            pos.y = pos.y + 1.0f;
-            pos.z = pos.z + 0.4f;
-            bulletg.setLocalTranslation(pos);
-            RigidBodyControl bulletControl = new BBBulletPhysic(bulletCollisionShape, 1);
-            bulletControl.setCcdMotionThreshold(0.1f);
-            Vector3f vec = character.getViewDirection().add(new Vector3f(0,0.05f,0)).normalize();
-            bulletControl.setLinearVelocity(vec.mult(20));
-            bulletg.addControl(bulletControl);
-            BBSceneManager.getInstance().addChild(bulletg);
-            BBPhysicsManager.getInstance().getPhysicsSpace().add(bulletControl);
-    }
+        bulletTrans = BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getWorldTransform();
+        bulletg.setLocalTranslation(bulletTrans.getTranslation());
+        bulletg.setLocalRotation(bulletTrans.getRotation());
+        frontVec = bulletTrans.getRotation().mult(Vector3f.UNIT_Z).normalize();
+      //  frontVec = frontVec.add(new Vector3f(0.5f,0.5f,0.5f)).normalize();
+        bulletg.move(frontVec.mult(2f));
+        
+
+//        CharacterControl character = BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getControl(CharacterControl.class);
+//            
+//
+//            Vector3f pos = character.getPhysicsLocation().add(character.getViewDirection().mult(8));
+//            pos.y = pos.y + 1.0f;
+//            pos.z = pos.z + 0.4f;
+//            bulletg.setLocalTranslation(pos);
+//            
+            
+
+        //    BBPhysicsManager.getInstance().getPhysicsSpace().add(bulletControl);
+    }        
+        
+        
+        
+        // Commented as deprecated
+//  private void prepareBullet() {
+//            bullet = new Sphere(8, 8, 0.2f, true, false);
+//            bullet.setTextureMode(TextureMode.Projected);
+//            bulletCollisionShape = new SphereCollisionShape(0.3f);
+//            matBullet = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
+//            matBullet.setColor("Color", ColorRGBA.Yellow);
+//            matBullet.setColor("m_GlowColor", ColorRGBA.Orange);
+//            
+//            //BBPhysicsManager.getInstance().getPhysicsSpace().addCollisionListener(this);
+//        }
+//        
+//        private void bulletControl() {
+//            
+//            CharacterControl character = BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getControl(CharacterControl.class);
+//            
+//            Geometry bulletg = new Geometry("bullet", bullet);
+//            bulletg.setMaterial(matBullet);
+//            bulletg.setShadowMode(ShadowMode.Off);
+//            Vector3f pos = character.getPhysicsLocation().add(character.getViewDirection().mult(10));
+//            pos.y = pos.y + 1.0f;
+//            pos.z = pos.z + 0.4f;
+//            bulletg.setLocalTranslation(pos);
+//            RigidBodyControl bulletControl = new BBBulletPhysic(bulletCollisionShape, 1);
+//            bulletControl.setCcdMotionThreshold(0.1f);
+//            Vector3f vec = character.getViewDirection().add(new Vector3f(0,0.05f,0)).normalize();
+//            bulletControl.setLinearVelocity(vec.mult(20));
+//            bulletg.addControl(bulletControl);
+//            BBSceneManager.getInstance().addChild(bulletg);
+//            BBPhysicsManager.getInstance().getPhysicsSpace().add(bulletControl);
+//    } 
 }

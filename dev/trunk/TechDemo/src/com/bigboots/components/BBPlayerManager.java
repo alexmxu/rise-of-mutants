@@ -27,9 +27,17 @@ import com.jme3.animation.LoopMode;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.control.CharacterControl;
 import com.jme3.bullet.objects.PhysicsCharacter;
+import com.jme3.material.Material;
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
+import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
+import com.jme3.renderer.queue.RenderQueue.ShadowMode;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.Mesh;
+import com.jme3.scene.shape.Sphere;
+import com.jme3.scene.shape.Sphere.TextureMode;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -41,6 +49,7 @@ public class BBPlayerManager {
     private static BBPlayerManager instance = new BBPlayerManager();
 
     private BBPlayerManager() {
+        
     }
     
     public static BBPlayerManager getInstance() { 
@@ -48,7 +57,7 @@ public class BBPlayerManager {
     }
     
     private BBEntity mMainPlayer;
-    private Vector3f mMainLocation = new Vector3f(5, 10, 0);
+    private Vector3f mMainLocation = new Vector3f(-5, 10, -5);
     
     private boolean mIsWalking = false;
     private boolean mIsJumping = false;
@@ -83,6 +92,7 @@ public class BBPlayerManager {
         pControler.setJumpSpeed(19);
         pControler.setFallSpeed(40);
         pControler.setGravity(35);
+        pControler.setCcdMotionThreshold(0.5f);
         pControler.setUseViewDirection(true);
         BBControlComponent pCtrl = mMainPlayer.addComponent(CompType.CONTROLLER);
         pCtrl.setControlType(BBControlComponent.ControlType.CHARACTER);
@@ -168,6 +178,10 @@ public class BBPlayerManager {
        //     mMainPlayer.getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.DontLoop);
         }
     }
+    
+    
+    
+    
     
     public void setAction(BBGlobals.ActionType act){
         mAction = act;

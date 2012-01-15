@@ -21,6 +21,7 @@ import com.bigboots.animation.BBAnimManager;
 import com.bigboots.audio.BBAudioManager;
 import com.bigboots.core.BBSceneManager;
 import com.bigboots.physics.BBPhysicsManager;
+import com.bulletphysics.dynamics.RigidBody;
 import com.jme3.animation.LoopMode;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.control.CharacterControl;
@@ -94,6 +95,8 @@ public class BBMonsterManager {
         eControler.setJumpSpeed(20);
         eControler.setFallSpeed(30);
         eControler.setGravity(30);
+        eControler.setPhysicsLocation(pos);
+        eControler.setCcdMotionThreshold(0.5f);
         eControler.setUseViewDirection(true);
         BBControlComponent ctrlCp = mEnemy.addComponent(CompType.CONTROLLER);
         ctrlCp.setControlType(BBControlComponent.ControlType.CHARACTER);
@@ -131,7 +134,8 @@ public class BBMonsterManager {
                 float dist = humanPos.distance(object.getComponent(BBNodeComponent.class).getLocalTranslation());
                 if(dist > 4 && dist < 20){      
                     object.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setViewDirection(object.getComponent(BBNodeComponent.class).getLocalRotation().mult(Vector3f.UNIT_Z));            
-                    object.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(object.getComponent(BBNodeComponent.class).getLocalRotation().mult(Vector3f.UNIT_Z).mult(tpf*1.8f));
+                    object.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(object.getComponent(BBNodeComponent.class).
+                            getLocalRotation().mult(Vector3f.UNIT_Z).mult(tpf * 12));
                     if(!object.getComponent(BBAnimComponent.class).getChannel().getAnimationName().equals("mutant_base_walk"))
                     {
                         object.getAudio("GROWLING").stop();
