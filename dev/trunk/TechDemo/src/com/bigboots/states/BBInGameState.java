@@ -17,9 +17,13 @@ package com.bigboots.states;
 
 import com.bigboots.BBGlobals;
 import com.bigboots.audio.BBAudioManager;
+import com.bigboots.components.BBAnimComponent;
 import com.bigboots.components.BBAudioComponent;
+import com.bigboots.components.BBComponent.CompType;
+import com.bigboots.components.BBEntity;
 import com.bigboots.components.BBMonsterManager;
 import com.bigboots.components.BBNodeComponent;
+import com.bigboots.components.BBObject;
 import com.bigboots.components.BBPlayerManager;
 import com.bigboots.core.BBDebugInfo;
 import com.bigboots.core.BBEngineSystem;
@@ -41,6 +45,7 @@ import com.jme3.renderer.ViewPort;
 //for player
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.AnimEventListener;
+import com.jme3.animation.LoopMode;
 import com.jme3.scene.CameraNode;
 import com.jme3.scene.control.CameraControl.ControlDirection;
 import com.jme3.scene.Node;
@@ -165,14 +170,29 @@ public class BBInGameState extends BBAbstractState{
         
         //*******************************************
         //Create enemies
-        Vector3f mPos = new Vector3f(5, 20, -3);
-        Vector3f mPos2 = new Vector3f(10, 18, 8);
-        Vector3f mPos3 = new Vector3f(32, 20, -5);
-        Vector3f mPos4 = new Vector3f(10, 25, 1);
-        BBMonsterManager.getInstance().createMonter("ENEMY", "Scenes/TestScene/mutant.j3o", mPos);
-        BBMonsterManager.getInstance().createMonter("ENEMY1", "Scenes/TestScene/mutant.j3o", mPos2);
-        BBMonsterManager.getInstance().createMonter("ENEMY2", "Scenes/TestScene/mutant.j3o", mPos3);
-        BBMonsterManager.getInstance().createMonter("ENEMY3", "Scenes/TestScene/mutant.j3o", mPos4);
+
+        for (int i=0; i<12; i++){
+         Vector3f mPos = new Vector3f(100 + i*10, 100, 0f); 
+//        BBEntity mEnemy = new BBEntity("ee"+i);
+//      //  mEnemy.mTag = BBObject.ObjectTag.MONSTER;
+//        BBNodeComponent node = mEnemy.addComponent(CompType.NODE);
+//        mEnemy.loadModel("Scenes/TestScene/mutant.j3o");
+//        node.scale(4);
+//        node.setLocalTranslation(mPos);
+//        BBSceneManager.getInstance().addChild(mEnemy.getComponent(BBNodeComponent.class));
+//        
+//        //Set up animation component      
+//        //mEnemy.createAnimation();
+//        BBAnimComponent anim = mEnemy.addComponent(CompType.ANIMATION);
+//        anim.getChannel().setAnim("mutant_idle");
+//        anim.getChannel().setLoopMode(LoopMode.Loop);
+//        mEnemy.getComponent(BBAnimComponent.class).getChannel().setSpeed(1f);
+////        BBSceneManager.getInstance().addChild(node);
+////        BBMonsterManager.getInstance().addMonster(mEnemy);
+        
+         BBMonsterManager.getInstance().createMonter("ENEMY" + i*2, "Scenes/TestScene/mutant.j3o", mPos);
+        }
+
         
         
         //********************************************
@@ -180,7 +200,7 @@ public class BBInGameState extends BBAbstractState{
         BBBasicCollisionListener basicCol = new BBBasicCollisionListener();
         BBPhysicsManager.getInstance().getPhysicsSpace().addCollisionListener(basicCol);
         
-        BBSceneManager.getInstance().createFilterProcessor();
+      //  BBSceneManager.getInstance().createFilterProcessor();
         
 /*      
         //Create post effect processor

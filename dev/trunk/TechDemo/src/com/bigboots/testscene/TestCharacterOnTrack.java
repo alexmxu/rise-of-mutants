@@ -76,9 +76,9 @@ public class TestCharacterOnTrack extends SimpleApplication implements AnimEvent
 
     public static void main(String[] args) {
         TestCharacterOnTrack app = new TestCharacterOnTrack();
-        AppSettings appSettings = new AppSettings(true);
-        appSettings.setVSync(true);
-        app.setSettings(appSettings);
+//        AppSettings appSettings = new AppSettings(true);
+//        appSettings.setVSync(true);
+//        app.setSettings(appSettings);
         app.start();
     }
     private HashMap<Long, Node> entities = new HashMap<Long, Node>();
@@ -128,7 +128,30 @@ public class TestCharacterOnTrack extends SimpleApplication implements AnimEvent
     rootNode.attachChild(humanStalker);
     
     //setupEnemies(playerLoc);    
-    setupEffects();
+//    setupEffects();
+    
+       ModelKey mk = new ModelKey("Scenes/TestScene/character.mesh.xml");
+       Node sinbadModel3 = (Node) assetManager.loadModel(mk);
+       Node humanx = new Node();
+       
+    for (int i=0; i<50; i++) {
+    
+        
+       Node sinbadModelx =  (Node) sinbadModel3.clone(false);       
+       
+
+       AnimControl control = sinbadModelx.getControl(AnimControl.class);
+       AnimChannel playerChannel = control.createChannel();
+       playerChannel.setAnim("run_01");
+       playerChannel.setLoopMode(LoopMode.Loop);
+       playerChannel.setSpeed(speed);        
+       sinbadModelx.setLocalTranslation(new Vector3f(0, 3, 0-i*2));
+       humanx.attachChild(sinbadModelx);
+       
+       
+    }
+
+    rootNode.attachChild(humanx);
     
     //Load sky
     Spatial sky = SkyFactory.createSky(assetManager, "Textures/sky/skysphere.jpg", true);
@@ -347,6 +370,9 @@ public class TestCharacterOnTrack extends SimpleApplication implements AnimEvent
     boolean hasBeenOnGround = false;
     @Override
     public void simpleUpdate(float tpf) {
+        
+        System.nanoTime();
+        
         System.out.println(player.getControl(AnimControl.class).getChannel(0).getTime());
         System.out.println(player.getControl(AnimControl.class).getChannel(0).getAnimationName());
         System.out.println(player.getControl(AnimControl.class).getChannel(0).getLoopMode());    

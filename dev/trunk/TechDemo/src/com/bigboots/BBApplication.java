@@ -91,6 +91,9 @@ public class BBApplication implements SystemListener {
      */
     public void update(){
         
+        
+        System.nanoTime();
+        
         if (mSpeed == 0 || this.engineSystem.isSystemPause())
             return;
         
