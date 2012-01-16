@@ -33,11 +33,11 @@ public class BBAnimComponent implements BBComponent{
         return enChannel;
     }
     
-    public CompType getType(){
+    public CompType getCompType(){
         return CompType.ANIMATION;
     }
     
-    public CompFamily getFamily(){
+    public CompFamily getCompFamily(){
         return CompFamily.VISUAL;
     }    
 }

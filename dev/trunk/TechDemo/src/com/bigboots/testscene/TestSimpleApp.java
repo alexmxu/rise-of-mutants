@@ -33,9 +33,12 @@ import com.jme3.animation.LoopMode;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
+import com.jme3.light.DirectionalLight;
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
+
 
 
 class MyActionListener implements ActionListener{
@@ -64,12 +67,13 @@ public class TestSimpleApp extends BBApplication{
         //Load the main camera
         Camera cam = new Camera(BBSettings.getInstance().getSettings().getWidth(), BBSettings.getInstance().getSettings().getHeight());
         cam.setFrustumPerspective(45f, (float)cam.getWidth() / cam.getHeight(), 1f, 1000f);
-        cam.setLocation(new Vector3f(0f, 10f, 25f));
+        cam.setLocation(new Vector3f(0f, 5f, 15f));
         cam.lookAt(new Vector3f(0f, 0f, 0f), Vector3f.UNIT_Y);
         
         //Set up the main viewPort
         ViewPort vp = engineSystem.getRenderManager().createMainView("CUSTOM_VIEW", cam);
         vp.setClearFlags(true, true, true);
+        vp.setBackgroundColor(ColorRGBA.Gray);
         BBSceneManager.getInstance().setViewPort(vp);
         
         //Set up basic light and sky coming with the standard scene manager
@@ -100,7 +104,13 @@ public class TestSimpleApp extends BBApplication{
         panim.getChannel().setAnim("IdleTop");
         panim.getChannel().setSpeed(1f); 
         panim.getChannel().setLoopMode(LoopMode.Cycle);
-
+        
+          
+        // Add a light Source
+        DirectionalLight dl = new DirectionalLight();
+        dl.setDirection(new Vector3f(0.5432741f, -0.58666015f, -0.6005691f).normalizeLocal());
+        dl.setColor(new ColorRGBA(1.1f,1.1f,1.1f,1));
+        BBSceneManager.getInstance().getRootNode().addLight(dl);
         
     }
     

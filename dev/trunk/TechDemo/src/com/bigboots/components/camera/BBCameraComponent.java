@@ -49,11 +49,11 @@ public class BBCameraComponent implements BBComponent{
         return mCameraName;
     }
     
-    public CompType getType(){
+    public CompType getCompType(){
         return CompType.CAMERA;
     }
     
-    public CompFamily getFamily(){
+    public CompFamily getCompFamily(){
         return CompFamily.VISUAL;
     }  
 }

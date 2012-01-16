@@ -1,0 +1,9 @@
+Material My Material : Common/MatDefs/Light/Lighting.j3md {
+     MaterialParameters {
+        DiffuseMap : Models/Sinbad/sinbad_clothes.jpg
+        NormalMap : Models/Sinbad/sinbad_clothes_normal.jpg
+        Shininess : 5.0
+     }
+    AdditionalRenderState {
+    }
+}

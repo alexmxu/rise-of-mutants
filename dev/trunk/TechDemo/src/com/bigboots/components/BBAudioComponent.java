@@ -39,11 +39,11 @@ public class BBAudioComponent extends AudioNode implements BBComponent{
         this.audioKey = new AudioKey(name, stream, streamCache);
         this.data = (AudioData) BBSceneManager.getInstance().getAssetManager().loadAsset(audioKey);
     }
-    public CompType getType(){
+    public CompType getCompType(){
         return CompType.AUDIO;
     }
     
-    public CompFamily getFamily(){
+    public CompFamily getCompFamily(){
         return CompFamily.VISUAL;
     }
     

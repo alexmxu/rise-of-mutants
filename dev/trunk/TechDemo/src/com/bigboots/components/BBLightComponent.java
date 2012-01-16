@@ -15,31 +15,26 @@
  */
 package com.bigboots.components;
 
-import com.jme3.audio.Listener;
+
+
 /**
  *
  * @author @author Ulrich Nzuzi <ulrichnz@code.google.com>
  */
-public class BBListenerComponent extends Listener implements BBComponent{
-    public BBListenerComponent(){
-        super();
-    }
-    /**
-     * @return The {@link Listener listener} object for audio
-     */
-    public BBListenerComponent(Listener source){
-        super(source);
+public class BBLightComponent implements BBComponent{
+    
+    public BBLightComponent(){
+        
     }
     
     public CompType getCompType(){
-        return CompType.LISTENER;
+        return CompType.LIGHT;
     }
     
     public CompFamily getCompFamily(){
-        return CompFamily.AUDIBLE;
+        return CompFamily.VISUAL;
     }
-    
-    public void destroy(){
-        
-    }
+
+
+
 }

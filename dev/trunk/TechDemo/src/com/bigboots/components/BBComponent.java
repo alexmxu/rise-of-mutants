@@ -48,7 +48,7 @@ public interface BBComponent {
         PHYSICS
     }
     
-    public CompType getType();
+    public CompType getCompType();
     
-    public CompFamily getFamily();
+    public CompFamily getCompFamily();
 }
