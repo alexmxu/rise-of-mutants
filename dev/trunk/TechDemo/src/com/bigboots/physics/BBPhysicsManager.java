@@ -77,8 +77,8 @@ public class BBPhysicsManager extends Application implements BBUpdateListener{
             return enShape;
         }
         if(type.equals(ShapeType.MESH)){
-            MeshCollisionShape mshShape = new MeshCollisionShape(ent.getMesh());
-            return mshShape;
+            //MeshCollisionShape mshShape = new MeshCollisionShape(ent.getMesh());
+            //return mshShape;
         }
         
         return null;

@@ -25,6 +25,7 @@ import com.bigboots.input.BBInputManager;
 
 //Entity
 import com.bigboots.components.BBEntity;
+import com.bigboots.components.BBLightComponent;
 import com.bigboots.components.BBNodeComponent;
 import com.bigboots.components.BBObject;
 import com.jme3.animation.LoopMode;
@@ -34,6 +35,7 @@ import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
+import com.jme3.light.Light.Type;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
@@ -67,7 +69,7 @@ public class TestSimpleApp extends BBApplication{
         //Load the main camera
         Camera cam = new Camera(BBSettings.getInstance().getSettings().getWidth(), BBSettings.getInstance().getSettings().getHeight());
         cam.setFrustumPerspective(45f, (float)cam.getWidth() / cam.getHeight(), 1f, 1000f);
-        cam.setLocation(new Vector3f(0f, 5f, 15f));
+        cam.setLocation(new Vector3f(0f, 5f, 25f));
         cam.lookAt(new Vector3f(0f, 0f, 0f), Vector3f.UNIT_Y);
         
         //Set up the main viewPort
@@ -104,13 +106,19 @@ public class TestSimpleApp extends BBApplication{
         panim.getChannel().setAnim("IdleTop");
         panim.getChannel().setSpeed(1f); 
         panim.getChannel().setLoopMode(LoopMode.Cycle);
+        //Set up material
+        mMainPlayer.setMaterial("Materials/Scene/Character/CharacterSkin.j3m");//"Models/Sinbad/SinbadMat.j3m");
         
-          
+        //Trying Entity clone system to share texture and material
+        BBEntity mCopy = mMainPlayer.clone("MYCOPY");
+        mCopy.getComponent(BBNodeComponent.class).setLocalTranslation(new Vector3f(8,1,1));
+        
         // Add a light Source
-        DirectionalLight dl = new DirectionalLight();
-        dl.setDirection(new Vector3f(0.5432741f, -0.58666015f, -0.6005691f).normalizeLocal());
-        dl.setColor(new ColorRGBA(1.1f,1.1f,1.1f,1));
-        BBSceneManager.getInstance().getRootNode().addLight(dl);
+        BBLightComponent compLight = new BBLightComponent();
+        compLight.setLightType(Type.Directional);
+        compLight.getLight(DirectionalLight.class).setDirection(new Vector3f(0.5432741f, -0.58666015f, -0.6005691f).normalizeLocal());
+        compLight.getLight(DirectionalLight.class).setColor(new ColorRGBA(1.1f,1.1f,1.1f,1));
+        BBSceneManager.getInstance().getRootNode().addLight(compLight.getLight(DirectionalLight.class));
         
     }
     
