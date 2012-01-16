@@ -32,7 +32,15 @@ import com.jme3.system.JmeContext.Type;
  * @author Ulrich Nzuzi <ulrichnz@code.google.com>
  */
 public class BBInputManager implements BBUpdateListener{
-        
+    private static BBInputManager instance = new BBInputManager();
+
+    private BBInputManager() {
+    }
+    
+    public static BBInputManager getInstance() { 
+        return instance; 
+    }
+    
     protected MouseInput mouseInput;
     protected KeyInput keyInput;
     protected JoyInput joyInput;
@@ -42,14 +50,7 @@ public class BBInputManager implements BBUpdateListener{
     protected boolean inputEnabled = true;
     protected BBEngineSystem myEng;
     
-    private static BBInputManager instance = new BBInputManager();
 
-    private BBInputManager() {
-    }
-    
-    public static BBInputManager getInstance() { 
-        return instance; 
-    }
         
     public void init(BBEngineSystem eng){
         

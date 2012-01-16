@@ -17,13 +17,12 @@ package com.bigboots.states;
 
 import com.bigboots.BBGlobals;
 import com.bigboots.audio.BBAudioManager;
-import com.bigboots.components.BBAnimComponent;
+import com.bigboots.components.camera.BBCameraComponent;
+import com.bigboots.components.camera.BBCameraManager;
+import com.bigboots.components.camera.BBSideModeCamera;
 import com.bigboots.components.BBAudioComponent;
-import com.bigboots.components.BBComponent.CompType;
-import com.bigboots.components.BBEntity;
 import com.bigboots.components.BBMonsterManager;
 import com.bigboots.components.BBNodeComponent;
-import com.bigboots.components.BBObject;
 import com.bigboots.components.BBPlayerManager;
 import com.bigboots.core.BBDebugInfo;
 import com.bigboots.core.BBEngineSystem;
@@ -36,6 +35,7 @@ import com.bigboots.physics.BBBasicCollisionListener;
 import com.bigboots.physics.BBPhysicsManager;
 import com.bigboots.scene.BBSceneComposer;
 import com.bigboots.scene.BBShaderManager;
+
 import com.jme3.animation.AnimChannel;
 import com.jme3.scene.Spatial;
 import com.jme3.math.Vector3f;
@@ -160,13 +160,23 @@ public class BBInGameState extends BBAbstractState{
         humanStalker = new BBNodeComponent("HumanStalker");
         BBSceneManager.getInstance().addChild(humanStalker);
         
+        BBCameraManager.getInstance().registerCamera("SIDE_CAM", BBCameraComponent.CamMode.SIDE, cam);
+        BBCameraComponent camera = BBCameraManager.getInstance().getCurrentCamera();
+        
+        if(camera.getCamMode().equals(BBCameraComponent.CamMode.SIDE)){
+            BBSideModeCamera sideCam = (BBSideModeCamera)camera;
+            sideCam.setPosition(new Vector3f(0, 10, 35));
+            sideCam.setTarget(humanStalker);
+        }
+        
+        /*
         CameraNode camNode = new CameraNode("Camera Node", cam);
         camNode.setControlDir(ControlDirection.SpatialToCamera);
         //camNode.rotate(new Quaternion().fromAngleAxis(-FastMath.HALF_PI, Vector3f.UNIT_Y));
         camNode.setLocalTranslation(new Vector3f(0, 10, 35));
         camNode.lookAt(humanStalker.getLocalTranslation(), Vector3f.UNIT_Y);
         humanStalker.attachChild(camNode);
-        //BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).attachChild(camNode);
+         * */
         
         //*******************************************
         //Create enemies
@@ -334,8 +344,8 @@ public class BBInGameState extends BBAbstractState{
         
         BBSceneManager.getInstance().getAssetManager().registerLoader(BlenderModelLoader.class, "blend");
         // Load a blender file.       
-//        ModelKey bk = new ModelKey("Scenes/levels/level_01/level_01.blend");
-          ModelKey bk = new ModelKey("Scenes/TestScene/test_scene_01_2.blend");  
+        //ModelKey bk = new ModelKey("Scenes/levels/level_01/level_01.blend");
+        ModelKey bk = new ModelKey("Scenes/TestScene/test_scene_01_2.blend");  
         Node nd =  (Node) BBSceneManager.getInstance().getAssetManager().loadModel(bk);
   
         
