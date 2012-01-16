@@ -70,13 +70,13 @@ public class BBPlayerManager {
     public void createMainPlayer(String name, String file){
         //Create the main Character       
         mMainPlayer = new BBEntity("PLAYER");
-        mMainPlayer.mTag = BBObject.ObjectTag.PLAYER;
+        mMainPlayer.setObjectTag(BBObject.ObjectTag.PLAYER);
         BBNodeComponent pnode = mMainPlayer.addComponent(CompType.NODE);
         pnode.scale(2);
         pnode.setLocalTranslation(this.getMainLocation());
         
         mMainPlayer.loadModel("Scenes/TestScene/character.mesh.xml");
-        BBSceneManager.getInstance().addChild(pnode);
+        //BBSceneManager.getInstance().addChild(pnode);
                 
         BBAnimComponent panim = mMainPlayer.addComponent(CompType.ANIMATION);
         panim.getChannel().setAnim("base_stand");

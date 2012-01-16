@@ -63,11 +63,18 @@ public class BBEntity extends BBObject{
     }
     
     public void loadModel(String mesh){
+       if(mNode == null){
+           throw new IllegalStateException("Try loading a mesh file in Entity class without setting a Node Component first .\n"
+                    + "Problem with Entity name: " + mObjectName);
+       }
+        
        tmpSpatial =  (Node)BBSceneManager.getInstance().loadSpatial(mesh);
        tmpSpatial.setLocalTranslation(0, -.85f, 0);
        tmpSpatial.setShadowMode(ShadowMode.CastAndReceive);
-       Material mat = BBSceneManager.getInstance().getAssetManager().loadMaterial("Materials/Scene/Character/CharacterSkin.j3m");
-       tmpSpatial.setMaterial(mat);
+       
+       //TODO : Find a way to load the associated material coming with the entity
+       //Material mat = BBSceneManager.getInstance().getAssetManager().loadMaterial("Materials/Scene/Character/CharacterSkin.j3m");
+       //tmpSpatial.setMaterial(mat);
        //TangentBinormalGenerator.generate(tmpSpatial);
        
        Node nd_temp = (Node) tmpSpatial;
@@ -117,7 +124,9 @@ public class BBEntity extends BBObject{
     
     public <T extends BBComponent>T addComponent(CompType type){
         if(type.equals(CompType.NODE)){
-            mNode = new BBNodeComponent(name);
+            mNode = new BBNodeComponent(mObjectName);
+            BBNodeComponent node = (BBNodeComponent)mNode;
+            BBSceneManager.getInstance().addChild(node);
             return (T)mNode;
         }
         if(type.equals(CompType.ANIMATION)){

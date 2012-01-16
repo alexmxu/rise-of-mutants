@@ -72,12 +72,12 @@ public class BBMonsterManager {
         //TEST AND LOAD ENEMY WITH ENTITY SYSTEM
         //set up out enemy object entity and put it in scene
         BBEntity mEnemy = new BBEntity(name);
-        mEnemy.mTag = BBObject.ObjectTag.MONSTER;
+        mEnemy.setObjectTag(BBObject.ObjectTag.MONSTER);
         BBNodeComponent node = mEnemy.addComponent(CompType.NODE);
         mEnemy.loadModel(file);
         node.scale(4);
         node.setLocalTranslation(pos);
-        BBSceneManager.getInstance().addChild(mEnemy.getComponent(BBNodeComponent.class));
+        //BBSceneManager.getInstance().addChild(mEnemy.getComponent(BBNodeComponent.class));
         
         //Set up animation component      
         //mEnemy.createAnimation();

@@ -210,7 +210,7 @@ public class BBSceneManager {
     }
     
     //TODO : To be changed
-    public void setupLight(){
+    public void setupBasicLight(){
         // We add light so we see the scene
         DirectionalLight dl = new DirectionalLight();
         dl.setDirection(new Vector3f(0.5432741f, -0.58666015f, -0.6005691f).normalizeLocal());

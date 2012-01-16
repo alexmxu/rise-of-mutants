@@ -33,30 +33,37 @@ public class BBObject {
     
     
     //The name of the object.
-    protected String name;
+    protected String mObjectName;
     //The id of the object
-    private String id;
-    private CompType type = CompType.NONE;
-    protected ObjectTag mTag = ObjectTag.NONE;
+    private String mObjectID;
+    protected CompType mObjectType = CompType.NONE;
+    private ObjectTag mObjectTag = ObjectTag.NONE;
     
     public BBObject(String name){
-        this.name = name;
+        this.mObjectName = name;
     }
     
     public String getObjectName(){
-        return name;
+        return mObjectName;
     }
     
     public String getObjectID(){
-        return id;
+        return mObjectID;
     }
     protected CompType getType(){
-        return type;
+        return mObjectType;
     }
     
     protected void setType(CompType type){
-        this.type = type;
+        this.mObjectType = type;
     }
    
+    public void setObjectTag(ObjectTag tag){
+        mObjectTag = tag;
+    }
+    
+    public ObjectTag getObjectTag(){
+        return mObjectTag;
+    }
 
 }

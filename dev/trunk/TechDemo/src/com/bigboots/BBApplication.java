@@ -23,8 +23,6 @@ import com.bigboots.core.BBSettings;
 import com.bigboots.core.BBUpdateManager;
 import com.bigboots.gui.BBGuiManager;
 import com.bigboots.input.BBInputManager;
-//import com.bigboots.states.BBInGameState;
-import com.bigboots.states.BBMainMenuState;
 import com.bigboots.states.BBStateManager;
 import com.jme3.system.SystemListener;
 
@@ -78,11 +76,15 @@ public class BBApplication implements SystemListener {
         //Init Debug info
         BBDebugInfo.getInstance().init(engineSystem.getRenderer());
         
-        //Launch the main menu screen
-        BBMainMenuState window = new BBMainMenuState();
-        //BBInGameState window = new BBInGameState();
-        BBStateManager.getInstance().attach(window);
+        this.simpleInitialize();
   
+    }
+    
+    /*
+     * Specific funtion to let the subclass to set up custum initilisation
+     */
+    public void simpleInitialize(){
+        
     }
 
     /**
@@ -103,7 +105,9 @@ public class BBApplication implements SystemListener {
         //update all states
         BBStateManager.getInstance().update(tpf);
         //update all updater : rootnode, input, etc
-        BBUpdateManager.getInstance().update(tpf);       
+        BBUpdateManager.getInstance().update(tpf);
+        //Custom udpate 
+        this.simpleUpdate();
         //Update RootNode
         BBSceneManager.getInstance().update(tpf);       
         //Set render
@@ -115,6 +119,12 @@ public class BBApplication implements SystemListener {
         //Display stats
         BBDebugInfo.getInstance().update(tpf);
       
+    }
+    /*
+     * Specific update funtion for the subclass custom update 
+     */
+    public void simpleUpdate(){
+        
     }
     
     /**
