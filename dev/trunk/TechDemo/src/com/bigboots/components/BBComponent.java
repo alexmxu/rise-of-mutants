@@ -33,7 +33,8 @@ public interface BBComponent {
         LISTENER,
         ANIMATION,
         CONTROLLER,
-        COLSHAPE
+        COLSHAPE,
+        CAMERA
     }
     
     /**

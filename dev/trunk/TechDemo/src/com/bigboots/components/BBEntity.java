@@ -26,7 +26,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.util.TangentBinormalGenerator;
+//import com.jme3.util.TangentBinormalGenerator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
