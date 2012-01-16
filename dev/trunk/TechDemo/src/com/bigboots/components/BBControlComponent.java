@@ -52,11 +52,11 @@ public class BBControlComponent implements BBComponent{
         return null;
     }
     
-    public CompType getType(){
+    public CompType getCompType(){
         return CompType.CONTROLLER;
     }
     
-    public CompFamily getFamily(){
+    public CompFamily getCompFamily(){
         return CompFamily.PHYSICS;
     }
 }

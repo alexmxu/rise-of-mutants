@@ -51,11 +51,11 @@ public class BBCollisionComponent implements BBComponent{
     public CollisionShape getShape(){
         return mSpecificShape;
     }
-    public CompType getType(){
+    public CompType getCompType(){
         return CompType.COLSHAPE;
     }
     
-    public CompFamily getFamily(){
+    public CompFamily getCompFamily(){
         return CompFamily.PHYSICS;
     }
 }

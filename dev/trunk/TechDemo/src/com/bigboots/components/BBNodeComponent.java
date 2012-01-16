@@ -31,11 +31,11 @@ public class BBNodeComponent extends Node implements BBComponent{
         super(name);
     }
     
-    public CompType getType(){
+    public CompType getCompType(){
         return CompType.NODE;
     }
     
-    public CompFamily getFamily(){
+    public CompFamily getCompFamily(){
         return CompFamily.VISUAL;
     }
 }

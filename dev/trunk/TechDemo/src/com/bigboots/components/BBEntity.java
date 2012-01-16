@@ -27,6 +27,7 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 //import com.jme3.util.TangentBinormalGenerator;
+import com.jme3.util.TangentBinormalGenerator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -51,7 +52,7 @@ public class BBEntity extends BBObject{
     protected Light mLight;
     
     protected boolean mEnable = true;
-    private Spatial tmpSpatial;
+    public Spatial tmpSpatial;
 
     //Collection of child graphics.
     private List<BBObject> mChildComponents = new ArrayList<BBObject>();
@@ -62,6 +63,7 @@ public class BBEntity extends BBObject{
        
     }
     
+    
     public void loadModel(String mesh){
        if(mNode == null){
            throw new IllegalStateException("Try loading a mesh file in Entity class without setting a Node Component first .\n"
@@ -69,14 +71,10 @@ public class BBEntity extends BBObject{
        }
         
        tmpSpatial =  (Node)BBSceneManager.getInstance().loadSpatial(mesh);
-       tmpSpatial.setLocalTranslation(0, -.85f, 0);
+       //Localy translate the entity spatial to go dow a bit. So, it align with collision shape
+       tmpSpatial.setLocalTranslation(0, -0.85f, 0);
        tmpSpatial.setShadowMode(ShadowMode.CastAndReceive);
-       
-       //TODO : Find a way to load the associated material coming with the entity
-       //Material mat = BBSceneManager.getInstance().getAssetManager().loadMaterial("Materials/Scene/Character/CharacterSkin.j3m");
-       //tmpSpatial.setMaterial(mat);
-       //TangentBinormalGenerator.generate(tmpSpatial);
-       
+              
        Node nd_temp = (Node) tmpSpatial;
        mDisplay = (Geometry) nd_temp.getChild(0);
        this.getComponent(BBNodeComponent.class).attachChild(tmpSpatial);
@@ -93,6 +91,11 @@ public class BBEntity extends BBObject{
     public void setSkills(String key, Object data) {
          tmpSpatial.setUserData(key, data);
     }
+    
+    public BBAudioComponent getAudio(String name){
+        return mapAudioNode.get(name);
+    }
+
     
     public void setEnabled(boolean enabled) {
         mEnable = enabled;
@@ -176,20 +179,28 @@ public class BBEntity extends BBObject{
        return null;
 
     }
-    
-    public BBAudioComponent getAudio(String name){
-        return mapAudioNode.get(name);
-    }
+
     
     public void getChildComponent(){
         
     }
+    
+    public void setMaterial(String matName){
+       Material mat = BBSceneManager.getInstance().getAssetManager().loadMaterial(matName);
+       tmpSpatial.setMaterial(mat);
+       TangentBinormalGenerator.generate(tmpSpatial);
+    }
+    
     public Geometry getGeometry(){
         return mDisplay;
     }
     
     public Mesh getMesh(){
         return mDisplay.getMesh();
+    }
+    
+    public BBEntity clone(){
+        return null;
     }
     
     public void destroy(){
