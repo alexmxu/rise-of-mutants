@@ -361,12 +361,12 @@ public class BBInGameState extends BBAbstractState{
         shm.setSimpleIBLParam("Textures/skyboxes/sky_box_01/skybox_01_low.png");   
         shm.setFogParam(new ColorRGBA(0.7f,0.6f,0.2f, 43f), null);
         
-        BBSceneManager.getInstance().addChild(nd);
-        CollisionShape myComplexShape = CollisionShapeFactory.createMeshShape(nd);
-        RigidBodyControl worldPhysics = new RigidBodyControl(myComplexShape,0);  
-        worldPhysics.createDebugShape(BBSceneManager.getInstance().getAssetManager());
-
-        BBPhysicsManager.getInstance().getPhysicsSpace().add(worldPhysics); 
+//        BBSceneManager.getInstance().addChild(nd);
+//        CollisionShape myComplexShape = CollisionShapeFactory.createMeshShape(nd);
+//        RigidBodyControl worldPhysics = new RigidBodyControl(myComplexShape,0);  
+//        worldPhysics.createDebugShape(BBSceneManager.getInstance().getAssetManager());
+//
+//        BBPhysicsManager.getInstance().getPhysicsSpace().add(worldPhysics); 
         //BBSceneManager.getInstance().getRootNode().attachChild(worldPhysics.debugShape());
      
     }
