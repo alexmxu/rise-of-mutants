@@ -344,8 +344,8 @@ public class BBInGameState extends BBAbstractState{
         
         BBSceneManager.getInstance().getAssetManager().registerLoader(BlenderModelLoader.class, "blend");
         // Load a blender file.       
-        //ModelKey bk = new ModelKey("Scenes/levels/level_01/level_01.blend");
-        ModelKey bk = new ModelKey("Scenes/TestScene/test_scene_01_2.blend");  
+        ModelKey bk = new ModelKey("Scenes/levels/level_01/level_01.blend");
+//        ModelKey bk = new ModelKey("Scenes/TestScene/test_scene_01_2.blend");  
         Node nd =  (Node) BBSceneManager.getInstance().getAssetManager().loadModel(bk);
   
         
@@ -354,7 +354,7 @@ public class BBInGameState extends BBAbstractState{
         String levelTex = "assets/Textures/level_textures";
         String scenePath = bk.getFolder().substring(0, bk.getFolder().length() - 1); //BlenderKey sets "File.separator" in the end of String
 
-//        BBSceneComposer sc = new BBSceneComposer(nd, entities, scenePath, baseTex, levelTex, BBSceneManager.getInstance().getAssetManager());
+        BBSceneComposer sc = new BBSceneComposer(nd, entities, scenePath, baseTex, levelTex, BBSceneManager.getInstance().getAssetManager());
         
         // Added scene effects (fog, ibl)
         BBShaderManager shm = new BBShaderManager(nd, BBSceneManager.getInstance().getAssetManager());
@@ -368,6 +368,6 @@ public class BBInGameState extends BBAbstractState{
 
         BBPhysicsManager.getInstance().getPhysicsSpace().add(worldPhysics); 
         //BBSceneManager.getInstance().getRootNode().attachChild(worldPhysics.debugShape());
-        
+     
     }
 }

@@ -110,7 +110,7 @@ public class BBSceneManager {
         viewPort.addProcessor(pssmRenderer);
     }
     
-    public Spatial loadSpatial(String name){
+    public Node loadSpatial(String name){
         Node model = (Node) assetManager.loadModel(name);
         return model;
     }
