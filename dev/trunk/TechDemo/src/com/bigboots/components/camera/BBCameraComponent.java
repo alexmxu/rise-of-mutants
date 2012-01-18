@@ -45,6 +45,10 @@ public class BBCameraComponent implements BBComponent{
         mJm3Camera = cam;
     }
     
+    public Camera getEngineCamera(){
+        return mJm3Camera;
+    }
+    
     public CamMode getCamMode(){
         return mCameraMode;
     }    

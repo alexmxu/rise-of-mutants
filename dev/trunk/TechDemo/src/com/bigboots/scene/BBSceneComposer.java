@@ -72,7 +72,7 @@ public class BBSceneComposer {
   
   
     private void startCompose() {
-        
+                 
         // Search for Original Objects
         for (Spatial originSearch : sceneNode.getChildren()) {        
             if (originSearch instanceof Node && originSearch.getName().indexOf(".") < 0){
