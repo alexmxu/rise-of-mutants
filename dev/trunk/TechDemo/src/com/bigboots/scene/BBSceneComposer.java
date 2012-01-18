@@ -133,14 +133,12 @@ public class BBSceneComposer {
        
 
        // Creating Entities
-       int ent = 0;
        for (Object sp : alNodesBase.toArray()) {
-           System.out.println("yyyyyyyyyyyyy");
            Node ndColSearch = (Node) sp;
-           BBEntity mEntity = new BBEntity(ndColSearch.getName() + ent, ndColSearch);
+           BBEntity mEntity = new BBEntity(ndColSearch.getName());
            BBNodeComponent pnode = mEntity.addComponent(CompType.NODE);
-//           BBSceneManager.getInstance().addChild(ndColSearch.clone(false));
-           ent += 1;
+           mEntity.getComponent(BBNodeComponent.class).attachChild(ndColSearch.clone());
+           System.out.println("Entity Created " + ndColSearch.getName());
            
            // Searching for collision meshes
            for (Object sp2 : alCollisionMesh.toArray()) {
@@ -148,11 +146,10 @@ public class BBSceneComposer {
                if (ndCol.getName().substring(2).equals(ndColSearch.getName())){
 
                     CollisionShape myComplexShape = CollisionShapeFactory.createMeshShape(ndCol);
-                    RigidBodyControl worldPhysics = new RigidBodyControl(myComplexShape,0);  
+                    RigidBodyControl worldPhysics = new RigidBodyControl(myComplexShape,0);
+                    pnode.addControl(worldPhysics);
                     worldPhysics.createDebugShape(BBSceneManager.getInstance().getAssetManager());
-
                     BBPhysicsManager.getInstance().getPhysicsSpace().add(worldPhysics); 
-                    BBSceneManager.getInstance().getRootNode().attachChild(worldPhysics.debugShape());
                            
                } 
            }
