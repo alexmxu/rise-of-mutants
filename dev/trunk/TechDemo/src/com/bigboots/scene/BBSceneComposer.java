@@ -135,20 +135,22 @@ public class BBSceneComposer {
        // Creating Entities
        for (Object sp : alNodesBase.toArray()) {
            Node ndColSearch = (Node) sp;
-           BBEntity mEntity = new BBEntity(ndColSearch.getName());
+           //Create an Entity from an existing node
+           BBEntity mEntity = new BBEntity(ndColSearch.getName(), ndColSearch);
+           //Add a transform component to attach it to the scene graph
            BBNodeComponent pnode = mEntity.addComponent(CompType.NODE);
-           mEntity.getComponent(BBNodeComponent.class).attachChild(ndColSearch.clone(false));
+           //Load it in the way to attach Geometry to the entity node
+           mEntity.loadModel("");
+ 
            System.out.println("Entity Created " + ndColSearch.getName());
            
            // Searching for collision meshes
            for (Object sp2 : alCollisionMesh.toArray()) {
                Node ndCol = (Node) sp2;
                if (ndCol.getName().substring(2).equals(ndColSearch.getName())){
-
                     CollisionShape myComplexShape = CollisionShapeFactory.createMeshShape(ndCol);
                     RigidBodyControl worldPhysics = new RigidBodyControl(myComplexShape,0);
                     pnode.addControl(worldPhysics);
-                    worldPhysics.createDebugShape(BBSceneManager.getInstance().getAssetManager());
                     BBPhysicsManager.getInstance().getPhysicsSpace().add(worldPhysics); 
                            
                } 

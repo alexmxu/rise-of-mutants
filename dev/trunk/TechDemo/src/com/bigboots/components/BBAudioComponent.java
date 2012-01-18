@@ -27,6 +27,7 @@ import com.jme3.audio.AudioNode;
 public class BBAudioComponent extends AudioNode implements BBComponent{
     private String mSoundName = "";
     private boolean streamCache = false;
+    
     public BBAudioComponent(){
         super();
     }
@@ -34,6 +35,7 @@ public class BBAudioComponent extends AudioNode implements BBComponent{
     public BBAudioComponent(String name, boolean stream){
         super(BBSceneManager.getInstance().getAssetManager(), name, stream, false);
     }
+    
     public void setSoundName(String name, boolean stream){
         mSoundName = name;
         this.audioKey = new AudioKey(name, stream, streamCache);

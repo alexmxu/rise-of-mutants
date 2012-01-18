@@ -19,15 +19,11 @@ import com.bigboots.components.BBComponent.CompType;
 import com.bigboots.core.BBSceneManager;
 import com.jme3.animation.AnimControl;
 import com.jme3.bullet.collision.shapes.CollisionShape;
-import com.jme3.light.Light;
 import com.jme3.material.Material;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-//import com.jme3.util.TangentBinormalGenerator;
-import com.jme3.util.TangentBinormalGenerator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,12 +45,10 @@ public class BBEntity extends BBObject{
     private BBComponent mLight;
 
     
-    //protected Geometry mDisplay;
-    protected CollisionShape mRigidBody;
-    
     protected boolean mEnable = true;
     private Node tmpSpatial;
-
+    private boolean mCloned = false;
+    
     //Collection of child graphics.
     private List<BBObject> mChildComponents = new ArrayList<BBObject>();
     //Collection of meshes
@@ -72,7 +66,9 @@ public class BBEntity extends BBObject{
         super(name);
         tmpSpatial = sp.clone(false);
         tmpSpatial.setName(name+"_clone");
+        mCloned = true;
     }
+    
     
     public void loadModel(String mesh){
        if(mNode == null){
@@ -82,26 +78,31 @@ public class BBEntity extends BBObject{
        
        if(!mesh.isEmpty()){
             tmpSpatial =  BBSceneManager.getInstance().loadSpatial(mesh);
+            //Localy translate the entity spatial to go dow a bit. So, it align with collision shape
+            tmpSpatial.setLocalTranslation(0, -0.85f, 0);
        }
-       //Localy translate the entity spatial to go dow a bit. So, it align with collision shape
-       tmpSpatial.setLocalTranslation(0, -0.85f, 0);
        tmpSpatial.setShadowMode(ShadowMode.CastAndReceive);
        this.getComponent(BBNodeComponent.class).attachChild(tmpSpatial);
        
        //Populate the list of meshes
-       Node nd_temp = (Node) tmpSpatial;
-       for (int i = 0; i < nd_temp.getChildren().size(); i++){
-           //String name = nd_temp.getChildren().get(i).getName();
-           Geometry geom = (Geometry)nd_temp.getChildren().get(i);
-           System.out.println("********* MESH ADDED : "+geom.getName()+" for class "+geom.getClass().toString());
-           //BBMeshComponent meshCp = new BBMeshComponent(name, geom.getMesh());
-           //meshCp.setMesh(geom.getMesh());
-           //this.getComponent(BBNodeComponent.class).attachChild(geom);
-           mChildMeshes.add(geom);
-        }
+       this.recurseNode((Node) tmpSpatial);
 
+       //Set skills for TEST
        this.setSkills("HEALTH", 100);
-       
+    }
+    
+    //Read the node child to find geomtry and stored it to the map for later access as submesh
+    private void recurseNode(Node node){
+        Node nd_temp = node;
+        for (int i = 0; i < nd_temp.getChildren().size(); i++){
+           if(nd_temp.getChildren().get(i) instanceof Node){
+               recurseNode((Node) nd_temp.getChildren().get(i));
+           }else{
+            Geometry geom = (Geometry) nd_temp.getChildren().get(i);
+            System.out.println("omomomomoomomomo GEOMETRY ADDED : "+geom.getName()+" for class "+geom.getClass().toString());
+            mChildMeshes.add(geom);
+           }
+        }
     }
    
     public <T> T getSkills(String key) {

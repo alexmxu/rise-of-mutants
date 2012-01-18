@@ -33,7 +33,8 @@ public class BBCollisionComponent implements BBComponent{
         MESH,
         PLAN,
         SPHERE,
-        CONE
+        CONE,
+        COMPLEX
     }
     
     private ShapeType mType;

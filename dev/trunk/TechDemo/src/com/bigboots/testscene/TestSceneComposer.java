@@ -29,7 +29,6 @@ import com.bigboots.scene.BBSceneComposer;
 import com.bigboots.scene.BBShaderManager;
 import com.jme3.asset.BlenderKey;
 import com.jme3.asset.DesktopAssetManager;
-import com.jme3.asset.TextureKey;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
@@ -43,9 +42,7 @@ import com.jme3.math.*;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
-import com.jme3.texture.Texture;
-import com.jme3.util.SkyFactory;
+
 
 
 
@@ -88,6 +85,10 @@ public class TestSceneComposer extends BBApplication {
         vp.setBackgroundColor(ColorRGBA.Gray);
         BBSceneManager.getInstance().setViewPort(vp);
         
+        // Set Skybox
+        BBSceneManager.getInstance().createSky();
+        //load keys
+        setupKeys();
         
         // Load a blender file. 
         DesktopAssetManager dsk = (DesktopAssetManager) BBSceneManager.getInstance().getAssetManager();        
@@ -107,35 +108,6 @@ public class TestSceneComposer extends BBApplication {
         shm.setSimpleIBLParam("Textures/skyboxes/sky_box_01/skybox_01_low.png");   
         shm.setFogParam(new ColorRGBA(0.67f,0.55f,0.2f, 70f), null);
         
-        BBSceneManager.getInstance().addChild(nd);
-
-        // Set Skybox
-        TextureKey key_west = new TextureKey("Textures/skyboxes/sky_box_01/skybox_01_west.png", true);
-        key_west.setGenerateMips(true);
-        
-        Texture sky_west = BBSceneManager.getInstance().getAssetManager().loadTexture(key_west);
-        TextureKey key_east = new TextureKey("Textures/skyboxes/sky_box_01/skybox_01_east.png", true);
-        key_east.setGenerateMips(true);
-        Texture sky_east = BBSceneManager.getInstance().getAssetManager().loadTexture(key_east);        
-        TextureKey key_north = new TextureKey("Textures/skyboxes/sky_box_01/skybox_01_north.png", true);
-        key_north.setGenerateMips(true);
-        Texture sky_north = BBSceneManager.getInstance().getAssetManager().loadTexture(key_north);        
-        TextureKey key_south = new TextureKey("Textures/skyboxes/sky_box_01/skybox_01_south.png", true);
-        key_south.setGenerateMips(true);
-        Texture sky_south = BBSceneManager.getInstance().getAssetManager().loadTexture(key_south);        
-        TextureKey key_top = new TextureKey("Textures/skyboxes/sky_box_01/skybox_01_top.png", true);
-        key_top.setGenerateMips(true);
-        Texture sky_top = BBSceneManager.getInstance().getAssetManager().loadTexture(key_top);        
-        TextureKey key_bottom = new TextureKey("Textures/skyboxes/sky_box_01/skybox_01_bottom.png", true);
-        key_bottom.setGenerateMips(true);
-        Texture sky_bottom = BBSceneManager.getInstance().getAssetManager().loadTexture(key_bottom);        
-
-        Vector3f normalScale = new Vector3f(1, 1, 1);
-
-        Spatial sky = SkyFactory.createSky(BBSceneManager.getInstance().getAssetManager(), sky_west, sky_east, sky_north, sky_south, sky_top, sky_bottom, normalScale);
-        BBSceneManager.getInstance().addChild(sky);
-        
-        setupKeys();
 
     }
 
