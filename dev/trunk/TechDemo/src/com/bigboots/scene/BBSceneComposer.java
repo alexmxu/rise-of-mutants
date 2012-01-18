@@ -16,10 +16,20 @@
 package com.bigboots.scene;
 
 
+import com.bigboots.components.BBCollisionComponent;
+import com.bigboots.components.BBComponent.CompType;
+import com.bigboots.components.BBEntity;
+import com.bigboots.components.BBNodeComponent;
+import com.bigboots.components.BBObject;
+import com.bigboots.core.BBSceneManager;
+import com.bigboots.physics.BBPhysicsManager;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.asset.ModelKey;
 import com.jme3.asset.TextureKey;
+import com.jme3.bullet.collision.shapes.CollisionShape;
+import com.jme3.bullet.control.RigidBodyControl;
+import com.jme3.bullet.util.CollisionShapeFactory;
 import com.jme3.material.*;
 import com.jme3.scene.*;
 import com.jme3.texture.Texture;
@@ -38,7 +48,7 @@ public class BBSceneComposer {
     private AssetManager assett;
     private Node sceneNode;    
     private String dirbase, levelFold, dirlevel, entFld, entPath;
-    private ArrayList alMaterials, alNodesBase;
+    private ArrayList alMaterials, alNodesBase, alCollisionMesh;
     private boolean isBlenderOrOgre;
 
     public  BBSceneComposer (Node scene, String entityFolder, String levelFolder, String dirTexBase, String dirTexLevel, AssetManager assetM) {
@@ -54,6 +64,7 @@ public class BBSceneComposer {
 
         alMaterials = new ArrayList();
         alNodesBase = new ArrayList();
+        alCollisionMesh = new ArrayList();
 
         startCompose();
     }
@@ -62,28 +73,31 @@ public class BBSceneComposer {
   
     private void startCompose() {
         
-        // Search for Clones and Original Objects
-        for (Spatial origin : sceneNode.getChildren()) {        
-            if (origin instanceof Node && origin.getName().indexOf(".") < 0){
-                if (origin.getName().indexOf("E") != 0){
-                    Node alNd = (Node) origin;  
+        // Search for Original Objects
+        for (Spatial originSearch : sceneNode.getChildren()) {        
+            if (originSearch instanceof Node && originSearch.getName().indexOf(".") < 0){
+                if (originSearch.getName().indexOf("E") != 0 && originSearch.getName().indexOf("CC") != 0){
+                    Node alNd = (Node) originSearch;  
                     replaceMeshWithOgre(alNd, levelFold);
                     composeMaterial(alNd, null);
                     TangentBinormalGenerator.generate(alNd);
                     alNodesBase.add(alNd);
                     isBlenderOrOgre = true;
-                } else if (origin.getName().indexOf("E") == 0){
-                    Node entNd = (Node) origin;
+                } else if (originSearch.getName().indexOf("E") == 0 && originSearch.getName().indexOf("CC") != 0){
+                    Node entNd = (Node) originSearch;
                     loadEntity(entFld, entNd);
                     TangentBinormalGenerator.generate(entNd);
                     alNodesBase.add(entNd);
                     isBlenderOrOgre = true;
-                }   
+                }  else if (originSearch.getName().indexOf("CC") == 0){
+                    Node entNd = (Node) originSearch;
+                    alCollisionMesh.add(entNd);
+                } 
             }
         }
         System.out.println("====================================================");
         
-        // Cloning of Objects (shared meshes and Materials)
+       // Search for Original Objects with "." name
        for (Spatial spatNode : sceneNode.getChildren()) {
            
            if (spatNode instanceof Node && spatNode.getName().indexOf(".") > 0) {
@@ -95,18 +109,6 @@ public class BBSceneComposer {
                   Node nodeSearch = (Node) nodeTemp;
                   if (nodeSearch.getName().equals(strCompare)) {
                       cloneFound = true;
-                      ndNode.detachAllChildren();
-                      for (Spatial sp : nodeSearch.getChildren()) {
-                          if (sp instanceof Geometry) {
-                              Geometry geo = (Geometry) sp.clone(false);
-                              ndNode.attachChild(geo);
-                              System.out.println("++++++++++ Attached " + geo + " to " + ndNode);
-                          }
-                          else if (sp instanceof Node) {
-                              Node nd = (Node) sp.clone(false);
-                              ndNode.attachChild(nd);
-                          }
-                      }
                   }
                }
              
@@ -126,7 +128,83 @@ public class BBSceneComposer {
                 }
               }      
            }         
-        }
+        }  
+       
+       
+
+       // Creating Entities
+       int ent = 0;
+       for (Object sp : alNodesBase.toArray()) {
+           System.out.println("yyyyyyyyyyyyy");
+           Node ndColSearch = (Node) sp;
+           BBEntity mEntity = new BBEntity(ndColSearch.getName() + ent, ndColSearch);
+           BBNodeComponent pnode = mEntity.addComponent(CompType.NODE);
+//           BBSceneManager.getInstance().addChild(ndColSearch.clone(false));
+           ent += 1;
+           
+           // Searching for collision meshes
+           for (Object sp2 : alCollisionMesh.toArray()) {
+               Node ndCol = (Node) sp2;
+               if (ndCol.getName().substring(2).equals(ndColSearch.getName())){
+
+                   CollisionShape myComplexShape = CollisionShapeFactory.createMeshShape(ndCol);
+                   BBCollisionComponent pColCp = mEntity.addComponent(CompType.COLSHAPE);
+                   pColCp.attachShape(myComplexShape);
+                   RigidBodyControl worldPhysics = new RigidBodyControl(myComplexShape,0);  
+                   worldPhysics.createDebugShape(BBSceneManager.getInstance().getAssetManager());
+                   ndColSearch.addControl(worldPhysics);
+                   BBPhysicsManager.getInstance().getPhysicsSpace().add(worldPhysics); 
+                           
+               } 
+           }
+           
+       }
+       
+        
+//        // Cloning of Objects (shared meshes and Materials)
+//       for (Spatial spatNode : sceneNode.getChildren()) {
+//           
+//           if (spatNode instanceof Node && spatNode.getName().indexOf(".") > 0) {
+//               boolean cloneFound = false; // Check for existing Original Object
+//               Node ndNode = (Node) spatNode;
+//               String strCompare = ndNode.getName().toString();
+//               strCompare = strCompare.substring(0, ndNode.getName().indexOf("."));
+//               for (Object nodeTemp : alNodesBase.toArray()) {
+//                  Node nodeSearch = (Node) nodeTemp;
+//                  if (nodeSearch.getName().equals(strCompare)) {
+//                      cloneFound = true;
+//                      ndNode.detachAllChildren();
+//                      for (Spatial sp : nodeSearch.getChildren()) {
+//                          if (sp instanceof Geometry) {
+//                              Geometry geo = (Geometry) sp.clone(false);
+//                              ndNode.attachChild(geo);
+//                              System.out.println("++++++++++ Attached " + geo + " to " + ndNode);
+//                          }
+//                          else if (sp instanceof Node) {
+//                              Node nd = (Node) sp.clone(false);
+//                              ndNode.attachChild(nd);
+//                          }
+//                      }
+//                  }
+//               }
+//             
+//              if (cloneFound == false) {
+//                  ndNode.setName(strCompare);
+//                    if (ndNode.getName().indexOf("E") != 0){
+//                    replaceMeshWithOgre(ndNode, levelFold);
+//                    composeMaterial(ndNode, null);
+//                    TangentBinormalGenerator.generate(ndNode);
+//                    alNodesBase.add(ndNode);
+//                    isBlenderOrOgre = true;
+//                } else if (ndNode.getName().indexOf("E") == 0){
+//                    loadEntity(entFld, ndNode);
+//                    TangentBinormalGenerator.generate(ndNode);
+//                    alNodesBase.add(ndNode);
+//                    isBlenderOrOgre = true;
+//                }
+//              }      
+//           }         
+//        }
         System.out.println(alMaterials.size() + " - QUANTITY OF BASE MATERIALS");   
     }
   
