@@ -16,6 +16,8 @@
 package com.bigboots.components.camera;
 
 import com.jme3.renderer.Camera;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -31,24 +33,47 @@ public class BBCameraManager {
         return instance; 
     }
    
-    
     private BBCameraComponent mCurrentCamera;
+    private List<BBCameraComponent> mCameraList = new ArrayList<BBCameraComponent>();
     
-    public void registerCamera(String name, BBCameraComponent.CamMode mode, Camera cam){
+    
+    public void registerCamera(String name, BBCameraComponent.CamMode mode, Camera cam, boolean dflt){
         switch (mode) {
             case SIDE :
-                BBSideModeCamera tmpCam = new BBSideModeCamera(name, cam);
-                tmpCam.initCamera();
-                //TODO : will be register in a map. Here is just for test
-                mCurrentCamera = tmpCam;
+                BBSideModeCamera sideCam = new BBSideModeCamera(name, cam);
+                sideCam.initCamera();
+                mCameraList.add(sideCam);
+                if(dflt){
+                    mCurrentCamera = sideCam;
+                }
+                
             break;               
+            case FPS :
+                BBFirstPersonCamera fpsCam = new BBFirstPersonCamera(name, cam);
+                mCameraList.add(fpsCam);
+                if(dflt){
+                    mCurrentCamera = fpsCam;
+                }
+            break; 
             default: 
                 throw new RuntimeException("None or unsupported Filter Type");
         }
+    }
+    
+    public void setCurrentCamera(BBCameraComponent cmp){
+        mCurrentCamera = cmp;
     }
     
     public BBCameraComponent getCurrentCamera(){
         return mCurrentCamera;
     }
     
+    public BBCameraComponent getCameraByName(String name){
+        for (BBCameraComponent cm : mCameraList) {
+            if(name.equals(cm.getCamName())){
+                return cm;
+            }
+        }
+        return null;
+    }
 }

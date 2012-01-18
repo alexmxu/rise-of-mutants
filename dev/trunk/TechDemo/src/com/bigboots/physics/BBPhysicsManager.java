@@ -28,6 +28,7 @@ import com.jme3.bounding.BoundingBox;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.PhysicsSpace;
 import com.jme3.bullet.collision.shapes.*;
+import com.jme3.bullet.util.CollisionShapeFactory;
 
 
 /**
@@ -70,7 +71,8 @@ public class BBPhysicsManager extends Application implements BBUpdateListener{
    
     public CollisionShape createPhysicShape(ShapeType type, BBEntity ent){
         
-        BoundingBox vol = (BoundingBox)ent.getComponent(BBNodeComponent.class).getWorldBound();
+        BBNodeComponent node = ent.getComponent(BBNodeComponent.class);
+        BoundingBox vol = (BoundingBox) node.getWorldBound();
         
         if(type.equals(ShapeType.CAPSULE)){
             CapsuleCollisionShape enShape = new CapsuleCollisionShape(vol.getZExtent()*0.8f, vol.getYExtent(), 1);
@@ -79,6 +81,10 @@ public class BBPhysicsManager extends Application implements BBUpdateListener{
         if(type.equals(ShapeType.MESH)){
             //MeshCollisionShape mshShape = new MeshCollisionShape(ent.getMesh());
             //return mshShape;
+        }
+        if(type.equals(ShapeType.COMPLEX)){
+            CollisionShape mComplexShape = CollisionShapeFactory.createMeshShape(node);
+            return mComplexShape;
         }
         
         return null;

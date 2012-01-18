@@ -160,46 +160,20 @@ public class BBInGameState extends BBAbstractState{
         humanStalker = new BBNodeComponent("HumanStalker");
         BBSceneManager.getInstance().addChild(humanStalker);
         
-        BBCameraManager.getInstance().registerCamera("SIDE_CAM", BBCameraComponent.CamMode.SIDE, cam);
+        BBCameraManager.getInstance().registerCamera("SIDE_CAM", BBCameraComponent.CamMode.SIDE, cam, true);
         BBCameraComponent camera = BBCameraManager.getInstance().getCurrentCamera();
         
         if(camera.getCamMode().equals(BBCameraComponent.CamMode.SIDE)){
             BBSideModeCamera sideCam = (BBSideModeCamera)camera;
             sideCam.setPosition(new Vector3f(0, 10, 35));
             sideCam.setTarget(humanStalker);
-        }
-        
-        /*
-        CameraNode camNode = new CameraNode("Camera Node", cam);
-        camNode.setControlDir(ControlDirection.SpatialToCamera);
-        //camNode.rotate(new Quaternion().fromAngleAxis(-FastMath.HALF_PI, Vector3f.UNIT_Y));
-        camNode.setLocalTranslation(new Vector3f(0, 10, 35));
-        camNode.lookAt(humanStalker.getLocalTranslation(), Vector3f.UNIT_Y);
-        humanStalker.attachChild(camNode);
-         * */
+        }    
         
         //*******************************************
         //Create enemies
 
         for (int i=0; i<5; i++){
-         Vector3f mPos = new Vector3f(100 + i*10, 100, 0f); 
-//        BBEntity mEnemy = new BBEntity("ee"+i);
-//      //  mEnemy.mTag = BBObject.ObjectTag.MONSTER;
-//        BBNodeComponent node = mEnemy.addComponent(CompType.NODE);
-//        mEnemy.loadModel("Scenes/TestScene/mutant.j3o");
-//        node.scale(4);
-//        node.setLocalTranslation(mPos);
-//        BBSceneManager.getInstance().addChild(mEnemy.getComponent(BBNodeComponent.class));
-//        
-//        //Set up animation component      
-//        //mEnemy.createAnimation();
-//        BBAnimComponent anim = mEnemy.addComponent(CompType.ANIMATION);
-//        anim.getChannel().setAnim("mutant_idle");
-//        anim.getChannel().setLoopMode(LoopMode.Loop);
-//        mEnemy.getComponent(BBAnimComponent.class).getChannel().setSpeed(1f);
-////        BBSceneManager.getInstance().addChild(node);
-////        BBMonsterManager.getInstance().addMonster(mEnemy);
-        
+         Vector3f mPos = new Vector3f(100 + i*10, 100, 0f);  
          BBMonsterManager.getInstance().createMonter("ENEMY" + i*2, "Scenes/TestScene/mutant.j3o", mPos);
         }
 
@@ -359,15 +333,7 @@ public class BBInGameState extends BBAbstractState{
         // Added scene effects (fog, ibl)
         BBShaderManager shm = new BBShaderManager(nd, BBSceneManager.getInstance().getAssetManager());
         shm.setSimpleIBLParam("Textures/skyboxes/sky_box_01/skybox_01_low.png");   
-        shm.setFogParam(new ColorRGBA(0.7f,0.6f,0.2f, 43f), null);
-        
-//        BBSceneManager.getInstance().addChild(nd);
-//        CollisionShape myComplexShape = CollisionShapeFactory.createMeshShape(nd);
-//        RigidBodyControl worldPhysics = new RigidBodyControl(myComplexShape,0);  
-//        worldPhysics.createDebugShape(BBSceneManager.getInstance().getAssetManager());
-//
-//        BBPhysicsManager.getInstance().getPhysicsSpace().add(worldPhysics); 
-        //BBSceneManager.getInstance().getRootNode().attachChild(worldPhysics.debugShape());
+        shm.setFogParam(new ColorRGBA(0.7f,0.6f,0.2f, 43f), null);      
      
     }
 }
