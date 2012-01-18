@@ -53,7 +53,7 @@ public class BBEntity extends BBObject{
     protected CollisionShape mRigidBody;
     
     protected boolean mEnable = true;
-    private Spatial tmpSpatial;
+    private Node tmpSpatial;
 
     //Collection of child graphics.
     private List<BBObject> mChildComponents = new ArrayList<BBObject>();
@@ -68,7 +68,7 @@ public class BBEntity extends BBObject{
        
     }
     
-    public BBEntity(String name, Spatial sp){
+    public BBEntity(String name, Node sp){
         super(name);
         tmpSpatial = sp.clone(false);
         tmpSpatial.setName(name+"_clone");
