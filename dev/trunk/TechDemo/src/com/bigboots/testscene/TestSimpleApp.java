@@ -70,7 +70,14 @@ class MyActionListener implements ActionListener{
  * @author @author Ulrich Nzuzi <ulrichnz@code.google.com>
  */
 public class TestSimpleApp extends BBApplication{
+        
+    //The main function call to init the app
+    public static void main(String[] args) {
+        TestSimpleApp app = new TestSimpleApp();
+        app.run();
+    }   
     
+    //Variables
     private MyActionListener actionListener;
     
     @Override
@@ -116,10 +123,7 @@ public class TestSimpleApp extends BBApplication{
         panim.getChannel().setAnim("IdleTop");
         panim.getChannel().setSpeed(1f); 
         panim.getChannel().setLoopMode(LoopMode.Cycle);
-        //Set up material
-        mMainPlayer.setMaterial("Scenes/TestScene/TestSceneMaterial.j3m");
-        mMainPlayer.setMaterialToMesh("Sinbad-geom-7", "Models/Sinbad/SinbadMat.j3m");
-        
+                
         //Swithing physic on
         BBPhysicsManager.getInstance().init(engineSystem);
         
@@ -159,6 +163,10 @@ public class TestSimpleApp extends BBApplication{
         BBEntity mCopy = mMainPlayer.clone("MYCOPY");
         mCopy.getComponent(BBNodeComponent.class).setLocalTranslation(new Vector3f(8,1,1));
         
+        //Set up material after cloning to see the shared texture
+        mMainPlayer.setMaterial("Scenes/TestScene/TestSceneMaterial.j3m");
+        mMainPlayer.setMaterialToMesh("Sinbad-geom-7", "Models/Sinbad/SinbadMat.j3m");
+        
         // Add a light Source
         BBLightComponent compLight = new BBLightComponent();
         compLight.setLightType(Type.Directional);
@@ -177,10 +185,5 @@ public class TestSimpleApp extends BBApplication{
         //Put here your custom update code ...
         
     }    
-    
-    //The main function call to init the app
-    public static void main(String[] args) {
-        TestSimpleApp app = new TestSimpleApp();
-        app.run();
-    }    
+ 
 }

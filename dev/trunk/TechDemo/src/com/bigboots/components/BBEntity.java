@@ -58,7 +58,7 @@ public class BBEntity extends BBObject{
     //Collection of child graphics.
     private List<BBObject> mChildComponents = new ArrayList<BBObject>();
     //Collection of meshes
-    private List<BBMeshComponent> mChildMeshes = new ArrayList<BBMeshComponent>();
+    private List<Geometry> mChildMeshes = new ArrayList<Geometry>();
     //Collection of Audio
     private HashMap<String, BBAudioComponent> mapAudioNode = new HashMap<String, BBAudioComponent>();
     
@@ -91,13 +91,13 @@ public class BBEntity extends BBObject{
        //Populate the list of meshes
        Node nd_temp = (Node) tmpSpatial;
        for (int i = 0; i < nd_temp.getChildren().size(); i++){
-           String name = nd_temp.getChildren().get(i).getName();
+           //String name = nd_temp.getChildren().get(i).getName();
            Geometry geom = (Geometry)nd_temp.getChildren().get(i);
-           System.out.println("********* MESH ADDED : "+geom.getName());
-           BBMeshComponent meshCp = new BBMeshComponent(name);
-           meshCp.setMesh(geom.getMesh());
+           System.out.println("********* MESH ADDED : "+geom.getName()+" for class "+geom.getClass().toString());
+           //BBMeshComponent meshCp = new BBMeshComponent(name, geom.getMesh());
+           //meshCp.setMesh(geom.getMesh());
            //this.getComponent(BBNodeComponent.class).attachChild(geom);
-           mChildMeshes.add(meshCp);
+           mChildMeshes.add(geom);
         }
 
        this.setSkills("HEALTH", 100);
@@ -204,8 +204,8 @@ public class BBEntity extends BBObject{
         
     }
     
-    public BBMeshComponent getChildMesh(String name){
-        for (BBMeshComponent mc : mChildMeshes) {
+    public Geometry getChildMesh(String name){
+        for (Geometry mc : mChildMeshes) {
             if(name.equals(mc.getName())){
                 return mc;
             }
@@ -220,12 +220,14 @@ public class BBEntity extends BBObject{
     
     public void setMaterialToMesh(String meshName, String matName){
        Material mat = BBSceneManager.getInstance().getAssetManager().loadMaterial(matName);
-       BBMeshComponent mcomp = getChildMesh(meshName);
+       Geometry mcomp = getChildMesh(meshName);
        if(mcomp == null){
            throw new IllegalStateException("Try loading an unexisting geometry part .\n"
                     + "Searching name [" + meshName+"] for "+mObjectName+" Entity");
        }
+
        mcomp.setMaterial(mat);
+       System.out.println(" mmmmmmm MESH name : "+mcomp.getMaterial().getName());
        //mcomp.updateModelBound();
        //TangentBinormalGenerator.generate(mcomp);
     }
