@@ -137,7 +137,7 @@ public class BBSceneComposer {
            Node ndColSearch = (Node) sp;
            BBEntity mEntity = new BBEntity(ndColSearch.getName());
            BBNodeComponent pnode = mEntity.addComponent(CompType.NODE);
-           mEntity.getComponent(BBNodeComponent.class).attachChild(ndColSearch.clone());
+           mEntity.getComponent(BBNodeComponent.class).attachChild(ndColSearch.clone(false));
            System.out.println("Entity Created " + ndColSearch.getName());
            
            // Searching for collision meshes
