@@ -147,13 +147,12 @@ public class BBSceneComposer {
                Node ndCol = (Node) sp2;
                if (ndCol.getName().substring(2).equals(ndColSearch.getName())){
 
-                   CollisionShape myComplexShape = CollisionShapeFactory.createMeshShape(ndCol);
-                   BBCollisionComponent pColCp = mEntity.addComponent(CompType.COLSHAPE);
-                   pColCp.attachShape(myComplexShape);
-                   RigidBodyControl worldPhysics = new RigidBodyControl(myComplexShape,0);  
-                   worldPhysics.createDebugShape(BBSceneManager.getInstance().getAssetManager());
-                   ndColSearch.addControl(worldPhysics);
-                   BBPhysicsManager.getInstance().getPhysicsSpace().add(worldPhysics); 
+                    CollisionShape myComplexShape = CollisionShapeFactory.createMeshShape(ndCol);
+                    RigidBodyControl worldPhysics = new RigidBodyControl(myComplexShape,0);  
+                    worldPhysics.createDebugShape(BBSceneManager.getInstance().getAssetManager());
+
+                    BBPhysicsManager.getInstance().getPhysicsSpace().add(worldPhysics); 
+                    BBSceneManager.getInstance().getRootNode().attachChild(worldPhysics.debugShape());
                            
                } 
            }
