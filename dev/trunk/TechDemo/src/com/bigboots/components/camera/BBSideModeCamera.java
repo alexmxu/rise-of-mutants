@@ -15,7 +15,6 @@
  */
 package com.bigboots.components.camera;
 
-import com.bigboots.components.camera.BBCameraComponent;
 import com.bigboots.components.BBNodeComponent;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
@@ -28,13 +27,11 @@ import com.jme3.scene.control.CameraControl.ControlDirection;
  */
 public class BBSideModeCamera extends BBCameraComponent{
     
-    protected Camera mJm3Camera;
     protected CameraNode mCamNode;
     protected BBNodeComponent mTarget;
     
     public BBSideModeCamera(String name, Camera cam){
-        super(name);
-        mJm3Camera = cam;
+        super(name, cam);
         mCameraMode = CamMode.SIDE;
     }
     

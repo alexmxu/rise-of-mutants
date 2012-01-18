@@ -15,7 +15,6 @@
  */
 package com.bigboots.components.camera;
 
-import com.bigboots.components.camera.BBCameraComponent;
 import com.jme3.renderer.Camera;
 
 /**

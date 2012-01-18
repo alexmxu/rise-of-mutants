@@ -17,8 +17,12 @@ package com.bigboots.testscene;
 
 import com.bigboots.BBApplication;
 import com.bigboots.BBGlobals;
+import com.bigboots.animation.BBAnimManager;
 import com.bigboots.components.BBAnimComponent;
+import com.bigboots.components.BBCollisionComponent;
+import com.bigboots.components.BBCollisionComponent.ShapeType;
 import com.bigboots.components.BBComponent.CompType;
+import com.bigboots.components.BBControlComponent;
 import com.bigboots.core.BBSceneManager;
 import com.bigboots.core.BBSettings;
 import com.bigboots.input.BBInputManager;
@@ -26,20 +30,26 @@ import com.bigboots.input.BBInputManager;
 //Entity
 import com.bigboots.components.BBEntity;
 import com.bigboots.components.BBLightComponent;
+import com.bigboots.components.BBMeshComponent;
 import com.bigboots.components.BBNodeComponent;
 import com.bigboots.components.BBObject;
+import com.bigboots.physics.BBPhysicsManager;
 import com.jme3.animation.LoopMode;
-
+import com.jme3.bullet.control.CharacterControl;
+import com.jme3.bullet.collision.shapes.CollisionShape;
+import com.jme3.bullet.control.RigidBodyControl;
 
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light.Type;
+import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
+import com.jme3.scene.shape.Box;
 
 
 
@@ -107,7 +117,43 @@ public class TestSimpleApp extends BBApplication{
         panim.getChannel().setSpeed(1f); 
         panim.getChannel().setLoopMode(LoopMode.Cycle);
         //Set up material
-        mMainPlayer.setMaterial("Materials/Scene/Character/CharacterSkin.j3m");//"Models/Sinbad/SinbadMat.j3m");
+        mMainPlayer.setMaterial("Scenes/TestScene/TestSceneMaterial.j3m");
+        mMainPlayer.setMaterialToMesh("Sinbad-geom-7", "Models/Sinbad/SinbadMat.j3m");
+        
+        //Swithing physic on
+        BBPhysicsManager.getInstance().init(engineSystem);
+        
+        //Create quick mesh and texture
+        Box floor = new Box(Vector3f.ZERO, 10f, 0.1f, 5f);
+        Material floor_mat = BBSceneManager.getInstance().getAssetManager().loadMaterial("Materials/Scene/Character/CharacterSkin.j3m");
+        //Set up a Geometry for our box 
+        BBMeshComponent floor_geo = new BBMeshComponent("Floor", floor);
+        floor_geo.setMaterial(floor_mat);
+        floor_geo.setLocalTranslation(0, -1f, 0);
+        BBSceneManager.getInstance().addChild(floor_geo);
+        // Make the floor physical with mass 0.0f
+        RigidBodyControl floor_phy = new RigidBodyControl(0.0f);
+        floor_geo.addControl(floor_phy);
+        BBPhysicsManager.getInstance().getPhysicsSpace().add(floor_phy);
+        
+        //Create collision shape for our Entity by calling the PhysicMgr factory 
+        CollisionShape pShape = BBPhysicsManager.getInstance().createPhysicShape(ShapeType.CAPSULE, mMainPlayer);
+        //Create the collision component to attach the created shape
+        BBCollisionComponent pColCp = mMainPlayer.addComponent(CompType.COLSHAPE);
+        pColCp.attachShape(pShape);
+        //Find and create the control to anime the shape
+        CharacterControl pControler = (CharacterControl) BBAnimManager.getInstance().createControl(BBControlComponent.ControlType.CHARACTER, mMainPlayer); 
+        pControler.setJumpSpeed(19);
+        pControler.setFallSpeed(40);
+        pControler.setGravity(35);
+        pControler.setUseViewDirection(true);
+        //Create the control component for our Entity and attach the specific control
+        BBControlComponent pCtrl = mMainPlayer.addComponent(CompType.CONTROLLER);
+        pCtrl.setControlType(BBControlComponent.ControlType.CHARACTER);
+        pCtrl.attachControl(pControler);
+        //Attached all to the Entity's Node and set it up in the physic space
+        mMainPlayer.getComponent(BBNodeComponent.class).addControl(pControler);
+        BBPhysicsManager.getInstance().getPhysicsSpace().addAll(mMainPlayer.getComponent(BBNodeComponent.class));
         
         //Trying Entity clone system to share texture and material
         BBEntity mCopy = mMainPlayer.clone("MYCOPY");

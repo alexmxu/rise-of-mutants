@@ -18,6 +18,7 @@ package com.bigboots.components.camera;
 import com.bigboots.components.BBComponent;
 import com.bigboots.components.BBComponent.CompFamily;
 import com.bigboots.components.BBComponent.CompType;
+import com.jme3.renderer.Camera;
 
 /**
  *
@@ -36,9 +37,12 @@ public class BBCameraComponent implements BBComponent{
     
     protected CamMode mCameraMode;    
     protected String mCameraName;
+    protected boolean enabled = true;
+    protected Camera mJm3Camera;
     
-    public BBCameraComponent(String name){
+    public BBCameraComponent(String name, Camera cam){
         mCameraName = name;
+        mJm3Camera = cam;
     }
     
     public CamMode getCamMode(){
@@ -55,5 +59,12 @@ public class BBCameraComponent implements BBComponent{
     
     public CompFamily getCompFamily(){
         return CompFamily.VISUAL;
-    }  
+    }
+    /**
+     * @return If enabled
+     * @see BBCameraComponent#setEnabled(boolean)
+     */
+    public boolean isEnabled(){
+        return enabled;
+    }
 }

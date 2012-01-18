@@ -16,6 +16,7 @@
 package com.bigboots.components;
 
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Mesh;
 
 /**
  *
@@ -23,9 +24,23 @@ import com.jme3.scene.Geometry;
  */
 public class BBMeshComponent extends Geometry implements BBComponent{
 
+    public BBMeshComponent( ){
+        super();
+    }
     
     public BBMeshComponent(String name){
         super(name);
+    }
+        /**
+     * Create a geometry node with mesh data.
+     * The material of the geometry is null, it cannot
+     * be rendered until it is set.
+     * 
+     * @param name The name of this geometry
+     * @param mesh The mesh data for this geometry
+     */
+    public BBMeshComponent(String name, Mesh mesh) {
+        super(name, mesh);
     }
     
     public CompType getCompType() {
