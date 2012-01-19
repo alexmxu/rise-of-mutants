@@ -77,7 +77,7 @@ public class BBMonsterManager {
         mEnemy.loadModel(file);
         node.scale(4);
         node.setLocalTranslation(pos);
-        //BBSceneManager.getInstance().addChild(mEnemy.getComponent(BBNodeComponent.class));
+        mEnemy.attachToRoot();
         
         //Set up animation component      
         //mEnemy.createAnimation();

@@ -143,6 +143,8 @@ public class BBSceneComposer {
            BBEntity mEntity = new BBEntity(ndColSearch.getName(), ndColSearch);
            //Add a transform component to attach it to the scene graph
            BBNodeComponent pnode = mEntity.addComponent(CompType.NODE);
+           //Attach it to the RootNode
+           mEntity.attachToRoot();
            //Load it in the way to attach Geometry to the entity node
            mEntity.loadModel("");
  
@@ -171,24 +173,20 @@ public class BBSceneComposer {
                Node ndNode = (Node) spatNode;
                String strCompare = ndNode.getName().toString();
                strCompare = strCompare.substring(0, ndNode.getName().indexOf("."));
-               for (Object nodeTemp : alEntitiesOriginals.toArray()) {
-                   BBEntity entSearch = (BBEntity) nodeTemp;
-                   //                  Node nodeSearch = (Node) nodeTemp;
-                  if (entSearch.getComponent(BBNodeComponent.class).getChild(0).getName().equals(strCompare)) {
+               for (Object objTemp : alEntitiesOriginals.toArray()) {
+                   BBEntity entSearch = (BBEntity) objTemp;
+                   if (entSearch.getObjectName().equals(strCompare)) {
                       cloneFound = true; 
-                      //Clone node of an existing Entity
-                      Node clonedNode = (Node) entSearch.getComponent(BBNodeComponent.class).getChild(0).clone(false);
-                      clonedNode.setName(ndNode.getName());
-                      clonedNode.setLocalTransform(ndNode.getLocalTransform());
-                      BBEntity mCloneEntity = new BBEntity(ndNode.getName(), clonedNode);
+                      //Clone node of an existing Entity                     
+                      BBEntity mCloneEntity = entSearch.clone(ndNode.getName());
                       //Add a transform component to attach it to the scene graph
-                      BBNodeComponent pConeNode = mCloneEntity.addComponent(CompType.NODE);
+                      mCloneEntity.getComponent(BBNodeComponent.class).setLocalTransform(ndNode.getLocalTransform());;
+                      //Attach it to the RootNode
+                      mCloneEntity.attachToRoot();
                       
-                      mCloneEntity.loadModel("");
-                      
-                      alEntitiesClones.add((BBEntity)mCloneEntity);
+                      alEntitiesClones.add(mCloneEntity);
                               
-                      System.out.println("Cloninig Entity: " + mCloneEntity.getObjectName());
+                      System.out.println("cccccccccccccccc Cloninig Entity: " + mCloneEntity.getObjectName()+" From entity : "+entSearch.getObjectName());
                   }
                }
            }

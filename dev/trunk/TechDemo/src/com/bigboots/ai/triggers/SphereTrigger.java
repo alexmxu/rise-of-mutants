@@ -54,7 +54,7 @@ public class SphereTrigger implements TriggerControl {
         checkTimer += tpf;
         if (checkTimer >= checkTime) {
             checkTimer = 0;
-
+/*
                 List<PhysicsCollisionObject> objects = ghostControl.getOverlappingObjects();
                 for (Iterator<PhysicsCollisionObject> it = objects.iterator(); it.hasNext();) {
                     PhysicsCollisionObject physicsCollisionObject = it.next();
@@ -63,7 +63,7 @@ public class SphereTrigger implements TriggerControl {
                             return;                   
                     }
                 }
-            
+            */
         }
     }
 
