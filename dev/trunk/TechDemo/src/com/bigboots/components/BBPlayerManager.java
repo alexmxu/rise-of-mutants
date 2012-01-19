@@ -63,7 +63,7 @@ public class BBPlayerManager {
         BBNodeComponent pnode = mMainPlayer.addComponent(CompType.NODE);
         pnode.scale(2);
         pnode.setLocalTranslation(this.getMainLocation());
-        
+        mMainPlayer.attachToRoot();
         mMainPlayer.loadModel("Scenes/TestScene/character.mesh.xml");
         //BBSceneManager.getInstance().addChild(pnode);
                 
@@ -73,6 +73,7 @@ public class BBPlayerManager {
         panim.getChannel().setLoopMode(LoopMode.Cycle);
         
         CollisionShape pShape = BBPhysicsManager.getInstance().createPhysicShape(ShapeType.CAPSULE, mMainPlayer);
+        pShape.setMargin(0.9f);
         //CollisionShape pShape = BBPhysicsManager.getInstance().createPhysicShape(ShapeType.MESH, mMainPlayer);
         BBCollisionComponent pColCp = mMainPlayer.addComponent(CompType.COLSHAPE);
         pColCp.attachShape(pShape);

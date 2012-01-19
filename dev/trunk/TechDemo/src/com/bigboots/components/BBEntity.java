@@ -63,10 +63,17 @@ public class BBEntity extends BBObject{
     }
     
     public BBEntity(String name, Node sp){
+        this(name, sp, false);
+    }
+    
+    public BBEntity(String name, Node sp, boolean clone){
         super(name);
         tmpSpatial = sp;
         tmpSpatial.setName(name);
-//        mCloned = true;
+        mCloned = clone;
+        //Localy translate the entity spatial to go dow a bit.
+        tmpSpatial.setLocalTranslation(0, -0.85f, 0);
+
     }
     
     
@@ -91,6 +98,18 @@ public class BBEntity extends BBObject{
        this.setSkills("HEALTH", 100);
     }
     
+    public void attachToRoot(){
+        BBSceneManager.getInstance().addChild((BBNodeComponent) mNode);
+    }
+    
+    public void attachToNode(Node thenode){
+        if(thenode == null){
+           throw new IllegalStateException("Try setting null parent Node to Entity name: " + mObjectName);
+        }
+        BBNodeComponent node = (BBNodeComponent) mNode;     
+        thenode.attachChild(node);
+    }
+    
     //Read the node child to find geomtry and stored it to the map for later access as submesh
     private void recurseNode(Node node){
         Node nd_temp = node;
@@ -99,7 +118,7 @@ public class BBEntity extends BBObject{
                recurseNode((Node) nd_temp.getChildren().get(i));
            }else{
             Geometry geom = (Geometry) nd_temp.getChildren().get(i);
-            System.out.println("omomomomoomomomo GEOMETRY ADDED : "+geom.getName()+" for class "+geom.getClass().toString());
+            System.out.println("omomomomoomomomo GEOMETRY ADDED : "+geom.getName()+" for Entity "+mObjectName);
             mChildMeshes.add(geom);
            }
         }
@@ -149,7 +168,7 @@ public class BBEntity extends BBObject{
         if(type.equals(CompType.NODE)){
             mNode = new BBNodeComponent(mObjectName);
             BBNodeComponent node = (BBNodeComponent)mNode;
-            BBSceneManager.getInstance().addChild(node);
+            //BBSceneManager.getInstance().addChild(node);
             return (T)mNode;
         }
         if(type.equals(CompType.ANIMATION)){
@@ -234,20 +253,22 @@ public class BBEntity extends BBObject{
     }
 
     public BBEntity clone(String name){
-        BBEntity entCopy = new BBEntity(name, tmpSpatial);
-        BBNodeComponent node = entCopy.addComponent(CompType.NODE);
-        //node = (BBNodeComponent)((BBNodeComponent)mNode).clone(false);
+        BBEntity entCopy = new BBEntity(name, tmpSpatial.clone(false), true);
+        entCopy.addComponent(CompType.NODE);
         entCopy.loadModel("");
         
         return entCopy;
     }
     
     public void destroy(){
+        
         ((BBNodeComponent)mNode).detachAllChildren();
         ((BBNodeComponent)mNode).removeFromParent();
         ((BBNodeComponent)mNode).getWorldLightList().clear();
         ((BBNodeComponent)mNode).getLocalLightList().clear();
         mNode = null;
+        
+        tmpSpatial.removeFromParent();
         
         ((BBAudioComponent)mAudio).destroy();
         mAudio = null;
