@@ -180,7 +180,7 @@ public class BBSceneComposer {
                       //Clone node of an existing Entity                     
                       BBEntity mCloneEntity = entSearch.clone(ndNode.getName());
                       //Add a transform component to attach it to the scene graph
-                      mCloneEntity.getComponent(BBNodeComponent.class).setLocalTransform(ndNode.getLocalTransform());;
+                      mCloneEntity.getComponent(BBNodeComponent.class).getChild(0).setLocalTransform(ndNode.getLocalTransform());;
                       //Attach it to the RootNode
                       mCloneEntity.attachToRoot();
                       

@@ -93,7 +93,7 @@ public class TestSimpleApp extends BBSimpleApplication{
         BBPhysicsManager.getInstance().getPhysicsSpace().add(floor_phy);
         
         //Create collision shape for our Entity by calling the PhysicMgr factory 
-        CollisionShape pShape = BBPhysicsManager.getInstance().createPhysicShape(ShapeType.CAPSULE, mMainPlayer);
+        CollisionShape pShape = BBPhysicsManager.getInstance().createPhysicShape(ShapeType.CAPSULE, mMainPlayer, 0.8f, 1.0f);
         pShape.setMargin(0.9f);
         //Create the collision component to attach the created shape
         BBCollisionComponent pColCp = mMainPlayer.addComponent(CompType.COLSHAPE);
