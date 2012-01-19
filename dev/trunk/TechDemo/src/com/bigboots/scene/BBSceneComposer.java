@@ -31,6 +31,8 @@ import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.bullet.util.CollisionShapeFactory;
 import com.jme3.material.*;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Transform;
 import com.jme3.scene.*;
 import com.jme3.texture.Texture;
 import com.jme3.util.TangentBinormalGenerator;
@@ -48,7 +50,7 @@ public class BBSceneComposer {
     private AssetManager assett;
     private Node sceneNode;    
     private String dirbase, levelFold, dirlevel, entFld, entPath;
-    private ArrayList alMaterials, alNodesBase, alCollisionMesh;
+    private ArrayList alMaterials, alNodesOriginals, alCollisionMesh, alEntitiesOriginals, alEntitiesClones;
     private boolean isBlenderOrOgre;
 
     public  BBSceneComposer (Node scene, String entityFolder, String levelFolder, String dirTexBase, String dirTexLevel, AssetManager assetM) {
@@ -63,8 +65,10 @@ public class BBSceneComposer {
         dirlevel = dirTexLevel;
 
         alMaterials = new ArrayList();
-        alNodesBase = new ArrayList();
+        alNodesOriginals = new ArrayList();
         alCollisionMesh = new ArrayList();
+        alEntitiesOriginals = new ArrayList();
+        alEntitiesClones = new ArrayList();
 
         startCompose();
     }
@@ -81,13 +85,13 @@ public class BBSceneComposer {
                     replaceMeshWithOgre(alNd, levelFold);
                     composeMaterial(alNd, null);
                     TangentBinormalGenerator.generate(alNd);
-                    alNodesBase.add(alNd);
+                    alNodesOriginals.add(alNd);
                     isBlenderOrOgre = true;
                 } else if (originSearch.getName().indexOf("E") == 0 && originSearch.getName().indexOf("CC") != 0){
                     Node entNd = (Node) originSearch;
                     loadEntity(entFld, entNd);
                     TangentBinormalGenerator.generate(entNd);
-                    alNodesBase.add(entNd);
+                    alNodesOriginals.add(entNd);
                     isBlenderOrOgre = true;
                 }  else if (originSearch.getName().indexOf("CC") == 0){
                     Node entNd = (Node) originSearch;
@@ -105,7 +109,7 @@ public class BBSceneComposer {
                Node ndNode = (Node) spatNode;
                String strCompare = ndNode.getName().toString();
                strCompare = strCompare.substring(0, ndNode.getName().indexOf("."));
-               for (Object nodeTemp : alNodesBase.toArray()) {
+               for (Object nodeTemp : alNodesOriginals.toArray()) {
                   Node nodeSearch = (Node) nodeTemp;
                   if (nodeSearch.getName().equals(strCompare)) {
                       cloneFound = true;
@@ -118,12 +122,12 @@ public class BBSceneComposer {
                     replaceMeshWithOgre(ndNode, levelFold);
                     composeMaterial(ndNode, null);
                     TangentBinormalGenerator.generate(ndNode);
-                    alNodesBase.add(ndNode);
+                    alNodesOriginals.add(ndNode);
                     isBlenderOrOgre = true;
                 } else if (ndNode.getName().indexOf("E") == 0){
                     loadEntity(entFld, ndNode);
                     TangentBinormalGenerator.generate(ndNode);
-                    alNodesBase.add(ndNode);
+                    alNodesOriginals.add(ndNode);
                     isBlenderOrOgre = true;
                 }
               }      
@@ -133,7 +137,7 @@ public class BBSceneComposer {
        
 
        // Creating Entities
-       for (Object sp : alNodesBase.toArray()) {
+       for (Object sp : alNodesOriginals.toArray()) {
            Node ndColSearch = (Node) sp;
            //Create an Entity from an existing node
            BBEntity mEntity = new BBEntity(ndColSearch.getName(), ndColSearch);
@@ -155,10 +159,42 @@ public class BBSceneComposer {
                            
                } 
            }
-           
+           alEntitiesOriginals.add((BBEntity)mEntity);
        }
        
-        
+
+       //Cloning of Entities (shared meshes and Materials)
+       for (Spatial spatNode : sceneNode.getChildren()) {
+           
+           if (spatNode instanceof Node && spatNode.getName().indexOf(".") > 0) {
+               boolean cloneFound = false; // Check for existing Original Object
+               Node ndNode = (Node) spatNode;
+               String strCompare = ndNode.getName().toString();
+               strCompare = strCompare.substring(0, ndNode.getName().indexOf("."));
+               for (Object nodeTemp : alEntitiesOriginals.toArray()) {
+                   BBEntity entSearch = (BBEntity) nodeTemp;
+                   //                  Node nodeSearch = (Node) nodeTemp;
+                  if (entSearch.getComponent(BBNodeComponent.class).getChild(0).getName().equals(strCompare)) {
+                      cloneFound = true; 
+                      //Clone node of an existing Entity
+                      Node clonedNode = (Node) entSearch.getComponent(BBNodeComponent.class).getChild(0).clone(false);
+                      clonedNode.setName(ndNode.getName());
+                      clonedNode.setLocalTransform(ndNode.getLocalTransform());
+                      BBEntity mCloneEntity = new BBEntity(ndNode.getName(), clonedNode);
+                      //Add a transform component to attach it to the scene graph
+                      BBNodeComponent pConeNode = mCloneEntity.addComponent(CompType.NODE);
+                      
+                      mCloneEntity.loadModel("");
+                      
+                      alEntitiesClones.add((BBEntity)mCloneEntity);
+                              
+                      System.out.println("Cloninig Entity: " + mCloneEntity.getObjectName());
+                  }
+               }
+           }
+       }
+           
+       
 //        // Cloning of Objects (shared meshes and Materials)
 //       for (Spatial spatNode : sceneNode.getChildren()) {
 //           
@@ -204,11 +240,18 @@ public class BBSceneComposer {
 //           }         
 //        }
         System.out.println(alMaterials.size() + " - QUANTITY OF BASE MATERIALS");   
+
+        alMaterials.clear();
+        alNodesOriginals.clear();
+        alCollisionMesh.clear();
+        alEntitiesOriginals.clear();
+        alEntitiesClones.clear();
+        
     }
   
 
     // Replace a mesh of blender with a mesh of ogre, because blender does not support texCoord2
-    // texCoord2 is neede for Lightmaps  
+    // texCoord2 is needed for Lightmaps  
     // I hope Core Devs will add texCoord2 support for blender soon.
     private void replaceMeshWithOgre(Node nd, String path) {
 
