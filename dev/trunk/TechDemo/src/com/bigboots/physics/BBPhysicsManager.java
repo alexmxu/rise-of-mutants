@@ -69,13 +69,13 @@ public class BBPhysicsManager extends Application implements BBUpdateListener{
         BBUpdateManager.getInstance().register(this);
     }
    
-    public CollisionShape createPhysicShape(ShapeType type, BBEntity ent){
+    public CollisionShape createPhysicShape(ShapeType type, BBEntity ent, float widthScale, float HeightScale){
         
         BBNodeComponent node = ent.getComponent(BBNodeComponent.class);
         BoundingBox vol = (BoundingBox) node.getWorldBound();
         
         if(type.equals(ShapeType.CAPSULE)){
-            CapsuleCollisionShape enShape = new CapsuleCollisionShape(vol.getZExtent()*0.8f, vol.getYExtent(), 1);
+            CapsuleCollisionShape enShape = new CapsuleCollisionShape(vol.getZExtent()*widthScale, vol.getYExtent()*HeightScale, 1);
             return enShape;
         }
         if(type.equals(ShapeType.MESH)){
@@ -105,7 +105,7 @@ public class BBPhysicsManager extends Application implements BBUpdateListener{
     }  
     @Override
     public void destroy(){
-        
+        //bulletAppState.getPhysicsSpace().removeAll(worldRoot);        
         stateManager.detach(bulletAppState);
         bulletAppState.getPhysicsSpace().destroy();
         super.destroy();

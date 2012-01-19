@@ -155,7 +155,7 @@ public class BBInGameState extends BBAbstractState{
 
         //*******************************************
         //Create the main Character
-        BBPlayerManager.getInstance().createMainPlayer("PLAYER_NAME", "Scenes/TestScene/character.mesh.xml");
+        BBPlayerManager.getInstance().createMainPlayer("PLAYER_NAME", "Scenes/TestScene/character.mesh.xml", new Vector3f(0,-0.85f, 0), 2.0f);
                 
         // Create a component Node for camera 
         humanStalker = new BBNodeComponent("HumanStalker");
@@ -175,7 +175,7 @@ public class BBInGameState extends BBAbstractState{
 
         for (int i=0; i<5; i++){
          Vector3f mPos = new Vector3f(100 + i*10, 100, 0f);  
-         BBMonsterManager.getInstance().createMonter("ENEMY" + i*2, "Scenes/TestScene/mutant.j3o", mPos);
+         BBMonsterManager.getInstance().createMonter("ENEMY" + i*2, "Scenes/TestScene/mutant.j3o", mPos, new Vector3f(0,-0.85f, 0), 4.0f);
         }
 
         
