@@ -67,7 +67,7 @@ public class BBMonsterManager {
         
     }
     
-    public void createMonter(String name, String file, Vector3f pos){
+    public void createMonter(String name, String file, Vector3f position,Vector3f posOffset, float scaleMonster){
         //*******************************************
         //TEST AND LOAD ENEMY WITH ENTITY SYSTEM
         //set up out enemy object entity and put it in scene
@@ -75,8 +75,9 @@ public class BBMonsterManager {
         mEnemy.setObjectTag(BBObject.ObjectTag.MONSTER);
         BBNodeComponent node = mEnemy.addComponent(CompType.NODE);
         mEnemy.loadModel(file);
-        node.scale(4);
-        node.setLocalTranslation(pos);
+        node.scale(scaleMonster);
+        node.setLocalTranslation(position);
+        node.getChild(0).setLocalTranslation(posOffset);
         mEnemy.attachToRoot();
         
         //Set up animation component      
@@ -87,7 +88,7 @@ public class BBMonsterManager {
         mEnemy.getComponent(BBAnimComponent.class).getChannel().setSpeed(1f);
         
         //Set up physic controler component
-        CollisionShape shape = BBPhysicsManager.getInstance().createPhysicShape(ShapeType.CAPSULE, mEnemy);
+        CollisionShape shape = BBPhysicsManager.getInstance().createPhysicShape(ShapeType.CAPSULE, mEnemy, 0.8f, 1.0f);
         BBCollisionComponent colCp = mEnemy.addComponent(CompType.COLSHAPE);
         colCp.attachShape(shape);
                
@@ -95,7 +96,7 @@ public class BBMonsterManager {
         eControler.setJumpSpeed(20);
         eControler.setFallSpeed(30);
         eControler.setGravity(30);
-        eControler.setPhysicsLocation(pos);
+        eControler.setPhysicsLocation(position);
         eControler.setUseViewDirection(true);
         BBControlComponent ctrlCp = mEnemy.addComponent(CompType.CONTROLLER);
         ctrlCp.setControlType(BBControlComponent.ControlType.CHARACTER);

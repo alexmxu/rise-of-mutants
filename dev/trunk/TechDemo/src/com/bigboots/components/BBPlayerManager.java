@@ -56,15 +56,16 @@ public class BBPlayerManager {
     private boolean hasBeenOnGround = false;
     private static final Logger logger = Logger.getLogger(BBPlayerManager.class.getName());
     
-    public void createMainPlayer(String name, String file){
+    public void createMainPlayer(String name, String file, Vector3f posOffset, float scalePlayer){
         //Create the main Character       
         mMainPlayer = new BBEntity("PLAYER");
         mMainPlayer.setObjectTag(BBObject.ObjectTag.PLAYER);
         BBNodeComponent pnode = mMainPlayer.addComponent(CompType.NODE);
-        pnode.scale(2);
+        pnode.scale(scalePlayer);
         pnode.setLocalTranslation(this.getMainLocation());
         mMainPlayer.attachToRoot();
         mMainPlayer.loadModel("Scenes/TestScene/character.mesh.xml");
+        pnode.getChild(0).setLocalTranslation(posOffset);
         //BBSceneManager.getInstance().addChild(pnode);
                 
         BBAnimComponent panim = mMainPlayer.addComponent(CompType.ANIMATION);
@@ -72,7 +73,7 @@ public class BBPlayerManager {
         panim.getChannel().setSpeed(1f); 
         panim.getChannel().setLoopMode(LoopMode.Cycle);
         
-        CollisionShape pShape = BBPhysicsManager.getInstance().createPhysicShape(ShapeType.CAPSULE, mMainPlayer);
+        CollisionShape pShape = BBPhysicsManager.getInstance().createPhysicShape(ShapeType.CAPSULE, mMainPlayer, 0.8f, 1.0f);
         pShape.setMargin(0.9f);
         //CollisionShape pShape = BBPhysicsManager.getInstance().createPhysicShape(ShapeType.MESH, mMainPlayer);
         BBCollisionComponent pColCp = mMainPlayer.addComponent(CompType.COLSHAPE);
@@ -82,6 +83,7 @@ public class BBPlayerManager {
         pControler.setJumpSpeed(19);
         pControler.setFallSpeed(40);
         pControler.setGravity(35);
+        pControler.setPhysicsLocation(pnode.getWorldTranslation().add(posOffset));
         pControler.setUseViewDirection(true);
         BBControlComponent pCtrl = mMainPlayer.addComponent(CompType.CONTROLLER);
         pCtrl.setControlType(BBControlComponent.ControlType.CHARACTER);
