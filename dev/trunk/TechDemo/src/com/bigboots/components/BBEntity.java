@@ -71,8 +71,10 @@ public class BBEntity extends BBObject{
         tmpSpatial = sp;
         tmpSpatial.setName(name);
         mCloned = clone;
+        
+        // Deprecated
         //Localy translate the entity spatial to go dow a bit.
-        tmpSpatial.setLocalTranslation(0, -0.85f, 0);
+//        tmpSpatial.setLocalTranslation(0, -0.85f, 0);
 
     }
     
@@ -83,11 +85,14 @@ public class BBEntity extends BBObject{
                     + "Problem with Entity name: " + mObjectName);
        }
        
+       // Deprecated
        if(!mesh.isEmpty()){
             tmpSpatial =  BBSceneManager.getInstance().loadSpatial(mesh);
             //Localy translate the entity spatial to go dow a bit. So, it align with collision shape
-            tmpSpatial.setLocalTranslation(0, -0.85f, 0);
+//            tmpSpatial.setLocalTranslation(0, -0.85f, 0);
        }
+       
+       
        tmpSpatial.setShadowMode(ShadowMode.CastAndReceive);
        this.getComponent(BBNodeComponent.class).attachChild(tmpSpatial);
        
