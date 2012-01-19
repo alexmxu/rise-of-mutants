@@ -4,13 +4,12 @@
  */
 package com.bigboots;
 
-import com.bigboots.ai.controls.AutonomousCharacterControl;
+
 import com.bigboots.ai.controls.AutonomousControl;
 import com.bigboots.ai.controls.CommandControl;
 import com.bigboots.ai.controls.MovementControl;
 import com.bigboots.ai.util.NavMeshGenerator;
 import com.bigboots.ai.navmesh.NavMesh;
-import com.bigboots.ai.triggers.SphereTrigger;
 import com.bigboots.ai.triggers.TriggerControl;
 import com.bigboots.components.BBEntity;
 import com.bigboots.components.BBNodeComponent;
@@ -19,8 +18,6 @@ import com.bigboots.physics.BBPhysicsManager;
 
 
 import com.jme3.asset.AssetManager;
-import com.jme3.asset.DesktopAssetManager;
-import com.jme3.bullet.PhysicsSpace;
 import com.jme3.bullet.collision.PhysicsCollisionObject;
 import com.jme3.bullet.collision.PhysicsRayTestResult;
 import com.jme3.bullet.control.CharacterControl;
@@ -36,7 +33,6 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
-import com.jme3.terrain.Terrain;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -59,9 +55,7 @@ public class BBWorldManager  {
     private static BBWorldManager instance = new BBWorldManager();
     
     private BBWorldManager() {
-        this.rootNode = BBSceneManager.getInstance().getRootNode();
-        this.assetManager = BBSceneManager.getInstance().getAssetManager();
-        this.space = BBPhysicsManager.getInstance().getPhysicsSpace();
+        
     }
     
     public static BBWorldManager getInstance() { 
@@ -71,14 +65,18 @@ public class BBWorldManager  {
     
     private HashMap<String, BBEntity> entities = new HashMap<String, BBEntity>();
     private NavMesh navMesh = new NavMesh();
-    private Node rootNode;
-    private Node worldRoot;
+    private Node worldRoot = new Node("WORLD");
     private AssetManager assetManager;
     private NavMeshGenerator generator = new NavMeshGenerator();
-    private PhysicsSpace space;
     private List<Control> userControls = new LinkedList<Control>();
     private int newId;
 
+    
+    public void init(){
+        this.assetManager = BBSceneManager.getInstance().getAssetManager();
+        BBSceneManager.getInstance().addChild(worldRoot); 
+    }
+    
     /**
      * gets the entity with the specified id
      * @param id
@@ -169,7 +167,7 @@ public class BBWorldManager  {
         BBNodeComponent pnode = wlrdEnt.addComponent(BBNodeComponent.CompType.NODE);
         pnode.setLocalTranslation(location);
         pnode.setLocalRotation(rotation);
-        wlrdEnt.attachToRoot();
+        wlrdEnt.attachToNode(worldRoot);
         //Load the mesh file associated to this entity for visual
         wlrdEnt.loadModel(modelIdentifier);
         
@@ -303,15 +301,6 @@ public class BBWorldManager  {
         }
     }
 
-
-    
-    
-    public PhysicsSpace getPhysicsSpace(){
-        return space;
-    }
-    
-  
-    
     
     /**
      * get the NavMesh of the currently loaded level
@@ -329,35 +318,7 @@ public class BBWorldManager  {
         return worldRoot;
     }
 
-    /**
-     * loads the specified level node
-     * @param name
-     */
-    public void loadLevel(String name) {
-        worldRoot = (Node) assetManager.loadModel(name);
-    }
-
-    /**
-     * detaches the level and clears the cache
-     */
-    public void closeLevel() {
-
-        entities.clear();
-        space.removeAll(worldRoot);
-        rootNode.detachChild(worldRoot);
-        ((DesktopAssetManager) assetManager).clearCache();
-    }
-
-    /**
-     * preloads the models with the given names
-     * @param modelNames
-     */
-    public void preloadModels(String[] modelNames) {
-        for (int i = 0; i < modelNames.length; i++) {
-            String string = modelNames[i];
-            assetManager.loadModel(string);
-        }
-    }
+ 
 
     /**
      * creates the nav mesh for the loaded level
@@ -368,45 +329,24 @@ public class BBWorldManager  {
 
         //version a: from mesh
         GeometryBatchFactory.mergeGeometries(findGeometries(node, new LinkedList<Geometry>()), mesh);
-        //Mesh optiMesh = generator.optimize(mesh);
-        
-        navMesh.loadFromMesh(mesh);
-
-        //TODO: navmesh only for debug
-        Geometry navGeom = new Geometry("NavMesh");
-        navGeom.setMesh(mesh);
-        Material green = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        green.setColor("Color", ColorRGBA.Green);
-        green.getAdditionalRenderState().setWireframe(true);
-        navGeom.setMaterial(green);
-
-        worldRoot.attachChild(navGeom);
-    }
-
-    public void createNavMesh(Terrain terr) {
-
-        Mesh optiMesh = generator.optimize(terr);
+        Mesh optiMesh = generator.optimize(mesh);
         
         navMesh.loadFromMesh(optiMesh);
 
         //TODO: navmesh only for debug
-        Geometry navGeom = new Geometry("NavMesh");
-        navGeom.setMesh(optiMesh);
+        Geometry navGeom = new Geometry("NavMesh", optiMesh);
+        //navGeom.setMesh(optiMesh);
         Material green = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         green.setColor("Color", ColorRGBA.Green);
         green.getAdditionalRenderState().setWireframe(true);
         navGeom.setMaterial(green);
 
+        System.out.println("xxxxxx Geometry name : " + navGeom.getName());
+        
         worldRoot.attachChild(navGeom);
     }
+
     
-    /**
-     * attaches the level node to the rootnode
-     */
-    public void attachLevel() {
-        space.addAll(worldRoot);
-        rootNode.attachChild(worldRoot);
-    }
 
     public List<Geometry> findGeometries(Node node, List<Geometry> geoms) {
         
@@ -437,7 +377,7 @@ public class BBWorldManager  {
         MovementControl control = entity.getComponent(BBNodeComponent.class).getControl(MovementControl.class);
         Vector3f startLocation = control.getLocation();
         Vector3f endLocation = startLocation.add(control.getAimDirection().normalize().multLocal(length));
-        List<PhysicsRayTestResult> results = getPhysicsSpace().rayTest(startLocation, endLocation);
+        List<PhysicsRayTestResult> results = BBPhysicsManager.getInstance().getPhysicsSpace().rayTest(startLocation, endLocation);
         BBEntity found = null;
         float dist = Float.MAX_VALUE;
         for (Iterator<PhysicsRayTestResult> it = results.iterator(); it.hasNext();) {
@@ -464,7 +404,7 @@ public class BBWorldManager  {
      * @return
      */
     public BBEntity doRayTest(Vector3f startLocation, Vector3f endLocation, Vector3f storeLocation) {
-        List<PhysicsRayTestResult> results = getPhysicsSpace().rayTest(startLocation, endLocation);
+        List<PhysicsRayTestResult> results = BBPhysicsManager.getInstance().getPhysicsSpace().rayTest(startLocation, endLocation);
         //TODO: sorting of results
         BBEntity found = null;
         float dist = Float.MAX_VALUE;

@@ -105,7 +105,7 @@ public class BBPhysicsManager extends Application implements BBUpdateListener{
     }  
     @Override
     public void destroy(){
-        
+        //bulletAppState.getPhysicsSpace().removeAll(worldRoot);
         stateManager.detach(bulletAppState);
         bulletAppState.getPhysicsSpace().destroy();
         super.destroy();

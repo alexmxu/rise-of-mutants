@@ -77,9 +77,6 @@ public class BBSimpleApplication extends BBApplication{
         //load keys
         setupKeys();
         
-        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_EXIT, new KeyTrigger(KeyInput.KEY_ESCAPE));        
-        BBInputManager.getInstance().getInputManager().addListener(actionListener, BBGlobals.INPUT_MAPPING_EXIT); 
-
         // Add a light Source
         BBLightComponent compLight = new BBLightComponent();
         compLight.setLightType(Type.Directional);
@@ -151,6 +148,8 @@ public class BBSimpleApplication extends BBApplication{
         BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_EXIT, new KeyTrigger(KeyInput.KEY_ESCAPE));        
         BBInputManager.getInstance().getInputManager().addListener(actionListener, BBGlobals.INPUT_MAPPING_EXIT);
         BBInputManager.getInstance().getInputManager().addListener(actionListener, mappings);
+        
+        BBInputManager.getInstance().getInputManager().setCursorVisible(false);
     }
     
     class MyTestAction implements AnalogListener, ActionListener{
