@@ -64,9 +64,9 @@ public class BBEntity extends BBObject{
     
     public BBEntity(String name, Node sp){
         super(name);
-        tmpSpatial = sp.clone(false);
-        tmpSpatial.setName(name+"_clone");
-        mCloned = true;
+        tmpSpatial = sp;
+        tmpSpatial.setName(name);
+//        mCloned = true;
     }
     
     

@@ -46,6 +46,7 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.AnimEventListener;
 import com.jme3.animation.LoopMode;
+import com.jme3.asset.DesktopAssetManager;
 import com.jme3.scene.CameraNode;
 import com.jme3.scene.control.CameraControl.ControlDirection;
 import com.jme3.scene.Node;
@@ -315,23 +316,27 @@ public class BBInGameState extends BBAbstractState{
     
      
     public void loadScene(){
-        
-        BBSceneManager.getInstance().getAssetManager().registerLoader(BlenderModelLoader.class, "blend");
-        // Load a blender file.       
+
+        // Load a blender file Scene. 
+        DesktopAssetManager dsk = (DesktopAssetManager) BBSceneManager.getInstance().getAssetManager();        
         ModelKey bk = new ModelKey("Scenes/levels/level_01/level_01.blend");
-//        ModelKey bk = new ModelKey("Scenes/TestScene/test_scene_01_2.blend");  
-        Node nd =  (Node) BBSceneManager.getInstance().getAssetManager().loadModel(bk);
-  
+        Node nd =  (Node) dsk.loadModel(bk);                 
         
         String entities = "assets/Models";
         String baseTex = "assets/Textures/base_textures";
         String levelTex = "assets/Textures/level_textures";
         String scenePath = bk.getFolder().substring(0, bk.getFolder().length() - 1); //BlenderKey sets "File.separator" in the end of String
 
+        // Creating Entities from the Blend Scene
         BBSceneComposer sc = new BBSceneComposer(nd, entities, scenePath, baseTex, levelTex, BBSceneManager.getInstance().getAssetManager());
+
+        //Clear Blend File
+        nd.detachAllChildren();
+        nd = null;
+        dsk.clearCache();        
         
         // Added scene effects (fog, ibl)
-        BBShaderManager shm = new BBShaderManager(nd, BBSceneManager.getInstance().getAssetManager());
+        BBShaderManager shm = new BBShaderManager(BBSceneManager.getInstance().getRootNode(), BBSceneManager.getInstance().getAssetManager());
         shm.setSimpleIBLParam("Textures/skyboxes/sky_box_01/skybox_01_low.png");   
         shm.setFogParam(new ColorRGBA(0.7f,0.6f,0.2f, 43f), null);      
      
