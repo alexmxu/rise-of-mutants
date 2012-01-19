@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entityclasses>
+	<entityclass className="commonMonster">		
+		<inGameName>Regular Common Monster</inGameName>
+		<models blenderInstanceMainId="0">
+			<model id="0" blenderInstance="monster1" blenderObj="monster1" materialname="monster1Mat" visual="true" />
+			<model id="1" blenderInstance="monster1sword" blenderObj="monster1" materialName="monsterSwordMat" visual="true" />
+		</models>
+		<components>
+			<component name="run" modelId="0">
+			<maxSpeed>10</maxSpeed>
+			</component>
+			<component name="jump" modelId="0">
+				<jumpHeight>5</jumpHeight>
+			</component>
+			<component name="sword" swordModelId="1" characterModelId="0">
+				<swingSpeed>5</swingSpeed>
+			</component>
+		</components>
+	</entityclass>
+</entityclasses>

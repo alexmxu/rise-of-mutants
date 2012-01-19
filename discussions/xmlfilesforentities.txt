@@ -1,0 +1,66 @@
+class.entity
+<?xml version="1.0">
+	<entityclass className="commonMonster">		
+		<inGameName>Regular Common Monster</inGameName>
+		<models blenderInstanceMainId="0">
+			<model id="0" blenderInstance="monster1" blenderObj="monster1" materialname="monster1Mat" visual="true" />
+			<model id="1" blenderInstance="monster1sword" blenderObj="monster1" materialName="monsterSwordMat" visual="true" />
+		</models>
+		<components>
+			<component name="run" modelId="0">
+			<maxspeed>10</max_speed>
+			</component>
+			<component name="jump" modelId="0">
+				<jumpheight>5</jump_height>
+			</component>
+			<component name="sword" swordModelId="1" characterModelId="0">
+				<swingSpeed>5</swingSpeed>
+			</component>
+		</components>
+	</entityclass>
+
+entities.entity
+<?xml version="1.0">
+	<entity id="0" className="commonMonster" entityName="aNotSoCommonMonster">
+		<imeName>
+			<setXml>A not so regular common monster</setXml>
+		</inGameName>
+		<models>
+			<model index="0">
+				<setAttribute name="blenderInstance">monster2</setAttribute>
+				<setAttribute name="blenderObj">monster2</setAttribute>
+			</model>
+			<model index="1">
+				<setAttribute name="blenderInstance">monster2gun</setAttribute>
+				<setAttribute name="blenderObj">monster2gun</setAttribute>
+			</model>
+		</models>
+		<components>
+			<component>
+				<jumpheight>
+					<setXml>10</setXml>
+				</jumpheight>
+			</component>
+		</components>
+	</entity>
+	
+components.entity <!-- A file for components used by Entity controller, components are specifically adapted to controllers and can only be used by those controllers. -->
+<?xml version="1.0">
+	<component name="climbing" javaclass="[path]/Climbing.class">
+			<description>Adds climbing functionality to Entity</description>
+		</component>
+	<component name="leader" javaclass="[path]/Climbing.class">
+			<description>Adds leader functionality to Entity</description>
+		</component>
+	<component name="grouping" javaclass="[path]/Climbing.class">
+			<description>Adds grouping functionality to Entity</description>			
+		</component>
+	<component name="door" javaclass="[path]/Climbing.class">
+			<description>Adds opening functionality to Entity</description>		
+		</component>
+	<component name="mysteriousForce" javaclass="[path]/MysteriousForce.class">
+			<description>Adds mysteriousForce functionality to Entity</description>		
+	</component>
+	<component name="crabSpawner" javaclass="[path]/CrabSpawner.class">
+			<description>Adds crabSpawner functionality to an entity.</description>		
+	</component>
