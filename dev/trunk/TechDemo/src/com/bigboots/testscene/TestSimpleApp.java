@@ -30,6 +30,7 @@ import com.bigboots.components.BBNodeComponent;
 import com.bigboots.components.BBObject;
 import com.bigboots.physics.BBPhysicsManager;
 import com.jme3.animation.AnimChannel;
+import com.jme3.animation.AnimControl;
 import com.jme3.animation.LoopMode;
 import com.jme3.bullet.control.CharacterControl;
 import com.jme3.bullet.collision.shapes.CollisionShape;
@@ -121,15 +122,14 @@ public class TestSimpleApp extends BBSimpleApplication{
         BBControlComponent pCtrlClone = mCopy.addComponent(CompType.CONTROLLER);
         pCtrlClone.setControlType(BBControlComponent.ControlType.CHARACTER);
         pCtrlClone.attachControl(pControlerClone);
-//        mCopy.getComponent(BBNodeComponent.class).removeControl(pControler);
         mCopy.getComponent(BBNodeComponent.class).addControl(pControlerClone);
         BBPhysicsManager.getInstance().getPhysicsSpace().addAll(mCopy.getComponent(BBNodeComponent.class));
         BBAnimComponent panimClone = mCopy.addComponent(CompType.ANIMATION);
 //        AnimChannel panimChannelClone = panimClone.getChannel();
-        Control x = panim.getChannel().getControl().cloneForSpatial(mCopy.getComponent(BBNodeComponent.class));
-        panimClone.getChannel().setAnim("IdleTop");
-        panimClone.getChannel().setSpeed(1f); 
-        panimClone.getChannel().setLoopMode(LoopMode.Cycle);
+//        AnimControl xClone = (AnimControl) panim.getChannel().getControl().cloneForSpatial(mCopy.getComponent(BBNodeComponent.class).getChild(0));
+        mCopy.getComponent(BBAnimComponent.class).getChannel().setAnim("IdleTop");
+        mCopy.getComponent(BBAnimComponent.class).getChannel().setSpeed(1f); 
+        mCopy.getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.Cycle);
 
 
         mCopy.attachToRoot();
