@@ -29,6 +29,7 @@ import com.bigboots.components.BBMeshComponent;
 import com.bigboots.components.BBNodeComponent;
 import com.bigboots.components.BBObject;
 import com.bigboots.physics.BBPhysicsManager;
+import com.jme3.animation.AnimChannel;
 import com.jme3.animation.LoopMode;
 import com.jme3.bullet.control.CharacterControl;
 import com.jme3.bullet.collision.shapes.CollisionShape;
@@ -36,6 +37,7 @@ import com.jme3.bullet.control.RigidBodyControl;
 
 import com.jme3.material.Material;
 import com.jme3.math.Vector3f;
+import com.jme3.scene.control.Control;
 import com.jme3.scene.shape.Box;
 
 
@@ -114,8 +116,25 @@ public class TestSimpleApp extends BBSimpleApplication{
         
         //Trying Entity clone system to share texture and material
         BBEntity mCopy = mMainPlayer.clone("MYCOPY");
+        mCopy.getComponent(BBNodeComponent.class).setLocalTranslation(new Vector3f(8,10,1));
+        CharacterControl pControlerClone = (CharacterControl) pControler.cloneForSpatial(mCopy.getComponent(BBNodeComponent.class));
+        BBControlComponent pCtrlClone = mCopy.addComponent(CompType.CONTROLLER);
+        pCtrlClone.setControlType(BBControlComponent.ControlType.CHARACTER);
+        pCtrlClone.attachControl(pControlerClone);
+//        mCopy.getComponent(BBNodeComponent.class).removeControl(pControler);
+        mCopy.getComponent(BBNodeComponent.class).addControl(pControlerClone);
+        BBPhysicsManager.getInstance().getPhysicsSpace().addAll(mCopy.getComponent(BBNodeComponent.class));
+        BBAnimComponent panimClone = mCopy.addComponent(CompType.ANIMATION);
+//        AnimChannel panimChannelClone = panimClone.getChannel();
+        Control x = panim.getChannel().getControl().cloneForSpatial(mCopy.getComponent(BBNodeComponent.class));
+        panimClone.getChannel().setAnim("IdleTop");
+        panimClone.getChannel().setSpeed(1f); 
+        panimClone.getChannel().setLoopMode(LoopMode.Cycle);
+
+
         mCopy.attachToRoot();
-        mCopy.getComponent(BBNodeComponent.class).setLocalTranslation(new Vector3f(8,1,1));
+
+        
         
         //Set up material after cloning to see the shared texture
         mMainPlayer.setMaterial("Scenes/TestScene/TestSceneMaterial.j3m");
