@@ -173,6 +173,8 @@ public class TestAPIFrameWork extends SimpleApplication implements AnimEventList
     camNode.lookAt(humanStalker.getLocalTranslation(), Vector3f.UNIT_Y);
     //Attach the camNode to the target:
     humanStalker.attachChild(camNode);
+    
+    bulletAppState.getPhysicsSpace().enableDebug(assetManager);
     }
     
     public void setupEffects(){

@@ -137,15 +137,15 @@ public class BBPlayerManager {
 //                        
                         logger.log(Level.INFO,"Character jumping end. Start stand.");
 //
-                        mMainPlayer.getComponent(BBAnimComponent.class).getChannel().setAnim("run_01", 0.50f);
+                        mMainPlayer.getComponent(BBAnimComponent.class).getChannel().setAnim("run_01", 0.10f);
                         mMainPlayer.getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.Loop);
                     }
                     else{
                         logger.log(Level.INFO,"Character jumping end. Start stand.");
 //
-                        mMainPlayer.getComponent(BBAnimComponent.class).getChannel().setAnim("base_stand", 0.50f);
+                        mMainPlayer.getComponent(BBAnimComponent.class).getChannel().setAnim("base_stand", 0.10f);
                         mMainPlayer.getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.DontLoop);                           
-                      //  mMainPlayer.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(Vector3f.ZERO);
+                        mMainPlayer.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(Vector3f.ZERO);
                     }
                     hasBeenOnGround = false;
                      }
