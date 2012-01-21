@@ -24,6 +24,7 @@ import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.control.Control;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -263,6 +264,22 @@ public class BBEntity extends BBObject{
         entCopy.loadModel("");
         
         return entCopy;
+    }
+    
+    public boolean clonePhysic(BBEntity targeEnt){
+        
+        BBControlComponent ctrlCpCloned = targeEnt.addComponent(CompType.CONTROLLER);
+        ctrlCpCloned.setControlType(this.getComponent(BBControlComponent.class).getControlType());
+        
+        Control ctlrCloned = this.getComponent(BBControlComponent.class).clone(targeEnt.getComponent(BBNodeComponent.class));
+        if(ctlrCloned != null){
+            targeEnt.getComponent(BBNodeComponent.class).addControl(ctlrCloned);
+            return true;
+        }else{
+            return false;
+        }
+        
+        
     }
     
     public void destroy(){

@@ -16,8 +16,10 @@
 package com.bigboots.components;
 
 //import com.jme3.bullet.control.PhysicsControl;
+import com.bigboots.physics.BBPhysicsManager;
 import com.jme3.bullet.collision.PhysicsCollisionObject;
 import com.jme3.bullet.control.*;
+import com.jme3.scene.Node;
 
 
 /**
@@ -28,7 +30,11 @@ public class BBControlComponent implements BBComponent{
     
     public enum ControlType {
         NONE,
-        CHARACTER
+        CHARACTER,
+        VEHICULE,
+        RIGIDBODY,
+        GHOST,
+        RAGDOLL
     }
     
     private PhysicsCollisionObject mControl;
@@ -45,11 +51,24 @@ public class BBControlComponent implements BBComponent{
         mType  = tp;
     }
     
+    public ControlType getControlType(){
+        return mType;
+    }
+    
     public PhysicsCollisionObject getControl(){
         if(mType.equals(ControlType.CHARACTER)){
             return (CharacterControl) mControl;
         }
         return null;
+    }
+    
+    public PhysicsControl clone(Node cloneNode){
+        PhysicsControl physicCtrl = null;
+        
+        if(mType.equals(ControlType.CHARACTER)){
+            physicCtrl = (CharacterControl) ((CharacterControl) mControl).cloneForSpatial(cloneNode);
+        }
+        return physicCtrl;
     }
     
     public CompType getCompType(){
