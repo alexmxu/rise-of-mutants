@@ -83,6 +83,7 @@ public class BBPlayerManager {
         pControler.setJumpSpeed(19);
         pControler.setFallSpeed(40);
         pControler.setGravity(35);
+        pControler.setMaxSlope(10.5f);
         pControler.setPhysicsLocation(pnode.getWorldTranslation().add(posOffset));
         pControler.setUseViewDirection(true);
         BBControlComponent pCtrl = mMainPlayer.addComponent(CompType.CONTROLLER);
