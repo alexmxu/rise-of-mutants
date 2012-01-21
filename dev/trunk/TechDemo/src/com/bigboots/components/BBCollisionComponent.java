@@ -31,7 +31,7 @@ public class BBCollisionComponent implements BBComponent{
         CYLINDER,
         HULL,
         MESH,
-        PLAN,
+        PLANE,
         SPHERE,
         CONE,
         COMPLEX
@@ -59,4 +59,13 @@ public class BBCollisionComponent implements BBComponent{
     public CompFamily getCompFamily(){
         return CompFamily.PHYSICS;
     }
+    
+    public ShapeType getShapeType () {
+        return mType;
+    }   
+    
+    public void setShapeType (ShapeType newType) {
+        mType = newType;
+    }    
+    
 }

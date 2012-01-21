@@ -88,7 +88,7 @@ public class BBMonsterManager {
         mEnemy.getComponent(BBAnimComponent.class).getChannel().setSpeed(1f);
         
         //Set up physic controler component
-        CollisionShape shape = BBPhysicsManager.getInstance().createPhysicShape(ShapeType.CAPSULE, mEnemy, 0.8f, 1.0f);
+        CollisionShape shape = BBPhysicsManager.getInstance().createPhysicShape(ShapeType.CAPSULE, mEnemy.getComponent(BBNodeComponent.class), 0.6f, 1.0f);
         BBCollisionComponent colCp = mEnemy.addComponent(CompType.COLSHAPE);
         colCp.attachShape(shape);
                

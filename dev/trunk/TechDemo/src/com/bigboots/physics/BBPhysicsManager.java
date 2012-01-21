@@ -29,6 +29,10 @@ import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.PhysicsSpace;
 import com.jme3.bullet.collision.shapes.*;
 import com.jme3.bullet.util.CollisionShapeFactory;
+import com.jme3.math.Plane;
+import com.jme3.math.Vector3f;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.Node;
 
 
 /**
@@ -69,20 +73,46 @@ public class BBPhysicsManager extends Application implements BBUpdateListener{
         BBUpdateManager.getInstance().register(this);
     }
    
-    public CollisionShape createPhysicShape(ShapeType type, BBEntity ent, float widthScale, float HeightScale){
+    public CollisionShape createPhysicShape(ShapeType type, Node nodeCollision, float widthScale, float HeightScale){
         
-        BBNodeComponent node = ent.getComponent(BBNodeComponent.class);
+        Node node = nodeCollision;
         BoundingBox vol = (BoundingBox) node.getWorldBound();
-        
+
         if(type.equals(ShapeType.CAPSULE)){
-            CapsuleCollisionShape enShape = new CapsuleCollisionShape(vol.getZExtent()*widthScale, vol.getYExtent()*HeightScale, 1);
+            CapsuleCollisionShape enShape = new CapsuleCollisionShape(Math.max(vol.getXExtent(), vol.getZExtent())*widthScale, vol.getYExtent()*HeightScale, 1);
             return enShape;
         }
-        if(type.equals(ShapeType.MESH)){
-            //MeshCollisionShape mshShape = new MeshCollisionShape(ent.getMesh());
-            //return mshShape;
+                if(type.equals(ShapeType.BOX)){
+            BoxCollisionShape enShape = new BoxCollisionShape(new Vector3f(vol.getXExtent()*widthScale, vol.getYExtent()*HeightScale, vol.getZExtent()*widthScale));
+            return enShape;
         }
-        if(type.equals(ShapeType.COMPLEX)){
+                if(type.equals(ShapeType.CYLINDER)){
+            CylinderCollisionShape enShape = new CylinderCollisionShape(new Vector3f(Math.max(vol.getXExtent(), vol.getZExtent())*widthScale, vol.getYExtent()*HeightScale, Math.max(vol.getXExtent(), vol.getZExtent())*widthScale), 1);
+            return enShape;
+        }                
+                if(type.equals(ShapeType.PLANE)){
+            PlaneCollisionShape enShape = new PlaneCollisionShape(new Plane(node.getWorldRotation().mult(Vector3f.UNIT_XYZ), Math.max(vol.getXExtent(), vol.getZExtent())));
+            return enShape;
+        }                
+                if(type.equals(ShapeType.CONE)){
+            ConeCollisionShape enShape = new ConeCollisionShape(Math.max(vol.getXExtent(), vol.getZExtent())*widthScale, vol.getYExtent(), 1);
+            return enShape;
+        }                
+                if(type.equals(ShapeType.HULL)){
+            Geometry geo = (Geometry) node.getChild(0);
+            HullCollisionShape enShape = new HullCollisionShape(geo.getMesh());
+            return enShape;
+        }                
+                if(type.equals(ShapeType.MESH)){
+            Geometry geo = (Geometry) node.getChild(0);        
+            MeshCollisionShape mshShape = new MeshCollisionShape(geo.getMesh());
+            return mshShape;
+        }
+                if(type.equals(ShapeType.SPHERE)){
+            SphereCollisionShape mshShape = new SphereCollisionShape(Math.max(Math.max(vol.getXExtent(), vol.getZExtent()), vol.getYExtent()));
+            return mshShape;
+        }
+               if(type.equals(ShapeType.COMPLEX)){
             CollisionShape mComplexShape = CollisionShapeFactory.createMeshShape(node);
             return mComplexShape;
         }

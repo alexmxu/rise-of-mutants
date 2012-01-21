@@ -49,6 +49,7 @@ public class BBEntity extends BBObject{
     private Node tmpSpatial;
     private boolean mCloned = false;
     
+    
     //Collection of child graphics.
     private List<BBObject> mChildComponents = new ArrayList<BBObject>();
     //Collection of meshes

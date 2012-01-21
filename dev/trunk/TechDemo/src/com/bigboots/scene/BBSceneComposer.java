@@ -17,6 +17,7 @@ package com.bigboots.scene;
 
 
 import com.bigboots.components.BBCollisionComponent;
+import com.bigboots.components.BBCollisionComponent.ShapeType;
 import com.bigboots.components.BBComponent.CompType;
 import com.bigboots.components.BBEntity;
 import com.bigboots.components.BBNodeComponent;
@@ -33,6 +34,7 @@ import com.jme3.bullet.util.CollisionShapeFactory;
 import com.jme3.material.*;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
+import com.jme3.math.Vector3f;
 import com.jme3.scene.*;
 import com.jme3.texture.Texture;
 import com.jme3.util.TangentBinormalGenerator;
@@ -73,27 +75,35 @@ public class BBSceneComposer {
         startCompose();
     }
 
-  
-  
+
     private void startCompose() {
                  
         // Search for Original Objects
         for (Spatial originSearch : sceneNode.getChildren()) {        
             if (originSearch instanceof Node && originSearch.getName().indexOf(".") < 0){
-                if (originSearch.getName().indexOf("E") != 0 && originSearch.getName().indexOf("CC") != 0){
+                if (originSearch.getName().indexOf("E") != 0 && originSearch.getName().indexOf("CAPSULE") != 0 && originSearch.getName().indexOf("BOX") != 0  
+                && originSearch.getName().indexOf("CYLINDER") != 0 && originSearch.getName().indexOf("HULL") != 0 && originSearch.getName().indexOf("MESH") != 0
+                && originSearch.getName().indexOf("PLANE") != 0 && originSearch.getName().indexOf("SPHERE") != 0 && originSearch.getName().indexOf("CONE") != 0 
+                && originSearch.getName().indexOf("COMPLEX") != 0 ){
                     Node alNd = (Node) originSearch;  
                     replaceMeshWithOgre(alNd, levelFold);
                     composeMaterial(alNd, null);
                     TangentBinormalGenerator.generate(alNd);
                     alNodesOriginals.add(alNd);
                     isBlenderOrOgre = true;
-                } else if (originSearch.getName().indexOf("E") == 0 && originSearch.getName().indexOf("CC") != 0){
+                } else if (originSearch.getName().indexOf("E") == 0 && originSearch.getName().indexOf("CAPSULE") != 0 && originSearch.getName().indexOf("BOX") != 0  
+                && originSearch.getName().indexOf("CYLINDER") != 0 && originSearch.getName().indexOf("HULL") != 0 && originSearch.getName().indexOf("MESH") != 0
+                && originSearch.getName().indexOf("PLANE") != 0 && originSearch.getName().indexOf("SPHERE") != 0 && originSearch.getName().indexOf("CONE") != 0 
+                && originSearch.getName().indexOf("COMPLEX") != 0 ){
                     Node entNd = (Node) originSearch;
                     loadEntity(entFld, entNd);
                     TangentBinormalGenerator.generate(entNd);
                     alNodesOriginals.add(entNd);
                     isBlenderOrOgre = true;
-                }  else if (originSearch.getName().indexOf("CC") == 0){
+                }  else if (originSearch.getName().indexOf("CAPSULE") == 0 || originSearch.getName().indexOf("BOX") == 0  
+                || originSearch.getName().indexOf("CYLINDER") == 0 || originSearch.getName().indexOf("HULL") == 0 || originSearch.getName().indexOf("MESH") == 0
+                || originSearch.getName().indexOf("PLANE") == 0 || originSearch.getName().indexOf("SPHERE") == 0 || originSearch.getName().indexOf("CONE") == 0 
+                || originSearch.getName().indexOf("COMPLEX") == 0 ){
                     Node entNd = (Node) originSearch;
                     alCollisionMesh.add(entNd);
                 } 
@@ -141,30 +151,58 @@ public class BBSceneComposer {
            Node ndColSearch = (Node) sp;
            //Create an Entity from an existing node
            BBEntity mEntity = new BBEntity(ndColSearch.getName(), ndColSearch);
+           
            //Add a transform component to attach it to the scene graph
            BBNodeComponent pnode = mEntity.addComponent(CompType.NODE);
-           //Attach it to the RootNode
-           mEntity.attachToRoot();
+
            //Load it in the way to attach Geometry to the entity node
            mEntity.loadModel("");
- 
+
+           // Fixing some coordinates
+           mEntity.getComponent(BBNodeComponent.class).setLocalTranslation(mEntity.getComponent(BBNodeComponent.class).getChild(0).getLocalTranslation());
+           mEntity.getComponent(BBNodeComponent.class).getChild(0).setLocalTranslation(Vector3f.ZERO);
+
+           
+           //Attach it to the RootNode
+           mEntity.attachToRoot();           
+           
            System.out.println("Entity Created " + ndColSearch.getName());
            
            // Searching for collision meshes
            for (Object sp2 : alCollisionMesh.toArray()) {
                Node ndCol = (Node) sp2;
-               if (ndCol.getName().substring(2).equals(ndColSearch.getName())){
-                    CollisionShape myComplexShape = CollisionShapeFactory.createMeshShape(ndCol);
-                    RigidBodyControl worldPhysics = new RigidBodyControl(myComplexShape,0);
+               if (ndCol.getName().endsWith(ndColSearch.getName())){
+                   
+                   ShapeType shType = null;
+                   if (ndCol.getName().indexOf("CAPSULE") == 0) shType = ShapeType.CAPSULE;
+                   else if (ndCol.getName().indexOf("BOX") == 0) shType = ShapeType.BOX;
+                   else if (ndCol.getName().indexOf("CYLINDER") == 0) shType = ShapeType.CYLINDER;
+                   else if (ndCol.getName().indexOf("HULL") == 0) shType = ShapeType.HULL;
+                   else if (ndCol.getName().indexOf("MESH") == 0) shType = ShapeType.MESH;
+                   else if (ndCol.getName().indexOf("PLANE") == 0) shType = ShapeType.PLANE;
+                   else if (ndCol.getName().indexOf("SPHERE") == 0) shType = ShapeType.SPHERE;
+                   else if (ndCol.getName().indexOf("CONE") == 0) shType = ShapeType.CONE;
+                   else if (ndCol.getName().indexOf("COMPLEX") == 0) shType = ShapeType.COMPLEX;
+                   
+                   
+                   // Creating Collision Mesh
+                    CollisionShape colShape = BBPhysicsManager.getInstance().createPhysicShape(shType, ndCol, 1, 1);                   
+                    RigidBodyControl worldPhysics = new RigidBodyControl(colShape,0);
                     pnode.addControl(worldPhysics);
                     BBPhysicsManager.getInstance().getPhysicsSpace().add(worldPhysics); 
-                           
+                 
+                    // Setting ShapeType of the Entity
+                    mEntity.addComponent(CompType.COLSHAPE);
+                    mEntity.getComponent(BBCollisionComponent.class).setShapeType(shType);
                } 
            }
-           alEntitiesOriginals.add((BBEntity)mEntity);
+           alEntitiesOriginals.add(mEntity);
        }
        
 
+
+       
+       
        //Cloning of Entities (shared meshes and Materials)
        for (Spatial spatNode : sceneNode.getChildren()) {
            
@@ -180,7 +218,40 @@ public class BBSceneComposer {
                       //Clone node of an existing Entity                     
                       BBEntity mCloneEntity = entSearch.clone(ndNode.getName());
                       //Add a transform component to attach it to the scene graph
-                      mCloneEntity.getComponent(BBNodeComponent.class).getChild(0).setLocalTransform(ndNode.getLocalTransform());;
+                      mCloneEntity.getComponent(BBNodeComponent.class).setLocalTransform(ndNode.getLocalTransform());
+                      
+                      if (entSearch.getComponent(BBNodeComponent.class).getControl(RigidBodyControl.class) != null 
+                              && entSearch.getComponent(BBCollisionComponent.class) != null) {
+                          
+                        RigidBodyControl rgBody = (RigidBodyControl) entSearch.getComponent(BBNodeComponent.class).
+                        getControl(RigidBodyControl.class).cloneForSpatial(mCloneEntity.getComponent(BBNodeComponent.class));
+                        Vector3f sc = rgBody.getCollisionShape().getScale();
+                        sc.x *= ndNode.getLocalScale().x;
+                        sc.y *= ndNode.getLocalScale().y;
+                        sc.z *= ndNode.getLocalScale().z;
+                        
+                        entSearch.getComponent(BBCollisionComponent.class).getShape();
+                        ShapeType origShape = entSearch.getComponent(BBCollisionComponent.class).getShapeType();
+                        
+                        
+                        // Searching for collision mesh again
+                        for (Object sp2 : alCollisionMesh.toArray()) {                        
+                        Node ndCol = (Node) sp2;
+                        if (ndCol.getName().endsWith(strCompare)){
+                            ndCol.setLocalScale(ndNode.getLocalScale());
+                            
+                        CollisionShape colShape = BBPhysicsManager.getInstance().createPhysicShape(origShape, ndCol, 1, 1);     
+                        rgBody.setCollisionShape(colShape);
+                        
+                          }
+                        }
+                        
+                        
+
+                        mCloneEntity.getComponent(BBNodeComponent.class).addControl(rgBody);
+                        BBPhysicsManager.getInstance().getPhysicsSpace().add(mCloneEntity.getComponent(BBNodeComponent.class));   
+                      }
+                      
                       //Attach it to the RootNode
                       mCloneEntity.attachToRoot();
                       

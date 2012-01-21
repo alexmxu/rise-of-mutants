@@ -73,7 +73,7 @@ public class BBPlayerManager {
         panim.getChannel().setSpeed(1f); 
         panim.getChannel().setLoopMode(LoopMode.Cycle);
         
-        CollisionShape pShape = BBPhysicsManager.getInstance().createPhysicShape(ShapeType.CAPSULE, mMainPlayer, 0.8f, 1.0f);
+        CollisionShape pShape = BBPhysicsManager.getInstance().createPhysicShape(ShapeType.CAPSULE, mMainPlayer.getComponent(BBNodeComponent.class), 0.6f, 1.0f);
         pShape.setMargin(0.9f);
         //CollisionShape pShape = BBPhysicsManager.getInstance().createPhysicShape(ShapeType.MESH, mMainPlayer);
         BBCollisionComponent pColCp = mMainPlayer.addComponent(CompType.COLSHAPE);
