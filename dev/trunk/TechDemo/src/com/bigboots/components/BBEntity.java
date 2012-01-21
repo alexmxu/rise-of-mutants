@@ -18,12 +18,11 @@ package com.bigboots.components;
 import com.bigboots.components.BBComponent.CompType;
 import com.bigboots.core.BBSceneManager;
 import com.jme3.animation.AnimControl;
-import com.jme3.bullet.collision.shapes.CollisionShape;
+import com.jme3.light.Light;
 import com.jme3.material.Material;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,25 +37,26 @@ import java.util.List;
  */
 public class BBEntity extends BBObject{
     private BBComponent mNode;
-    private BBComponent mAudio;
+    private BBComponent mMainAudio;
     private BBComponent mAnimation;
     private BBComponent mLstr;
     private BBComponent mCollision;
     private BBComponent mControl;
-    private BBComponent mLight;
+    private BBComponent mMainLight;
 
-    
     protected boolean mEnable = true;
     private Node tmpSpatial;
     private boolean mCloned = false;
     
     
     //Collection of child graphics.
-    private List<BBObject> mChildComponents = new ArrayList<BBObject>();
+    private List<BBComponent> mapChildComponents = new ArrayList<BBComponent>();
     //Collection of meshes
-    private List<Geometry> mChildMeshes = new ArrayList<Geometry>();
+    private List<Geometry> mapChildMeshes = new ArrayList<Geometry>();
     //Collection of Audio
-    private HashMap<String, BBAudioComponent> mapAudioNode = new HashMap<String, BBAudioComponent>();
+    private HashMap<String, BBAudioComponent> mapAudioComponents = new HashMap<String, BBAudioComponent>();
+    
+    //TODO : Clean all array list and HasMap
     
     
     public BBEntity(String name){
@@ -72,14 +72,23 @@ public class BBEntity extends BBObject{
         super(name);
         tmpSpatial = sp;
         tmpSpatial.setName(name);
-        mCloned = clone;
-        
-        // Deprecated
-        //Localy translate the entity spatial to go dow a bit.
-//        tmpSpatial.setLocalTranslation(0, -0.85f, 0);
+        mCloned = clone;  
 
     }
     
+    //Read the node child to find geomtry and stored it to the map for later access as submesh
+    private void recurseNode(Node node){
+        Node nd_temp = node;
+        for (int i = 0; i < nd_temp.getChildren().size(); i++){
+           if(nd_temp.getChildren().get(i) instanceof Node){
+               recurseNode((Node) nd_temp.getChildren().get(i));
+           }else{
+            Geometry geom = (Geometry) nd_temp.getChildren().get(i);
+            System.out.println("omomomomoomomomo GEOMETRY ADDED : "+geom.getName()+" for Entity "+mObjectName);
+            mapChildMeshes.add(geom);
+           }
+        }
+    }    
     
     public void loadModel(String mesh){
        if(mNode == null){
@@ -87,13 +96,9 @@ public class BBEntity extends BBObject{
                     + "Problem with Entity name: " + mObjectName);
        }
        
-       // Deprecated
        if(!mesh.isEmpty()){
             tmpSpatial =  BBSceneManager.getInstance().loadSpatial(mesh);
-            //Localy translate the entity spatial to go dow a bit. So, it align with collision shape
-//            tmpSpatial.setLocalTranslation(0, -0.85f, 0);
        }
-       
        
        tmpSpatial.setShadowMode(ShadowMode.CastAndReceive);
        this.getComponent(BBNodeComponent.class).attachChild(tmpSpatial);
@@ -116,20 +121,6 @@ public class BBEntity extends BBObject{
         BBNodeComponent node = (BBNodeComponent) mNode;     
         thenode.attachChild(node);
     }
-    
-    //Read the node child to find geomtry and stored it to the map for later access as submesh
-    private void recurseNode(Node node){
-        Node nd_temp = node;
-        for (int i = 0; i < nd_temp.getChildren().size(); i++){
-           if(nd_temp.getChildren().get(i) instanceof Node){
-               recurseNode((Node) nd_temp.getChildren().get(i));
-           }else{
-            Geometry geom = (Geometry) nd_temp.getChildren().get(i);
-            System.out.println("omomomomoomomomo GEOMETRY ADDED : "+geom.getName()+" for Entity "+mObjectName);
-            mChildMeshes.add(geom);
-           }
-        }
-    }
    
     public <T> T getSkills(String key) {
         return tmpSpatial.getUserData(key);
@@ -147,26 +138,26 @@ public class BBEntity extends BBObject{
         return mEnable;
     }
     //Adds the BBObject to the composition.
-    public void addObjectComponent(BBObject obj) {
-        mChildComponents.add(obj);
+    public void addObjectComponent(BBComponent obj) {
+        mapChildComponents.add(obj);
     }
  
     //Removes the BBObject from the composition.
-    public void removeObjectComponent(BBObject obj) {
-        mChildComponents.remove(obj);
+    public void removeObjectComponent(BBComponent obj) {
+        mapChildComponents.remove(obj);
     }
     
     public void addAudio(String name, BBAudioComponent audio){
         //TODO : Check if name or audio instance already exist in the map
-        mapAudioNode.put(name, audio);
+        mapAudioComponents.put(name, audio);
     }
     
     public BBAudioComponent getAudio(String name){
-        return mapAudioNode.get(name);
+        return mapAudioComponents.get(name);
     }
     
     public void stopAllAudio(){
-        for (BBAudioComponent audio : mapAudioNode.values()) {
+        for (BBAudioComponent audio : mapAudioComponents.values()) {
             audio.stop();
         }
     }
@@ -174,18 +165,16 @@ public class BBEntity extends BBObject{
     public <T extends BBComponent>T addComponent(CompType type){
         if(type.equals(CompType.NODE)){
             mNode = new BBNodeComponent(mObjectName);
-            BBNodeComponent node = (BBNodeComponent)mNode;
-            //BBSceneManager.getInstance().addChild(node);
             return (T)mNode;
         }
         if(type.equals(CompType.ANIMATION)){
             mAnimation = new BBAnimComponent(tmpSpatial.getControl(AnimControl.class).createChannel());
             return (T)mAnimation;
         }
-/*        if(type.equals(CompType.AUDIO)){
-            mAudio = new BBAudioComponent();
-            return (T)mAudio;
-        }*/
+        if(type.equals(CompType.AUDIO)){
+            mMainAudio = new BBAudioComponent();
+            return (T)mMainAudio;
+        }
         if(type.equals(CompType.LISTENER)){
             mLstr = new BBListenerComponent();
             return (T)mLstr;
@@ -197,6 +186,15 @@ public class BBEntity extends BBObject{
         if(type.equals(CompType.CONTROLLER)){
             mControl = new BBControlComponent();
             return (T)mControl;
+        }   
+        if(type.equals(CompType.LIGHT)){
+            mMainLight = new BBLightComponent();
+            if(mNode == null){
+                throw new IllegalStateException("Cannot attach light Component to the Entity without setting a Node Component first .\n"
+                    + "Problem with Entity name: " + mObjectName);
+            }
+            ((BBNodeComponent)mNode).addLight((Light)mMainLight);
+            return (T)mMainLight;
         }
         
         return null;
@@ -206,9 +204,9 @@ public class BBEntity extends BBObject{
         if(name.equals(BBNodeComponent.class)){
             return (T)mNode;
         }
-/*        if(name.equals(BBAudioComponent.class)){
-            return (T)mAudio;
-        }*/
+        if(name.equals(BBAudioComponent.class)){
+            return (T)mMainAudio;
+        }
         if(name.equals(BBAnimComponent.class)){
             return (T)mAnimation;
         }
@@ -221,18 +219,26 @@ public class BBEntity extends BBObject{
         if(name.equals(BBControlComponent.class)){
             return (T)mControl;
         }
-
+        if(name.equals(BBLightComponent.class)){
+            return (T)mMainLight;
+        }
        return null;
 
     }
 
     
-    public void getChildComponent(){
-        
+    public List<BBComponent> getChildComponent(CompType type){
+        List<BBComponent> mTempList = new ArrayList<BBComponent>();
+        for (BBComponent comp : mapChildComponents) {
+            if(type.equals(comp.getCompType())){
+                mTempList.add(comp);
+            }
+        }
+        return mTempList;
     }
     
     public Geometry getChildMesh(String name){
-        for (Geometry mc : mChildMeshes) {
+        for (Geometry mc : mapChildMeshes) {
             if(name.equals(mc.getName())){
                 return mc;
             }
@@ -259,6 +265,10 @@ public class BBEntity extends BBObject{
        //TangentBinormalGenerator.generate(mcomp);
     }
 
+    public boolean isCloned(){
+        return mCloned;
+    }
+    
     public BBEntity clone(String name){
         BBEntity entCopy = new BBEntity(name, tmpSpatial.clone(false), true);
         entCopy.addComponent(CompType.NODE);
@@ -293,8 +303,8 @@ public class BBEntity extends BBObject{
         
         tmpSpatial.removeFromParent();
         
-        ((BBAudioComponent)mAudio).destroy();
-        mAudio = null;
+        ((BBAudioComponent)mMainAudio).destroy();
+        mMainAudio = null;
         
         mAnimation = null;
         mLstr = null;
