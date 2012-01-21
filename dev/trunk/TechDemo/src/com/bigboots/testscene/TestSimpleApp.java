@@ -118,12 +118,22 @@ public class TestSimpleApp extends BBSimpleApplication{
         //Trying Entity clone system to share texture and material
         BBEntity mCopy = mMainPlayer.clone("MYCOPY");
         mCopy.getComponent(BBNodeComponent.class).setLocalTranslation(new Vector3f(8,10,1));
+        
+        if(mMainPlayer.clonePhysic(mCopy)){
+            BBPhysicsManager.getInstance().getPhysicsSpace().addAll(mCopy.getComponent(BBNodeComponent.class));
+        }
+        
+        /*
         CharacterControl pControlerClone = (CharacterControl) pControler.cloneForSpatial(mCopy.getComponent(BBNodeComponent.class));
         BBControlComponent pCtrlClone = mCopy.addComponent(CompType.CONTROLLER);
         pCtrlClone.setControlType(BBControlComponent.ControlType.CHARACTER);
         pCtrlClone.attachControl(pControlerClone);
         mCopy.getComponent(BBNodeComponent.class).addControl(pControlerClone);
         BBPhysicsManager.getInstance().getPhysicsSpace().addAll(mCopy.getComponent(BBNodeComponent.class));
+         */
+        
+        
+        
         BBAnimComponent panimClone = mCopy.addComponent(CompType.ANIMATION);
 //        AnimChannel panimChannelClone = panimClone.getChannel();
 //        AnimControl xClone = (AnimControl) panim.getChannel().getControl().cloneForSpatial(mCopy.getComponent(BBNodeComponent.class).getChild(0));
