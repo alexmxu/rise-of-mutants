@@ -22,7 +22,7 @@ import com.bigboots.core.BBSceneManager;
 import com.bigboots.core.BBSettings;
 import com.bigboots.input.BBInputManager;
 import com.bigboots.core.BBDebugInfo;
-import com.bigboots.components.camera.BBFirstPersonCamera;
+import com.bigboots.components.camera.BBFreeCamera;
 
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
@@ -47,7 +47,7 @@ public class BBSimpleApplication extends BBApplication{
   
     //Variables
     private MyTestAction actionListener;
-    private BBFirstPersonCamera mFPSCamera;
+    private BBFreeCamera mFreeCamera;
     
     @Override
     public void simpleInitialize(){
@@ -55,7 +55,7 @@ public class BBSimpleApplication extends BBApplication{
         //Load the main camera
         Camera cam = new Camera(BBSettings.getInstance().getSettings().getWidth(), BBSettings.getInstance().getSettings().getHeight());
         cam.setFrustumPerspective(45f, (float)cam.getWidth() / cam.getHeight(), 1f, 1000f);
-        cam.setLocation(new Vector3f(0f, 5f, 25f));
+        cam.setLocation(new Vector3f(0f, 0f, 29f));
         cam.lookAt(new Vector3f(0f, 0f, 0f), Vector3f.UNIT_Y);
         
         //Set up the main viewPort
@@ -64,8 +64,8 @@ public class BBSimpleApplication extends BBApplication{
         vp.setBackgroundColor(ColorRGBA.Gray);
         BBSceneManager.getInstance().setViewPort(vp);
         
-        mFPSCamera = new BBFirstPersonCamera("FSP_CAM", cam);
-        mFPSCamera.setMoveSpeed(30);
+        mFreeCamera = new BBFreeCamera("FREE_CAM", cam);
+        mFreeCamera.setMoveSpeed(30);
         
         //Set up basic light and sky coming with the standard scene manager
         BBSceneManager.getInstance().setupBasicLight();
@@ -149,6 +149,7 @@ public class BBSimpleApplication extends BBApplication{
         BBInputManager.getInstance().getInputManager().addListener(actionListener, BBGlobals.INPUT_MAPPING_EXIT);
         BBInputManager.getInstance().getInputManager().addListener(actionListener, mappings);
         
+        BBInputManager.getInstance().setMouseCenter();
         BBInputManager.getInstance().getInputManager().setCursorVisible(false);
     }
     
@@ -160,36 +161,41 @@ public class BBSimpleApplication extends BBApplication{
             if (binding.equals(BBGlobals.INPUT_MAPPING_EXIT) && !keyPressed) {
                 mQuit = true; 
             }
+            
+            if (binding.equals("FLYCAM_RotateDrag") && mFreeCamera.isDragToRotate()){
+                mFreeCamera.setDragToRotate(keyPressed);
+                BBInputManager.getInstance().getInputManager().setCursorVisible(!keyPressed);
+            }
         }
 
         public void onAnalog(String name, float value, float tpf) {
-            if (!mFPSCamera.isEnabled())
+            if (!mFreeCamera.isEnabled())
                 return;
 
             if (name.equals("FLYCAM_Left")){
-                mFPSCamera.rotateCamera(value, mFPSCamera.getUpVector());
+                mFreeCamera.rotateCamera(value, mFreeCamera.getUpVector());
             }else if (name.equals("FLYCAM_Right")){
-                mFPSCamera.rotateCamera(-value, mFPSCamera.getUpVector());
+                mFreeCamera.rotateCamera(-value, mFreeCamera.getUpVector());
             }else if (name.equals("FLYCAM_Up")){
-                mFPSCamera.rotateCamera(-value, mFPSCamera.getEngineCamera().getLeft());
+                mFreeCamera.rotateCamera(-value, mFreeCamera.getEngineCamera().getLeft());
             }else if (name.equals("FLYCAM_Down")){
-                mFPSCamera.rotateCamera(value, mFPSCamera.getEngineCamera().getLeft());
+                mFreeCamera.rotateCamera(value, mFreeCamera.getEngineCamera().getLeft());
             }else if (name.equals("FLYCAM_Forward")){
-                mFPSCamera.moveCamera(value, false);
+                mFreeCamera.moveCamera(value, false);
             }else if (name.equals("FLYCAM_Backward")){
-                mFPSCamera.moveCamera(-value, false);
+                mFreeCamera.moveCamera(-value, false);
             }else if (name.equals("FLYCAM_StrafeLeft")){
-                mFPSCamera.moveCamera(value, true);
+                mFreeCamera.moveCamera(value, true);
             }else if (name.equals("FLYCAM_StrafeRight")){
-                mFPSCamera.moveCamera(-value, true);
+                mFreeCamera.moveCamera(-value, true);
             }else if (name.equals("FLYCAM_Rise")){
-                mFPSCamera.riseCamera(value);
+                mFreeCamera.riseCamera(value);
             }else if (name.equals("FLYCAM_Lower")){
-                mFPSCamera.riseCamera(-value);
+                mFreeCamera.riseCamera(-value);
             }else if (name.equals("FLYCAM_ZoomIn")){
-                mFPSCamera.zoomCamera(value);
+                mFreeCamera.zoomCamera(value);
             }else if (name.equals("FLYCAM_ZoomOut")){
-                mFPSCamera.zoomCamera(-value);
+                mFreeCamera.zoomCamera(-value);
             }
         }
     }  
