@@ -26,6 +26,7 @@ import com.jme3.input.TouchInput;
 import com.jme3.input.InputManager;
 import com.jme3.input.controls.Trigger;
 import com.jme3.system.JmeContext.Type;
+import org.lwjgl.input.Mouse;
 
 /**
  *
@@ -135,5 +136,12 @@ public class BBInputManager implements BBUpdateListener{
         if (inputManager != null) {
             inputManager.reset();
         }
+    }
+    
+    public void setMouseCenter(){
+        int x = BBSettings.getInstance().getSettings().getWidth() / 2;
+        int y = BBSettings.getInstance().getSettings().getHeight() / 2;
+        Mouse.setCursorPosition(x, y);
+        
     }
 }
