@@ -85,10 +85,9 @@ public class BBPlayerActions implements  ActionListener, AnalogListener{
             else{
                 pressed--;                      
             }
-            //System.out.println("******* BINDING PRESSED : "+ binding);
-
             
-            if(keyPressed && !binding.equals("Jump") && !binding.equals("MOUSE_LEFT") && !binding.equals("MOUSE_RIGHT") && !BBPlayerManager.getInstance().isWalking()){
+            //if(keyPressed && !binding.equals("Jump") && !binding.equals("MOUSE_LEFT") && !binding.equals("MOUSE_RIGHT") && !BBPlayerManager.getInstance().isWalking()){
+            if(pressed==1 && keyPressed &! binding.equals("Jump")  && !BBPlayerManager.getInstance().isWalking()){
                 BBPlayerManager.getInstance().setIsWalking(true);
                 
                 if(!BBPlayerManager.getInstance().isJumping()){
@@ -103,7 +102,8 @@ public class BBPlayerActions implements  ActionListener, AnalogListener{
                         time = 0;
                     }
                 }
-            } else if (keyPressed==false && BBPlayerManager.getInstance().isJumping()==false) {
+            //} else if (keyPressed==false && BBPlayerManager.getInstance().isJumping()==false) {
+            } else if (pressed==0 &! keyPressed &! binding.equals("Jump")) {
                 BBPlayerManager.getInstance().setIsWalking(false);
                 if(!BBPlayerManager.getInstance().isJumping()){
                     logger.log(Level.INFO,"Character walking end.");
@@ -112,7 +112,7 @@ public class BBPlayerActions implements  ActionListener, AnalogListener{
                     BBPlayerManager.getInstance().getMainPlayer().getAudio("STEP").stop();
                 }
             }
-            
+         /*   
             if(binding.equals("MOUSE_LEFT")){
                 BBPlayerManager.getInstance().setIsWalking(false);
                 if(!BBPlayerManager.getInstance().isJumping()){
@@ -139,7 +139,7 @@ public class BBPlayerActions implements  ActionListener, AnalogListener{
                 }
                 
             }
-
+          */
             
             if (binding.equals("Jump") &! BBPlayerManager.getInstance().isJumping() ) {
                 if (keyPressed){
@@ -192,7 +192,7 @@ public class BBPlayerActions implements  ActionListener, AnalogListener{
                     BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getControl(CharacterControl.class).getViewDirection().multLocal(tpf*15));                  
                 }        
                 else{
-                    //BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(Vector3f.ZERO);
+                    BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(Vector3f.ZERO);
                 }
             
             }

@@ -82,7 +82,6 @@ public class BBEngineSystem {
         context = JmeSystem.newContext(BBSettings.getInstance().getSettings(), JmeContext.Type.Display);
         
         context.create(false);
-        
     }
    
     

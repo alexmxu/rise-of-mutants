@@ -15,6 +15,7 @@
  */
 package com.bigboots.core;
 
+import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.TextureKey;
 import com.jme3.renderer.ViewPort;
@@ -39,6 +40,7 @@ import com.jme3.shadow.PssmShadowRenderer;
 import com.jme3.shadow.PssmShadowRenderer.CompareMode;
 import com.jme3.shadow.PssmShadowRenderer.FilterMode;
 import com.jme3.texture.Texture;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Iterator;
@@ -108,6 +110,10 @@ public class BBSceneManager {
         //pssmRenderer.setFilterMode(FilterMode.Bilinear);
         //pssmRenderer.displayDebug();
         viewPort.addProcessor(pssmRenderer);
+    }
+    
+    public InputStream locateFile(String filepath){
+        return assetManager.locateAsset(new AssetKey(filepath)).openStream();
     }
     
     public Node loadSpatial(String name){
