@@ -256,13 +256,16 @@ public class BBInGameState extends BBAbstractState{
         
         //******************************************************
         // Update character
+
+        Vector3f pos = BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getControl(CharacterControl.class).getPhysicsLocation();
+        humanStalker.setLocalTranslation(pos);
+        
         
         BBPlayerManager.getInstance().update(tpf);
         
         BBMonsterManager.getInstance().update(tpf);
 
-        Vector3f pos = BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getChild(0).getWorldTranslation();
-        humanStalker.setLocalTranslation(pos);
+
         
         
         
