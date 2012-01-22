@@ -91,6 +91,7 @@ public class BBPlayerActions implements  ActionListener, AnalogListener{
                 BBPlayerManager.getInstance().setIsWalking(true);
                 
                 if(!BBPlayerManager.getInstance().isJumping()){
+                    BBPlayerManager.getInstance().setIsWalking(true);
                     logger.log(Level.INFO,"Character walking init.");
                     BBPlayerManager.getInstance().getMainPlayer().getComponent(BBAnimComponent.class).getChannel().setAnim("run_01", 0.50f); // TODO: Must be activated after a certain time after "RunTop"
                     BBPlayerManager.getInstance().getMainPlayer().getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.Loop);
@@ -178,7 +179,7 @@ public class BBPlayerActions implements  ActionListener, AnalogListener{
                     BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).setLocalRotation(newRot);        
 
                 }//up 
-                else if (binding.equals(BBGlobals.INPUT_MAPPING_LEFT)) {
+                else if (binding.equals("Left")) {
                     newRot = new Quaternion().slerp(BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getLocalRotation(),Directions.upDir, tpf*3);
                     BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).setLocalRotation(newRot);
                 } //down
@@ -189,7 +190,7 @@ public class BBPlayerActions implements  ActionListener, AnalogListener{
 
                 if(BBPlayerManager.getInstance().isWalking()){
                     BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setViewDirection(BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getWorldRotation().mult(Vector3f.UNIT_Z));                     
-                    BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getControl(CharacterControl.class).getViewDirection().multLocal(tpf*15));                  
+                    BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getControl(CharacterControl.class).getViewDirection().multLocal(tpf*10));                  
                 }        
                 else{
                     BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(Vector3f.ZERO);

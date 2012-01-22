@@ -249,7 +249,7 @@ public class BBSceneComposer {
                         
 
                         mCloneEntity.getComponent(BBNodeComponent.class).addControl(rgBody);
-                        BBPhysicsManager.getInstance().getPhysicsSpace().add(mCloneEntity.getComponent(BBNodeComponent.class));   
+                        BBPhysicsManager.getInstance().getPhysicsSpace().add(rgBody);   
                       }
                       
                       //Attach it to the RootNode
