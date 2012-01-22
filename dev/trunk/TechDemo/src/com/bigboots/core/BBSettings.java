@@ -15,9 +15,12 @@
  */
 package com.bigboots.core;
 
+import com.bigboots.BBGlobals;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
 import com.jme3.system.JmeSystem;
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
 
 /**
  *
@@ -36,15 +39,31 @@ public class BBSettings {
     protected boolean loadFromRegistry = false;
     
     private BBSettings(){
-
         settings = new AppSettings(true);
         loadFromRegistry = true;
+    }
+    public void init(){
+
+        //BBSettings.getInstance().getSettings().setSettingsDialogImage("/art/artworks/Characters/executioner.jpg");
+        settings.setSettingsDialogImage("Interface/splash.jpg");       
         // show settings dialog
         if (showSettings) {
             if (!JmeSystem.showSettingsDialog(settings, loadFromRegistry)) {
                 return;
             }
         }
+        
+        try{
+            BufferedImage[] icon = new BufferedImage []{
+                ImageIO.read(BBSceneManager.getInstance().locateFile("Interface/BBRoM_32.png")),
+                ImageIO.read(BBSceneManager.getInstance().locateFile("Interface/BBRoM_128.png"))
+            };
+            settings.setIcons(icon);
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+        settings.setFrameRate(BBGlobals.SCENE_FPS);        
+        settings.setTitle(BBGlobals.GAME_NAME+"_"+BBGlobals.GAME_VERSION);
     }
     
     public void showDialog(boolean val){

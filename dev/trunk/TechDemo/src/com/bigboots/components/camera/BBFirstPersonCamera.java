@@ -16,20 +16,56 @@
 package com.bigboots.components.camera;
 
 
+import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
+import com.jme3.scene.Node;
+import com.jme3.scene.Spatial.CullHint;
 
 /**
  *
  * @author @author Ulrich Nzuzi <ulrichnz@code.google.com>
  */
 public class BBFirstPersonCamera extends BBCameraComponent{
-    
+    private Node mTargetNode;
+    private boolean mTargetVisible;
     
     public BBFirstPersonCamera(String name, Camera cam){
         super(name, cam);
         mCameraMode = CamMode.FPS;
-        
+        mTargetVisible = false;
     }
     
+    public void setTarget(Node node){
+        mTargetNode = node;
+        mJm3Camera.setLocation( mTargetNode.getLocalTranslation().clone() );
+
+    }
+    
+    public void setTargetVisible(boolean value)
+    { 
+        mTargetVisible = value;
+        if(value)
+        {
+            mTargetNode.setCullHint(CullHint.Inherit);
+        }else{
+            mTargetNode.setCullHint(CullHint.Always);
+        }
+    }
+    
+    public boolean isTargeVisible(){
+        return mTargetVisible;
+    }
+    
+    @Override
+    public void setEnable(boolean value){
+        super.setEnable(value);
+        this.setTargetVisible(true);        
+    }
+    
+    public void update(){
+        Vector3f camPos = mTargetNode.getLocalTranslation().clone().addLocal( 0, 6, 0 );
+        mJm3Camera.setLocation( camPos );
+        mJm3Camera.update();
+    }
  
 }

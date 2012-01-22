@@ -25,8 +25,6 @@ import com.bigboots.gui.BBGuiManager;
 import com.bigboots.input.BBInputManager;
 import com.bigboots.states.BBStateManager;
 import com.jme3.system.SystemListener;
-import java.awt.image.BufferedImage;
-import javax.imageio.ImageIO;
 
 
 
@@ -50,18 +48,9 @@ public class BBApplication implements SystemListener {
         engineSystem = new BBEngineSystem();
         //set up scene by initializing rootnode
         BBSceneManager.getInstance().init();
-        
-        BBSettings.getInstance().getSettings().setTitle(BBGlobals.GAME_NAME+"_"+BBGlobals.GAME_VERSION);
-        try{
-            BufferedImage[] icon = new BufferedImage []{
-                ImageIO.read(BBSceneManager.getInstance().locateFile("Interface/BBRoM_32.png")),
-                ImageIO.read(BBSceneManager.getInstance().locateFile("Interface/BBRoM_128.png"))
-            };
-            BBSettings.getInstance().getSettings().setIcons(icon);
-        }catch (Exception e) {
-            e.printStackTrace();
-        }
-        BBSettings.getInstance().getSettings().setFrameRate(BBGlobals.SCENE_FPS);
+      
+        //init application settings to display the config dialog
+        BBSettings.getInstance().init();
         
         engineSystem.create();
         engineSystem.setContextListener(this);
@@ -72,8 +61,7 @@ public class BBApplication implements SystemListener {
      * is called in the GL/Rendering thread so any GL-dependent resources
      * can be initialized.
      */
-    public void initialize(){
-        
+    public void initialize(){        
         BBUpdateManager.getInstance();  
         //init timer and render
         engineSystem.initialize();

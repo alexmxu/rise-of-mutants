@@ -32,12 +32,13 @@ public class BBCameraComponent implements BBComponent{
         RTS,
         CHASE,
         FIXED,
+        ORBITAL,
         FREE
     }
     
     protected CamMode mCameraMode;    
     protected String mCameraName;
-    protected boolean enabled = true;
+    protected boolean mEnabled = true;
     protected Camera mJm3Camera;
     
     public BBCameraComponent(String name, Camera cam){
@@ -69,6 +70,10 @@ public class BBCameraComponent implements BBComponent{
      * @see BBCameraComponent#setEnabled(boolean)
      */
     public boolean isEnabled(){
-        return enabled;
+        return mEnabled;
+    }
+    
+    public void setEnable(boolean value){
+        mEnabled = value;
     }
 }
