@@ -61,7 +61,7 @@ public class BBApplication implements SystemListener {
         }catch (Exception e) {
             e.printStackTrace();
         }
-        BBSettings.getInstance().getSettings().setFrameRate(BBGlobals.SCENE_FPS);
+//        BBSettings.getInstance().getSettings().setFrameRate(BBGlobals.SCENE_FPS);
         
         engineSystem.create();
         engineSystem.setContextListener(this);
@@ -110,7 +110,7 @@ public class BBApplication implements SystemListener {
     public void update(){
         
         
-        System.nanoTime();
+//        System.nanoTime();
         
         if (mSpeed == 0 || this.engineSystem.isSystemPause())
             return;
