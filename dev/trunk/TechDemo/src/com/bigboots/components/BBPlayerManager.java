@@ -153,8 +153,7 @@ public class BBPlayerManager {
             
                 
             if(mIsWalking && !mIsJumping){
-            //  mMainPlayer.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setViewDirection(mMainPlayer.getComponent(BBNodeComponent.class).getLocalRotation().mult(Vector3f.UNIT_Z));                     
-            mMainPlayer.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(mMainPlayer.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).getViewDirection().mult(.2f));                  
+//            mMainPlayer.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(mMainPlayer.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).getViewDirection().mult(.2f));                  
              }        
              else{
              mMainPlayer.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(Vector3f.ZERO);

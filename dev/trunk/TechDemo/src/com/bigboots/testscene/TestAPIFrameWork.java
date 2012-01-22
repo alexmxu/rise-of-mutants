@@ -168,7 +168,7 @@ public class TestAPIFrameWork extends SimpleApplication implements AnimEventList
     camNode.setControlDir(ControlDirection.SpatialToCamera);
     
     //Move camNode, e.g. behind and above the target:
-    camNode.setLocalTranslation(new Vector3f(0, 10, -40));
+    camNode.setLocalTranslation(new Vector3f(0, 10, -60));
     //Rotate the camNode to look at the target:
     camNode.lookAt(humanStalker.getLocalTranslation(), Vector3f.UNIT_Y);
     //Attach the camNode to the target:

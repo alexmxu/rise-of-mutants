@@ -166,7 +166,7 @@ public class BBInGameState extends BBAbstractState{
         
         if(camera.getCamMode().equals(BBCameraComponent.CamMode.SIDE)){
             BBSideModeCamera sideCam = (BBSideModeCamera)camera;
-            sideCam.setPosition(new Vector3f(0, 10, 35));
+            sideCam.setPosition(new Vector3f(0, 10, 30));
             sideCam.setTarget(humanStalker);
         }    
         
@@ -256,13 +256,16 @@ public class BBInGameState extends BBAbstractState{
         
         //******************************************************
         // Update character
-        Vector3f pos = BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getControl(CharacterControl.class).getPhysicsLocation();
-        humanStalker.setLocalTranslation(pos);
         
         BBPlayerManager.getInstance().update(tpf);
         
         BBMonsterManager.getInstance().update(tpf);
-   
+
+        Vector3f pos = BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getChild(0).getWorldTranslation();
+        humanStalker.setLocalTranslation(pos);
+        
+        
+        
     }
 
     private class GameActionListener implements AnimEventListener, ActionListener, AnalogListener {
