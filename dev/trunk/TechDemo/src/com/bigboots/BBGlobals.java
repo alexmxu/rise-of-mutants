@@ -24,6 +24,7 @@ public class BBGlobals {
     public static final String GAME_VERSION = "0.0.1";
     public static final String GAME_NAME = "Rise Of Mutants";
     public static final String GAME_TYPE = "SCG"; //Side-Scrolling Game
+    
     public static final int SCENE_FPS = 60;
     public static final float PHYSICS_TPT = 1f/60f; //Physic time pr. tick. Convention might require renaming.
 
