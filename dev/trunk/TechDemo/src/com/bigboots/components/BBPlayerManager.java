@@ -90,7 +90,7 @@ public class BBPlayerManager {
         pCtrl.setControlType(BBControlComponent.ControlType.CHARACTER);
         pCtrl.attachControl(pControler);
         mMainPlayer.getComponent(BBNodeComponent.class).addControl(pControler);
-        BBPhysicsManager.getInstance().getPhysicsSpace().addAll(mMainPlayer.getComponent(BBNodeComponent.class));
+        BBPhysicsManager.getInstance().getPhysicsSpace().add(mMainPlayer.getComponent(BBNodeComponent.class));
         
         //Define the listener
         BBListenerComponent lst = mMainPlayer.addComponent(CompType.LISTENER);

@@ -103,7 +103,7 @@ public class BBMonsterManager {
         ctrlCp.attachControl(eControler);
         mEnemy.getComponent(BBNodeComponent.class).addControl(eControler);
         
-        BBPhysicsManager.getInstance().getPhysicsSpace().addAll(mEnemy.getComponent(BBNodeComponent.class));
+        BBPhysicsManager.getInstance().getPhysicsSpace().add(mEnemy.getComponent(BBNodeComponent.class));
                 
         //Set up enemy's sound component
         //Define the listener
