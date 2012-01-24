@@ -143,7 +143,7 @@ public class BBMonsterManager {
                 float dist = humanPos.distance(mNode.getLocalTranslation());
                 if(dist > 4 && dist < 20){      
                     mCharCtrl.setViewDirection(mNode.getLocalRotation().mult(Vector3f.UNIT_Z));            
-                   mCharCtrl.setWalkDirection(mNode.getLocalRotation().mult(Vector3f.UNIT_Z).mult(tpf * 5));
+                   mCharCtrl.setWalkDirection(mNode.getLocalRotation().mult(Vector3f.UNIT_Z).multLocal(tpf * 4));
                     if(!mChannel.getAnimationName().equals("mutant_base_walk"))
                     {
                         object.getAudio("GROWLING").stop();

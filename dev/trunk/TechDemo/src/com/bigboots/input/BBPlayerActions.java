@@ -119,7 +119,7 @@ public class BBPlayerActions implements  ActionListener, AnalogListener{
                     pStep.stop();
                 }
             }
-         /*   
+           
             if(binding.equals("MOUSE_LEFT")){
                 BBPlayerManager.getInstance().setIsWalking(false);
                 if(!BBPlayerManager.getInstance().isJumping()){
@@ -134,9 +134,10 @@ public class BBPlayerActions implements  ActionListener, AnalogListener{
                     BBSceneManager.getInstance().getRootNode().attachChild(bulletx);
                 }
                 
-            } else {
+            } 
+//            else {
 //                shootBullets = false;
-            }
+//            }
             if(keyPressed==false && binding.equals("MOUSE_RIGHT")){
                 BBPlayerManager.getInstance().setIsWalking(false);
                 if(!BBPlayerManager.getInstance().isJumping()){
@@ -146,7 +147,7 @@ public class BBPlayerActions implements  ActionListener, AnalogListener{
                 }
                 
             }
-          */
+          
             
             if (binding.equals("Jump") &! BBPlayerManager.getInstance().isJumping() ) {
                 if (keyPressed){
@@ -180,26 +181,26 @@ public class BBPlayerActions implements  ActionListener, AnalogListener{
                 //We inverse the key because the map is align on X axis        
                 //left
                 if (binding.equals("Down")) {
-                    newRot = new Quaternion().slerp(pNode.getLocalRotation(),Directions.leftDir, tpf*3);
+                    newRot = new Quaternion().slerp(pNode.getLocalRotation(),Directions.leftDir, tpf*7);
                     pNode.setLocalRotation(newRot);
                 }//right
                 else if (binding.equals("Up")) {
-                    newRot = new Quaternion().slerp(pNode.getLocalRotation(),Directions.rightDir, tpf*3);
+                    newRot = new Quaternion().slerp(pNode.getLocalRotation(),Directions.rightDir, tpf*7);
                     pNode.setLocalRotation(newRot);        
 
                 }//up 
                 else if (binding.equals("Left")) {
-                    newRot = new Quaternion().slerp(pNode.getLocalRotation(),Directions.upDir, tpf*3);
+                    newRot = new Quaternion().slerp(pNode.getLocalRotation(),Directions.upDir, tpf*7);
                     pNode.setLocalRotation(newRot);
                 } //down
                 else if (binding.equals("Right")) {
-                    newRot = new Quaternion().slerp(pNode.getLocalRotation(),Directions.downDir, tpf*3);
+                    newRot = new Quaternion().slerp(pNode.getLocalRotation(),Directions.downDir, tpf*7);
                     pNode.setLocalRotation(newRot);
                 }
 
                 if(BBPlayerManager.getInstance().isWalking()){
                     pCharCtrl.setViewDirection(pNode.getWorldRotation().mult(Vector3f.UNIT_Z));                     
-                    pCharCtrl.setWalkDirection(pNode.getControl(CharacterControl.class).getViewDirection().multLocal(.2f));                  
+                    pCharCtrl.setWalkDirection(pNode.getControl(CharacterControl.class).getViewDirection().multLocal(.17f));                  
                 }        
                 else{
                     pCharCtrl.setWalkDirection(Vector3f.ZERO);

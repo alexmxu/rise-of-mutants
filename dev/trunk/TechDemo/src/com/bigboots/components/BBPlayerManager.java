@@ -81,9 +81,9 @@ public class BBPlayerManager {
         pColCp.attachShape(pShape);
         
         CharacterControl pControler = (CharacterControl) BBAnimManager.getInstance().createControl(BBControlComponent.ControlType.CHARACTER, mMainPlayer); 
-        pControler.setJumpSpeed(19);
-        pControler.setFallSpeed(50);
-        pControler.setGravity(45);
+        pControler.setJumpSpeed(20);
+        pControler.setFallSpeed(40);
+        pControler.setGravity(40);
         pControler.setMaxSlope(10.5f);
         pControler.setPhysicsLocation(pnode.getWorldTranslation().add(posOffset));
         pControler.setUseViewDirection(true);

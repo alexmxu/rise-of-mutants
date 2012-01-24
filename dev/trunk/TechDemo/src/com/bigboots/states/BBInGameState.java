@@ -175,7 +175,7 @@ public class BBInGameState extends BBAbstractState{
 
         for (int i=0; i<5; i++){
          Vector3f mPos = new Vector3f(100 + i*10, 100, 0f);  
-         BBMonsterManager.getInstance().createMonter("ENEMY" + i*1.5, "Scenes/TestScene/mutant.j3o", mPos, new Vector3f(0,-1.0f, 0), 1+i);
+         BBMonsterManager.getInstance().createMonter("ENEMY" + i, "Scenes/TestScene/mutant.j3o", mPos, new Vector3f(0,-1.0f, 0), 1+i*0.5f);
         }
 
         
