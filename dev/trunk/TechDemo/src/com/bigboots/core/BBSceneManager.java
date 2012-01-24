@@ -36,6 +36,7 @@ import java.net.URL;
 
 import com.jme3.post.filters.*;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
+import com.jme3.shadow.BasicShadowRenderer;
 import com.jme3.shadow.PssmShadowRenderer;
 import com.jme3.shadow.PssmShadowRenderer.CompareMode;
 import com.jme3.shadow.PssmShadowRenderer.FilterMode;
@@ -101,15 +102,7 @@ public class BBSceneManager {
         }
         mFilterProcessor = new FilterPostProcessor(assetManager);
         viewPort.addProcessor(mFilterProcessor);
-        
-        PssmShadowRenderer pssmRenderer = new PssmShadowRenderer(assetManager, 1024, 3);
-        pssmRenderer.setDirection(new Vector3f(-1, -1, -1).normalizeLocal());
-        //pssmRenderer.setLambda(0.55f);
-        pssmRenderer.setShadowIntensity(0.6f);
-        //pssmRenderer.setCompareMode(CompareMode.Software);
-        //pssmRenderer.setFilterMode(FilterMode.Bilinear);
-        //pssmRenderer.displayDebug();
-        viewPort.addProcessor(pssmRenderer);
+       
     }
     
     public InputStream locateFile(String filepath){
@@ -219,10 +212,28 @@ public class BBSceneManager {
     public void setupBasicLight(){
         // We add light so we see the scene
         DirectionalLight dl = new DirectionalLight();
-        dl.setDirection(new Vector3f(0.5432741f, -0.58666015f, -0.6005691f).normalizeLocal());
+        dl.setDirection(new Vector3f(0.5f, -0.5f, -0.6f).normalizeLocal());
         dl.setColor(new ColorRGBA(1.1f,1.1f,1.1f,1));
         rootNode.addLight(dl); 
     }  
+    
+    public void setUpBasicShadow(){
+/*        BasicShadowRenderer bsr = new BasicShadowRenderer(assetManager, 256);
+        bsr.setDirection(new Vector3f(0.5f, -0.5f, -0.6f).normalizeLocal()); // light direction
+        viewPort.addProcessor(bsr);
+*/        
+        PssmShadowRenderer pssmRenderer = new PssmShadowRenderer(assetManager, 1024, 3);
+        pssmRenderer.setDirection(new Vector3f(0.5f, -0.5f, -0.6f).normalizeLocal());
+        //pssmRenderer.setLambda(0.55f);
+        pssmRenderer.setShadowIntensity(0.4f);
+        //pssmRenderer.setCompareMode(CompareMode.Software);
+        //pssmRenderer.setFilterMode(FilterMode.Bilinear);
+        //pssmRenderer.setShadowZextend();
+        //pssmRenderer.displayDebug();
+        viewPort.addProcessor(pssmRenderer);
+         
+    }
+    
     
     private void initAssetManager(){
         if (BBSettings.getInstance().getSettings() != null){

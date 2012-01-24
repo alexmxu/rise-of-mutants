@@ -25,6 +25,8 @@ import com.jme3.scene.Node;
  */
 public class BBThirdPersonCamera extends BBCameraComponent{
     private Node mTarget;
+    protected float minDistance = 1.0f;
+    protected float maxDistance = 40.0f;
     
     public BBThirdPersonCamera(String name, Camera cam){
         super(name, cam);
@@ -53,8 +55,42 @@ public class BBThirdPersonCamera extends BBCameraComponent{
         mTarget = node;
         //mJm3Camera.setLocation( mTarget.getLocalTranslation().clone() );
     }
+
+    /**
+     * Returns the max zoom distance of the camera (default is 40)
+     * @return maxDistance
+     */
+    public float getMaxDistance() {
+        return maxDistance;
+    }
+
+    /**
+     * Sets the max zoom distance of the camera (default is 40)
+     * @param maxDistance
+     */
+    public void setMaxDistance(float maxDistance) {
+        this.maxDistance = maxDistance;
+    }
+
+    /**
+     * Returns the min zoom distance of the camera (default is 1)
+     * @return minDistance
+     */
+    public float getMinDistance() {
+        return minDistance;
+    }
+
+    /**
+     * Sets the min zoom distance of the camera (default is 1)
+     * @return minDistance
+     */
+    public void setMinDistance(float minDistance) {
+        this.minDistance = minDistance;
+    }    
     
-    public void update(){
+
+    @Override
+    public void udpate() {
         //float camMinHeight = environment.getHeight( mJm3Camera.getLocation() ) + 1;
         //if (!Float.isInfinite(camMinHeight) && !Float.isNaN(camMinHeight) && mJm3Camera.getLocation().y <= camMinHeight) {
         //    mJm3Camera.getLocation().y = camMinHeight;

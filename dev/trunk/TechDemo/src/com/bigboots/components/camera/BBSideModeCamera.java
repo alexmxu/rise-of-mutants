@@ -53,4 +53,9 @@ public class BBSideModeCamera extends BBCameraComponent{
     public void setPosition(Vector3f vec){
         mCamNode.setLocalTranslation(vec);
     }
+
+    @Override
+    public void udpate() {
+        
+    }
 }

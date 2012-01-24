@@ -28,17 +28,22 @@ import com.bigboots.components.BBEntity;
 import com.bigboots.components.BBMeshComponent;
 import com.bigboots.components.BBNodeComponent;
 import com.bigboots.components.BBObject;
+import com.bigboots.components.camera.BBFirstPersonCamera;
+import com.bigboots.components.camera.BBThirdPersonCamera;
+import com.bigboots.input.BBInputManager;
 import com.bigboots.physics.BBPhysicsManager;
 import com.jme3.animation.AnimChannel;
-import com.jme3.animation.AnimControl;
 import com.jme3.animation.LoopMode;
 import com.jme3.bullet.control.CharacterControl;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
+import com.jme3.input.KeyInput;
+import com.jme3.input.controls.ActionListener;
+import com.jme3.input.controls.AnalogListener;
+import com.jme3.input.controls.KeyTrigger;
 
 import com.jme3.material.Material;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.control.Control;
 import com.jme3.scene.shape.Box;
 
 
@@ -48,7 +53,10 @@ import com.jme3.scene.shape.Box;
  * @author @author Ulrich Nzuzi <ulrichnz@code.google.com>
  */
 public class TestSimpleApp extends BBSimpleApplication{
-        
+    //Private variables
+    AnimChannel pChannel;
+    
+    
     //The main function call to init the app
     public static void main(String[] args) {
         TestSimpleApp app = new TestSimpleApp();
@@ -61,6 +69,11 @@ public class TestSimpleApp extends BBSimpleApplication{
         
         //Put here you custom init code ...
         //Example
+        
+        //Swithing physic on
+        BBPhysicsManager.getInstance().init(engineSystem);
+        //Set debub info on
+        BBPhysicsManager.getInstance().setDebugInfo(true);
         
         //**********************************************************************
         //Create the main Character as an entity      
@@ -75,25 +88,10 @@ public class TestSimpleApp extends BBSimpleApplication{
         mMainPlayer.loadModel("Models/Sinbad/Sinbad.mesh.j3o");
         //Set up an associated component. Here is animation
         BBAnimComponent panim = mMainPlayer.addComponent(CompType.ANIMATION);
-        panim.getChannel().setAnim("IdleTop");
-        panim.getChannel().setSpeed(1f); 
-        panim.getChannel().setLoopMode(LoopMode.Cycle);
-                
-        //Swithing physic on
-        BBPhysicsManager.getInstance().init(engineSystem);
-        
-        //Create quick mesh and texture for floor
-        Box floor = new Box(Vector3f.ZERO, 10f, 0.1f, 5f);
-        Material floor_mat = BBSceneManager.getInstance().getAssetManager().loadMaterial("Materials/Scene/Character/CharacterSkin.j3m");
-        //Set up a Geometry for our box 
-        BBMeshComponent floor_geo = new BBMeshComponent("Floor", floor);
-        floor_geo.setMaterial(floor_mat);
-        floor_geo.setLocalTranslation(0, -1f, 0);
-        BBSceneManager.getInstance().addChild(floor_geo);
-        // Make the floor physical with mass 0.0f
-        RigidBodyControl floor_phy = new RigidBodyControl(0.0f);
-        floor_geo.addControl(floor_phy);
-        BBPhysicsManager.getInstance().getPhysicsSpace().add(floor_phy);
+        pChannel = panim.getChannel();
+        pChannel.setAnim("IdleTop");
+        pChannel.setSpeed(1f); 
+        pChannel.setLoopMode(LoopMode.Cycle);
         
         //Create collision shape for our Entity by calling the PhysicMgr factory 
         CollisionShape pShape = BBPhysicsManager.getInstance().createPhysicShape(ShapeType.CAPSULE, mMainPlayer.getComponent(BBNodeComponent.class), 0.8f, 1.0f);
@@ -124,24 +122,43 @@ public class TestSimpleApp extends BBSimpleApplication{
         }
     
         BBAnimComponent panimClone = mCopy.addComponent(CompType.ANIMATION);
-//        AnimChannel panimChannelClone = panimClone.getChannel();
-//        AnimControl xClone = (AnimControl) panim.getChannel().getControl().cloneForSpatial(mCopy.getComponent(BBNodeComponent.class).getChild(0));
         mCopy.getComponent(BBAnimComponent.class).getChannel().setAnim("IdleTop");
         mCopy.getComponent(BBAnimComponent.class).getChannel().setSpeed(1f); 
         mCopy.getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.Cycle);
 
-
         mCopy.attachToRoot();
 
-        
-        
         //Set up material after cloning to see the shared texture
         mMainPlayer.setMaterial("Scenes/TestScene/TestSceneMaterial.j3m");
         mMainPlayer.setMaterialToMesh("Sinbad-geom-7", "Models/Sinbad/SinbadMat.j3m");
+                
+        //Create quick mesh and texture for floor
+        Box floor = new Box(Vector3f.ZERO, 10f, 0.1f, 5f);
+        Material floor_mat = BBSceneManager.getInstance().getAssetManager().loadMaterial("Materials/Scene/Character/CharacterSkin.j3m");
+        //Set up a Geometry for our box 
+        BBMeshComponent floor_geo = new BBMeshComponent("Floor", floor);
+        floor_geo.setMaterial(floor_mat);
+        floor_geo.setLocalTranslation(0, -1f, 0);
+        BBSceneManager.getInstance().addChild(floor_geo);
+        // Make the floor physical with mass 0.0f
+        RigidBodyControl floor_phy = new RigidBodyControl(0.0f);
+        floor_geo.addControl(floor_phy);
+        BBPhysicsManager.getInstance().getPhysicsSpace().add(floor_phy);
         
-        //Set debub info on
-        BBPhysicsManager.getInstance().setDebugInfo(true);
- 
+        //Register specific input
+        MyActionListener aListener = new MyActionListener();
+        BBInputManager.getInstance().mapKey("ANIM_PLAYER", new KeyTrigger(KeyInput.KEY_M));
+        BBInputManager.getInstance().getInputManager().addListener(aListener, "ANIM_PLAYER");
+        
+        //Disable free cam for making a custom one
+        //mFreeCamera.setEnable(false);
+        //Set up first person camera view for FPS game like
+        //BBFirstPersonCamera mFirst = new BBFirstPersonCamera("FPS_CAM", cam);
+        //mFirst.setTarget(pnode);
+        //Set up third person camera view for RPG game like
+        //BBThirdPersonCamera mThird = new BBThirdPersonCamera("RPG_CAM", cam);
+        //mThird.setTarget(pnode);
+        //mThird.initCamera();
     }
     
     @Override
@@ -149,6 +166,26 @@ public class TestSimpleApp extends BBSimpleApplication{
         super.simpleUpdate();
         //Put here your custom update code ...
         
-    }    
+    }
+    
+    //Specific internal class to handle input keys
+    class MyActionListener implements AnalogListener, ActionListener{
+
+        public void onAction(String binding, boolean keyPressed, float tpf) {
+                   
+            if (binding.equals("ANIM_PLAYER") && keyPressed){
+                pChannel.setAnim("RunBase", 0.50f);
+                pChannel.setLoopMode(LoopMode.Loop);
+            }else{
+                pChannel.setAnim("IdleTop", 0.50f);
+                pChannel.setLoopMode(LoopMode.Loop);
+            }
+        }
+
+        public void onAnalog(String name, float value, float tpf) {
+
+        }
+        
+    }
  
 }
