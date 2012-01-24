@@ -47,13 +47,14 @@ public class BBSimpleApplication extends BBApplication{
   
     //Variables
     private MyTestAction actionListener;
-    private BBFreeCamera mFreeCamera;
+    protected BBFreeCamera mFreeCamera;
+    protected Camera cam;
     
     @Override
     public void simpleInitialize(){
 
         //Load the main camera
-        Camera cam = new Camera(BBSettings.getInstance().getSettings().getWidth(), BBSettings.getInstance().getSettings().getHeight());
+        cam = new Camera(BBSettings.getInstance().getSettings().getWidth(), BBSettings.getInstance().getSettings().getHeight());
         cam.setFrustumPerspective(45f, (float)cam.getWidth() / cam.getHeight(), 1f, 1000f);
         cam.setLocation(new Vector3f(0f, 0f, 29f));
         cam.lookAt(new Vector3f(0f, 0f, 0f), Vector3f.UNIT_Y);
@@ -162,7 +163,7 @@ public class BBSimpleApplication extends BBApplication{
                 mQuit = true; 
             }
             
-            if (binding.equals("FLYCAM_RotateDrag") && mFreeCamera.isDragToRotate()){
+            if (binding.equals("FLYCAM_RotateDrag") && mFreeCamera.isDragToRotate() && !mFreeCamera.isEnabled()){
                 mFreeCamera.setDragToRotate(keyPressed);
                 BBInputManager.getInstance().getInputManager().setCursorVisible(!keyPressed);
             }
