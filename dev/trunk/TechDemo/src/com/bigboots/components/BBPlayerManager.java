@@ -75,15 +75,15 @@ public class BBPlayerManager {
         panim.getChannel().setLoopMode(LoopMode.Cycle);
         
         CollisionShape pShape = BBPhysicsManager.getInstance().createPhysicShape(ShapeType.CAPSULE, mMainPlayer.getComponent(BBNodeComponent.class), 0.6f, 1.0f);
-        pShape.setMargin(0.9f);
+        pShape.setMargin(0.1f);
         //CollisionShape pShape = BBPhysicsManager.getInstance().createPhysicShape(ShapeType.MESH, mMainPlayer);
         BBCollisionComponent pColCp = mMainPlayer.addComponent(CompType.COLSHAPE);
         pColCp.attachShape(pShape);
         
         CharacterControl pControler = (CharacterControl) BBAnimManager.getInstance().createControl(BBControlComponent.ControlType.CHARACTER, mMainPlayer); 
         pControler.setJumpSpeed(19);
-        pControler.setFallSpeed(40);
-        pControler.setGravity(35);
+        pControler.setFallSpeed(50);
+        pControler.setGravity(45);
         pControler.setMaxSlope(10.5f);
         pControler.setPhysicsLocation(pnode.getWorldTranslation().add(posOffset));
         pControler.setUseViewDirection(true);
@@ -91,7 +91,7 @@ public class BBPlayerManager {
         pCtrl.setControlType(BBControlComponent.ControlType.CHARACTER);
         pCtrl.attachControl(pControler);
         mMainPlayer.getComponent(BBNodeComponent.class).addControl(pControler);
-        BBPhysicsManager.getInstance().getPhysicsSpace().addAll(mMainPlayer.getComponent(BBNodeComponent.class));
+        BBPhysicsManager.getInstance().getPhysicsSpace().add(mMainPlayer.getComponent(BBNodeComponent.class));
         
         //Define the listener
         BBListenerComponent lst = mMainPlayer.addComponent(CompType.LISTENER);

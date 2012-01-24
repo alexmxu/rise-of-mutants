@@ -91,12 +91,14 @@ public class BBMonsterManager {
         //Set up physic controler component
         CollisionShape shape = BBPhysicsManager.getInstance().createPhysicShape(ShapeType.CAPSULE, mEnemy.getComponent(BBNodeComponent.class), 0.6f, 1.0f);
         BBCollisionComponent colCp = mEnemy.addComponent(CompType.COLSHAPE);
+        shape.setMargin(0.1f);
         colCp.attachShape(shape);
+        
                
         CharacterControl eControler = (CharacterControl) BBAnimManager.getInstance().createControl(BBControlComponent.ControlType.CHARACTER, mEnemy); 
         eControler.setJumpSpeed(20);
-        eControler.setFallSpeed(30);
-        eControler.setGravity(30);
+        eControler.setFallSpeed(50);
+        eControler.setGravity(45);
         eControler.setPhysicsLocation(position);
         eControler.setUseViewDirection(true);
         BBControlComponent ctrlCp = mEnemy.addComponent(CompType.CONTROLLER);
@@ -104,7 +106,7 @@ public class BBMonsterManager {
         ctrlCp.attachControl(eControler);
         mEnemy.getComponent(BBNodeComponent.class).addControl(eControler);
         
-        BBPhysicsManager.getInstance().getPhysicsSpace().addAll(mEnemy.getComponent(BBNodeComponent.class));
+        BBPhysicsManager.getInstance().getPhysicsSpace().add(mEnemy.getComponent(BBNodeComponent.class));
                 
         //Set up enemy's sound component
         //Define the listener
