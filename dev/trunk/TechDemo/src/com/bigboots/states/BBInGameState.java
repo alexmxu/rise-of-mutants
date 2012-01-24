@@ -125,8 +125,8 @@ public class BBInGameState extends BBAbstractState{
                                                                     BBGlobals.INPUT_MAPPING_CAMERA_POS,
                                                                     BBGlobals.INPUT_MAPPING_MEMORY);
         BBInputManager.getInstance().getInputManager().addListener(playerListener,
-                                                                    //BBGlobals.INPUT_MAPPING_MLEFT,
-                                                                    //BBGlobals.INPUT_MAPPING_MRIGHT,
+                                                                    BBGlobals.INPUT_MAPPING_MLEFT,
+                                                                    BBGlobals.INPUT_MAPPING_MRIGHT,
                                                                     BBGlobals.INPUT_MAPPING_LEFT,
                                                                     BBGlobals.INPUT_MAPPING_RIGHT, 
                                                                     BBGlobals.INPUT_MAPPING_UP, 

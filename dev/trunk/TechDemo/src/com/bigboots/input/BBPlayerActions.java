@@ -92,8 +92,8 @@ public class BBPlayerActions implements  ActionListener, AnalogListener{
             CharacterControl pCharCtrl = pNode.getControl(CharacterControl.class);
             BBAudioComponent pStep = BBPlayerManager.getInstance().getMainPlayer().getAudio("STEP");
             
-            //if(keyPressed && !binding.equals("Jump") && !binding.equals("MOUSE_LEFT") && !binding.equals("MOUSE_RIGHT") && !BBPlayerManager.getInstance().isWalking()){
-            if(pressed==1 && keyPressed &! binding.equals("Jump")  && !BBPlayerManager.getInstance().isWalking()){
+            if(keyPressed && !binding.equals("Jump") && !binding.equals("MOUSE_LEFT") && !binding.equals("MOUSE_RIGHT") && !BBPlayerManager.getInstance().isWalking()){
+//            if(pressed==1 && keyPressed &! binding.equals("Jump")  && !BBPlayerManager.getInstance().isWalking()){
                 BBPlayerManager.getInstance().setIsWalking(true);
                 
                 if(!BBPlayerManager.getInstance().isJumping()){
@@ -120,7 +120,7 @@ public class BBPlayerActions implements  ActionListener, AnalogListener{
                 }
             }
            
-            if(binding.equals("MOUSE_LEFT")){
+            if(!keyPressed && binding.equals("MOUSE_LEFT")){
                 BBPlayerManager.getInstance().setIsWalking(false);
                 if(!BBPlayerManager.getInstance().isJumping()){
                     logger.log(Level.INFO,"******  Character Attack 1.");
@@ -143,6 +143,7 @@ public class BBPlayerActions implements  ActionListener, AnalogListener{
                 if(!BBPlayerManager.getInstance().isJumping()){
                     logger.log(Level.INFO,"******  Character Attack 2.");
                     pChannel.setAnim("strike_sword", 0.05f);
+                    pChannel.setSpeed(1.3f);
                     pChannel.setLoopMode(LoopMode.DontLoop);
                 }
                 
@@ -162,17 +163,6 @@ public class BBPlayerActions implements  ActionListener, AnalogListener{
         
               
         public void onAnalog(String binding, float value, float tpf) {
-            //BBPlayerManager.getInstance().setIsJumping(false);
-            
-//            if (binding.equals("MOUSE_LEFT")) {
-//                timeBullet += tpf;
-//                    if (shootBullets = true) {
-//                
-//                System.out.println(timeBullet + "  ******* Bullet cteated");
-//                if (timeBullet == 0.001) bulletControl();   
-            
-//                 }
-//            }
             
             BBNodeComponent pNode = BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class);
             CharacterControl pCharCtrl = pNode.getControl(CharacterControl.class);
@@ -238,7 +228,7 @@ public class BBPlayerActions implements  ActionListener, AnalogListener{
         bulletg.setLocalRotation(bulletTrans.getRotation());
         frontVec = bulletTrans.getRotation().mult(Vector3f.UNIT_Z).normalize();
       //  frontVec = frontVec.add(new Vector3f(0.5f,0.5f,0.5f)).normalize();
-        bulletg.move(frontVec.mult(2f));
+        bulletg.move(frontVec.mult(1.5f));
         
 
 //        CharacterControl character = BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getControl(CharacterControl.class);

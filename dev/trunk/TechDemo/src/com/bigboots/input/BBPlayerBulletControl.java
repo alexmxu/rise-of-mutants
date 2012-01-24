@@ -52,7 +52,7 @@ frontVec = geooMove.getWorldRotation().mult(Vector3f.UNIT_Z).normalize();
 
         
 // Approach 2
-geooMove.move(frontVec.mult(3f*tpf));
+geooMove.move(frontVec.mult(30f*tpf));
 
 //        bv = geooMove.getWorldBound();
 //        CollisionResults results = new CollisionResults();
