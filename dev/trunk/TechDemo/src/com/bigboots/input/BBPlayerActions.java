@@ -17,6 +17,7 @@ package com.bigboots.input;
 
 import com.bigboots.BBGlobals;
 import com.bigboots.components.BBAnimComponent;
+import com.bigboots.components.BBAudioComponent;
 import com.bigboots.components.BBNodeComponent;
 import com.bigboots.components.BBPlayerManager;
 import com.bigboots.core.BBSceneManager;
@@ -86,6 +87,11 @@ public class BBPlayerActions implements  ActionListener, AnalogListener{
                 pressed--;                      
             }
             
+            BBNodeComponent pNode = BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class);
+            AnimChannel pChannel = BBPlayerManager.getInstance().getMainPlayer().getComponent(BBAnimComponent.class).getChannel();
+            CharacterControl pCharCtrl = pNode.getControl(CharacterControl.class);
+            BBAudioComponent pStep = BBPlayerManager.getInstance().getMainPlayer().getAudio("STEP");
+            
             //if(keyPressed && !binding.equals("Jump") && !binding.equals("MOUSE_LEFT") && !binding.equals("MOUSE_RIGHT") && !BBPlayerManager.getInstance().isWalking()){
             if(pressed==1 && keyPressed &! binding.equals("Jump")  && !BBPlayerManager.getInstance().isWalking()){
                 BBPlayerManager.getInstance().setIsWalking(true);
@@ -93,13 +99,13 @@ public class BBPlayerActions implements  ActionListener, AnalogListener{
                 if(!BBPlayerManager.getInstance().isJumping()){
                     BBPlayerManager.getInstance().setIsWalking(true);
                     logger.log(Level.INFO,"Character walking init.");
-                    BBPlayerManager.getInstance().getMainPlayer().getComponent(BBAnimComponent.class).getChannel().setAnim("run_01", 0.50f); // TODO: Must be activated after a certain time after "RunTop"
-                    BBPlayerManager.getInstance().getMainPlayer().getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.Loop);
+                    pChannel.setAnim("run_01", 0.50f); // TODO: Must be activated after a certain time after "RunTop"
+                    pChannel.setLoopMode(LoopMode.Loop);
               
                     //Trying to repeat the walk sound
                     time += tpf;
                     if (time > 0f) {
-                        BBPlayerManager.getInstance().getMainPlayer().getAudio("STEP").play();
+                        pStep.play();
                         time = 0;
                     }
                 }
@@ -108,9 +114,9 @@ public class BBPlayerActions implements  ActionListener, AnalogListener{
                 BBPlayerManager.getInstance().setIsWalking(false);
                 if(!BBPlayerManager.getInstance().isJumping()){
                     logger.log(Level.INFO,"Character walking end.");
-                    BBPlayerManager.getInstance().getMainPlayer().getComponent(BBAnimComponent.class).getChannel().setAnim("base_stand", 0.50f);          
-                    BBPlayerManager.getInstance().getMainPlayer().getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.DontLoop);
-                    BBPlayerManager.getInstance().getMainPlayer().getAudio("STEP").stop();
+                    pChannel.setAnim("base_stand", 0.50f);          
+                    pChannel.setLoopMode(LoopMode.DontLoop);
+                    pStep.stop();
                 }
             }
          /*   
@@ -119,8 +125,8 @@ public class BBPlayerActions implements  ActionListener, AnalogListener{
                 if(!BBPlayerManager.getInstance().isJumping()){
                     logger.log(Level.INFO,"******  Character Attack 1.");
                     BBPlayerManager.getInstance().getMainPlayer().getAudio("FIRE").play();
-                    BBPlayerManager.getInstance().getMainPlayer().getComponent(BBAnimComponent.class).getChannel().setAnim("shoot", 0.05f);
-                    BBPlayerManager.getInstance().getMainPlayer().getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.DontLoop);
+                    pChannel.setAnim("shoot", 0.05f);
+                    pChannel.setLoopMode(LoopMode.DontLoop);
                     shootBullets = true;
                     bulletControl();
                     Geometry bulletx = bulletg.clone();
@@ -135,8 +141,8 @@ public class BBPlayerActions implements  ActionListener, AnalogListener{
                 BBPlayerManager.getInstance().setIsWalking(false);
                 if(!BBPlayerManager.getInstance().isJumping()){
                     logger.log(Level.INFO,"******  Character Attack 2.");
-                    BBPlayerManager.getInstance().getMainPlayer().getComponent(BBAnimComponent.class).getChannel().setAnim("strike_sword", 0.05f);
-                    BBPlayerManager.getInstance().getMainPlayer().getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.DontLoop);
+                    pChannel.setAnim("strike_sword", 0.05f);
+                    pChannel.setLoopMode(LoopMode.DontLoop);
                 }
                 
             }
@@ -146,9 +152,9 @@ public class BBPlayerActions implements  ActionListener, AnalogListener{
                 if (keyPressed){
                     logger.log(Level.INFO,"Character jumping start.");
                     BBPlayerManager.getInstance().setIsJumping(true);
-                    BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getControl(CharacterControl.class).jump();
-                    BBPlayerManager.getInstance().getMainPlayer().getComponent(BBAnimComponent.class).getChannel().setAnim("jump", 0.50f); // TODO: Must be activated after a certain time after "JumpStart"
-                    BBPlayerManager.getInstance().getMainPlayer().getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.DontLoop);
+                    pCharCtrl.jump();
+                    pChannel.setAnim("jump", 0.50f); // TODO: Must be activated after a certain time after "JumpStart"
+                    pChannel.setLoopMode(LoopMode.DontLoop);
                 }
             }
         }//end onAAction
@@ -167,33 +173,36 @@ public class BBPlayerActions implements  ActionListener, AnalogListener{
 //                 }
 //            }
             
+            BBNodeComponent pNode = BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class);
+            CharacterControl pCharCtrl = pNode.getControl(CharacterControl.class);
+            
             if(!BBPlayerManager.getInstance().isJumping()){
                 //We inverse the key because the map is align on X axis        
                 //left
                 if (binding.equals("Down")) {
-                    newRot = new Quaternion().slerp(BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getLocalRotation(),Directions.leftDir, tpf*3);
-                    BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).setLocalRotation(newRot);
+                    newRot = new Quaternion().slerp(pNode.getLocalRotation(),Directions.leftDir, tpf*3);
+                    pNode.setLocalRotation(newRot);
                 }//right
                 else if (binding.equals("Up")) {
-                    newRot = new Quaternion().slerp(BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getLocalRotation(),Directions.rightDir, tpf*3);
-                    BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).setLocalRotation(newRot);        
+                    newRot = new Quaternion().slerp(pNode.getLocalRotation(),Directions.rightDir, tpf*3);
+                    pNode.setLocalRotation(newRot);        
 
                 }//up 
                 else if (binding.equals("Left")) {
-                    newRot = new Quaternion().slerp(BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getLocalRotation(),Directions.upDir, tpf*3);
-                    BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).setLocalRotation(newRot);
+                    newRot = new Quaternion().slerp(pNode.getLocalRotation(),Directions.upDir, tpf*3);
+                    pNode.setLocalRotation(newRot);
                 } //down
                 else if (binding.equals("Right")) {
-                    newRot = new Quaternion().slerp(BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getLocalRotation(),Directions.downDir, tpf*3);
-                    BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).setLocalRotation(newRot);
+                    newRot = new Quaternion().slerp(pNode.getLocalRotation(),Directions.downDir, tpf*3);
+                    pNode.setLocalRotation(newRot);
                 }
 
                 if(BBPlayerManager.getInstance().isWalking()){
-                    BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setViewDirection(BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getWorldRotation().mult(Vector3f.UNIT_Z));                     
-                    BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getControl(CharacterControl.class).getViewDirection().multLocal(tpf*10));                  
+                    pCharCtrl.setViewDirection(pNode.getWorldRotation().mult(Vector3f.UNIT_Z));                     
+                    pCharCtrl.setWalkDirection(pNode.getControl(CharacterControl.class).getViewDirection().multLocal(.2f));                  
                 }        
                 else{
-                    BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(Vector3f.ZERO);
+                    pCharCtrl.setWalkDirection(Vector3f.ZERO);
                 }
             
             }

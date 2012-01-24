@@ -22,6 +22,7 @@ import com.bigboots.audio.BBAudioManager;
 import com.bigboots.core.BBSceneManager;
 import com.bigboots.physics.BBPhysicsManager;
 import com.bulletphysics.dynamics.RigidBody;
+import com.jme3.animation.AnimChannel;
 import com.jme3.animation.LoopMode;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.control.CharacterControl;
@@ -122,46 +123,51 @@ public class BBMonsterManager {
     
     public void update(float tpf){
         //*************************************************
+        
+        Vector3f humanPos = BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getLocalTranslation().clone();
+        Quaternion newRot = new Quaternion().fromAngleAxis(FastMath.rand.nextFloat()*2-.5f, Vector3f.UNIT_Y);
+        
         // Update Enemies
         for(BBEntity object:mapEnemies.values()){
             if(object.isEnabled()){
-                Vector3f humanPos = BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getLocalTranslation().clone();
-                Quaternion newRot = new Quaternion().fromAngleAxis(FastMath.rand.nextFloat()*2-.5f, Vector3f.UNIT_Y);
-                humanPos.y = object.getComponent(BBNodeComponent.class).getLocalTranslation().y;            
-                object.getComponent(BBNodeComponent.class).lookAt(humanPos,Vector3f.UNIT_Y);
-                object.getComponent(BBNodeComponent.class).getLocalRotation().slerp(newRot,tpf);
+                BBNodeComponent mNode = object.getComponent(BBNodeComponent.class);
+                AnimChannel mChannel = object.getComponent(BBAnimComponent.class).getChannel();
+                CharacterControl mCharCtrl = mNode.getControl(CharacterControl.class);
+                        
+                humanPos.y = mNode.getLocalTranslation().y;            
+                mNode.lookAt(humanPos,Vector3f.UNIT_Y);
+                mNode.getLocalRotation().slerp(newRot,tpf);
                 //System.out.println("**** POS : "+humanPos.toString());           
-                float dist = humanPos.distance(object.getComponent(BBNodeComponent.class).getLocalTranslation());
+                float dist = humanPos.distance(mNode.getLocalTranslation());
                 if(dist > 4 && dist < 20){      
-                    object.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setViewDirection(object.getComponent(BBNodeComponent.class).getLocalRotation().mult(Vector3f.UNIT_Z));            
-                    object.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(object.getComponent(BBNodeComponent.class).
-                            getLocalRotation().mult(Vector3f.UNIT_Z).mult(tpf * 5));
-                    if(!object.getComponent(BBAnimComponent.class).getChannel().getAnimationName().equals("mutant_base_walk"))
+                    mCharCtrl.setViewDirection(mNode.getLocalRotation().mult(Vector3f.UNIT_Z));            
+                   mCharCtrl.setWalkDirection(mNode.getLocalRotation().mult(Vector3f.UNIT_Z).mult(tpf * 5));
+                    if(!mChannel.getAnimationName().equals("mutant_base_walk"))
                     {
                         object.getAudio("GROWLING").stop();
                         //a.getChild(0).getControl(AnimControl.class).getChannel(0).setAnim("RunTop", 0.50f); // TODO: Must activate "RunBase" after a certain time.                    
-                        object.getComponent(BBAnimComponent.class).getChannel().setAnim("mutant_base_walk", 0.50f);
-                        object.getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.Loop);
+                        mChannel.setAnim("mutant_base_walk", 0.50f);
+                        mChannel.setLoopMode(LoopMode.Loop);
                     }
                     // Workaround
-                    if(object.getComponent(BBAnimComponent.class).getChannel().getSpeed()!=smallManSpeed){
-                        object.getComponent(BBAnimComponent.class).getChannel().setSpeed(smallManSpeed);
+                    if(mChannel.getSpeed()!=smallManSpeed){
+                        mChannel.setSpeed(smallManSpeed);
                     }            
                 }  else if(dist > 20){      
-                    if(!object.getComponent(BBAnimComponent.class).getChannel().getAnimationName().equals("mutant_idle"))
+                    if(!mChannel.getAnimationName().equals("mutant_idle"))
                     {
-                    object.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(Vector3f.ZERO);
-                    object.getComponent(BBAnimComponent.class).getChannel().setAnim("mutant_idle", 0.50f);
-                    object.getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.Loop);
+                    mCharCtrl.setWalkDirection(Vector3f.ZERO);
+                    mChannel.setAnim("mutant_idle", 0.50f);
+                    mChannel.setLoopMode(LoopMode.Loop);
                     }
                 }
                 else if (dist < 4)
                 {
-                    object.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(Vector3f.ZERO);
-                    if(!object.getComponent(BBAnimComponent.class).getChannel().getAnimationName().equals("mutant_strike"))
+                    mCharCtrl.setWalkDirection(Vector3f.ZERO);
+                    if(!mChannel.getAnimationName().equals("mutant_strike"))
                     {
-                        object.getComponent(BBAnimComponent.class).getChannel().setAnim("mutant_strike", 0.05f);
-                        object.getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.Loop);
+                        mChannel.setAnim("mutant_strike", 0.05f);
+                        mChannel.setLoopMode(LoopMode.Loop);
                         object.getAudio("GROWLING").play();
                     }
                 }//end if dist

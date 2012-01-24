@@ -62,7 +62,7 @@ public class BBSettings {
         }catch (Exception e) {
             e.printStackTrace();
         }
-        settings.setFrameRate(BBGlobals.SCENE_FPS);        
+        //settings.setFrameRate(BBGlobals.SCENE_FPS);        
         settings.setTitle(BBGlobals.GAME_NAME+"_"+BBGlobals.GAME_VERSION);
     }
     

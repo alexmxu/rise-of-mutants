@@ -96,8 +96,7 @@ public class BBApplication implements SystemListener {
      * to the back buffer.
      */
     public void update(){
-        
-        
+ 
         System.nanoTime();
         
         if (mSpeed == 0 || this.engineSystem.isSystemPause())
@@ -106,10 +105,11 @@ public class BBApplication implements SystemListener {
         engineSystem.getTimer().update();
         
         float tpf = engineSystem.getTimer().getTimePerFrame() * mSpeed;
-        //update all states
-        BBStateManager.getInstance().update(tpf);
         //update all updater : rootnode, input, etc
         BBUpdateManager.getInstance().update(tpf);
+        //update all states
+        BBStateManager.getInstance().update(tpf);
+
         //Custom udpate 
         this.simpleUpdate();
         //Update RootNode

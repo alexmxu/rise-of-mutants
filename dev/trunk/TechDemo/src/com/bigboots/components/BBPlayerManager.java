@@ -22,6 +22,7 @@ import com.bigboots.components.BBCollisionComponent.ShapeType;
 import com.bigboots.components.BBComponent.CompType;
 import com.bigboots.gui.BBGuiManager;
 import com.bigboots.physics.BBPhysicsManager;
+import com.jme3.animation.AnimChannel;
 import com.jme3.animation.LoopMode;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.control.CharacterControl;
@@ -116,9 +117,10 @@ public class BBPlayerManager {
     }
     
     public void update(float tpf){
-       PhysicsCharacter anv = mMainPlayer.getComponent(BBNodeComponent.class).getControl(CharacterControl.class);
+       CharacterControl pCharCtrl = mMainPlayer.getComponent(BBNodeComponent.class).getControl(CharacterControl.class);
+       AnimChannel pChannel = mMainPlayer.getComponent(BBAnimComponent.class).getChannel();
       
-        if(anv.onGround()){
+        if(pCharCtrl.onGround()){
             if(mIsJumping)
             {
                 boolean hasBeenOnGroundCopy = hasBeenOnGround;
@@ -137,15 +139,15 @@ public class BBPlayerManager {
 //                        
                         logger.log(Level.INFO,"Character jumping end. Start stand.");
 //
-                        mMainPlayer.getComponent(BBAnimComponent.class).getChannel().setAnim("run_01", 0.10f);
-                        mMainPlayer.getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.Loop);
+                        pChannel.setAnim("run_01", 0.10f);
+                        pChannel.setLoopMode(LoopMode.Loop);
                     }
                     else{
                         logger.log(Level.INFO,"Character jumping end. Start stand.");
 //
-                        mMainPlayer.getComponent(BBAnimComponent.class).getChannel().setAnim("base_stand", 0.10f);
-                        mMainPlayer.getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.DontLoop);                           
-                        mMainPlayer.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(Vector3f.ZERO);
+                        pChannel.setAnim("base_stand", 0.10f);
+                        pChannel.setLoopMode(LoopMode.DontLoop);                           
+                        pCharCtrl.setWalkDirection(Vector3f.ZERO);
                     }
                     hasBeenOnGround = false;
                      }
@@ -153,10 +155,10 @@ public class BBPlayerManager {
             
                 
             if(mIsWalking && !mIsJumping){
-//            mMainPlayer.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(mMainPlayer.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).getViewDirection().mult(.2f));                  
+//            pCharCtrl.setWalkDirection(mMainPlayer.getComponent(pCharCtrl.getViewDirection().mult(.2f));                  
              }        
              else{
-             mMainPlayer.getComponent(BBNodeComponent.class).getControl(CharacterControl.class).setWalkDirection(Vector3f.ZERO);
+             pCharCtrl.setWalkDirection(Vector3f.ZERO);
            }            
         }
 
@@ -165,8 +167,8 @@ public class BBPlayerManager {
           //  mIsJumping = true;
 
             
-       //     mMainPlayer.getComponent(BBAnimComponent.class).getChannel().setAnim("jump", 0.50f); // TODO: Must be activated after a certain time after "JumpStart"
-       //     mMainPlayer.getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.DontLoop);
+       //     pChannel.setAnim("jump", 0.50f); // TODO: Must be activated after a certain time after "JumpStart"
+       //     pChannel.setLoopMode(LoopMode.DontLoop);
         }
     }
     
