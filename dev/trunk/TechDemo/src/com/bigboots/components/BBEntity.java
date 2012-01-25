@@ -24,6 +24,7 @@ import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.control.Control;
+import com.jme3.util.TangentBinormalGenerator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -98,6 +99,7 @@ public class BBEntity extends BBObject{
        
        if(!mesh.isEmpty()){
             tmpSpatial =  BBSceneManager.getInstance().loadSpatial(mesh);
+            //TangentBinormalGenerator.generate(tmpSpatial);
        }
        
        tmpSpatial.setShadowMode(ShadowMode.CastAndReceive);
@@ -261,8 +263,6 @@ public class BBEntity extends BBObject{
 
        mcomp.setMaterial(mat);
        System.out.println(" mmmmmmm MESH name : "+mcomp.getMaterial().getName());
-       //mcomp.updateModelBound();
-       //TangentBinormalGenerator.generate(mcomp);
     }
 
     public boolean isCloned(){
@@ -288,10 +288,8 @@ public class BBEntity extends BBObject{
             return true;
         }else{
             return false;
-        }
-        
-        
-    }    
+        } 
+    }
     
     public void destroy(){
         

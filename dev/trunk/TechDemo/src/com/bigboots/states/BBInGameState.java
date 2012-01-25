@@ -24,6 +24,8 @@ import com.bigboots.components.BBAudioComponent;
 import com.bigboots.components.BBMonsterManager;
 import com.bigboots.components.BBNodeComponent;
 import com.bigboots.components.BBPlayerManager;
+import com.bigboots.components.camera.BBFirstPersonCamera;
+import com.bigboots.components.camera.BBThirdPersonCamera;
 import com.bigboots.core.BBDebugInfo;
 import com.bigboots.core.BBEngineSystem;
 import com.bigboots.core.BBSceneManager;
@@ -62,6 +64,7 @@ import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
+import com.jme3.input.controls.MouseAxisTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
@@ -119,7 +122,13 @@ public class BBInGameState extends BBAbstractState{
         BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_MLEFT, new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
         BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_MRIGHT, new MouseButtonTrigger(MouseInput.BUTTON_RIGHT));
         
-        BBInputManager.getInstance().getInputManager().addListener(actionListener, 
+        BBInputManager.getInstance().mapKey("MOUSE_LEFT", new MouseAxisTrigger(MouseInput.AXIS_X, true));
+        BBInputManager.getInstance().mapKey("MOUSE_RIGHT", new MouseAxisTrigger(MouseInput.AXIS_X, false));
+        BBInputManager.getInstance().mapKey("MOUSE_UP", new MouseAxisTrigger(MouseInput.AXIS_Y, false));
+        BBInputManager.getInstance().mapKey("MOUSE_DOWN", new MouseAxisTrigger(MouseInput.AXIS_Y, true));
+        
+        BBInputManager.getInstance().getInputManager().addListener(actionListener,
+                "MOUSE_LEFT","MOUSE_RIGHT","MOUSE_UP","MOUSE_DOWN",
                                                                     BBGlobals.INPUT_MAPPING_EXIT, 
                                                                     BBGlobals.INPUT_MAPPING_DEBUG,
                                                                     BBGlobals.INPUT_MAPPING_CAMERA_POS,
@@ -133,6 +142,7 @@ public class BBInGameState extends BBAbstractState{
                                                                     BBGlobals.INPUT_MAPPING_DOWN,
                                                                     BBGlobals.INPUT_MAPPING_JUMP);
         
+        BBInputManager.getInstance().setMouseCenter();
         BBInputManager.getInstance().getInputManager().setCursorVisible(false);
         
         
@@ -162,12 +172,21 @@ public class BBInGameState extends BBAbstractState{
         BBSceneManager.getInstance().addChild(humanStalker);
         
         BBCameraManager.getInstance().registerCamera("SIDE_CAM", BBCameraComponent.CamMode.SIDE, cam, true);
+        //BBCameraManager.getInstance().registerCamera("RPG_CAM", BBCameraComponent.CamMode.ORBITAL, cam, true);
+        //BBCameraManager.getInstance().registerCamera("FPS_CAM", BBCameraComponent.CamMode.FPS, cam, true);
         BBCameraComponent camera = BBCameraManager.getInstance().getCurrentCamera();
         
         if(camera.getCamMode().equals(BBCameraComponent.CamMode.SIDE)){
             BBSideModeCamera sideCam = (BBSideModeCamera)camera;
             sideCam.setPosition(new Vector3f(0, 4, 17));
             sideCam.setTarget(humanStalker);
+        }else if(camera.getCamMode().equals(BBCameraComponent.CamMode.FPS)){
+            BBFirstPersonCamera fpsCam = (BBFirstPersonCamera)camera;
+            fpsCam.setTarget(BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class));
+        }else if(camera.getCamMode().equals(BBCameraComponent.CamMode.ORBITAL)){
+            BBThirdPersonCamera orbCam = (BBThirdPersonCamera)camera;
+            orbCam.setTarget(BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class));
+            orbCam.initCamera();
         }    
         
         //*******************************************
@@ -185,9 +204,15 @@ public class BBInGameState extends BBAbstractState{
         BBBasicCollisionListener basicCol = new BBBasicCollisionListener();
         BBPhysicsManager.getInstance().getPhysicsSpace().addCollisionListener(basicCol);
         
-      //  BBSceneManager.getInstance().createFilterProcessor();
+        // Load the main map (here blend loading)
+        BBSceneManager.getInstance().setupBasicLight();
+        BBSceneManager.getInstance().createSky();
+        BBSceneManager.getInstance().setUpBasicShadow();
+        loadScene();
         
-/*      
+ /*       
+        BBSceneManager.getInstance().createFilterProcessor();
+        
         //Create post effect processor
         BBSceneManager.getInstance().createFilter("GAME_BLOOM", BBSceneManager.FilterType.BLOOM);
         BloomFilter tmpFilter = (BloomFilter) BBSceneManager.getInstance().getFilterbyName("GAME_BLOOM");
@@ -201,24 +226,14 @@ public class BBInGameState extends BBAbstractState{
         tmpFltrBleur.setBlurScale(1.4f);
         
         //Create sun
-        DirectionalLight sun = new DirectionalLight();
-        Vector3f lightDir = new Vector3f(35.12f, -0.3729129f, 3.74847335f);
-        sun.setDirection(lightDir);
-        sun.setColor(ColorRGBA.White.clone().multLocal(2));
-        BBSceneManager.getInstance().getRootNode().addLight(sun);
-        
         BBSceneManager.getInstance().createFilter("GAME_LIGHT", BBSceneManager.FilterType.LIGHT);
         LightScatteringFilter tmpFltrLight = (LightScatteringFilter) BBSceneManager.getInstance().getFilterbyName("GAME_LIGHT");
+        Vector3f lightDir = new Vector3f(35.12f, -0.3729129f, 3.74847335f);
         Vector3f lightPos = lightDir.multLocal(-5000);
         tmpFltrLight.setLightPosition(lightPos);
      
         BBSceneManager.getInstance().createFilter("GAME_TOON", BBSceneManager.FilterType.CARTOON);
  */  
-        
-        // Load the main map (here blend loading)
-        BBSceneManager.getInstance().setupBasicLight();
-        BBSceneManager.getInstance().createSky();
-        loadScene();
     }
     
     @Override
@@ -261,6 +276,8 @@ public class BBInGameState extends BBAbstractState{
         
         BBPlayerManager.getInstance().update(tpf);
         
+        BBCameraManager.getInstance().update();
+        
         BBMonsterManager.getInstance().update(tpf);
  
     }
@@ -300,6 +317,24 @@ public class BBInGameState extends BBAbstractState{
         
               
         public void onAnalog(String binding, float value, float tpf) {
+            
+            BBCameraComponent tmpCam = BBCameraManager.getInstance().getCurrentCamera();
+            
+            if (tmpCam.getCamMode().equals(BBCameraComponent.CamMode.FPS)){
+                BBFirstPersonCamera tmpFPS = (BBFirstPersonCamera)tmpCam;
+                if (binding.equals("MOUSE_LEFT")){
+                    tmpFPS.rotateCamera(value, tmpFPS.getUpVector());
+                }else if (binding.equals("MOUSE_RIGHT")){
+                    tmpFPS.rotateCamera(-value, tmpFPS.getUpVector());
+                }else if (binding.equals("MOUSE_UP")){
+                    tmpFPS.rotateCamera(-value, tmpFPS.getEngineCamera().getLeft());
+                }else if (binding.equals("MOUSE_DOWN")){
+                    tmpFPS.rotateCamera(value, tmpFPS.getEngineCamera().getLeft());
+                } 
+            }else{
+                return;
+            }
+
             
         }//end onAnalog
         

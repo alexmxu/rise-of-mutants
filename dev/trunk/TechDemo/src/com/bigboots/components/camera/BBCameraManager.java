@@ -54,7 +54,14 @@ public class BBCameraManager {
                 if(dflt){
                     mCurrentCamera = fpsCam;
                 }
-            break; 
+            break;
+            case ORBITAL :
+                BBThirdPersonCamera orbCam = new BBThirdPersonCamera(name, cam);
+                mCameraList.add(orbCam);
+                if(dflt){
+                    mCurrentCamera = orbCam;
+                }
+            break;
             default: 
                 throw new RuntimeException("None or unsupported Filter Type");
         }
@@ -75,5 +82,9 @@ public class BBCameraManager {
             }
         }
         return null;
+    }
+    
+    public void update(){
+        mCurrentCamera.udpate();
     }
 }

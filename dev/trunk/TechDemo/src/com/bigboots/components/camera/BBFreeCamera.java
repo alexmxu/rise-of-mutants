@@ -174,5 +174,10 @@ public class BBFreeCamera extends BBCameraComponent{
             pos.addLocal(vel);
 
         mJm3Camera.setLocation(pos);
-    }    
+    }
+
+    @Override
+    public void udpate() {
+        
+    }
 }
