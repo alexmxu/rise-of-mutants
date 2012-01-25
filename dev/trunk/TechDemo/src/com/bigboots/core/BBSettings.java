@@ -45,7 +45,8 @@ public class BBSettings {
     public void init(){
 
         //BBSettings.getInstance().getSettings().setSettingsDialogImage("/art/artworks/Characters/executioner.jpg");
-        settings.setSettingsDialogImage("Interface/splash.jpg");       
+        settings.setSettingsDialogImage("Interface/splash.jpg");
+               
         // show settings dialog
         if (showSettings) {
             if (!JmeSystem.showSettingsDialog(settings, loadFromRegistry)) {
@@ -64,6 +65,8 @@ public class BBSettings {
         }
         //settings.setFrameRate(BBGlobals.SCENE_FPS);        
         settings.setTitle(BBGlobals.GAME_NAME+"_"+BBGlobals.GAME_VERSION);
+        settings.setVSync(true);
+        
     }
     
     public void showDialog(boolean val){
