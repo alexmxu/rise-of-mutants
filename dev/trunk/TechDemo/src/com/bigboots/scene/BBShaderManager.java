@@ -101,7 +101,7 @@ public class BBShaderManager {
             TextureKey tkk = new TextureKey(PathIBL, check);
             tkk.setAnisotropy(2);
             tkk.setAsCube(true);
-            tkk.setGenerateMips(true);
+            tkk.setGenerateMips(false);
             Texture ibl = assetman.loadTexture(tkk);
             geo.getMaterial().setTexture("IblMap_Simple", ibl);              
          }
