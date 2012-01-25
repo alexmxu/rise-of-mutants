@@ -68,10 +68,10 @@ public class BBMainMenuState extends BBAbstractState {
 
         music.destroy();
         music = null;        
-        //reset input
+        //reset input : Just remove the listener as the reset input cause input issue
+        //BBInputManager.getInstance().getInputManager().clearMappings();
+        //BBInputManager.getInstance().resetInput(); 
         BBInputManager.getInstance().getInputManager().removeListener(actionListener);
-        BBInputManager.getInstance().getInputManager().clearMappings();
-        BBInputManager.getInstance().resetInput(); 
      
     }
        
