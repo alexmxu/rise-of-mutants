@@ -92,7 +92,7 @@ public class BBPlayerActions implements  ActionListener, AnalogListener{
             CharacterControl pCharCtrl = pNode.getControl(CharacterControl.class);
             BBAudioComponent pStep = BBPlayerManager.getInstance().getMainPlayer().getAudio("STEP");
             
-            if(keyPressed && !binding.equals("Jump") && !binding.equals("MOUSE_LEFT") && !binding.equals("MOUSE_RIGHT") && !BBPlayerManager.getInstance().isWalking()){
+            if(pressed==1 && keyPressed && !binding.equals("Jump") && !binding.equals("MOUSE_LEFT") && !binding.equals("MOUSE_RIGHT") && !BBPlayerManager.getInstance().isWalking()){
 //            if(pressed==1 && keyPressed &! binding.equals("Jump")  && !BBPlayerManager.getInstance().isWalking()){
                 BBPlayerManager.getInstance().setIsWalking(true);
                 
