@@ -16,6 +16,9 @@
 package com.bigboots.components.camera;
 
 
+import com.jme3.bounding.BoundingBox;
+import com.jme3.math.Matrix3f;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Node;
@@ -28,16 +31,22 @@ import com.jme3.scene.Spatial.CullHint;
 public class BBFirstPersonCamera extends BBCameraComponent{
     private Node mTargetNode;
     private boolean mTargetVisible;
+    private Vector3f initialUpVec;
+    private float mPosY;
+    protected float rotationSpeed = 1f;
     
     public BBFirstPersonCamera(String name, Camera cam){
         super(name, cam);
         mCameraMode = CamMode.FPS;
+        initialUpVec = cam.getUp().clone();
         mTargetVisible = false;
     }
     
     public void setTarget(Node node){
         mTargetNode = node;
-        mJm3Camera.setLocation( mTargetNode.getLocalTranslation().clone() );
+        BoundingBox vol = (BoundingBox) mTargetNode.getWorldBound();
+        mPosY = vol.getYExtent();
+        mJm3Camera.setLocation( mTargetNode.getLocalTranslation().clone());
 
     }
     
@@ -62,9 +71,43 @@ public class BBFirstPersonCamera extends BBCameraComponent{
         this.setTargetVisible(true);        
     }
     
-    public void update(){
-        Vector3f camPos = mTargetNode.getLocalTranslation().clone().addLocal( 0, 6, 0 );
+    /**
+     * Sets the up vector that should be used for the camera.
+     * @param upVec
+     */
+    public void setUpVector(Vector3f upVec) {
+       initialUpVec.set(upVec);
+    }
+    
+    public Vector3f getUpVector() {
+       return initialUpVec;
+    }
+
+    public void rotateCamera(float value, Vector3f axis){
+
+        Matrix3f mat = new Matrix3f();
+        mat.fromAngleNormalAxis(rotationSpeed * value, axis);
+
+        Vector3f up = mJm3Camera.getUp();
+        Vector3f left = mJm3Camera.getLeft();
+        Vector3f dir = mJm3Camera.getDirection();
+
+        mat.mult(up, up);
+        mat.mult(left, left);
+        mat.mult(dir, dir);
+
+        Quaternion q = new Quaternion();
+        q.fromAxes(left, up, dir);
+        q.normalizeLocal();
+
+        mJm3Camera.setAxes(q);
+    }
+    
+    @Override
+    public void udpate() {
+        Vector3f camPos = mTargetNode.getLocalTranslation().clone().addLocal( 0, mPosY, 0 );
         mJm3Camera.setLocation( camPos );
+        //mJm3Camera.setRotation(mTargetNode.getLocalRotation());
         mJm3Camera.update();
     }
  

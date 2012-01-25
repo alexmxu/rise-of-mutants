@@ -24,7 +24,7 @@ import com.jme3.renderer.Camera;
  *
  * @author @author Ulrich Nzuzi <ulrichnz@code.google.com>
  */
-public class BBCameraComponent implements BBComponent{
+public abstract class BBCameraComponent implements BBComponent{
     public enum CamMode{
         NONE,
         FPS,
@@ -76,4 +76,6 @@ public class BBCameraComponent implements BBComponent{
     public void setEnable(boolean value){
         mEnabled = value;
     }
+    
+    public abstract void udpate();
 }
