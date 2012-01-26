@@ -48,7 +48,7 @@ public class BBEntity extends BBObject{
     protected boolean mEnable = true;
     private Node tmpSpatial;
     private boolean mCloned = false;
-    
+    private String entName;
     
     //Collection of child graphics.
     private List<BBComponent> mapChildComponents = new ArrayList<BBComponent>();
@@ -62,11 +62,12 @@ public class BBEntity extends BBObject{
     
     public BBEntity(String name){
         super(name);
-       
+        entName = name;
     }
     
     public BBEntity(String name, Node sp){
         this(name, sp, false);
+        entName = name;
     }
     
     public BBEntity(String name, Node sp, boolean clone){
@@ -74,17 +75,19 @@ public class BBEntity extends BBObject{
         tmpSpatial = sp;
         tmpSpatial.setName(name);
         mCloned = clone;  
+        entName = name;
 
     }
     
     //Read the node child to find geomtry and stored it to the map for later access as submesh
-    private void recurseNode(Node node){
+    private void recurseNode(Node node, String EntityName){
         Node nd_temp = node;
         for (int i = 0; i < nd_temp.getChildren().size(); i++){
            if(nd_temp.getChildren().get(i) instanceof Node){
-               recurseNode((Node) nd_temp.getChildren().get(i));
-           }else{
+               recurseNode((Node) nd_temp.getChildren().get(i), EntityName);
+           }else if (nd_temp.getChildren().get(i) instanceof Geometry){
             Geometry geom = (Geometry) nd_temp.getChildren().get(i);
+            geom.setUserData("entityName", EntityName);
             System.out.println("omomomomoomomomo GEOMETRY ADDED : "+geom.getName()+" for Entity "+mObjectName);
             mapChildMeshes.add(geom);
            }
@@ -106,7 +109,7 @@ public class BBEntity extends BBObject{
        this.getComponent(BBNodeComponent.class).attachChild(tmpSpatial);
        
        //Populate the list of meshes
-       this.recurseNode((Node) tmpSpatial);
+       this.recurseNode((Node) tmpSpatial, entName);
 
        //Set skills for TEST
        this.setSkills("HEALTH", 100);
