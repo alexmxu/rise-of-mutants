@@ -1,9 +1,17 @@
 package com.bigboots.input;
 
+import com.bigboots.components.BBAnimComponent;
 import com.bigboots.components.BBAudioComponent;
+import com.bigboots.components.BBEntity;
+import com.bigboots.components.BBMonsterManager;
+import com.bigboots.components.BBPlayerManager;
 import com.bigboots.core.BBSceneManager;
+import com.bigboots.gui.BBGuiManager;
+import com.bigboots.gui.BBProgressbarController;
 import com.bigboots.input.BBPlayerActions;
+import com.jme3.animation.LoopMode;
 import com.jme3.bounding.BoundingVolume;
+import com.jme3.collision.CollisionResult;
 import com.jme3.collision.CollisionResults;
 import com.jme3.effect.ParticleEmitter;
 import com.jme3.effect.ParticleMesh.Type;
@@ -94,27 +102,47 @@ frontVec = geooMove.getWorldRotation().mult(Vector3f.UNIT_Z).normalize();
 // Approach 2
 geooMove.move(frontVec.mult(30f*tpf));
 
+
+        // Collision listener
         bv = geooMove.getWorldBound();
         CollisionResults results = new CollisionResults();
         BBSceneManager.getInstance().getRootNode().collideWith(bv, results);
         
-        if (results.size() > 0) {
-        Spatial closest = results.getClosestCollision().getGeometry();
-        
-        if(closest != null && (closest.getParent().getName().indexOf("base") == 0 
-           || closest.getParent().getName().indexOf("E") == 0)) {
+     if (results.size() > 0) {
+
+     Geometry closest = results.getClosestCollision().getGeometry();
+
+        if(closest != null && closest.getUserData("entityName") != null) {
+
+            String entity = closest.getUserData("entityName");
+            
+            if (entity.equals(BBPlayerManager.getInstance().getMainPlayer().getObjectName()) == false) {
 
             geooMove.removeFromParent();
 
+            // Search for monster collisions
+            BBEntity monster = BBMonsterManager.getInstance().getMonster(entity);
+            if (monster != null) {
+                int health = (Integer) monster.getSkills("HEALTH");
+                BBGuiManager.getInstance().getNifty().getScreen("hud").findControl("enemy_progress", BBProgressbarController.class).setProgress(health / 100.0f);
+                health = health - 10;
 
-
-            effect.setLocalTranslation(geooMove.getWorldTranslation());
+                if(health <= 0){
+                    monster.stopAllAudio();
+                    monster.setSkills("HEALTH", 0);
+                    monster.setEnabled(false);
+                    monster.getComponent(BBAnimComponent.class).getChannel().setAnim("mutant_death", 0.50f);
+                    monster.getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.DontLoop);
+                }else{
+                    monster.setSkills("HEALTH", health);
+                }
+              }
+            
+            effect.setLocalTranslation(geooMove.getLocalTranslation());
             BBSceneManager.getInstance().getRootNode().attachChild(effect);
             effect.setEnabled(true);
             effect.emitAllParticles();
             expSound.play();
-
-            
 
             //if destroy control meshes
             if (timer2 > 2.5f) {
@@ -128,7 +156,7 @@ geooMove.move(frontVec.mult(30f*tpf));
             geooMove.removeControl(this);
             geooMove = null;
             work = false;
-
+          }  
          }
         }
        }

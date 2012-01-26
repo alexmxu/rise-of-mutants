@@ -57,14 +57,17 @@ public class BBMonsterManager {
     }
     
     public BBEntity getMonster(String name){
+
+        BBEntity tmpEnt = mapEnemies.get(name);
+        return tmpEnt;
         
-        if(mapEnemies.containsKey(name)){
-            BBEntity tmpEnt = mapEnemies.get(name);
-            return tmpEnt;
-        }else{
-            throw new IllegalStateException("Try retreiving an unexisting monster.\n"
-                    + "Problem spatial name: " + name);
-        }
+//        if(mapEnemies.containsKey(name)){
+//            BBEntity tmpEnt = mapEnemies.get(name);
+//            return tmpEnt;
+//        }else{
+//            throw new IllegalStateException("Try retreiving an unexisting monster.\n"
+//                    + "Problem spatial name: " + name);
+//        }
         
     }
     
