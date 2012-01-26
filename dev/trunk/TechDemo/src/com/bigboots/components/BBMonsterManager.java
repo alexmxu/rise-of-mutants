@@ -20,6 +20,8 @@ import com.bigboots.components.BBComponent.CompType;
 import com.bigboots.animation.BBAnimManager;
 import com.bigboots.audio.BBAudioManager;
 import com.bigboots.core.BBSceneManager;
+import com.bigboots.gui.BBGuiManager;
+import com.bigboots.gui.BBProgressbarController;
 import com.bigboots.physics.BBPhysicsManager;
 import com.bulletphysics.dynamics.RigidBody;
 import com.jme3.animation.AnimChannel;
@@ -29,7 +31,9 @@ import com.jme3.bullet.control.CharacterControl;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
+import com.jme3.scene.Geometry;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  *
@@ -175,7 +179,33 @@ public class BBMonsterManager {
                         mChannel.setLoopMode(LoopMode.Loop);
                         object.getAudio("GROWLING").play();
                     }
-                }//end if dist
+                }
+
+                // is monster is dead
+                int health;
+                health = (Integer)object.getSkills("HEALTH");                
+                if (health <= 0) {
+                    mCharCtrl.setWalkDirection(Vector3f.ZERO);
+
+                    object.stopAllAudio();
+                    object.setSkills("HEALTH", 0);
+                    object.setEnabled(false);
+                    object.getComponent(BBAnimComponent.class).getChannel().setAnim("mutant_death", 0.50f);
+                    object.getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.DontLoop);
+                    BBGuiManager.getInstance().getNifty().getScreen("hud").findControl("enemy_progress", BBProgressbarController.class).setProgress(health / 100.0f);
+                    
+                    // this is just for a while to remove collision detection from dead monsters
+                    List <Geometry> geoList = object.getAllGeometries();
+                    for (Geometry geo : geoList){
+                     Geometry geoChange = geo;   
+                    geoChange.setUserData("entityName", "DEAD_" + geoChange.getUserData("entityName"));  
+                    BBPhysicsManager.getInstance().getPhysicsSpace().removeAll(object.getComponent(BBNodeComponent.class));
+//                    BBControlComponent objControl = object.getComponent(BBControlComponent.class).getControl();
+                    }
+                    
+                    object.setEnabled(false);
+                    
+             }  
             }//is enable
         }//end for
     }

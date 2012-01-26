@@ -251,6 +251,10 @@ public class BBEntity extends BBObject{
         return null;
     }
     
+    public List<Geometry> getAllGeometries(){
+        return mapChildMeshes;
+    }
+    
     public void setMaterial(String matName){
        Material mat = BBSceneManager.getInstance().getAssetManager().loadMaterial(matName);
        tmpSpatial.setMaterial(mat);

@@ -116,27 +116,21 @@ geooMove.move(frontVec.mult(30f*tpf));
 
             String entity = closest.getUserData("entityName");
             
-            if (entity.equals(BBPlayerManager.getInstance().getMainPlayer().getObjectName()) == false) {
+            if (entity.equals(BBPlayerManager.getInstance().getMainPlayer().getObjectName()) == false
+                && entity.indexOf("DEAD_") != 0 ) {
 
             geooMove.removeFromParent();
 
             // Search for monster collisions
             BBEntity monster = BBMonsterManager.getInstance().getMonster(entity);
             if (monster != null) {
+                
                 int health = (Integer) monster.getSkills("HEALTH");
                 BBGuiManager.getInstance().getNifty().getScreen("hud").findControl("enemy_progress", BBProgressbarController.class).setProgress(health / 100.0f);
                 health = health - 10;
-
-                if(health <= 0){
-                    monster.stopAllAudio();
-                    monster.setSkills("HEALTH", 0);
-                    monster.setEnabled(false);
-                    monster.getComponent(BBAnimComponent.class).getChannel().setAnim("mutant_death", 0.50f);
-                    monster.getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.DontLoop);
-                }else{
-                    monster.setSkills("HEALTH", health);
+                monster.setSkills("HEALTH", health);
                 }
-              }
+              
             
             effect.setLocalTranslation(geooMove.getLocalTranslation());
             BBSceneManager.getInstance().getRootNode().attachChild(effect);
