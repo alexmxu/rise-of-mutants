@@ -130,8 +130,9 @@ public class BBPlayerActions implements  ActionListener, AnalogListener{
                     shootBullets = true;
                     bulletControl();
                     Geometry bulletx = bulletg.clone();
-                    bulletx.addControl(bulletMove = new BBPlayerBulletControl(bulletx, this));
                     BBSceneManager.getInstance().getRootNode().attachChild(bulletx);
+                    bulletx.addControl(bulletMove = new BBPlayerBulletControl(bulletx, this));
+                    
                 }
                 
             } 
@@ -228,7 +229,9 @@ public class BBPlayerActions implements  ActionListener, AnalogListener{
         bulletg.setLocalRotation(bulletTrans.getRotation());
         frontVec = bulletTrans.getRotation().mult(Vector3f.UNIT_Z).normalize();
       //  frontVec = frontVec.add(new Vector3f(0.5f,0.5f,0.5f)).normalize();
-        bulletg.move(frontVec.mult(1.5f));
+        bulletg.move(frontVec.mult(0.7f));
+        float yAx = bulletg.getLocalTranslation().y +0.5f;
+        bulletg.setLocalTranslation(bulletg.getLocalTranslation().x, yAx, bulletg.getLocalTranslation().z);
         
 
 //        CharacterControl character = BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getControl(CharacterControl.class);
