@@ -15,30 +15,27 @@
  */
 package com.bigboots.gui;
 
-//import java.util.Properties;
-
-
-import com.bigboots.states.BBInGameState;
-import com.bigboots.states.BBMainMenuState;
-import com.bigboots.states.BBStateManager;
 import de.lessvoid.nifty.Nifty;
 import de.lessvoid.nifty.controls.Controller;
 import de.lessvoid.nifty.elements.Element;
+import de.lessvoid.nifty.elements.render.TextRenderer;
 import de.lessvoid.nifty.input.NiftyInputEvent;
 import de.lessvoid.nifty.screen.Screen;
 import de.lessvoid.nifty.screen.ScreenController;
 import de.lessvoid.xml.xpp3.Attributes;
 import java.util.Properties;
 
-
 /**
  *
  * @author @author Ulrich Nzuzi <ulrichnz@code.google.com>
  */
-public class BBMainMenuController implements ScreenController, Controller{
+public class BBTextProgressController implements ScreenController, Controller{
+       
     private Nifty mNifty;
     private Screen mScreen;
-
+    private Element nLoadText;
+    private String mTextDetails = "...\n";
+    
     public void bind(Nifty nifty, 
             Screen screen, 
             Element element, 
@@ -46,7 +43,7 @@ public class BBMainMenuController implements ScreenController, Controller{
         
         mNifty = nifty;
         mScreen = screen;
-        
+        nLoadText = element.findElementByName("load-text");
     }
             
     public void init(Properties parameter, Attributes controlDefinitionAttributes){
@@ -73,26 +70,11 @@ public class BBMainMenuController implements ScreenController, Controller{
         return true;
     }
     
-       /** custom methods */ 
-    public void startGame() {
-        // switch to another screen
-        mNifty.exit();
-        
-        //TODO : Next time use message notification to notify the change
-        BBStateManager.getInstance().detach(BBStateManager.getInstance().getState(BBMainMenuState.class));
-    
-        //Change Game state
-        BBInGameState state = new BBInGameState();
-        //BBCreditState state = new BBCreditState();
-        BBStateManager.getInstance().attach(state);
+    public void printDebug(){
+        System.out.println(mTextDetails);
     }
-
-    public void optionGame() {
-
-    }
-    
-    public void quit() {
-        System.out.println("******** Quit");
-        BBStateManager.getInstance().getEngine().stop(false);
+    public void setProgressLoading(final String text){
+        mTextDetails = mTextDetails + text +"\n";
+        nLoadText.getRenderer(TextRenderer.class).setText(mTextDetails);
     }
 }

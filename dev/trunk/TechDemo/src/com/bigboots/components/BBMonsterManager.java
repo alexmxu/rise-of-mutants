@@ -19,11 +19,9 @@ import com.bigboots.components.BBCollisionComponent.ShapeType;
 import com.bigboots.components.BBComponent.CompType;
 import com.bigboots.animation.BBAnimManager;
 import com.bigboots.audio.BBAudioManager;
-import com.bigboots.core.BBSceneManager;
 import com.bigboots.gui.BBGuiManager;
 import com.bigboots.gui.BBProgressbarController;
 import com.bigboots.physics.BBPhysicsManager;
-import com.bulletphysics.dynamics.RigidBody;
 import com.jme3.animation.AnimChannel;
 import com.jme3.animation.LoopMode;
 import com.jme3.bullet.collision.shapes.CollisionShape;
@@ -124,7 +122,7 @@ public class BBMonsterManager {
         BBAudioComponent audnde = new BBAudioComponent();
         audnde.setSoundName("Sounds/growling1.wav", false);
         audnde.setLooping(true);
-        audnde.setVolume(1);
+        audnde.setVolume(0.05f);
         mEnemy.addAudio("GROWLING", audnde);
         
         this.addMonster(mEnemy);

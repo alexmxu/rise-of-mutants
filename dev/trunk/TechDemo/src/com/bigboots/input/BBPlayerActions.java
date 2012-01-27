@@ -15,17 +15,13 @@
  */
 package com.bigboots.input;
 
-import com.bigboots.BBGlobals;
+
 import com.bigboots.components.BBAnimComponent;
 import com.bigboots.components.BBAudioComponent;
 import com.bigboots.components.BBNodeComponent;
 import com.bigboots.components.BBPlayerManager;
 import com.bigboots.core.BBSceneManager;
-import com.bigboots.physics.BBBulletPhysic;
-import com.bigboots.physics.BBPhysicsManager;
 import com.jme3.animation.AnimChannel;
-import com.jme3.animation.AnimControl;
-import com.jme3.animation.AnimEventListener;
 import com.jme3.animation.LoopMode;
 import com.jme3.bullet.collision.shapes.SphereCollisionShape;
 import com.jme3.bullet.control.CharacterControl;
@@ -40,7 +36,6 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Sphere;
-import com.jme3.scene.shape.Sphere.TextureMode;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -80,11 +75,13 @@ public class BBPlayerActions implements  ActionListener, AnalogListener{
         
     public void onAction(String binding, boolean keyPressed, float tpf) {
                     
-            if(keyPressed == true){
+            if(keyPressed == true && !binding.equals("MOUSE_LEFT") && !binding.equals("MOUSE_RIGHT")){
                 pressed++;
+                //System.out.println("***** PRESSED : "+pressed);
             }
-            else{
-                pressed--;                      
+            if(keyPressed == false && !binding.equals("MOUSE_LEFT") && !binding.equals("MOUSE_RIGHT")){
+                pressed--;
+                //System.out.println("***** RELEASED : "+pressed);
             }
             
             BBNodeComponent pNode = BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class);

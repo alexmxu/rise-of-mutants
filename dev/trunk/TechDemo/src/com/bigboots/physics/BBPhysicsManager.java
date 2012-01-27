@@ -16,8 +16,6 @@
 package com.bigboots.physics;
 
 import com.bigboots.components.BBCollisionComponent.ShapeType;
-import com.bigboots.components.BBEntity;
-import com.bigboots.components.BBNodeComponent;
 import com.bigboots.core.BBEngineSystem;
 import com.bigboots.core.BBSceneManager;
 import com.bigboots.core.BBUpdateListener;

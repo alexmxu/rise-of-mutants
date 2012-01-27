@@ -28,7 +28,7 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Spatial.CullHint;
 import de.lessvoid.nifty.Nifty;
-import de.lessvoid.nifty.screen.Screen;
+
 
 /**
  *
@@ -50,10 +50,8 @@ public class BBGuiManager implements BBUpdateListener{
     protected ViewPort guiViewPort;
     private NiftyJmeDisplay niftyDisplay;
     
-    private int progress = 0;
     private long start;
     private BBEngineSystem engineSystem;
-    private boolean mEnableProgBar = false;
     
     public void init(BBEngineSystem eng){
         engineSystem = eng;
@@ -73,12 +71,6 @@ public class BBGuiManager implements BBUpdateListener{
                                               guiViewPort);
         mNifty = niftyDisplay.getNifty();
 
-        //mNifty.fromXml("Interface/mainmenu.xml", "null");
-        //this.addXmlGui("Interface/mainmenu.xml");
-        //this.addXmlGui("Interface/ingame.xml");
-        //mNifty.gotoScreen("null");
-        //mNifty.setDebugOptionPanelColors(true);
-        
         // attach the nifty display to the gui view port as a processor
         guiViewPort.addProcessor(niftyDisplay);
         guiViewPort.attachScene(guiNode);
@@ -97,26 +89,6 @@ public class BBGuiManager implements BBUpdateListener{
     public void update(float tpf) {
         guiNode.updateLogicalState(tpf);
         guiNode.updateGeometricState();
-        
-        if(mEnableProgBar){
-          long now = engineSystem.getTimer().getTime();
-          if (now - start > 50) { // add one percent every 50 ms
-            start = now;
-            progress++;
-            
-            Screen mScreen = mNifty.getScreen("progress");
-            mScreen.findControl("my-progress", BBProgressbarController.class).setProgress(progress / 100.0f);
-
-            if (progress >= 100) {
-              mEnableProgBar = false;
-              mNifty.gotoScreen("null");
-            }
-          }
-        }
-    }
-    
-    public void enableProgressBar(boolean val){
-        mEnableProgBar = val;
     }
     
     public void destroyGui(){

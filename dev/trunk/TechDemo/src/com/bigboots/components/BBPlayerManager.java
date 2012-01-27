@@ -26,7 +26,6 @@ import com.jme3.animation.AnimChannel;
 import com.jme3.animation.LoopMode;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.control.CharacterControl;
-import com.jme3.bullet.objects.PhysicsCharacter;
 import com.jme3.math.Vector3f;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -101,18 +100,18 @@ public class BBPlayerManager {
         BBAudioComponent stepSound = new BBAudioComponent();
         stepSound.setSoundName("Sounds/step1.wav", false);
         stepSound.setLooping(false);
-        stepSound.setVolume(10);
+        stepSound.setVolume(0.1f);
         mMainPlayer.addAudio("STEP", stepSound);
         
         BBAudioComponent fireSound = new BBAudioComponent();
         fireSound.setSoundName("Sounds/explosionSmall.ogg", false);
         fireSound.setLooping(false);
-        fireSound.setVolume(10);
+        fireSound.setVolume(0.03f);
         mMainPlayer.addAudio("FIRE", fireSound);
         
         //Get life bar
         int health = (Integer) mMainPlayer.getSkills("HEALTH");
-        BBGuiManager.getInstance().getNifty().getScreen("hud").findControl("player_progress", com.bigboots.gui.BBProgressbarController.class).setProgress(health / 100.0f);
+        //BBGuiManager.getInstance().getNifty().getScreen("hud").findControl("player_progress", com.bigboots.gui.BBProgressbarController.class).setProgress(health / 100.0f);
         
     }
     
