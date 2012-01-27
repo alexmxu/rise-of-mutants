@@ -65,7 +65,7 @@ public class BBMaterialComposer {
    
    
     public void  generateMaterial (String entPath) {
-        System.out.println("Generating Material");
+        //System.out.println("Generating Material");
         String fileStr = new String();
         String folderStr = new String();
         String strEntity = entPath; // Checking is it Entity or not
@@ -83,8 +83,8 @@ public class BBMaterialComposer {
 
         }
 
-        System.out.println("Get Folder " + folderStr);
-        System.out.println("Get File " + fileStr);
+        //System.out.println("Get Folder " + folderStr);
+        //System.out.println("Get File " + fileStr);
 
         Material matNew = new Material(asset, "MatDefs/LightBlow/LightBlow.j3md");
         matNew.setName(matName);
@@ -111,12 +111,12 @@ public class BBMaterialComposer {
             for (int i=0; i<children.length; i++) {
                 // Get filename of directory
                 String filename = children[i];
-                System.out.println("********** File name in children : " + filename);        
+                //System.out.println("********** File name in children : " + filename);        
                 if (filename.indexOf(foldID) >= 0) {
                     //Searching file        
                     texPath2 = texPath + "/" + filename;
                     File fileTex = new File(texPath2);
-                    System.out.println("folder textPath2 " + texPath2);
+                    //System.out.println("folder textPath2 " + texPath2);
 
                     String[] children2 = fileTex.list();
                     if (children2 == null) {
@@ -125,7 +125,7 @@ public class BBMaterialComposer {
                         for (int j=0; j<children2.length; j++) {
                             // Get filename of file
                             String filename2 = children2[j];
-                            System.out.println("********** File name 2 in children : " + filename2); 
+                            //System.out.println("********** File name 2 in children : " + filename2); 
                             int ent;
 
 
@@ -136,14 +136,14 @@ public class BBMaterialComposer {
                                     && filename2.indexOf(".psd") < 0  && filename2.indexOf(".xcf") < 0 && filename2.indexOf("lightmap_") < 0 && filename2.indexOf("mask_") < 0) {
                                 texPath3 = texPath2 + "/" + filename2;
                                 //texPath3.replaceAll(File.separator.toString(), "/");
-                                System.out.println("file " + texPath3);
+                                //System.out.println("file " + texPath3);
                             }
                             // Get Normal Map
                             else if (filename2.indexOf(fileID + "_nor.") >= 0 && filename2.indexOf(".blend") < 0 
                                     && filename2.indexOf(".psd") < 0  && filename2.indexOf(".xcf") < 0 && filename2.indexOf("lightmap_") < 0 && filename2.indexOf("mask_") < 0) {
                                 texPath3_nor = texPath2 + "/" + filename2;
                                 //texPath3_nor.replaceAll(File.separator.toString(), "/");
-                                System.out.println("file NormalMap " + texPath3_nor);
+                                //System.out.println("file NormalMap " + texPath3_nor);
                             }
                         }
                     }
@@ -238,7 +238,7 @@ public class BBMaterialComposer {
                      && fileAO.indexOf(".blend") < 0 && fileAO.indexOf(".psd") < 0 && fileAO.indexOf(".xcf") < 0) {
                         String strAO = texLightMaps + "/" + fileAO;
                         //strAO.replaceAll(File.separator.toString(), "/");
-                        System.out.println(strAO + " LightMap Loading");
+                        //System.out.println(strAO + " LightMap Loading");
                         if (strAO.indexOf("assets/") == 0) {
                             TextureKey tkAO = new TextureKey(strAO.substring(7), BlenderOgreCheck);
                             tkAO.setAnisotropy(2);
@@ -289,7 +289,7 @@ public class BBMaterialComposer {
                     //Searching file        
                     ctexPath2 = ctexPath + "/" + filename;
                     File fileTexC = new File(ctexPath2);
-                    System.out.println("compound folder " + ctexPath2);
+                    //System.out.println("compound folder " + ctexPath2);
 
                     String[] childrenC2 = fileTexC.list();
                     if (childrenC2 == null) {
@@ -305,14 +305,14 @@ public class BBMaterialComposer {
                             && filename2.indexOf(".psd") < 0  && filename2.indexOf(".xcf") < 0 && filename2.indexOf("lightmap_") < 0 && filename2.indexOf("mask_") < 0) {
                                 ctexPath3 = ctexPath2 + "/" + filename2; 
                                 //ctexPath3.replaceAll(File.separator.toString(), "/");
-                                System.out.println("compound file " + ctexPath3);
+                                //System.out.println("compound file " + ctexPath3);
                             }
                             // Get Normal Map
                             else if (filename2.indexOf(fileID + "_nor.") >= 0 && filename2.indexOf(".blend") < 0 
                             && filename2.indexOf(".psd") < 0  && filename2.indexOf(".xcf") < 0 && filename2.indexOf("lightmap_") < 0 && filename2.indexOf("mask_") < 0) {
                                 ctexPath3_nor = ctexPath2 + "/" + filename2;
                                 //ctexPath3_nor.replaceAll(File.separator.toString(), "/");
-                                System.out.println("compound file NormalMap " + ctexPath3_nor);
+                                //System.out.println("compound file NormalMap " + ctexPath3_nor);
                             }
                         }
                     }
@@ -323,7 +323,7 @@ public class BBMaterialComposer {
         if (ctexPath3.indexOf("assets" + "/") == 0) ctexPath3 = ctexPath3.substring(7); 
 
         int uvScale = Integer.parseInt(matName.substring(matName.indexOf("m") + 3,matName.indexOf("m") + 5)); 
-        System.out.println("UV Scale is: " + uvScale);
+        //System.out.println("UV Scale is: " + uvScale);
         matThat.setFloat("uv_0_scale", (float) uvScale);
 
         // Set Diffuse Map R channel

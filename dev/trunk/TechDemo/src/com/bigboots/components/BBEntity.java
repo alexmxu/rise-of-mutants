@@ -88,7 +88,7 @@ public class BBEntity extends BBObject{
            }else if (nd_temp.getChildren().get(i) instanceof Geometry){
             Geometry geom = (Geometry) nd_temp.getChildren().get(i);
             geom.setUserData("entityName", EntityName);
-            System.out.println("omomomomoomomomo GEOMETRY ADDED : "+geom.getName()+" for Entity "+mObjectName);
+            //System.out.println("omomomomoomomomo GEOMETRY ADDED : "+geom.getName()+" for Entity "+mObjectName);
             mapChildMeshes.add(geom);
            }
         }
@@ -269,7 +269,7 @@ public class BBEntity extends BBObject{
        }
 
        mcomp.setMaterial(mat);
-       System.out.println(" mmmmmmm MESH name : "+mcomp.getMaterial().getName());
+       //System.out.println(" mmmmmmm MESH name : "+mcomp.getMaterial().getName());
     }
 
     public boolean isCloned(){

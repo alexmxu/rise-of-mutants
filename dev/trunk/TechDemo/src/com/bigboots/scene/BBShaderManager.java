@@ -51,7 +51,7 @@ public class BBShaderManager {
     public void visit(Spatial spatial) {
      boolean check;
      
-     System.out.println(spatial + " Visited Shader Geometry");
+     //System.out.println(spatial + " Visited Shader Geometry");
         if (spatial instanceof Geometry) {
          Geometry geo = (Geometry) spatial;
          Material mat = geo.getMaterial();
@@ -88,7 +88,7 @@ public class BBShaderManager {
     public void visit(Spatial spatial) {
      boolean check;
           
-     System.out.println(spatial + " Visited Shader Geometry");
+     //System.out.println(spatial + " Visited Shader Geometry");
         if (spatial instanceof Geometry) {
          Geometry geo = (Geometry) spatial;
          Material mat = geo.getMaterial();
@@ -122,7 +122,7 @@ public class BBShaderManager {
     public void visit(Spatial spatial) {
      boolean check;
      
-     System.out.println(spatial + " Visited Shader Geometry");
+     //System.out.println(spatial + " Visited Shader Geometry");
         if (spatial instanceof Geometry) {
          Geometry geo = (Geometry) spatial;
          Material mat = geo.getMaterial();
@@ -153,7 +153,7 @@ public class BBShaderManager {
 
     public void visit(Spatial spatial) {
      boolean check;   
-     System.out.println(spatial + " Visited Shader Geometry");
+     //System.out.println(spatial + " Visited Shader Geometry");
         if (spatial instanceof Geometry) {
          Geometry geo = (Geometry) spatial;
          Material mat = geo.getMaterial();

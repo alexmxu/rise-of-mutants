@@ -117,7 +117,7 @@ public class BBSceneComposer {
                 } 
             }
         }
-        System.out.println("====================================================");
+        //System.out.println("====================================================");
         
        // Search for Original Objects with "." name
        for (Spatial spatNode : sceneNode.getChildren()) {
@@ -174,7 +174,7 @@ public class BBSceneComposer {
            //Attach it to the RootNode
            mEntity.attachToRoot();           
            
-           System.out.println("Entity Created " + ndColSearch.getName());
+           //System.out.println("Entity Created " + ndColSearch.getName());
            
            // Searching for collision meshes
            for (Object sp2 : alCollisionMesh.toArray()) {
@@ -264,7 +264,7 @@ public class BBSceneComposer {
                                CollisionShape colShapeCloned = mEntityConed.getComponent(BBNodeComponent.class).getControl(RigidBodyControl.class).getCollisionShape();
                                 rgBody.setCollisionShape(colShapeCloned);
                                 foundShape = true;
-                                System.out.println("Cloned Shape from " + mEntityConed + " to " + mCloneEntity);
+                                //System.out.println("Cloned Shape from " + mEntityConed + " to " + mCloneEntity);
                             }                         
                            }
                           }
@@ -296,13 +296,13 @@ public class BBSceneComposer {
                       mCloneEntity.attachToRoot();
 
                       
-                      System.out.println("cccccccccccccccc Cloninig Entity: " + mCloneEntity.getObjectName()+" From entity : "+entSearch.getObjectName());
+                      //System.out.println("cccccccccccccccc Cloninig Entity: " + mCloneEntity.getObjectName()+" From entity : "+entSearch.getObjectName());
                   }
                }
            }
        }
            
-        System.out.println(alMaterials.size() + " - QUANTITY OF BASE MATERIALS");   
+        //System.out.println(alMaterials.size() + " - QUANTITY OF BASE MATERIALS");   
     }
   
     
@@ -315,7 +315,7 @@ public class BBSceneComposer {
     private void replaceMeshWithOgre(Node nd, String path) {
 
         Node nodeOrigin = nd;   
-        System.out.println(nodeOrigin.getName() + " OGRE REPLACING NODE");
+        //System.out.println(nodeOrigin.getName() + " OGRE REPLACING NODE");
 
         if (nodeOrigin.getChildren().size() > 0) {
             String strPath = path + "/" + "ogre" + "/" +  nodeOrigin.getName() + ".mesh.xml";
@@ -327,14 +327,14 @@ public class BBSceneComposer {
             ModelKey mkOgre = new ModelKey(strPath);           
             Node nodeOgre = (Node) assett.loadModel(mkOgre);
             List<Spatial> listOgre = nodeOgre.getChildren();
-            System.out.println(nodeOgre.getName() + " ogre node");
+            //System.out.println(nodeOgre.getName() + " ogre node");
 
             int index = 0;
             for (int i=listOgre.size()-1; i>=0; i--) {
                Geometry geoTemp = (Geometry) nodeOrigin.getChild(index);
                Geometry geoTempOgre = (Geometry) listOgre.get(i);
                Material matTemp = geoTemp.getMaterial();
-               System.out.println("REPLACE MESH Blender " + geoTemp.getName() + " AND Ogre " + geoTempOgre.getName());
+               //System.out.println("REPLACE MESH Blender " + geoTemp.getName() + " AND Ogre " + geoTempOgre.getName());
                geoTemp.setMesh(geoTempOgre.getMesh());
 
                //  the line below can check for texCoord2
@@ -349,19 +349,19 @@ public class BBSceneComposer {
     // Load Entity
     private void loadEntity(String dirEntity, Node emptyNode) {
         Node fullNode = emptyNode;   
-        System.out.println("ooooooooo LOAD entity Dir : "+dirEntity+" with Node "+emptyNode.getName());
+        //System.out.println("ooooooooo LOAD entity Dir : "+dirEntity+" with Node "+emptyNode.getName());
         File dir = new File(dirEntity);
         File[] a = dir.listFiles();
 
         for (File f : a) {
             if (f.isDirectory()) {
                 // Recursive search
-                System.out.println("****** CHECKing Dir : "+f.getName());
+                //System.out.println("****** CHECKing Dir : "+f.getName());
                 String recursDir = dirEntity + "/" + f.getName();
                 loadEntity(recursDir, emptyNode);
             }else if (f.getName().indexOf(emptyNode.getName()) >= 0 && f.getName().endsWith(".blend")) {
                 String strF = dirEntity + "/" + f.getName();
-                System.out.println("========>>FOUND ENTITY :: " + strF);
+                //System.out.println("========>>FOUND ENTITY :: " + strF);
 
                 // Load a blender file. 
                 DesktopAssetManager dsk = (DesktopAssetManager) assett;        
@@ -383,7 +383,7 @@ public class BBSceneComposer {
                 
                 //Search for Ogre Meshes and Path for Material Composer
                 File[] flOgre = f.getParentFile().listFiles();
-                System.out.println(flOgre + "wwwwwwwww");
+                //System.out.println(flOgre + "wwwwwwwww");
                 for (File fPath : flOgre) {
                     if (fPath.isDirectory() && fPath.toString().endsWith("ogre")) {
                         for (Spatial sp2 : fullNode.getChildren()) {
@@ -398,7 +398,7 @@ public class BBSceneComposer {
                 nodeEnt = null;
                 dsk.clearCache();
                 
-                System.out.println("****** GET PArent File : "+f.getParentFile().toString());
+                //System.out.println("****** GET PArent File : "+f.getParentFile().toString());
                 composeMaterial(fullNode, dirEntity);  
             }
         }
@@ -414,7 +414,7 @@ public class BBSceneComposer {
     //Search for geometries        
     SceneGraphVisitor sgv = new SceneGraphVisitor() {
         public void visit(Spatial spatial) {
-            System.out.println(spatial + " Visited Spatial");
+            //System.out.println(spatial + " Visited Spatial");
             if (spatial instanceof Geometry) {
                 Geometry geom_sc = (Geometry) spatial;
                 if (alMaterials.isEmpty() == true || entPath != null){
@@ -440,7 +440,7 @@ public class BBSceneComposer {
             Geometry geomGen = geo;
 
             BBMaterialComposer matComp = new BBMaterialComposer(geomGen, dirbase, dirlevel, assett, isBlenderOrOgre);
-            System.out.println("Composing Material: " + geomGen.getMaterial().getName() + " for Geometry " + geomGen.getName());
+            //System.out.println("Composing Material: " + geomGen.getMaterial().getName() + " for Geometry " + geomGen.getName());
             matComp.generateMaterial(entPath3);
             if (entPath3 == null) alMaterials.add(geomGen.getMaterial());
 

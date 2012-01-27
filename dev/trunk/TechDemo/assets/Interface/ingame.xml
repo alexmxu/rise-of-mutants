@@ -12,7 +12,12 @@
     </image>
   </controlDefinition>
  
-  
+  <controlDefinition name="progressload" controller="com.bigboots.gui.BBTextProgressController">
+    <panel id="panel_text_load" height="100%" width="75%" align="left" valign="bottom" childLayout="vertical"> 
+       <text id="load-text" font="Interface/Fonts/Default.fnt" text="" textHAlign="left" textVAlign="bottom" width="100%" height="100%" x="0" y="0" color="#f00f" />
+    </panel> 
+  </controlDefinition>
+
     
   <screen id="game" controller="com.bigboots.gui.BBInGameController">
     <layer id="game_layer" childLayout="center">
@@ -20,7 +25,7 @@
            
           <panel id="game_panquit" height="25%" width="35%" align="center" valign="center" childLayout="center" visibleToMouse="true">
             <control id="backm" name="button" label="Quit to Desktop" color="#000" align="center" valign="center">
-                <interact onClick="quitToDesk()" />
+                <interact onRelease="quitToDesk()" />
             </control>
           </panel>
          </panel>
@@ -57,5 +62,13 @@
     </layer>
   </screen>
 
+  <screen id="loadgame" controller="com.bigboots.gui.BBInGameController">
+    <layer id="background_load" childLayout="center">
+        <image filename="Interface/splash.jpg" width="100%" height="100%" />
+    </layer>
+    <layer id="foreground_load" childLayout="vertical">
+         <control id="text_progress" name="progressload" />  
+    </layer>
+  </screen>
   
 </nifty>
