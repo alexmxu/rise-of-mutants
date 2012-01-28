@@ -15,8 +15,10 @@
  */
 package com.bigboots.components.emitters;
 
+
+import com.bigboots.components.emitters.BBParticleEmitter.FxType;
 import java.util.HashMap;
-import java.util.List;
+
 /**
  *
  * @author @author Ulrich Nzuzi <ulrichnz@code.google.com>
@@ -33,6 +35,7 @@ public class BBParticlesManager {
     
     private HashMap<String, BBParticleEmitter> mapParticlesFx = new HashMap<String, BBParticleEmitter>();
     
+    
     public void init(){
         //TODO : add  all standard particles to be use in game
         
@@ -42,8 +45,29 @@ public class BBParticlesManager {
         mapParticlesFx.put("FLAME", expFx);
     }
     
-    public BBParticleEmitter getParticlesFx(String name){
+    public void createParticleFx(String name, FxType type){
+        if(type.equals(FxType.EXPLOSION)){
+            BBExplosionFx expFx = new BBExplosionFx("FLAME");
+            expFx.init();
+            mapParticlesFx.put("FLAME", expFx);
+        }
+    }
+    
+    public BBParticleEmitter getParticleFx(String name){
         return mapParticlesFx.get(name);
+    }
+    
+    public void removeParticleFx(String name){
+        mapParticlesFx.remove(name);
+    }
+    
+    public void removeParticleFx(BBParticleEmitter emit){
+        if(this.getParticleFx(emit.getName()) != null){
+            mapParticlesFx.remove(emit.getName());
+        }else{
+            //TODO : Raise an exception here
+        }
+        
     }
     
     public void destroy(){

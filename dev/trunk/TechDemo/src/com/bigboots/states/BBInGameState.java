@@ -173,39 +173,39 @@ public class BBInGameState extends BBAbstractState{
         //System.out.println("***** TIme : "+mTime);
         
         //Wait few times before continue loading game to let Nifty to display contents
-        if(true == loadCam && mTime > 1.5){
+        if(true == loadCam && mTime > 1.5f){
             this.loadCamera();
             loadCam = false;
             loadScene = true;
             mTime =0;
         }
-        if(true == loadScene && mTime > 3){
+        if(true == loadScene && mTime > 2.2f){
             this.loadScene();
             loadScene = false;
             loadCharac = true;
             mTime =0;
         }
         
-        if(true == loadCharac && mTime > 3){
+        if(true == loadCharac && mTime > 2.0f){
             this.loadCharact();
             loadCharac = false;
             loadEnemy = true;
             mTime = 0;
         }
-        if(true == loadEnemy && mTime > 3){
+        if(true == loadEnemy && mTime > 2.2f){
             this.loadEnemies();
             loadEnemy = false;
             loadInput = true;
             mTime =0;
         }
 
-        if(true == loadInput && mTime > 3){
+        if(true == loadInput && mTime > 2.5f){
             this.loadInputs();
             loadInput = false;
             mInitGame = true;
         }
         
-        if(true == mInitGame && mTime > 5){
+        if(true == mInitGame && mTime > 2.9f){
             this.finishLoading();
             mInitGame = false;
             runGame = true;
@@ -321,11 +321,11 @@ public class BBInGameState extends BBAbstractState{
         music.setVolume(0.1f);
         music.setLooping(true);
         music.play();
+        
+        mLoadCtrl.setProgressLoading("Loading world ...");
     }
     
     private void loadEnemies(){
-        mLoadCtrl.setProgressLoading("Creating monsters ...");
-
         //*******************************************
         //Create enemies
 
@@ -386,13 +386,10 @@ public class BBInGameState extends BBAbstractState{
         BBInputManager.getInstance().setMouseCenter();
         BBInputManager.getInstance().getInputManager().setCursorVisible(false);
         mLoadCtrl.setProgressLoading("Creating main user interface ...");
-        mLoadCtrl.setProgressLoading("Done ...");
-        mLoadCtrl.setProgressLoading("...");
+        mLoadCtrl.setProgressLoading("Loading complete ...");
     }
     
     private void loadCharact(){
-               
-        mLoadCtrl.setProgressLoading("Loading main player avatar ...");
         
         //*******************************************
         //Create the main Character
@@ -409,6 +406,7 @@ public class BBInGameState extends BBAbstractState{
         
         if(camera.getCamMode().equals(BBCameraComponent.CamMode.SIDE)){
             BBSideModeCamera sideCam = (BBSideModeCamera)camera;
+            sideCam.initCamera();
             sideCam.setPosition(new Vector3f(0, 4, 17));
             sideCam.setTarget(humanStalker);
         }else if(camera.getCamMode().equals(BBCameraComponent.CamMode.FPS)){
@@ -416,10 +414,11 @@ public class BBInGameState extends BBAbstractState{
             fpsCam.setTarget(BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class));
         }else if(camera.getCamMode().equals(BBCameraComponent.CamMode.ORBITAL)){
             BBThirdPersonCamera orbCam = (BBThirdPersonCamera)camera;
-            orbCam.setTarget(BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class));
             orbCam.initCamera();
+            orbCam.setTarget(humanStalker);
         }  
         
+        mLoadCtrl.setProgressLoading("Creating monsters ...");
     }
     private void finishLoading(){
         mLoadCtrl.printDebug();
@@ -430,9 +429,7 @@ public class BBInGameState extends BBAbstractState{
         BBGuiManager.getInstance().getNifty().gotoScreen("hud");
     }
      
-    private void loadScene(){
-        mLoadCtrl.setProgressLoading("Loading world ...");
-        
+    private void loadScene(){       
         // Load a blender file Scene. 
         DesktopAssetManager dsk = (DesktopAssetManager) BBSceneManager.getInstance().getAssetManager();        
         ModelKey bk = new ModelKey("Scenes/levels/level_01/level_01.blend");
@@ -454,8 +451,9 @@ public class BBInGameState extends BBAbstractState{
         // Added scene effects (fog, ibl)
         BBShaderManager shm = new BBShaderManager(BBSceneManager.getInstance().getRootNode(), BBSceneManager.getInstance().getAssetManager());
         shm.setSimpleIBLParam("Textures/skyboxes/sky_box_01/skybox_01_low.png");   
-        shm.setFogParam(new ColorRGBA(0.7f,0.6f,0.2f, 43f), null);      
-     
+        shm.setFogParam(new ColorRGBA(0.7f,0.6f,0.2f, 43f), null);
+        
+        mLoadCtrl.setProgressLoading("Loading main player avatar ...");
     }
 
 }
