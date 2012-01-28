@@ -25,6 +25,8 @@ import com.bigboots.gui.BBProgressbarController;
 import com.bigboots.physics.BBPhysicsManager;
 import com.jme3.animation.AnimChannel;
 import com.jme3.animation.LoopMode;
+import com.jme3.bounding.BoundingBox;
+import com.jme3.bounding.BoundingVolume;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.control.CharacterControl;
 import com.jme3.math.FastMath;
@@ -75,7 +77,10 @@ public class BBMonsterManager {
     }
     
     public void removeMonster(String name){
-        mapEnemies.remove(name);
+        BBEntity mon = mapEnemies.get(name);
+        mon.getComponent(BBControlComponent.class).setEnable(false);
+        BBPhysicsManager.getInstance().getPhysicsSpace().remove(mon.getComponent(BBNodeComponent.class));        
+        mapEnemies.remove(mon);
         BBWorldManager.getInstance().removeEntity(name);
     }
     
