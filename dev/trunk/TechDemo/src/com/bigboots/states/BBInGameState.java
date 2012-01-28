@@ -329,22 +329,17 @@ public class BBInGameState extends BBAbstractState{
         //*******************************************
         //Create enemies
 
+        // This node is needed for sword killing by the player
+        Node enemyNode = new Node("enemyNode");
+        BBSceneManager.getInstance().getRootNode().attachChild(enemyNode);
+        
         for (int i=0; i<5; i++){
          Vector3f mPos = new Vector3f(100 + i*10, 100, 0f);  
          BBMonsterManager.getInstance().createMonter("ENEMY" + i, "Scenes/TestScene/mutant.j3o", mPos, new Vector3f(0,-1.0f, 0), 1+i*0.5f);
+         enemyNode.attachChild(BBMonsterManager.getInstance().getMonster("ENEMY" + i).getComponent(BBNodeComponent.class));
         }
-
-        mLoadCtrl.setProgressLoading("Setting environment ...");
         
-        //********************************************
-        //Set collision listener
-        BBBasicCollisionListener basicCol = new BBBasicCollisionListener();
-        BBPhysicsManager.getInstance().getPhysicsSpace().addCollisionListener(basicCol);
         
-        // Load the main map (here blend loading)
-        BBSceneManager.getInstance().setupBasicLight();
-        BBSceneManager.getInstance().createSky();
-        BBSceneManager.getInstance().setUpBasicShadow();
     }
     
     private void loadInputs(){        
@@ -456,6 +451,20 @@ public class BBInGameState extends BBAbstractState{
         shm.setSimpleIBLParam("Textures/skyboxes/sky_box_01/skybox_01_low.png");   
         shm.setFogParam(new ColorRGBA(0.7f,0.6f,0.2f, 43f), null);      
      
+        
+        
+        mLoadCtrl.setProgressLoading("Setting environment ...");
+        
+        //********************************************
+        //Set collision listener
+        BBBasicCollisionListener basicCol = new BBBasicCollisionListener();
+        BBPhysicsManager.getInstance().getPhysicsSpace().addCollisionListener(basicCol);
+        
+        // Load the main map (here blend loading)
+        BBSceneManager.getInstance().setupBasicLight();
+        BBSceneManager.getInstance().createSky();
+        BBSceneManager.getInstance().setUpBasicShadow();        
+        
     }
 
 }

@@ -21,13 +21,27 @@ import com.bigboots.animation.BBAnimManager;
 import com.bigboots.audio.BBAudioManager;
 import com.bigboots.components.BBCollisionComponent.ShapeType;
 import com.bigboots.components.BBComponent.CompType;
+import com.bigboots.core.BBSceneManager;
 import com.bigboots.gui.BBGuiManager;
+import com.bigboots.gui.BBProgressbarController;
 import com.bigboots.physics.BBPhysicsManager;
 import com.jme3.animation.AnimChannel;
+import com.jme3.animation.Bone;
 import com.jme3.animation.LoopMode;
+import com.jme3.animation.SkeletonControl;
+import com.jme3.bounding.BoundingBox;
+import com.jme3.bounding.BoundingVolume;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.control.CharacterControl;
+import com.jme3.collision.CollisionResults;
+import com.jme3.material.Material;
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
+import com.jme3.renderer.queue.RenderQueue.ShadowMode;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.Node;
+import com.jme3.scene.shape.Box;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -56,6 +70,16 @@ public class BBPlayerManager {
     private float hasJumped = 0;
     private boolean hasBeenOnGround = false;
     private static final Logger logger = Logger.getLogger(BBPlayerManager.class.getName());
+    private Geometry swordCollision;
+    private SkeletonControl skeletonControl;
+    private ArrayList<Bone> bn;
+    
+    // Sword
+    private float swordTime = 0;
+    private boolean swordStrike = false;
+    private BoundingVolume  bv;
+    private boolean strike = false;    
+    
     
     public void createMainPlayer(String name, String file, Vector3f posOffset, float scalePlayer){
         //Create the main Character       
@@ -114,7 +138,27 @@ public class BBPlayerManager {
         //Get life bar
         int health = (Integer) mMainPlayer.getSkills("HEALTH");
         //BBGuiManager.getInstance().getNifty().getScreen("hud").findControl("player_progress", com.bigboots.gui.BBProgressbarController.class).setProgress(health / 100.0f);
+
         
+        // Create a bix mesh for SWORD FIGHTING
+        Box a = new Box(Vector3f.ZERO, 0.5f, 1.0f, 0.5f);
+        swordCollision = new Geometry("Box", a);
+//        swordCollision.setLocalTranslation(0, -1, 0);
+        swordCollision.updateModelBound();
+                
+        Material mat = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
+        mat.setColor("Color", ColorRGBA.Blue);
+        mat.getAdditionalRenderState().setWireframe(true);
+        mat.setReceivesShadows(false);
+        swordCollision.setMaterial(mat);
+        swordCollision.setShadowMode(ShadowMode.Off);
+
+        BBSceneManager.getInstance().getRootNode().attachChild(swordCollision);
+        skeletonControl = mMainPlayer.getComponent(BBNodeComponent.class).getChild(0).getControl(SkeletonControl.class);
+
+        swordCollision.setLocalRotation(skeletonControl.getSkeleton().getBone("sword").getModelSpaceRotation());        
+        Node sworD = skeletonControl.getAttachmentsNode("sword");
+        sworD.attachChild(swordCollision);         
     }
     
     public void update(float tpf){
@@ -166,12 +210,57 @@ public class BBPlayerManager {
         else if(!mIsJumping){
           //  logger.log(Level.INFO,"Character jumping start.");
           //  mIsJumping = true;
-
-            
        //     pChannel.setAnim("jump", 0.50f); // TODO: Must be activated after a certain time after "JumpStart"
        //     pChannel.setLoopMode(LoopMode.DontLoop);
         }
-    }
+        
+        
+        // STRIKE WITH THE SWORD
+        if (swordStrike == true) {
+        swordTime += tpf;
+//        System.out.println(swordTime);
+        
+
+        if(strike == false  && swordTime > 0.2f && swordTime <= 0.4f) {
+        // Collision listener
+        bv = swordCollision.getWorldBound();
+        CollisionResults results = new CollisionResults();
+        BBSceneManager.getInstance().getRootNode().getChild("enemyNode").collideWith(bv, results);
+        
+        
+        if (results.size() > 0) {
+
+        Geometry closest = results.getClosestCollision().getGeometry();
+
+        if(closest != null && closest.getUserData("entityName") != null) {
+
+            String entity = closest.getUserData("entityName");
+            BBEntity monster = BBMonsterManager.getInstance().getMonster(entity);
+            
+            
+            
+            if (monster != null && entity.equals(BBPlayerManager.getInstance().getMainPlayer().getObjectName()) == false
+                && entity.indexOf("DEAD_") != 0 ) {
+                
+                
+                int health = (Integer) monster.getSkills("HEALTH");
+                BBGuiManager.getInstance().getNifty().getScreen("hud").findControl("enemy_progress", BBProgressbarController.class).setProgress(health / 100.0f);
+                health = health - 50;
+                monster.setSkills("HEALTH", health);
+                System.out.println(entity+" -- SWORD KILLING");
+                strike = true;
+               }
+              }
+             }
+           } else if (swordTime > 0.4f) {
+                swordTime = 0;
+                strike = false;
+                swordStrike = false;
+        }
+       }
+        
+        
+      }
     
     
     
@@ -213,4 +302,16 @@ public class BBPlayerManager {
         BBWorldManager.getInstance().removeEntity(mMainPlayer.getObjectName());
         mMainPlayer.destroy();
     }
+
+    
+    // check for Sword Strike
+    public void setSwordStrike(boolean val){
+        swordStrike = val;
+    }
+
+    public boolean getSwordStrike(){
+        return swordStrike;
+    }
+    
+    
 }

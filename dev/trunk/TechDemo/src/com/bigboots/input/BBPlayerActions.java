@@ -54,10 +54,9 @@ public class BBPlayerActions implements  ActionListener, AnalogListener{
     private float time = 0;
     private int pressed=0;
     private static final Logger logger = Logger.getLogger(BBPlayerActions.class.getName());
-    private boolean shootBullets = false;
+//    private boolean shootBullets = false;
     int timeBullet = 0;
     BBPlayerBulletControl bulletMove;
-    
     
     
     public BBPlayerActions(){
@@ -89,7 +88,8 @@ public class BBPlayerActions implements  ActionListener, AnalogListener{
             CharacterControl pCharCtrl = pNode.getControl(CharacterControl.class);
             BBAudioComponent pStep = BBPlayerManager.getInstance().getMainPlayer().getAudio("STEP");
             
-            if(pressed==1 && keyPressed && !binding.equals("Jump") && !binding.equals("MOUSE_LEFT") && !binding.equals("MOUSE_RIGHT") && !BBPlayerManager.getInstance().isWalking()){
+            if(pressed==1 && keyPressed && !binding.equals("Jump") && !binding.equals("MOUSE_LEFT") && !binding.equals("MOUSE_RIGHT") 
+               && !BBPlayerManager.getInstance().isWalking()){
 //            if(pressed==1 && keyPressed &! binding.equals("Jump")  && !BBPlayerManager.getInstance().isWalking()){
                 BBPlayerManager.getInstance().setIsWalking(true);
                 
@@ -106,8 +106,7 @@ public class BBPlayerActions implements  ActionListener, AnalogListener{
                         time = 0;
                     }
                 }
-            //} else if (keyPressed==false && BBPlayerManager.getInstance().isJumping()==false) {
-            } else if (pressed==0 &! keyPressed &! binding.equals("Jump")) {
+            } else if (pressed==0 &! keyPressed &! binding.equals("Jump") && !BBPlayerManager.getInstance().getSwordStrike() && !binding.equals("MOUSE_LEFT")) {
                 BBPlayerManager.getInstance().setIsWalking(false);
                 if(!BBPlayerManager.getInstance().isJumping()){
                     logger.log(Level.INFO,"Character walking end.");
@@ -118,13 +117,13 @@ public class BBPlayerActions implements  ActionListener, AnalogListener{
             }
            
             if(!keyPressed && binding.equals("MOUSE_LEFT")){
-                BBPlayerManager.getInstance().setIsWalking(false);
                 if(!BBPlayerManager.getInstance().isJumping()){
+                    BBPlayerManager.getInstance().setIsWalking(false);
                     logger.log(Level.INFO,"******  Character Attack 1.");
                     BBPlayerManager.getInstance().getMainPlayer().getAudio("FIRE").play();
                     pChannel.setAnim("shoot", 0.05f);
                     pChannel.setLoopMode(LoopMode.DontLoop);
-                    shootBullets = true;
+//                    shootBullets = true;
                     bulletControl();
                     Geometry bulletx = bulletg.clone();
                     BBSceneManager.getInstance().getRootNode().attachChild(bulletx);
@@ -136,13 +135,14 @@ public class BBPlayerActions implements  ActionListener, AnalogListener{
 //            else {
 //                shootBullets = false;
 //            }
-            if(keyPressed==false && binding.equals("MOUSE_RIGHT")){
-                BBPlayerManager.getInstance().setIsWalking(false);
+            if(!keyPressed && BBPlayerManager.getInstance().getSwordStrike() == false && binding.equals("MOUSE_RIGHT")){
                 if(!BBPlayerManager.getInstance().isJumping()){
+                    BBPlayerManager.getInstance().setIsWalking(false);
                     logger.log(Level.INFO,"******  Character Attack 2.");
                     pChannel.setAnim("strike_sword", 0.05f);
                     pChannel.setSpeed(1.3f);
                     pChannel.setLoopMode(LoopMode.DontLoop);
+                    BBPlayerManager.getInstance().setSwordStrike(true);
                 }
                 
             }
@@ -195,7 +195,9 @@ public class BBPlayerActions implements  ActionListener, AnalogListener{
                 }
             
             }
-                            
+
+
+            
 
         }//end onAnalog
         
@@ -203,43 +205,30 @@ public class BBPlayerActions implements  ActionListener, AnalogListener{
         
    // private Mesh bullet;
  //   private Material matBullet;
-    Geometry bulletg;
+    private Geometry bulletg;
     private Transform bulletTrans;
     private Vector3f frontVec;
-    private void prepareBullet() {
-        bullet = new Sphere(8, 8, 0.2f, true, false);
-    //    bullet.setTextureMode(TextureMode.Projected);
-        matBullet = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
-        matBullet.setColor("Color", ColorRGBA.Yellow);
-   //     matBullet.setColor("m_GlowColor", ColorRGBA.Orange);
-        bulletg = new Geometry("bullet", bullet);
-        bulletg.setMaterial(matBullet);
-        bulletg.setShadowMode(ShadowMode.Off);
-        //BBPhysicsManager.getInstance().getPhysicsSpace().addCollisionListener(this);
-    }
+
+        private void prepareBullet() {
+            bullet = new Sphere(8, 8, 0.2f, true, false);
+            matBullet = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
+            matBullet.setColor("Color", ColorRGBA.Yellow);
+            bulletg = new Geometry("bullet", bullet);
+            bulletg.setMaterial(matBullet);
+            bulletg.setShadowMode(ShadowMode.Off);
+            //BBPhysicsManager.getInstance().getPhysicsSpace().addCollisionListener(this);
+        }
+
         
     private void bulletControl() { 
         bulletTrans = BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getWorldTransform();
         bulletg.setLocalTranslation(bulletTrans.getTranslation());
         bulletg.setLocalRotation(bulletTrans.getRotation());
         frontVec = bulletTrans.getRotation().mult(Vector3f.UNIT_Z).normalize();
-      //  frontVec = frontVec.add(new Vector3f(0.5f,0.5f,0.5f)).normalize();
         bulletg.move(frontVec.mult(0.7f));
         float yAx = bulletg.getLocalTranslation().y +0.5f;
         bulletg.setLocalTranslation(bulletg.getLocalTranslation().x, yAx, bulletg.getLocalTranslation().z);
-        
 
-//        CharacterControl character = BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getControl(CharacterControl.class);
-//            
-//
-//            Vector3f pos = character.getPhysicsLocation().add(character.getViewDirection().mult(8));
-//            pos.y = pos.y + 1.0f;
-//            pos.z = pos.z + 0.4f;
-//            bulletg.setLocalTranslation(pos);
-//            
-            
-
-        //    BBPhysicsManager.getInstance().getPhysicsSpace().add(bulletControl);
     }        
         
         
