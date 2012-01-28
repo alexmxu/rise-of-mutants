@@ -202,6 +202,8 @@ public class BBMonsterManager {
                     object.setEnabled(false);
                     object.getComponent(BBAnimComponent.class).getChannel().setAnim("mutant_death", 0.50f);
                     object.getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.DontLoop);
+                    object.getComponent(BBControlComponent.class).setEnable(false);
+                    BBPhysicsManager.getInstance().getPhysicsSpace().remove(object.getComponent(BBNodeComponent.class));
                     BBGuiManager.getInstance().getNifty().getScreen("hud").findControl("enemy_progress", BBProgressbarController.class).setProgress(health / 100.0f);
                     
                     // this is just for a while to remove collision detection from dead monsters
