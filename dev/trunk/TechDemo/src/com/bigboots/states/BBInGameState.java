@@ -442,6 +442,7 @@ public class BBInGameState extends BBAbstractState{
 
         //Clear Blend File
         nd.detachAllChildren();
+        nd.removeFromParent();
         nd = null;
         dsk.clearCache();        
         
@@ -449,7 +450,6 @@ public class BBInGameState extends BBAbstractState{
         BBShaderManager shm = new BBShaderManager(BBSceneManager.getInstance().getRootNode(), BBSceneManager.getInstance().getAssetManager());
         shm.setSimpleIBLParam("Textures/skyboxes/sky_box_01/skybox_01_low.png");   
         shm.setFogParam(new ColorRGBA(0.7f,0.6f,0.2f, 43f), null);
-        
         
         mLoadCtrl.setProgressLoading("Setting environment ...");
         

@@ -244,9 +244,9 @@ public class BBPlayerManager {
                 
                 
                 int health = (Integer) monster.getSkills("HEALTH");
-                BBGuiManager.getInstance().getNifty().getScreen("hud").findControl("enemy_progress", BBProgressbarController.class).setProgress(health / 100.0f);
                 health = health - 50;
                 monster.setSkills("HEALTH", health);
+                BBGuiManager.getInstance().getNifty().getScreen("hud").findControl("enemy_progress", BBProgressbarController.class).setProgress(health / 100.0f);                
                 System.out.println(entity+" -- SWORD KILLING");
                 strike = true;
                }

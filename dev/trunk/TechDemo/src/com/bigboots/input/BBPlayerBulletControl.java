@@ -28,35 +28,36 @@ public class BBPlayerBulletControl extends AbstractControl implements Savable, C
     private Vector3f frontVec;
     private boolean work = true;
     private BoundingVolume bv;
-    private BBExplosionFx explosionFX;  
+    private BBExplosionFx explosionFX; 
     
     BBPlayerBulletControl (Geometry arg1, BBPlayerActions arg2){
 
         geooMove = arg1;
         sbc = arg2;
         
-        //Prepare explosion FX Particles
-        BBParticlesManager.getInstance().createParticleFx("FLAME", FxType.EXPLOSION);
-        explosionFX = (BBExplosionFx) BBParticlesManager.getInstance().getParticleFx("FLAME");
-       
-       
         //Approach 1        
         // frontVec = geooMove.getLocalRotation().getRotationColumn(2).normalize();        
         //Approach 2        
         frontVec = geooMove.getWorldRotation().mult(Vector3f.UNIT_Z).normalize();
 
+                        //Prepare explosion FX Particles
+                        BBParticlesManager.getInstance().createParticleFx("FLAME", FxType.EXPLOSION);
+                        explosionFX = (BBExplosionFx) BBParticlesManager.getInstance().getParticleFx("FLAME");        
+
     }
     
     @Override
     protected void controlUpdate(float tpf) {
-
+        
+        timer2 += tpf;
+        System.out.println(timer2);
         if (work == true) {   
-            timer2 += tpf;
+            
             // Approach 1        
             //geooMove.setLocalTranslation(geooMove.getLocalTranslation().add(frontVec.multLocal(timer2))); 
 
             // Approach 2
-            geooMove.move(frontVec.mult(30f*tpf));
+           geooMove.move(frontVec.mult(30f*tpf));
 
             // Collision listener
             bv = geooMove.getWorldBound();
@@ -73,46 +74,41 @@ public class BBPlayerBulletControl extends AbstractControl implements Savable, C
 
                     if (entity.equals(BBPlayerManager.getInstance().getMainPlayer().getObjectName()) == false
                     && entity.indexOf("DEAD_") != 0 ) {
-                        geooMove.removeFromParent();
-
+                        
                         // Search for monster collisions
                         BBEntity monster = BBMonsterManager.getInstance().getMonster(entity);
                         if (monster != null) {
                             int health = (Integer) monster.getSkills("HEALTH");
-                            BBGuiManager.getInstance().getNifty().getScreen("hud").findControl("enemy_progress", BBProgressbarController.class).setProgress(health / 100.0f);
                             health = health - 10;
                             monster.setSkills("HEALTH", health);
+                            BBGuiManager.getInstance().getNifty().getScreen("hud").findControl("enemy_progress", BBProgressbarController.class).setProgress(health / 100.0f);                            
                         }
 
+
                         explosionFX.setLocalTranslation(geooMove.getLocalTranslation());
+                        //geooMove.setLocalScale(0.0001f,0.0001f,0.0001f);
+                        geooMove.move(10000.0f, 10000.0f, 10000.0f);
                         BBSceneManager.getInstance().getRootNode().attachChild(explosionFX);
                         explosionFX.setEnabled(true);
                         explosionFX.startEmitFX();
+                        work = false;
 
-                        //if destroy control meshes
-                        if (timer2 > 2.5f) {
-                            BBSceneManager.getInstance().getRootNode().detachChild(geooMove);
-                            BBParticlesManager.getInstance().removeParticleFx(explosionFX);
-                            explosionFX.destroy();
-                            geooMove.removeControl(this);
-                            geooMove = null;
-                            work = false;
-                        }  
                     }
                 }
             }
-
+        }  
         // If bullet did not collided to a collidable object it destroys automatically
         if (timer2 > 2.7f) {
-
-            BBSceneManager.getInstance().getRootNode().detachChild(geooMove);            
-            BBParticlesManager.getInstance().removeParticleFx(explosionFX);
-            explosionFX.destroy();
-            geooMove.removeControl(this);
-            geooMove = null;
-            work = false;
+//                            BBSceneManager.getInstance().getRootNode().detachChild(explosionFX);
+                            BBParticlesManager.getInstance().removeParticleFx(explosionFX);
+                            explosionFX.destroy();
+                            explosionFX = null;
+                            geooMove.removeControl(this);
+                            BBSceneManager.getInstance().getRootNode().detachChild(geooMove);
+                            geooMove = null;
+                            
         }
-      }
+      
     }
 
     
