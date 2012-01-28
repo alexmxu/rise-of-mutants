@@ -16,27 +16,22 @@
 package com.bigboots.scene;
 
 
+import com.bigboots.BBWorldManager;
 import com.bigboots.components.BBCollisionComponent;
 import com.bigboots.components.BBCollisionComponent.ShapeType;
 import com.bigboots.components.BBComponent.CompType;
 import com.bigboots.components.BBEntity;
 import com.bigboots.components.BBNodeComponent;
-import com.bigboots.components.BBObject;
-import com.bigboots.core.BBSceneManager;
 import com.bigboots.physics.BBPhysicsManager;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.asset.ModelKey;
-import com.jme3.asset.TextureKey;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
-import com.jme3.bullet.util.CollisionShapeFactory;
 import com.jme3.material.*;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
-import com.jme3.math.Vector3f;
 import com.jme3.scene.*;
-import com.jme3.texture.Texture;
 import com.jme3.util.TangentBinormalGenerator;
 import java.io.File;
 import java.util.ArrayList;
@@ -173,7 +168,7 @@ public class BBSceneComposer {
            
            //Attach it to the RootNode
            mEntity.attachToRoot();           
-           
+           BBWorldManager.getInstance().addEntity(mEntity);
            //System.out.println("Entity Created " + ndColSearch.getName());
            
            // Searching for collision meshes
@@ -206,9 +201,6 @@ public class BBSceneComposer {
                     
                     pnode.addControl(worldPhysics);
                     BBPhysicsManager.getInstance().getPhysicsSpace().add(worldPhysics); 
-
-                 
-
                } 
            }
            alEntitiesOriginals.add(mEntity);
@@ -295,7 +287,7 @@ public class BBSceneComposer {
                       //Attach it to the RootNode
                       mCloneEntity.attachToRoot();
 
-                      
+                      BBWorldManager.getInstance().addEntity(mCloneEntity);
                       //System.out.println("cccccccccccccccc Cloninig Entity: " + mCloneEntity.getObjectName()+" From entity : "+entSearch.getObjectName());
                   }
                }
@@ -304,10 +296,7 @@ public class BBSceneComposer {
            
         //System.out.println(alMaterials.size() + " - QUANTITY OF BASE MATERIALS");   
     }
-  
-    
-    
-    
+   
 
     // Replace a mesh of blender with a mesh of ogre, because blender does not support texCoord2
     // texCoord2 is needed for Lightmaps  

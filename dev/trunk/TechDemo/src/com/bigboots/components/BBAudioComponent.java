@@ -27,6 +27,7 @@ import com.jme3.audio.AudioNode;
 public class BBAudioComponent extends AudioNode implements BBComponent{
     private String mSoundName = "";
     private boolean streamCache = false;
+    protected boolean mEnabled = true;
     
     public BBAudioComponent(){
         super();
@@ -56,5 +57,13 @@ public class BBAudioComponent extends AudioNode implements BBComponent{
         this.removeFromParent();
         this.getWorldLightList().clear();
         this.getLocalLightList().clear();
+    }
+     
+    public boolean isEnabled(){
+        return mEnabled;
+    }
+    
+    public void setEnable(boolean value){
+        mEnabled = value;
     }
 }

@@ -34,7 +34,8 @@ public interface BBComponent {
         ANIMATION,
         CONTROLLER,
         COLSHAPE,
-        CAMERA
+        CAMERA,
+        PARTICLE
     }
     
     /**
@@ -47,6 +48,15 @@ public interface BBComponent {
         AUDIBLE,
         PHYSICS
     }
+    
+    
+    /**
+     * @return If enabled
+     * @see BBCameraComponent#setEnabled(boolean)
+     */
+    public boolean isEnabled();
+    
+    public void setEnable(boolean value);
     
     public CompType getCompType();
     
