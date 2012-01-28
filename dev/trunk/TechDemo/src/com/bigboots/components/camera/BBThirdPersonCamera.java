@@ -15,18 +15,23 @@
  */
 package com.bigboots.components.camera;
 
+import com.bigboots.components.BBNodeComponent;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
-import com.jme3.scene.Node;
+import com.jme3.scene.CameraNode;
+import com.jme3.scene.control.CameraControl.ControlDirection;
 
 /**
  *
  * @author @author Ulrich Nzuzi <ulrichnz@code.google.com>
  */
 public class BBThirdPersonCamera extends BBCameraComponent{
-    private Node mTarget;
+    private BBNodeComponent mTargetNode;
     protected float minDistance = 1.0f;
     protected float maxDistance = 40.0f;
+    protected CameraNode mCamNode;
+    private Quaternion mRotation;
     
     public BBThirdPersonCamera(String name, Camera cam){
         super(name, cam);
@@ -47,13 +52,25 @@ public class BBThirdPersonCamera extends BBCameraComponent{
         Vector3f targetOffset = new Vector3f();
         targetOffset.y = 5;
         //ChaseCamera chaser = new ChaseCamera( cam, target.getCharacterNode() );
-        //chaser.setTargetOffset(targetOffset);          
+        //chaser.setTargetOffset(targetOffset);
+        mCamNode = new CameraNode("THIRD_NODE", mJm3Camera);
+        mCamNode.setControlDir(ControlDirection.SpatialToCamera);
+        this.setPosition(new Vector3f(-20,8,0));
+        Quaternion x = new Quaternion().fromAngleAxis(0, Vector3f.UNIT_X);
+        Quaternion y = new Quaternion().fromAngleAxis(180, Vector3f.UNIT_Y);
+        Quaternion z = new Quaternion().fromAngleAxis(0, Vector3f.UNIT_Z);
         
+        mRotation = new Quaternion(z.mult(y).mult(x));
     }
     
-    public void setTarget(Node node){
-        mTarget = node;
-        //mJm3Camera.setLocation( mTarget.getLocalTranslation().clone() );
+    public void setPosition(Vector3f vec){
+        mCamNode.setLocalTranslation(vec);
+    }
+    
+    public void setTarget(BBNodeComponent node){
+        mTargetNode = node;
+        mCamNode.lookAt(mTargetNode.getLocalTranslation(), Vector3f.UNIT_Y);
+        mTargetNode.attachChild(mCamNode);
     }
 
     /**
@@ -91,11 +108,16 @@ public class BBThirdPersonCamera extends BBCameraComponent{
 
     @Override
     public void udpate() {
+        //Vector3f camPos = mTargetNode.getLocalTranslation().clone().addLocal( 0, mPosY, 0 );
+        mJm3Camera.setRotation(mRotation);
+        mJm3Camera.update();
+        
         //float camMinHeight = environment.getHeight( mJm3Camera.getLocation() ) + 1;
         //if (!Float.isInfinite(camMinHeight) && !Float.isNaN(camMinHeight) && mJm3Camera.getLocation().y <= camMinHeight) {
         //    mJm3Camera.getLocation().y = camMinHeight;
         //    mJm3Camera.update();
         //}
+        
     }
     
 }

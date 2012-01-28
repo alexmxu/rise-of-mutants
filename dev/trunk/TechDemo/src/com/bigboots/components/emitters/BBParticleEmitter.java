@@ -28,7 +28,13 @@ public abstract class BBParticleEmitter extends ParticleEmitter implements BBCom
     protected BBAudioComponent fxSound;
     protected int COUNT_FACTOR = 1;
     protected float COUNT_FACTOR_F = 1f;
-        
+    
+    public enum FxType {
+        NONE,
+        EXPLOSION,
+        FIRE
+    }
+    
     public BBParticleEmitter(){
         super();
     }
