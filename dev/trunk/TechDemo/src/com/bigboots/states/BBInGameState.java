@@ -16,6 +16,7 @@
 package com.bigboots.states;
 
 import com.bigboots.BBGlobals;
+import com.bigboots.BBWorldManager;
 import com.bigboots.audio.BBAudioManager;
 import com.bigboots.components.camera.BBCameraComponent;
 import com.bigboots.components.camera.BBCameraManager;
@@ -26,6 +27,7 @@ import com.bigboots.components.BBNodeComponent;
 import com.bigboots.components.BBPlayerManager;
 import com.bigboots.components.camera.BBFirstPersonCamera;
 import com.bigboots.components.camera.BBThirdPersonCamera;
+import com.bigboots.components.emitters.BBParticlesManager;
 import com.bigboots.core.BBDebugInfo;
 import com.bigboots.core.BBEngineSystem;
 import com.bigboots.core.BBSceneManager;
@@ -91,10 +93,19 @@ public class BBInGameState extends BBAbstractState{
         BBGuiManager.getInstance().getNifty().gotoScreen("loadgame");
         //BBGuiManager.getInstance().enableProgressBar(true);
         Screen mScreen = BBGuiManager.getInstance().getNifty().getScreen("loadgame");
-        mLoadCtrl = mScreen.findControl("text_progress", BBTextProgressController.class);
+        mLoadCtrl = mScreen.findControl("text_progress", BBTextProgressController.class);    
+        mLoadCtrl.setProgressLoading("Loading Game ...");
         
-        mLoadCtrl.setProgressLoading("Loading Game ...");   
-  
+        mLoadCtrl.setProgressLoading("Initializing Engine systems ...");
+
+        //Init the physic manager before create collision shape
+        BBPhysicsManager.getInstance().init(engineSystem);  
+        
+        //Init world manager
+        BBWorldManager.getInstance().init();
+        
+        //Init particles manager
+        BBParticlesManager.getInstance().init();
  /*       
         BBSceneManager.getInstance().createFilterProcessor();
         
@@ -286,11 +297,6 @@ public class BBInGameState extends BBAbstractState{
     //========================================================================
     
     private void loadCamera(){
-  
-        mLoadCtrl.setProgressLoading("Initializing Physics engine ...");
-
-        //Init the physic manager before create collision shape
-        BBPhysicsManager.getInstance().init(engineSystem);
         
         mLoadCtrl.setProgressLoading("Creating Camera system ...");
  
@@ -374,7 +380,9 @@ public class BBInGameState extends BBAbstractState{
         
         BBInputManager.getInstance().setMouseCenter();
         BBInputManager.getInstance().getInputManager().setCursorVisible(false);
-        
+        mLoadCtrl.setProgressLoading("Creating main user interface ...");
+        mLoadCtrl.setProgressLoading("Done ...");
+        mLoadCtrl.setProgressLoading("...");
     }
     
     private void loadCharact(){
@@ -409,9 +417,6 @@ public class BBInGameState extends BBAbstractState{
         
     }
     private void finishLoading(){
-        
-        mLoadCtrl.setProgressLoading("Creating main user interface ...");
-        mLoadCtrl.setProgressLoading("Done ...");
         mLoadCtrl.printDebug();
         
         //Display the HUD screen for this state
@@ -422,6 +427,7 @@ public class BBInGameState extends BBAbstractState{
      
     private void loadScene(){
         mLoadCtrl.setProgressLoading("Loading world ...");
+        
         // Load a blender file Scene. 
         DesktopAssetManager dsk = (DesktopAssetManager) BBSceneManager.getInstance().getAssetManager();        
         ModelKey bk = new ModelKey("Scenes/levels/level_01/level_01.blend");

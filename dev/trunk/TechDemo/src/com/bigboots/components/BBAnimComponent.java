@@ -23,6 +23,7 @@ import com.jme3.animation.AnimChannel;
  */
 public class BBAnimComponent implements BBComponent{
     private AnimChannel enChannel;
+    protected boolean mEnabled = true;
     
     //Note : Cannont extend AnimChannel class because constructor is private 
     public BBAnimComponent(AnimChannel anim){
@@ -39,5 +40,13 @@ public class BBAnimComponent implements BBComponent{
     
     public CompFamily getCompFamily(){
         return CompFamily.VISUAL;
-    }    
+    }
+    
+    public boolean isEnabled(){
+        return mEnabled;
+    }
+    
+    public void setEnable(boolean value){
+        mEnabled = value;
+    }
 }

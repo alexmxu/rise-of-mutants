@@ -16,6 +16,7 @@
 package com.bigboots.components;
 
 import com.bigboots.BBGlobals;
+import com.bigboots.BBWorldManager;
 import com.bigboots.animation.BBAnimManager;
 import com.bigboots.audio.BBAudioManager;
 import com.bigboots.components.BBCollisionComponent.ShapeType;
@@ -133,6 +134,7 @@ public class BBPlayerManager {
         fireSound.setVolume(0.03f);
         mMainPlayer.addAudio("FIRE", fireSound);
         
+        BBWorldManager.getInstance().addEntity(mMainPlayer);
         //Get life bar
         int health = (Integer) mMainPlayer.getSkills("HEALTH");
         //BBGuiManager.getInstance().getNifty().getScreen("hud").findControl("player_progress", com.bigboots.gui.BBProgressbarController.class).setProgress(health / 100.0f);
@@ -297,6 +299,7 @@ public class BBPlayerManager {
     }
     
     public void destroy(){
+        BBWorldManager.getInstance().removeEntity(mMainPlayer.getObjectName());
         mMainPlayer.destroy();
     }
 

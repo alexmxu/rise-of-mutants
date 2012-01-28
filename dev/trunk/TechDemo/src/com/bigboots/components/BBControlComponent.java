@@ -39,6 +39,7 @@ public class BBControlComponent implements BBComponent{
     
     private PhysicsCollisionObject mControl;
     private ControlType mType;
+    protected boolean mEnabled = true;
     
     public BBControlComponent(){
         mType = ControlType.NONE;
@@ -77,5 +78,13 @@ public class BBControlComponent implements BBComponent{
     
     public CompFamily getCompFamily(){
         return CompFamily.PHYSICS;
+    }
+    
+    public boolean isEnabled(){
+        return mEnabled;
+    }
+    
+    public void setEnable(boolean value){
+        mEnabled = value;
     }
 }

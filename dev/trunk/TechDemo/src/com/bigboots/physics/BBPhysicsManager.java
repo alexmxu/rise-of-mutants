@@ -154,6 +154,10 @@ public class BBPhysicsManager extends Application implements BBUpdateListener{
     public void update(){      
     }
     
+    public void removePhysic(Node node){
+        this.getPhysicsSpace().removeAll(node);
+    }
+    
     public BulletAppState getBulletApp(){
         return bulletAppState;
     }
