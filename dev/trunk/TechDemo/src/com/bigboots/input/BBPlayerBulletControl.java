@@ -4,6 +4,7 @@ import com.bigboots.components.BBEntity;
 import com.bigboots.components.BBMonsterManager;
 import com.bigboots.components.BBPlayerManager;
 import com.bigboots.components.emitters.BBExplosionFx;
+import com.bigboots.components.emitters.BBParticleEmitter.FxType;
 import com.bigboots.components.emitters.BBParticlesManager;
 import com.bigboots.core.BBSceneManager;
 import com.bigboots.gui.BBGuiManager;
@@ -35,7 +36,8 @@ public class BBPlayerBulletControl extends AbstractControl implements Savable, C
         sbc = arg2;
         
         //Prepare explosion FX Particles
-        explosionFX = (BBExplosionFx) BBParticlesManager.getInstance().getParticlesFx("FLAME");
+        BBParticlesManager.getInstance().createParticleFx("FLAME", FxType.EXPLOSION);
+        explosionFX = (BBExplosionFx) BBParticlesManager.getInstance().getParticleFx("FLAME");
        
        
         //Approach 1        
@@ -89,6 +91,8 @@ public class BBPlayerBulletControl extends AbstractControl implements Savable, C
 
                         //if destroy control meshes
                         if (timer2 > 2.5f) {
+                            BBSceneManager.getInstance().getRootNode().detachChild(geooMove);
+                            BBParticlesManager.getInstance().removeParticleFx(explosionFX);
                             explosionFX.destroy();
                             geooMove.removeControl(this);
                             geooMove = null;
@@ -102,6 +106,7 @@ public class BBPlayerBulletControl extends AbstractControl implements Savable, C
         if (timer2 > 2.7f) {
 
             BBSceneManager.getInstance().getRootNode().detachChild(geooMove);            
+            BBParticlesManager.getInstance().removeParticleFx(explosionFX);
             explosionFX.destroy();
             geooMove.removeControl(this);
             geooMove = null;

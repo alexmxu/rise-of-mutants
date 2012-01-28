@@ -66,15 +66,19 @@ public class BBExplosionFx extends BBParticleEmitter{
     @Override
     public void stopEmitFX() {
         this.setEnabled(false);
-        fxSound.stop();
+        if(fxSound != null){
+            fxSound.stop();
+        }
     }
 
     @Override
     public void destroy() {
         this.stopEmitFX();
         BBSceneManager.getInstance().getRootNode().detachChild(this);
-        fxSound.destroy();
-        fxSound = null;
+        if(fxSound != null){
+            fxSound.destroy();
+            fxSound = null;
+        }
     }
     
 }
