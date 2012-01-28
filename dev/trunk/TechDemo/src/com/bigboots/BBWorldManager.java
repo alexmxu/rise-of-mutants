@@ -145,6 +145,12 @@ public class BBWorldManager  {
     }
 
      */
+    public void addEntity(BBEntity entity){
+        if(this.getEntity(entity.getObjectName()) != null){
+            
+        }
+        entities.put(entity.getObjectName(), entity);
+    }
   
     /**
      * add an entity (vehicle, immobile house etc), always related to a spatial
@@ -183,17 +189,16 @@ public class BBWorldManager  {
     public void removeEntity(String id) {
         Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Removing entity: {0}", id);
 
-        BBEntity spat = entities.remove(id);
-        if (spat == null) {
+        BBEntity ent = entities.remove(id);
+        if (ent == null) {
             Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "try removing entity thats not there: {0}", id);
             return;
         }
-        String playerId =  spat.getObjectName();
         //removeTransientControls(spat);
         //removeAIControls(spat);
 
         //spat.removeFromParent();
-        //space.removeAll(spat);
+        BBPhysicsManager.getInstance().removePhysic(ent.getComponent(BBNodeComponent.class));
     }
 
     /**

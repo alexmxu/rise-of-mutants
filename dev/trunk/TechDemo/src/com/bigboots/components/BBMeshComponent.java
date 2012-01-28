@@ -23,7 +23,8 @@ import com.jme3.scene.Mesh;
  * @author @author Ulrich Nzuzi <ulrichnz@code.google.com>
  */
 public class BBMeshComponent extends Geometry implements BBComponent{
-
+    protected boolean mEnabled = true;
+    
     public BBMeshComponent( ){
         super();
     }
@@ -51,4 +52,11 @@ public class BBMeshComponent extends Geometry implements BBComponent{
         return CompFamily.VISUAL;
     }
     
+    public boolean isEnabled(){
+        return mEnabled;
+    }
+    
+    public void setEnable(boolean value){
+        mEnabled = value;
+    }
 }

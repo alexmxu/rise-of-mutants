@@ -26,6 +26,7 @@ import com.jme3.light.*;
 public class BBLightComponent implements BBComponent{
     
     private Light mLight;
+    protected boolean mEnabled = true;
     
     public BBLightComponent(){
         
@@ -84,7 +85,12 @@ public class BBLightComponent implements BBComponent{
     public CompFamily getCompFamily(){
         return CompFamily.VISUAL;
     }
-
-
-
+    
+    public boolean isEnabled(){
+        return mEnabled;
+    }
+    
+    public void setEnable(boolean value){
+        mEnabled = value;
+    }
 }

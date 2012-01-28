@@ -39,6 +39,7 @@ public class BBCollisionComponent implements BBComponent{
     
     private ShapeType mType;
     private CollisionShape mSpecificShape;
+    protected boolean mEnabled = true;
     
     public BBCollisionComponent(){
         //super();
@@ -68,4 +69,11 @@ public class BBCollisionComponent implements BBComponent{
         mType = newType;
     }    
     
+    public boolean isEnabled(){
+        return mEnabled;
+    }
+    
+    public void setEnable(boolean value){
+        mEnabled = value;
+    }
 }

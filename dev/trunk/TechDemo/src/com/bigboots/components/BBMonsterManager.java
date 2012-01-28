@@ -15,6 +15,7 @@
  */
 package com.bigboots.components;
 
+import com.bigboots.BBWorldManager;
 import com.bigboots.components.BBCollisionComponent.ShapeType;
 import com.bigboots.components.BBComponent.CompType;
 import com.bigboots.animation.BBAnimManager;
@@ -73,6 +74,15 @@ public class BBMonsterManager {
         
     }
     
+    public void removeMonster(String name){
+        mapEnemies.remove(name);
+        BBWorldManager.getInstance().removeEntity(name);
+    }
+    
+    public void removeAllMonster(){
+        
+    }
+    
     public void createMonter(String name, String file, Vector3f position,Vector3f posOffset, float scaleMonster){
         //*******************************************
         //TEST AND LOAD ENEMY WITH ENTITY SYSTEM
@@ -126,6 +136,8 @@ public class BBMonsterManager {
         mEnemy.addAudio("GROWLING", audnde);
         
         this.addMonster(mEnemy);
+        //Also add the entity to the world
+        BBWorldManager.getInstance().addEntity(mEnemy);
     }
     
     public void update(float tpf){
@@ -184,7 +196,7 @@ public class BBMonsterManager {
                 health = (Integer)object.getSkills("HEALTH");                
                 if (health <= 0) {
                     mCharCtrl.setWalkDirection(Vector3f.ZERO);
-
+                    health = 0;
                     object.stopAllAudio();
                     object.setSkills("HEALTH", 0);
                     object.setEnabled(false);
@@ -195,15 +207,14 @@ public class BBMonsterManager {
                     // this is just for a while to remove collision detection from dead monsters
                     List <Geometry> geoList = object.getAllGeometries();
                     for (Geometry geo : geoList){
-                     Geometry geoChange = geo;   
-                    geoChange.setUserData("entityName", "DEAD_" + geoChange.getUserData("entityName"));  
-                    BBPhysicsManager.getInstance().getPhysicsSpace().removeAll(object.getComponent(BBNodeComponent.class));
-//                    BBControlComponent objControl = object.getComponent(BBControlComponent.class).getControl();
+                        Geometry geoChange = geo;   
+                        geoChange.setUserData("entityName", "DEAD_" + geoChange.getUserData("entityName"));  
+                        BBPhysicsManager.getInstance().removePhysic(object.getComponent(BBNodeComponent.class));
+                        //BBControlComponent objControl = object.getComponent(BBControlComponent.class).getControl();
                     }
                     
-                    object.setEnabled(false);
-                    
-             }  
+                    object.setEnabled(false);    
+                }  
             }//is enable
         }//end for
     }

@@ -206,21 +206,19 @@ public class BBPlayerActions implements  ActionListener, AnalogListener{
     Geometry bulletg;
     private Transform bulletTrans;
     private Vector3f frontVec;
-        private void prepareBullet() {
-            bullet = new Sphere(8, 8, 0.2f, true, false);
-        //    bullet.setTextureMode(TextureMode.Projected);
-            matBullet = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
-            matBullet.setColor("Color", ColorRGBA.Yellow);
-       //     matBullet.setColor("m_GlowColor", ColorRGBA.Orange);
-            bulletg = new Geometry("bullet", bullet);
-            bulletg.setMaterial(matBullet);
-            bulletg.setShadowMode(ShadowMode.Off);
-            //BBPhysicsManager.getInstance().getPhysicsSpace().addCollisionListener(this);
-        }
+    private void prepareBullet() {
+        bullet = new Sphere(8, 8, 0.2f, true, false);
+    //    bullet.setTextureMode(TextureMode.Projected);
+        matBullet = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
+        matBullet.setColor("Color", ColorRGBA.Yellow);
+   //     matBullet.setColor("m_GlowColor", ColorRGBA.Orange);
+        bulletg = new Geometry("bullet", bullet);
+        bulletg.setMaterial(matBullet);
+        bulletg.setShadowMode(ShadowMode.Off);
+        //BBPhysicsManager.getInstance().getPhysicsSpace().addCollisionListener(this);
+    }
         
-        private void bulletControl() {
-            
-            
+    private void bulletControl() { 
         bulletTrans = BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getWorldTransform();
         bulletg.setLocalTranslation(bulletTrans.getTranslation());
         bulletg.setLocalRotation(bulletTrans.getRotation());
