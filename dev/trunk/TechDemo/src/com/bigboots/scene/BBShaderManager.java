@@ -99,7 +99,7 @@ public class BBShaderManager {
              if (matName.indexOf("-geom-") >= 0) check = false;
              else check = true;
             TextureKey tkk = new TextureKey(PathIBL, check);
-            tkk.setAnisotropy(2);
+        //    tkk.setAnisotropy(2);
             tkk.setAsCube(true);
             tkk.setGenerateMips(false);
             Texture ibl = assetman.loadTexture(tkk);
@@ -134,7 +134,7 @@ public class BBShaderManager {
              else check = true;
             TextureKey tkk = new TextureKey(PathSIBL, check);
             tkk.setAsCube(false);
-            tkk.setAnisotropy(2);
+     //       tkk.setAnisotropy(2);
      //       tkk.setGenerateMips(true);
             Texture ibl = assetman.loadTexture(tkk);
             geo.getMaterial().setTexture("IblMap_Simple", ibl);              
