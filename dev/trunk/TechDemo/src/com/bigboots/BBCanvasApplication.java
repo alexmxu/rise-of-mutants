@@ -115,7 +115,7 @@ public class BBCanvasApplication {
         app.getEngine().setPauseOnLostFocus(false);
         //app.setNewSettings(settings);
         app.initCanvas();
-        app.getEngine().startCanvas();
+        //app.getEngine().startCanvas();
 
         context = (JmeCanvasContext) app.getEngine().getContext();
         canvas = context.getCanvas();
@@ -142,7 +142,7 @@ public class BBCanvasApplication {
             public Void call(){
                 if (app instanceof BBSimpleApplication){
                     BBSimpleApplication simpleApp = (BBSimpleApplication) app;
-                    simpleApp.getFreeCamera().setDragToRotate(true);
+                    //simpleApp.getFreeCamera().setDragToRotate(true);
                 }
                 return null;
             }
@@ -170,7 +170,7 @@ public class BBCanvasApplication {
         JMenuBar menuBar = new JMenuBar();
         frame.setJMenuBar(menuBar);
 
-        JMenu menuTortureMethods = new JMenu("Canvas Torture Methods");
+        JMenu menuTortureMethods = new JMenu("File");
         menuBar.add(menuTortureMethods);
 
         final JMenuItem itemRemoveCanvas = new JMenuItem("Remove Canvas");
