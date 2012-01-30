@@ -24,6 +24,8 @@ import java.awt.BorderLayout;
 import java.awt.Canvas;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -38,6 +40,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -52,11 +55,13 @@ public class BBCanvasApplication {
     private static Canvas canvas;
     private static BBApplication app;
     private static JFrame frame;
-    private static Container canvasPanel1, canvasPanel2;
-    private static Container currentPanel;
-    private static JTabbedPane tabbedPane;
-    private static final String appClass = "com.bigboots.testscene.TestSimpleApp";
+    //private static Container canvasPanel1, canvasPanel2;
+    //private static Container currentPanel;
+    //private static JTabbedPane tabbedPane;
+    private static final String appClass = "bigboots.editor.BBSceneGrid";
     
+    private static JPanel canvasPanel;
+    private static JPanel optionPanel;
     /*
      * Main game loop.
      */
@@ -82,7 +87,7 @@ public class BBCanvasApplication {
 
                 createFrame();
                 
-                currentPanel.add(canvas, BorderLayout.CENTER);
+                //currentPanel.add(canvas, BorderLayout.CENTER);
                 frame.pack();
                 startApp();
                 frame.setLocationRelativeTo(null);
@@ -95,8 +100,8 @@ public class BBCanvasApplication {
     
     private static void createCanvas(String appClass){
         AppSettings settings = new AppSettings(true);
-        settings.setWidth(640);
-        settings.setHeight(480);
+        settings.setWidth(800);
+        settings.setHeight(600);
 
         try{
             Class<? extends BBApplication> clazz = (Class<? extends BBApplication>) Class.forName(appClass);
@@ -123,8 +128,9 @@ public class BBCanvasApplication {
     }
     
     private static void createFrame(){
-        frame = new JFrame("Test");
+        frame = new JFrame("BBModel Viewer");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setFont(new Font("Arial", Font.PLAIN, 12));
         frame.addWindowListener(new WindowAdapter(){
             @Override
             public void windowClosed(WindowEvent e) {
@@ -151,7 +157,7 @@ public class BBCanvasApplication {
     }
     
     private static void createTabs(){
-        tabbedPane = new JTabbedPane();
+/*        tabbedPane = new JTabbedPane();
         
         canvasPanel1 = new JPanel();
         canvasPanel1.setLayout(new BorderLayout());
@@ -164,31 +170,66 @@ public class BBCanvasApplication {
         frame.getContentPane().add(tabbedPane);
         
         currentPanel = canvasPanel1;
+ */       
+        // Panel fuer Glide Fenster
+        canvasPanel = new JPanel();
+        canvasPanel.setLayout(new BorderLayout());
+        canvasPanel.add(canvas, BorderLayout.CENTER);
+
+        // Panel fuer Tabs und Eigenschaften
+        optionPanel = new JPanel();
+        optionPanel.setLayout(new GridLayout(2,1));
+
+        // Die Angabe einer Minimumsize bei SplitPanels ist Pflicht!
+        optionPanel.setMinimumSize(new Dimension(30,30));	
+        optionPanel.setPreferredSize(new Dimension(200,10));
+        canvasPanel.setMinimumSize(new Dimension(100,50));
+
+        // Das SplitPanel wird in optionPanel (links) und canvasPanel (rechts) unterteilt
+        JSplitPane split = new JSplitPane();
+        split.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
+        split.setLeftComponent(canvasPanel);
+        split.setRightComponent(optionPanel);
+
+        frame.add(split, BorderLayout.CENTER);        
     }
     
     private static void createMenu(){
         JMenuBar menuBar = new JMenuBar();
         frame.setJMenuBar(menuBar);
 
-        JMenu menuTortureMethods = new JMenu("File");
-        menuBar.add(menuTortureMethods);
-
-        final JMenuItem itemRemoveCanvas = new JMenuItem("Remove Canvas");
-        menuTortureMethods.add(itemRemoveCanvas);
-        itemRemoveCanvas.addActionListener(new ActionListener() {
+        JMenu menuFile = new JMenu("File");
+        menuBar.add(menuFile);
+        
+        final JMenuItem itemOpen = new JMenuItem("Open");
+        menuFile.add(itemOpen);
+        itemOpen.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                if (itemRemoveCanvas.getText().equals("Remove Canvas")){
-                    currentPanel.remove(canvas);
-
-                    itemRemoveCanvas.setText("Add Canvas");
-                }else if (itemRemoveCanvas.getText().equals("Add Canvas")){
-                    currentPanel.add(canvas, BorderLayout.CENTER);
-                    
-                    itemRemoveCanvas.setText("Remove Canvas");
-                }
+                
+            }
+        });
+        final JMenuItem itemSave = new JMenuItem("Save");
+        menuFile.add(itemSave);
+        itemSave.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                
             }
         });
         
+        JMenu menuEdit = new JMenu("Edit");
+        menuBar.add(menuEdit);
+        
+        JMenu menuAsset = new JMenu("Asset");
+        menuBar.add(menuAsset);
+
+        final JMenuItem itemLoadModel = new JMenuItem("Load Model");
+        menuAsset.add(itemLoadModel);
+        itemLoadModel.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                
+            }
+        });
+ /*       
         final JMenuItem itemHideCanvas = new JMenuItem("Hide Canvas");
         menuTortureMethods.add(itemHideCanvas);
         itemHideCanvas.addActionListener(new ActionListener() {
@@ -259,9 +300,9 @@ public class BBCanvasApplication {
                 startApp();
             }
         });
-
+*/
         JMenuItem itemExit = new JMenuItem("Exit");
-        menuTortureMethods.add(itemExit);
+        menuFile.add(itemExit);
         itemExit.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
                 frame.dispose();
