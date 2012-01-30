@@ -68,8 +68,10 @@ public class BBInputManager implements BBUpdateListener{
         
         //init input
         mouseInput = myEng.getContext().getMouseInput();
-        if (mouseInput != null)
+        if (mouseInput != null){
             mouseInput.initialize();
+        }
+            
 
         keyInput = myEng.getContext().getKeyInput();
         if (keyInput != null)
@@ -143,9 +145,11 @@ public class BBInputManager implements BBUpdateListener{
     }
     
     public void setMouseCenter(){
-        int x = BBSettings.getInstance().getSettings().getWidth() / 2;
-        int y = BBSettings.getInstance().getSettings().getHeight() / 2;
-        Mouse.setCursorPosition(x, y);
+        if (myEng.getContext().getType() == Type.Display) {
+            int x = BBSettings.getInstance().getSettings().getWidth() / 2;
+            int y = BBSettings.getInstance().getSettings().getHeight() / 2;
+            Mouse.setCursorPosition(x, y);
+        }
         
     }
 }

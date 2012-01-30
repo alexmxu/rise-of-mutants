@@ -83,6 +83,36 @@ public class BBEngineSystem {
         
         context.create(false);
     }
+    
+     /**
+     * Initializes the application's canvas for use.
+     * <p>
+     * After calling this method, cast the {@link #getContext() context} to 
+     * {@link JmeCanvasContext},
+     * then acquire the canvas with {@link JmeCanvasContext#getCanvas() }
+     * and attach it to an AWT/Swing Frame.
+     * The rendering thread will start when the canvas becomes visible on
+     * screen, however if you wish to start the context immediately you
+     * may call {@link #startCanvas() } to force the rendering thread
+     * to start. 
+     * 
+     * @see JmeCanvasContext
+     * @see Type#Canvas
+     */
+    public void createCanvas(){
+        if (context != null && context.isCreated()){
+            logger.warning("createCanvas() called when application already created!");
+            return;
+        }
+
+        //if (settings == null){
+        //    settings = new AppSettings(true);
+        //}
+
+        logger.log(Level.FINE, "Starting application: {0}", getClass().getName());
+        context = JmeSystem.newContext(BBSettings.getInstance().getSettings(), JmeContext.Type.Canvas);
+        this.startCanvas();
+    }
    
     
     /**
@@ -245,35 +275,6 @@ public class BBEngineSystem {
         return mSystemPaused;
     }
     
-        /**
-     * Initializes the application's canvas for use.
-     * <p>
-     * After calling this method, cast the {@link #getContext() context} to 
-     * {@link JmeCanvasContext},
-     * then acquire the canvas with {@link JmeCanvasContext#getCanvas() }
-     * and attach it to an AWT/Swing Frame.
-     * The rendering thread will start when the canvas becomes visible on
-     * screen, however if you wish to start the context immediately you
-     * may call {@link #startCanvas() } to force the rendering thread
-     * to start. 
-     * 
-     * @see JmeCanvasContext
-     * @see Type#Canvas
-     */
-    public void createCanvas(){
-        if (context != null && context.isCreated()){
-            logger.warning("createCanvas() called when application already created!");
-            return;
-        }
-
-        //if (settings == null){
-        //    settings = new AppSettings(true);
-        //}
-
-        logger.log(Level.FINE, "Starting application: {0}", getClass().getName());
-        context = JmeSystem.newContext(BBSettings.getInstance().getSettings(), JmeContext.Type.Canvas);
-        //context.setSystemListener(this);
-    }
 
     /**
      * Starts the rendering thread after createCanvas() has been called.

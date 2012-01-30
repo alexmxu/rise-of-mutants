@@ -40,9 +40,8 @@ public class BBApplication implements SystemListener {
     protected boolean inputEnabled = true;
     
     public BBApplication(){
-        System.out.println("NEW INSTANCE");
+        
         BBSettings.getInstance();
-
         engineSystem = new BBEngineSystem();
     }
     
@@ -50,7 +49,9 @@ public class BBApplication implements SystemListener {
      * Main game loop for standard App
      */
     public void run(){
-
+        //set up scene by initializing rootnode
+        BBSceneManager.getInstance().init();
+        
         //init application settings to display the config dialog
         BBSettings.getInstance().init();
         
@@ -63,6 +64,11 @@ public class BBApplication implements SystemListener {
      * Main entry point for canvas App
      */
     public void initCanvas(){
+        //set up scene by initializing rootnode
+        BBSceneManager.getInstance().init();
+        
+        //init application settings to display the config dialog
+        BBSettings.getInstance().init();
         
         engineSystem.createCanvas();
         engineSystem.setContextListener(this);
@@ -74,9 +80,7 @@ public class BBApplication implements SystemListener {
      * can be initialized.
      */
     public void initialize(){
-        //set up scene by initializing rootnode
-        BBSceneManager.getInstance().init();
-        
+       
         BBUpdateManager.getInstance();  
         //init timer and render
         engineSystem.initialize();
