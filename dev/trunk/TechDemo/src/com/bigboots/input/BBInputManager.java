@@ -128,6 +128,10 @@ public class BBInputManager implements BBUpdateListener{
         return inputManager;
     }
     
+    public void setInputEnabled(boolean val){
+        inputEnabled = val;
+    }
+    
     public boolean isInputEnabled(){
         return inputEnabled;
     }

@@ -24,6 +24,7 @@ import com.bigboots.core.BBUpdateManager;
 import com.bigboots.gui.BBGuiManager;
 import com.bigboots.input.BBInputManager;
 import com.bigboots.states.BBStateManager;
+import com.jme3.system.AppSettings;
 import com.jme3.system.SystemListener;
 
 
@@ -36,19 +37,20 @@ public class BBApplication implements SystemListener {
         
     protected BBEngineSystem engineSystem;
     protected float mSpeed = 1f;
+    protected boolean inputEnabled = true;
     
+    public BBApplication(){
+        System.out.println("NEW INSTANCE");
+        BBSettings.getInstance();
 
+        engineSystem = new BBEngineSystem();
+    }
     
     /*
-     * Main game loop.
+     * Main game loop for standard App
      */
     public void run(){
-        BBSettings.getInstance();
-        
-        engineSystem = new BBEngineSystem();
-        //set up scene by initializing rootnode
-        BBSceneManager.getInstance().init();
-      
+
         //init application settings to display the config dialog
         BBSettings.getInstance().init();
         
@@ -56,12 +58,25 @@ public class BBApplication implements SystemListener {
         engineSystem.setContextListener(this);
     }
      
+    
+    /*
+     * Main entry point for canvas App
+     */
+    public void initCanvas(){
+        
+        engineSystem.createCanvas();
+        engineSystem.setContextListener(this);
+    }    
+    
     /**
      * Callback to indicate the application to initialize. This method
      * is called in the GL/Rendering thread so any GL-dependent resources
      * can be initialized.
      */
-    public void initialize(){        
+    public void initialize(){
+        //set up scene by initializing rootnode
+        BBSceneManager.getInstance().init();
+        
         BBUpdateManager.getInstance();  
         //init timer and render
         engineSystem.initialize();
@@ -194,4 +209,13 @@ public class BBApplication implements SystemListener {
         BBStateManager.getInstance().cleanup();
         engineSystem.destroy();
     }
+    
+    public BBEngineSystem getEngine(){
+        return engineSystem;
+    }
+    
+    public void setNewSettings(AppSettings settings){
+        BBSettings.getInstance().setSettings(settings);
+    }
+    
 }

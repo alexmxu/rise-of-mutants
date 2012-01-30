@@ -42,6 +42,7 @@ public class BBSettings {
         settings = new AppSettings(true);
         loadFromRegistry = true;
     }
+    
     public void init(){
 
         //BBSettings.getInstance().getSettings().setSettingsDialogImage("/art/artworks/Characters/executioner.jpg");
@@ -77,7 +78,37 @@ public class BBSettings {
         settings = contxt.getSettings();
     }
     
+    /**
+     * Set the display settings to define the display created.
+     * <p>
+     * Examples of display parameters include display pixel width and height,
+     * color bit depth, z-buffer bits, anti-aliasing samples, and update frequency.
+     * If this method is called while the application is already running, then
+     * {@link #restart() } must be called to apply the settings to the display.
+     *
+     * @param settings The settings to set.
+     */
+    public void setSettings(AppSettings settings){
+        this.settings = settings;
+ /*       if (context != null && settings.useInput() != inputEnabled){
+            // may need to create or destroy input based
+            // on settings change
+            inputEnabled = !inputEnabled;
+            if (inputEnabled){
+                initInput();
+            }else{
+                destroyInput();
+            }
+        }else{
+            inputEnabled = settings.useInput();
+        }*/
+    }
+    
     public AppSettings getSettings(){
         return settings;
+    }
+    
+    public boolean isUsed(){
+        return settings.useInput();
     }
 }

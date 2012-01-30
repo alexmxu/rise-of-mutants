@@ -50,6 +50,10 @@ public class BBSimpleApplication extends BBApplication{
     protected BBFreeCamera mFreeCamera;
     protected Camera cam;
     
+    public BBSimpleApplication() {
+        super();
+    }
+    
     @Override
     public void simpleInitialize(){
 
@@ -96,6 +100,10 @@ public class BBSimpleApplication extends BBApplication{
         if(actionListener.mQuit == true){
             engineSystem.stop(false);
         }
+    }
+    
+    public BBFreeCamera getFreeCamera(){
+        return mFreeCamera;
     }
     
     private void setupKeys(){
