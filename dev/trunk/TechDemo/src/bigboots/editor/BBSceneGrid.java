@@ -17,7 +17,11 @@ package bigboots.editor;
 
 import com.bigboots.BBApplication;
 import com.bigboots.BBGlobals;
+import com.bigboots.components.BBComponent.CompType;
+import com.bigboots.components.BBEntity;
 import com.bigboots.components.BBLightComponent;
+import com.bigboots.components.BBNodeComponent;
+import com.bigboots.components.BBObject.ObjectTag;
 import com.bigboots.core.BBSceneManager;
 import com.bigboots.core.BBSettings;
 import com.bigboots.input.BBInputManager;
@@ -52,6 +56,8 @@ import com.jme3.scene.debug.Grid;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Line;
 import com.jme3.scene.shape.Sphere;
+import java.io.File;
+import java.io.IOException;
 
 /**
  *
@@ -60,11 +66,12 @@ import com.jme3.scene.shape.Sphere;
 public class BBSceneGrid extends BBApplication{
     //Variables
     private MyTestAction actionListener;
-    protected BBFreeCamera mFreeCamera;
-    protected Camera cam;
-    private Node helperNode,gridNode;
+    private BBFreeCamera mFreeCamera;
+    private Camera cam;
+    private Node helperNode,gridNode, sceneNode;
     private Geometry mark;
     private Vector3f markPosition = new Vector3f(0f,0f,0f);
+    private int mEntityID = 0;
     
     public BBSceneGrid() {
         super();
@@ -111,6 +118,7 @@ public class BBSceneGrid extends BBApplication{
         
         BBSceneManager.getInstance().addChild(helperNode);
         BBSceneManager.getInstance().addChild(gridNode);
+        BBSceneManager.getInstance().addChild(sceneNode);
         
         //Relocate the camera
         cam.setLocation(new Vector3f(13f,9f,15f));
@@ -119,6 +127,15 @@ public class BBSceneGrid extends BBApplication{
         //Set debub info on
         BBDebugInfo.getInstance().setDisplayFps(true);
         BBDebugInfo.getInstance().setDisplayStatView(true);
+        
+        //ressource locator
+        try{
+            BBSceneManager.getInstance().addLocator(new File("C:/Documents and Settings/killa/Mes documents/TMP/").getCanonicalPath());
+        }catch (IOException ex){
+            
+        }
+        
+
     }
     
     @Override
@@ -126,9 +143,28 @@ public class BBSceneGrid extends BBApplication{
         
     }
     
+    public void loadExternalModel(String path){       
+        // convert to / for windows
+        if (File.separatorChar == '\\'){
+            path = path.replace('\\', '/');
+        }
+        
+        System.out.println("oooooo LOADING EXTERNAL FILE : "+path);
+        BBEntity entity = new BBEntity("PLAYER"+mEntityID);
+        entity.setObjectTag(ObjectTag.PLAYER);
+        BBNodeComponent pnode = entity.addComponent(CompType.NODE);
+        pnode.setLocalTranslation(mark.getLocalTranslation());
+        entity.attachToRoot();
+        entity.loadModel(path);
+        entity.attachToNode(sceneNode);
+        
+        mEntityID++;
+    }
+    
     private void createGrid(){
         gridNode = new Node("gridNode");
-    	
+    	sceneNode = new Node("sceneNode");
+        
     	/* Wichtig beim Erstellen des Grids ist, dass auch dessen Linien ModelBounds erhalten.
          * Wenn das nicht gemacht wird werden die ModelBounds von hinzugefuegten Objekten
          * (z.B. Box) vererbt und Fehler koennen auftreten wie beispielsweise:
@@ -179,9 +215,9 @@ public class BBSceneGrid extends BBApplication{
     }
     
     /** A red ball that marks the last spot that was "hit" by the "shot". */
-      protected void initMark() {
+    private void initMark() {
         helperNode = new Node("helperNode");
-        
+
         Sphere sphere = new Sphere(30, 30, 0.2f);
         mark = new Geometry("BOOM!", sphere);
         Material mark_mat = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
@@ -189,7 +225,7 @@ public class BBSceneGrid extends BBApplication{
         mark.setMaterial(mark_mat);
         mark.setLocalTranslation(markPosition);
         helperNode.attachChild(mark);
-      }
+    }
     
     private void setupKeys(){
                 //Set up keys and listener to read it
@@ -331,9 +367,10 @@ public class BBSceneGrid extends BBApplication{
                   }
                 }
             } // else if ...
-           
-            
+
         }
-    }  
+    }//end myClass
+    
+    
     
 }

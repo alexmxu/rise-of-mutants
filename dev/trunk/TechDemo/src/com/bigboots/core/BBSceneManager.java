@@ -18,6 +18,7 @@ package com.bigboots.core;
 import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.TextureKey;
+import com.jme3.asset.plugins.FileLocator;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Spatial;
 import com.jme3.util.SkyFactory;
@@ -103,6 +104,10 @@ public class BBSceneManager {
         mFilterProcessor = new FilterPostProcessor(assetManager);
         viewPort.addProcessor(mFilterProcessor);
        
+    }
+    
+    public void addLocator(String locator){
+        assetManager.registerLocator(locator, FileLocator.class);
     }
     
     public InputStream locateFile(String filepath){

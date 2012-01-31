@@ -16,6 +16,14 @@
 package bigboots.editor;
 
 import com.bigboots.BBCanvasApplication;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
+import javax.swing.JFileChooser;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 
 
 /**
@@ -23,14 +31,50 @@ import com.bigboots.BBCanvasApplication;
  * @author @author Ulrich Nzuzi <ulrichnz@code.google.com>
  */
 public class BBModelViewer extends BBCanvasApplication{
+    private final JFileChooser mFileC;
+    
+    
+    public BBModelViewer(){
+        //Create a file chooser
+        mFileC = new JFileChooser();
+
+    }
+    
     
     public static void main(String[] args){
         
         BBModelViewer myEditor = new BBModelViewer();
         myEditor.start();
-        
-
     }
 
-    
+    @Override
+    public void createCustomMenu() {
+        JMenu menuAsset = new JMenu("Asset");
+        menuBar.add(menuAsset);
+
+        final JMenuItem itemLoadModel = new JMenuItem("Load Model");
+        menuAsset.add(itemLoadModel);
+        itemLoadModel.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                loadModel();
+            }
+        });
+    }
+
+    private void loadModel(){
+        int returnVal =mFileC.showOpenDialog(null);
+        
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File file = mFileC.getSelectedFile();
+            try{
+                mLogArea.append("Opening: " + file.getName() + " : " + file.getCanonicalPath() +"\n");
+            ((BBSceneGrid)app).loadExternalModel(file.getCanonicalPath());
+            }catch (IOException ex){            
+            }
+            
+        } else {
+            mLogArea.append("Open command cancelled by user." + "\n");
+        }
+    }
+
 }

@@ -50,12 +50,10 @@ public class BBGuiManager implements BBUpdateListener{
     protected ViewPort guiViewPort;
     private NiftyJmeDisplay niftyDisplay;
     
-    private long start;
     private BBEngineSystem engineSystem;
     
     public void init(BBEngineSystem eng){
         engineSystem = eng;
-        start = engineSystem.getTimer().getTime();
         
         //Use for displaying Debug info
         guiNode.setQueueBucket(Bucket.Gui);
