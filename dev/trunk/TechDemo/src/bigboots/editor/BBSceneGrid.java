@@ -147,10 +147,17 @@ public class BBSceneGrid extends BBApplication{
         BBSceneManager.getInstance().addFileLocator(path);
 
         Spatial tmpSpatial =  BBSceneManager.getInstance().getAssetManager().loadModel(name);
-        Node tmpNode = new Node(tmpSpatial.getName());
-        tmpNode.attachChild(tmpSpatial);
         
-        BBEntity entity = new BBEntity("ENTITY"+mEntityID, tmpNode);
+        BBEntity entity;
+        
+        if(tmpSpatial instanceof Geometry){
+            Node tmpNode = new Node(tmpSpatial.getName());
+            tmpNode.attachChild(tmpSpatial);
+            entity = new BBEntity("ENTITY"+mEntityID, tmpNode);
+        }else{
+            entity = new BBEntity("ENTITY"+mEntityID, (Node)tmpSpatial);
+        }
+        
         entity.setObjectTag(ObjectTag.PLAYER);
         BBNodeComponent pnode = entity.addComponent(CompType.NODE);
         pnode.setLocalTranslation(mSceneGizmo.getMarkPosition());
