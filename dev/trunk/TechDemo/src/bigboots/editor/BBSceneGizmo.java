@@ -36,7 +36,7 @@ import com.jme3.scene.shape.Torus;
  * @author @author Ulrich Nzuzi <ulrichnz@code.google.com>
  */
 public class BBSceneGizmo {
-    private Geometry mAxisX,mAxisY,mAxisZ;
+    private Geometry mAxisX, mAxisY, mAxisZ;
     private Geometry xCircle, yCircle, zCircle;
     private Geometry sxArrow, syArrow, szArrow;
     private Node helperNode, transAxisNode, rotationAxisNode, scaleAxisNode;

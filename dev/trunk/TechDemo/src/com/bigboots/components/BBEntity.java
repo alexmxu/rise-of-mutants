@@ -100,7 +100,8 @@ public class BBEntity extends BBObject{
             tmpSpatial =  BBSceneManager.getInstance().loadSpatial(mesh);
             //TangentBinormalGenerator.generate(tmpSpatial);
        }
-       
+       tmpSpatial.updateModelBound();
+       tmpSpatial.updateGeometricState();
        tmpSpatial.setShadowMode(ShadowMode.CastAndReceive);
        this.getComponent(BBNodeComponent.class).attachChild(tmpSpatial);
        
