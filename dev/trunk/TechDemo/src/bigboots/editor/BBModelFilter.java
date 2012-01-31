@@ -33,7 +33,8 @@ public class BBModelFilter extends FileFilter{
         if (extension != null) {
             if (extension.equals("j3o") ||
                 extension.equals("mesh.j3o")||
-                extension.equals("mesh.xml")){
+                extension.equals("mesh.xml")||
+                extension.equals("obj")){
                     return true;
             } else {
                 return false;

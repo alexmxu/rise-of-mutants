@@ -52,6 +52,7 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.debug.Grid;
 import com.jme3.scene.shape.Line;
 import java.io.File;
@@ -145,16 +146,19 @@ public class BBSceneGrid extends BBApplication{
         
         BBSceneManager.getInstance().addFileLocator(path);
 
-        System.out.println("oooooo LOADING EXTERNAL FILE : "+path);
-        BBEntity entity = new BBEntity("ENTITY"+mEntityID);
+        Spatial tmpSpatial =  BBSceneManager.getInstance().getAssetManager().loadModel(name);
+        Node tmpNode = new Node(tmpSpatial.getName());
+        tmpNode.attachChild(tmpSpatial);
+        
+        BBEntity entity = new BBEntity("ENTITY"+mEntityID, tmpNode);
         entity.setObjectTag(ObjectTag.PLAYER);
         BBNodeComponent pnode = entity.addComponent(CompType.NODE);
         pnode.setLocalTranslation(mSceneGizmo.getMarkPosition());
         entity.attachToRoot();
-        entity.loadModel(name);
+        entity.loadModel("");
         entity.attachToNode(sceneNode);
         
-        //mSceneGizmo.getTranAxis().setLocalTranslation(mSceneGizmo.getMarkPosition());
+        mSceneGizmo.getTranAxis().setLocalTranslation(mSceneGizmo.getMarkPosition());
         
         BBSceneManager.getInstance().removeFileLocator(path);
         
@@ -165,13 +169,7 @@ public class BBSceneGrid extends BBApplication{
         gridNode = new Node("gridNode");
     	sceneNode = new Node("sceneNode");
         
-    	/* Wichtig beim Erstellen des Grids ist, dass auch dessen Linien ModelBounds erhalten.
-         * Wenn das nicht gemacht wird werden die ModelBounds von hinzugefuegten Objekten
-         * (z.B. Box) vererbt und Fehler koennen auftreten wie beispielsweise:
-         * Grid verschwindet sobald die Box ausserhalb des Sichtfelds ist. 
-         */
-
-    	
+        //Create a grid plane
         Geometry g = new Geometry("GRID", new Grid(40, 40, 0.5f) );
         Material floor_mat = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
         floor_mat.getAdditionalRenderState().setWireframe(true);
@@ -179,37 +177,27 @@ public class BBSceneGrid extends BBApplication{
         g.setMaterial(floor_mat);
         g.center().move(new Vector3f(0f,0f,0f));
         gridNode.attachChild(g);
-        /*
-        Box floor = new Box(Vector3f.ZERO, 10f, 0.1f, 5f);
-        Material floor_mat = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
-        floor_mat.getAdditionalRenderState().setWireframe(true);
-        floor_mat.setColor("Color", ColorRGBA.LightGray);
-        //Set up a Geometry for our box 
-        Geometry floor_geo = new Geometry("Floor", floor);
-        floor_geo.setMaterial(floor_mat);
-        floor_geo.center().move(new Vector3f(0f,0f,0f));
-        gridNode.attachChild(floor_geo);
-        */
-        // rote x-Achse
+
+        // Red line for X axis
         final Line xAxis = new Line(new Vector3f(-10f, 0f, 0f), new Vector3f(10f, 0f, 0f));
+        xAxis.setLineWidth(2f);
         Geometry gxAxis = new Geometry("XAxis", xAxis);
         gxAxis.setModelBound(new BoundingBox());
         Material mat = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
         mat.setColor("Color", ColorRGBA.Red);
         gxAxis.setShadowMode(ShadowMode.Off);
         gxAxis.setMaterial(mat);
-        gxAxis.scale(1f,5f,1f);
         gridNode.attachChild(gxAxis);
 
-        // blaue z-Achse
+        // Bleu line for Z axis
         final Line zAxis = new Line(new Vector3f(0f, 0f, -10f), new Vector3f(0f, 0f, 10f));
+        zAxis.setLineWidth(2f);
         Geometry gzAxis = new Geometry("ZAxis", zAxis);
         gzAxis.setModelBound(new BoundingBox());
         mat = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
         mat.setColor("Color", ColorRGBA.Blue);
         gzAxis.setShadowMode(ShadowMode.Off);
         gzAxis.setMaterial(mat);
-        gzAxis.scale(1f,5f,1f);
         gridNode.attachChild(gzAxis);
 
     }
