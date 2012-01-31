@@ -106,8 +106,12 @@ public class BBSceneManager {
        
     }
     
-    public void addLocator(String locator){
+    public void addFileLocator(String locator){
         assetManager.registerLocator(locator, FileLocator.class);
+    }
+    
+    public void removeFileLocator(String locator){
+        assetManager.unregisterLocator(locator, FileLocator.class);
     }
     
     public InputStream locateFile(String filepath){

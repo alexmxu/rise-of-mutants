@@ -23,7 +23,6 @@ import java.io.IOException;
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
 
 
 /**
@@ -37,12 +36,12 @@ public class BBModelViewer extends BBCanvasApplication{
     public BBModelViewer(){
         //Create a file chooser
         mFileC = new JFileChooser();
-
+        //mFileC.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        mFileC.addChoosableFileFilter(new BBModelFilter());
+        mFileC.setAcceptAllFileFilterUsed(false);
     }
-    
-    
-    public static void main(String[] args){
-        
+
+    public static void main(String[] args){  
         BBModelViewer myEditor = new BBModelViewer();
         myEditor.start();
     }
@@ -56,25 +55,25 @@ public class BBModelViewer extends BBCanvasApplication{
         menuAsset.add(itemLoadModel);
         itemLoadModel.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                loadModel();
+                loadModelFromFile();
             }
         });
     }
 
-    private void loadModel(){
-        int returnVal =mFileC.showOpenDialog(null);
+    private void loadModelFromFile(){
+        int returnVal = mFileC.showOpenDialog(null);
         
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = mFileC.getSelectedFile();
             try{
-                mLogArea.append("Opening: " + file.getName() + " : " + file.getCanonicalPath() +"\n");
-            ((BBSceneGrid)app).loadExternalModel(file.getCanonicalPath());
-            }catch (IOException ex){            
-            }
+                mLogArea.append("Loading file : " + file.getCanonicalPath() +"\n");
+                ((BBSceneGrid)app).loadExternalModel(file.getName(), file.getParent());
+            }catch (IOException ex){}
             
-        } else {
-            mLogArea.append("Open command cancelled by user." + "\n");
         }
+        
+        mFileC.setSelectedFile(null);
     }
 
+    
 }
