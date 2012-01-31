@@ -53,11 +53,8 @@ import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.debug.Grid;
-import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Line;
-import com.jme3.scene.shape.Sphere;
 import java.io.File;
-import java.io.IOException;
 
 /**
  *
@@ -68,9 +65,9 @@ public class BBSceneGrid extends BBApplication{
     private MyTestAction actionListener;
     private BBFreeCamera mFreeCamera;
     private Camera cam;
-    private Node helperNode,gridNode, sceneNode;
-    private Geometry mark;
-    private Vector3f markPosition = new Vector3f(0f,0f,0f);
+    private Node gridNode, sceneNode;
+    private BBSceneGizmo mSceneGizmo;
+    
     private int mEntityID = 0;
     
     public BBSceneGrid() {
@@ -114,9 +111,11 @@ public class BBSceneGrid extends BBApplication{
         
         //create grid
         createGrid();
-        initMark();
+        mSceneGizmo = new BBSceneGizmo();
+        mSceneGizmo.init();
+        mSceneGizmo.setTranAxisVisible(true);
         
-        BBSceneManager.getInstance().addChild(helperNode);
+        //Attach node to rootNode
         BBSceneManager.getInstance().addChild(gridNode);
         BBSceneManager.getInstance().addChild(sceneNode);
         
@@ -128,14 +127,6 @@ public class BBSceneGrid extends BBApplication{
         BBDebugInfo.getInstance().setDisplayFps(true);
         BBDebugInfo.getInstance().setDisplayStatView(true);
         
-        //ressource locator
-        try{
-            BBSceneManager.getInstance().addLocator(new File("C:/Documents and Settings/killa/Mes documents/TMP/").getCanonicalPath());
-        }catch (IOException ex){
-            
-        }
-        
-
     }
     
     @Override
@@ -143,20 +134,29 @@ public class BBSceneGrid extends BBApplication{
         
     }
     
-    public void loadExternalModel(String path){       
+    public void loadExternalModel(String name, String path){       
         // convert to / for windows
         if (File.separatorChar == '\\'){
             path = path.replace('\\', '/');
         }
+        if(!path.endsWith("/")){
+            path += "/";
+        }
         
+        BBSceneManager.getInstance().addFileLocator(path);
+
         System.out.println("oooooo LOADING EXTERNAL FILE : "+path);
-        BBEntity entity = new BBEntity("PLAYER"+mEntityID);
+        BBEntity entity = new BBEntity("ENTITY"+mEntityID);
         entity.setObjectTag(ObjectTag.PLAYER);
         BBNodeComponent pnode = entity.addComponent(CompType.NODE);
-        pnode.setLocalTranslation(mark.getLocalTranslation());
+        pnode.setLocalTranslation(mSceneGizmo.getMarkPosition());
         entity.attachToRoot();
-        entity.loadModel(path);
+        entity.loadModel(name);
         entity.attachToNode(sceneNode);
+        
+        //mSceneGizmo.getTranAxis().setLocalTranslation(mSceneGizmo.getMarkPosition());
+        
+        BBSceneManager.getInstance().removeFileLocator(path);
         
         mEntityID++;
     }
@@ -214,18 +214,7 @@ public class BBSceneGrid extends BBApplication{
 
     }
     
-    /** A red ball that marks the last spot that was "hit" by the "shot". */
-    private void initMark() {
-        helperNode = new Node("helperNode");
-
-        Sphere sphere = new Sphere(30, 30, 0.2f);
-        mark = new Geometry("BOOM!", sphere);
-        Material mark_mat = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
-        mark_mat.setColor("m_Color", ColorRGBA.Red);
-        mark.setMaterial(mark_mat);
-        mark.setLocalTranslation(markPosition);
-        helperNode.attachChild(mark);
-    }
+    
     
     private void setupKeys(){
                 //Set up keys and listener to read it
@@ -301,8 +290,8 @@ public class BBSceneGrid extends BBApplication{
             }
             
             if(binding.equals("MOUSE_CLICK_LEFT")){
-                //System.out.println("xxxxxx FOUND : "+markPosition.toString());
-                mark.setLocalTranslation(markPosition.setY(mark.getLocalTranslation().y));
+                //update the mark location
+               mSceneGizmo.updateMarkGizmo();
             }
         }
 
@@ -357,12 +346,13 @@ public class BBSceneGrid extends BBApplication{
                 if (results.size() > 0) {
                   // The closest result is the target that the player picked:
                   Geometry target = results.getClosestCollision().getGeometry();
+                  //System.out.println("ooo GEOM FOUND : "+target.getName());
                   // The closest collision point is what was truly hit:
                   CollisionResult closest = results.getClosestCollision();
                   // Here comes the action:
                   if (target.getName().equals("GRID")) {
                     // Let's interact - we mark the hit with a red dot.
-                    markPosition = closest.getContactPoint();
+                    mSceneGizmo.setMarkPosition(closest.getContactPoint());
                     //System.out.println("xxxxxx FOUND : "+markPosition.toString());
                   }
                 }
