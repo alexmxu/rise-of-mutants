@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entities>
+	<entity id="0" className="commonMonster" entityName="aNotSoCommonMonster">
+		<inGameName>
+			<setXml>A not so regular common monster</setXml>
+		</inGameName>
+		<models>
+			<model index="0">
+				<setAttribute name="blenderInstance">monster2</setAttribute>
+				<setAttribute name="blenderObj">monster2</setAttribute>
+			</model>
+			<model index="1">
+				<setAttribute name="blenderInstance">monster2gun</setAttribute>
+				<setAttribute name="blenderObj">monster2gun</setAttribute>
+			</model>
+		</models>
+		<components>
+			<component>
+				<jumpheight>
+					<setXml>10</setXml>
+				</jumpheight>
+			</component>
+		</components>
+	</entity>
+</entities>
