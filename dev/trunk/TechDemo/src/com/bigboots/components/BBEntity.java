@@ -248,6 +248,13 @@ public class BBEntity extends BBObject{
         return null;
     }
     
+        public void setChildMesh(Geometry geom){
+        
+          if (geom != null){
+             mapChildMeshes.add(geom);
+         }
+     }
+    
     public List<Geometry> getAllGeometries(){
         return mapChildMeshes;
     }

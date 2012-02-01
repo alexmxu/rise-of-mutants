@@ -39,6 +39,7 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.shape.Box;
 import java.util.ArrayList;
@@ -86,10 +87,33 @@ public class BBPlayerManager {
         mMainPlayer = new BBEntity("PLAYER");
         mMainPlayer.setObjectTag(BBObject.ObjectTag.PLAYER);
         BBNodeComponent pnode = mMainPlayer.addComponent(CompType.NODE);
-        pnode.scale(scalePlayer);
+         pnode.scale(scalePlayer);
         pnode.setLocalTranslation(this.getMainLocation());
         mMainPlayer.attachToRoot();
         mMainPlayer.loadModel("Scenes/TestScene/character.mesh.xml");
+
+        
+        
+        // Additional collision mesh for sword and bullets
+        BoundingBox bv = (BoundingBox) pnode.getWorldBound();
+        Mesh meshCollision = new Box( bv.getXExtent()*0.5f, bv.getYExtent()*0.8f, bv.getZExtent()*0.6f);
+        Geometry geoCollision = new Geometry("additiveCollision", meshCollision);
+        
+        Material matCollision = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
+        matCollision.setColor("Color", ColorRGBA.Orange);
+        matCollision.getAdditionalRenderState().setWireframe(true);
+        matCollision.setReceivesShadows(false);
+        geoCollision.setMaterial(matCollision);
+        geoCollision.setShadowMode(ShadowMode.Off);
+        
+        Node childToAttach = (Node) pnode.getChild(0);
+        geoCollision.setLocalTranslation(posOffset.negate());
+        geoCollision.setUserData("entityName", name);
+        mMainPlayer.setChildMesh(geoCollision);
+        childToAttach.attachChild(geoCollision);          
+        
+        
+        
         pnode.getChild(0).setLocalTranslation(posOffset);
         //BBSceneManager.getInstance().addChild(pnode);
                 

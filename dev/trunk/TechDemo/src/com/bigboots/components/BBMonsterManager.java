@@ -20,19 +20,28 @@ import com.bigboots.components.BBCollisionComponent.ShapeType;
 import com.bigboots.components.BBComponent.CompType;
 import com.bigboots.animation.BBAnimManager;
 import com.bigboots.audio.BBAudioManager;
+import com.bigboots.core.BBSceneManager;
 import com.bigboots.gui.BBGuiManager;
 import com.bigboots.gui.BBProgressbarController;
 import com.bigboots.physics.BBPhysicsManager;
+import com.bulletphysics.collision.shapes.CapsuleShape;
 import com.jme3.animation.AnimChannel;
 import com.jme3.animation.LoopMode;
 import com.jme3.bounding.BoundingBox;
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.control.CharacterControl;
+import com.jme3.material.Material;
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
+import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Mesh;
+import com.jme3.scene.Node;
+import com.jme3.scene.shape.Box;
+import com.jme3.scene.shape.Cylinder;
 import java.util.HashMap;
 import java.util.List;
 
@@ -96,6 +105,29 @@ public class BBMonsterManager {
         mEnemy.setObjectTag(BBObject.ObjectTag.MONSTER);
         BBNodeComponent node = mEnemy.addComponent(CompType.NODE);
         mEnemy.loadModel(file);
+
+        
+        
+        // Additional collision mesh for sword and bullets
+        BoundingBox bv = (BoundingBox) node.getWorldBound();
+        Mesh meshCollision = new Box( bv.getXExtent()*0.6f, bv.getYExtent()*0.8f, bv.getZExtent()*0.8f);
+        Geometry geoCollision = new Geometry("additiveCollision", meshCollision);
+        
+        Material matCollision = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
+        matCollision.setColor("Color", ColorRGBA.Orange);
+        matCollision.getAdditionalRenderState().setWireframe(true);
+        matCollision.setReceivesShadows(false);
+        geoCollision.setMaterial(matCollision);
+        geoCollision.setShadowMode(ShadowMode.Off);
+        
+        Node childToAttach = (Node) node.getChild(0);
+        geoCollision.setLocalTranslation(posOffset.negate());
+        geoCollision.setUserData("entityName", name);
+        mEnemy.setChildMesh(geoCollision);
+        childToAttach.attachChild(geoCollision);
+        
+        
+        
         node.scale(scaleMonster);
         node.setLocalTranslation(position);
         node.getChild(0).setLocalTranslation(posOffset);
@@ -113,8 +145,8 @@ public class BBMonsterManager {
         BBCollisionComponent colCp = mEnemy.addComponent(CompType.COLSHAPE);
         shape.setMargin(0.1f);
         colCp.attachShape(shape);
+
         
-               
         CharacterControl eControler = (CharacterControl) BBAnimManager.getInstance().createControl(BBControlComponent.ControlType.CHARACTER, mEnemy); 
         eControler.setJumpSpeed(20);
         eControler.setFallSpeed(50);
