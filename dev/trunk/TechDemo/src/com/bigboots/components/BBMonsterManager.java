@@ -247,11 +247,14 @@ public class BBMonsterManager {
                     List <Geometry> geoList = object.getAllGeometries();
                     for (Geometry geo : geoList){
                         Geometry geoChange = geo;   
-                        geoChange.setUserData("entityName", "DEAD_" + geoChange.getUserData("entityName"));  
-                        BBPhysicsManager.getInstance().removePhysic(object.getComponent(BBNodeComponent.class));
-                        //BBControlComponent objControl = object.getComponent(BBControlComponent.class).getControl();
+                        geoChange.setUserData("entityName", "DEAD_" + geoChange.getUserData("entityName")); 
+                        if (geo.getName().equals("additiveCollision")) {
+                            Node nd = (Node) object.getComponent(BBNodeComponent.class).getChild(0);
+                            nd.detachChild(geo);
+                        }
                     }
-                    
+
+                    BBPhysicsManager.getInstance().removePhysic(object.getComponent(BBNodeComponent.class));                    
                     object.setEnabled(false);    
                 }  
             }//is enable
