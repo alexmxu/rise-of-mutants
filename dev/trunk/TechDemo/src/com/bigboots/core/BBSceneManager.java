@@ -207,6 +207,10 @@ public class BBSceneManager {
     public void addChild(Spatial sp){
         rootNode.attachChild(sp);
     }
+
+    public void removeChild(Spatial sp){
+        rootNode.detachChild(sp);
+    }    
     
     public void addChild(Node node){
         rootNode.attachChild(node);
