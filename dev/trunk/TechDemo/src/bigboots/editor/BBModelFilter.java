@@ -34,7 +34,8 @@ public class BBModelFilter extends FileFilter{
             if (extension.equals("j3o") ||
                 extension.equals("mesh.j3o")||
                 extension.equals("mesh.xml")||
-                extension.equals("obj")){
+                extension.equals("obj") ||
+                extension.equals("blend")){
                     return true;
             } else {
                 return false;
@@ -46,7 +47,7 @@ public class BBModelFilter extends FileFilter{
  
     //The description of this filter
     public String getDescription() {
-        return "Model (*.j3o),(*.mesh.xml)";
+        return "Model (*.j3o),(*.mesh.xml), (*.obj), (*.blend)";
     }
     
     /*
