@@ -29,9 +29,12 @@ import com.bigboots.core.BBSettings;
 import com.bigboots.input.BBInputManager;
 import com.bigboots.core.BBDebugInfo;
 import com.bigboots.components.camera.BBFreeCamera;
+import com.bigboots.gui.BBGuiManager;
 import com.jme3.bounding.BoundingBox;
 import com.jme3.collision.CollisionResult;
 import com.jme3.collision.CollisionResults;
+import com.jme3.font.BitmapFont;
+import com.jme3.font.BitmapText;
 import com.jme3.input.ChaseCamera;
 import com.jme3.input.InputManager;
 
@@ -206,7 +209,7 @@ public class BBSceneGrid extends BBApplication{
         Material mat = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
         mat.setColor("Color", new ColorRGBA(1.0f, 0.2f, 0.2f, 0.5f));
         mat.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
-        g.setQueueBucket(Bucket.Transparent);
+        gxAxis.setQueueBucket(Bucket.Transparent);
         gxAxis.setShadowMode(ShadowMode.Off);
         gxAxis.setMaterial(mat);
         gridNode.attachChild(gxAxis);
@@ -219,11 +222,20 @@ public class BBSceneGrid extends BBApplication{
         mat = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
         mat.setColor("Color", new ColorRGBA(0.2f, 0.2f, 1.0f, 0.5f));
         mat.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
-        g.setQueueBucket(Bucket.Transparent);        
+        gxAxis.setQueueBucket(Bucket.Transparent);        
         gzAxis.setShadowMode(ShadowMode.Off);
         gzAxis.setMaterial(mat);
         gridNode.attachChild(gzAxis);
 
+        
+        BitmapFont guiFont = BBSceneManager.getInstance().getAssetManager().loadFont("Interface/Fonts/Default.fnt");
+        BitmapText ch = new BitmapText(guiFont, false);
+        ch.setSize(guiFont.getCharSet().getRenderedSize());
+        ch.setText("W,A,S,D,Q,Z, MiddleMouseButton, Scroll"); // crosshairs
+        ch.setColor(new ColorRGBA(1f,0.8f,0.1f,0.5f));
+        ch.setLocalTranslation(BBSettings.getInstance().getSettings().getWidth()*0.3f,BBSettings.getInstance().getSettings().getHeight()*0.1f,0);
+        BBGuiManager.getInstance().getGuiNode().attachChild(ch);           
+        
     }
     
     
@@ -287,6 +299,38 @@ public class BBSceneGrid extends BBApplication{
         MyTestAction() {
         
             nodeCamera = new Node("Camera");
+            
+        // line for Camera Movement
+        final Line xAxis = new Line(new Vector3f(-0.1f, 0f, 0f), new Vector3f(0.1f, 0f, 0f));
+        xAxis.setLineWidth(1f);
+        Geometry gxAxis = new Geometry("XAxis", xAxis);
+        gxAxis.setModelBound(new BoundingBox());
+        Material mat = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
+        mat.setColor("Color", new ColorRGBA(0.5f, 0.1f, 0.1f, 0.3f));
+        mat.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
+        gxAxis.setQueueBucket(Bucket.Transparent);
+        gxAxis.setShadowMode(ShadowMode.Off);
+        gxAxis.setMaterial(mat);
+        nodeCamera.attachChild(gxAxis);            
+
+        final Line xAxis2 = new Line(new Vector3f(0f, -0.1f, 0f), new Vector3f(0f, 0.1f, 0f));
+        xAxis2.setLineWidth(1f);
+        Geometry gxAxis2 = new Geometry("XAxis", xAxis2);
+        gxAxis2.setModelBound(new BoundingBox());
+        gxAxis2.setQueueBucket(Bucket.Transparent);
+        gxAxis2.setShadowMode(ShadowMode.Off);
+        gxAxis2.setMaterial(mat);
+        nodeCamera.attachChild(gxAxis2);            
+
+        final Line xAxis3 = new Line(new Vector3f(0f, 0f, -0.1f), new Vector3f(0f, 0f, 0.1f));
+        xAxis3.setLineWidth(1f);
+        Geometry gxAxis3 = new Geometry("XAxis", xAxis3);
+        gxAxis3.setModelBound(new BoundingBox());
+        gxAxis3.setQueueBucket(Bucket.Transparent);
+        gxAxis3.setShadowMode(ShadowMode.Off);
+        gxAxis3.setMaterial(mat);
+        nodeCamera.attachChild(gxAxis3);                    
+            
             BBSceneManager.getInstance().getRootNode().attachChild(nodeCamera);
             cameraPlayer(nodeCamera);     
         }
@@ -319,17 +363,17 @@ public class BBSceneGrid extends BBApplication{
 
 
             if (name.equals("FLYCAM_Forward")){
-                nodeCamera.move(cam.getDirection().normalize().mult(0.2f));
+                nodeCamera.move(cam.getDirection().normalize().mult(0.03f));
             }else if (name.equals("FLYCAM_Backward")){
-                nodeCamera.move(cam.getDirection().normalize().negateLocal().mult(0.2f));
+                nodeCamera.move(cam.getDirection().normalize().negateLocal().mult(0.03f));
             }else if (name.equals("FLYCAM_StrafeLeft")){
-                nodeCamera.move(cam.getLeft().normalize().mult(0.2f));
+                nodeCamera.move(cam.getLeft().normalize().mult(0.03f));
             }else if (name.equals("FLYCAM_StrafeRight")){
-                nodeCamera.move(cam.getLeft().normalize().negateLocal().mult(0.2f));
+                nodeCamera.move(cam.getLeft().normalize().negateLocal().mult(0.03f));
             }else if (name.equals("FLYCAM_Rise")){
-                nodeCamera.move(cam.getUp().normalize().mult(0.2f));
+                nodeCamera.move(cam.getUp().normalize().mult(0.03f));
             }else if (name.equals("FLYCAM_Lower")){
-                nodeCamera.move(cam.getUp().normalize().negateLocal().mult(0.2f));
+                nodeCamera.move(cam.getUp().normalize().negateLocal().mult(0.03f));
             }
             
 //            if (name.equals("FLYCAM_Left")){
