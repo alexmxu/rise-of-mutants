@@ -15,7 +15,7 @@ public class BBMain extends BBApplication{
         BBGuiManager.getInstance().addXmlGui("Interface/ingame.xml");
         BBGuiManager.getInstance().getNifty().gotoScreen("null");
         
-        //Launch the main menu screen
+        //Launch the main menu screen/
         BBMainMenuState window = new BBMainMenuState();
         //BBInGameState window = new BBInGameState();
         BBStateManager.getInstance().attach(window);
