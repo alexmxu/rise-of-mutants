@@ -22,6 +22,8 @@ import com.bigboots.components.BBEntity;
 import com.bigboots.components.BBLightComponent;
 import com.bigboots.components.BBNodeComponent;
 import com.bigboots.components.BBObject.ObjectTag;
+import com.bigboots.components.camera.BBCameraComponent;
+import com.bigboots.components.camera.BBCameraManager;
 import com.bigboots.core.BBSceneManager;
 import com.bigboots.core.BBSettings;
 import com.bigboots.input.BBInputManager;
@@ -30,6 +32,8 @@ import com.bigboots.components.camera.BBFreeCamera;
 import com.jme3.bounding.BoundingBox;
 import com.jme3.collision.CollisionResult;
 import com.jme3.collision.CollisionResults;
+import com.jme3.input.ChaseCamera;
+import com.jme3.input.InputManager;
 
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
@@ -44,6 +48,7 @@ import com.jme3.light.Light.Type;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Ray;
 import com.jme3.math.Vector2f;
@@ -70,6 +75,8 @@ public class BBSceneGrid extends BBApplication{
     private Camera cam;
     private Node gridNode, sceneNode;
     private BBSceneGizmo mSceneGizmo;
+    private ChaseCamera chaseCam;
+    private Node nodeCamera;
     
     private int mEntityID = 0;
     
@@ -81,7 +88,7 @@ public class BBSceneGrid extends BBApplication{
     public void simpleInitialize(){
         //Load the main camera
         cam = new Camera(BBSettings.getInstance().getSettings().getWidth(), BBSettings.getInstance().getSettings().getHeight());
-        cam.setFrustumPerspective(45f, (float)cam.getWidth() / cam.getHeight(), 1f, 1000f);
+        cam.setFrustumPerspective(45f, (float)cam.getWidth() / cam.getHeight(), 0.001f, 1000f);
         cam.setLocation(new Vector3f(0f, 0f, 1f));
         cam.lookAt(new Vector3f(0f, 0f, 0f), Vector3f.UNIT_Y);
         
@@ -91,8 +98,8 @@ public class BBSceneGrid extends BBApplication{
         vp.setBackgroundColor(ColorRGBA.Gray);
         BBSceneManager.getInstance().setViewPort(vp);
         
-        mFreeCamera = new BBFreeCamera("FREE_CAM", cam);
-        mFreeCamera.setMoveSpeed(30);
+//        mFreeCamera = new BBFreeCamera("FREE_CAM", cam);
+//        mFreeCamera.setMoveSpeed(30);
         //mFreeCamera.setDragToRotate(false);
         
         //Set up basic light and sky coming with the standard scene manager
@@ -131,6 +138,7 @@ public class BBSceneGrid extends BBApplication{
         BBDebugInfo.getInstance().setDisplayStatView(true);
         
     }
+    
     
     @Override
     public void simpleUpdate(){
@@ -182,7 +190,7 @@ public class BBSceneGrid extends BBApplication{
         Geometry g = new Geometry("GRID", new Grid(40, 40, 0.5f) );
         Material floor_mat = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
         floor_mat.getAdditionalRenderState().setWireframe(true);
-        floor_mat.setColor("Color", new ColorRGBA(0.5f, 0.5f, 0.5f, 0.5f));
+        floor_mat.setColor("Color", new ColorRGBA(0.3f, 0.3f, 0.3f, 0.2f));
         floor_mat.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
         g.setShadowMode(ShadowMode.Off);
         g.setQueueBucket(Bucket.Transparent);
@@ -248,14 +256,14 @@ public class BBSceneGrid extends BBApplication{
         BBInputManager.getInstance().mapKey("MOUSE_MOVE_RIGHT", new MouseAxisTrigger(MouseInput.AXIS_X, false));
         
         // button - rotation of cam
-        BBInputManager.getInstance().mapKey("FLYCAM_Left", new KeyTrigger(KeyInput.KEY_LEFT));
-        BBInputManager.getInstance().mapKey("FLYCAM_Right", new KeyTrigger(KeyInput.KEY_RIGHT));
-        BBInputManager.getInstance().mapKey("FLYCAM_Up", new KeyTrigger(KeyInput.KEY_UP));
-        BBInputManager.getInstance().mapKey("FLYCAM_Down", new KeyTrigger(KeyInput.KEY_DOWN));
+//        BBInputManager.getInstance().mapKey("FLYCAM_Left", new KeyTrigger(KeyInput.KEY_LEFT));
+//        BBInputManager.getInstance().mapKey("FLYCAM_Right", new KeyTrigger(KeyInput.KEY_RIGHT));
+//        BBInputManager.getInstance().mapKey("FLYCAM_Up", new KeyTrigger(KeyInput.KEY_UP));
+//        BBInputManager.getInstance().mapKey("FLYCAM_Down", new KeyTrigger(KeyInput.KEY_DOWN));
 
         // mouse only - zoom in/out with wheel, and rotate drag
-        BBInputManager.getInstance().mapKey("FLYCAM_ZoomIn", new MouseAxisTrigger(MouseInput.AXIS_WHEEL, false));
-        BBInputManager.getInstance().mapKey("FLYCAM_ZoomOut", new MouseAxisTrigger(MouseInput.AXIS_WHEEL, true));
+//        BBInputManager.getInstance().mapKey("FLYCAM_ZoomIn", new MouseAxisTrigger(MouseInput.AXIS_WHEEL, false));
+//        BBInputManager.getInstance().mapKey("FLYCAM_ZoomOut", new MouseAxisTrigger(MouseInput.AXIS_WHEEL, true));
         BBInputManager.getInstance().mapKey("MOUSE_CLICK_LEFT", new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
 
         // keyboard only WASD for movement and WZ for rise/lower height
@@ -274,6 +282,14 @@ public class BBSceneGrid extends BBApplication{
     }
     
     class MyTestAction implements AnalogListener, ActionListener{
+        
+        
+        MyTestAction() {
+        
+            nodeCamera = new Node("Camera");
+            BBSceneManager.getInstance().getRootNode().attachChild(nodeCamera);
+            cameraPlayer(nodeCamera);     
+        }
      
 
         public void onAction(String binding, boolean keyPressed, float tpf) {
@@ -301,31 +317,46 @@ public class BBSceneGrid extends BBApplication{
 
         public void onAnalog(String name, float value, float tpf) {
 
-            if (name.equals("FLYCAM_Left")){
-                mFreeCamera.rotateCamera(value, mFreeCamera.getUpVector());
-            }else if (name.equals("FLYCAM_Right")){
-                mFreeCamera.rotateCamera(-value, mFreeCamera.getUpVector());
-            }else if (name.equals("FLYCAM_Up")){
-                mFreeCamera.rotateCamera(-value, mFreeCamera.getEngineCamera().getLeft());
-            }else if (name.equals("FLYCAM_Down")){
-                mFreeCamera.rotateCamera(value, mFreeCamera.getEngineCamera().getLeft());
-            }else if (name.equals("FLYCAM_Forward")){
-                mFreeCamera.moveCamera(value, false);
+
+            if (name.equals("FLYCAM_Forward")){
+                nodeCamera.move(cam.getDirection().normalize().mult(0.2f));
             }else if (name.equals("FLYCAM_Backward")){
-                mFreeCamera.moveCamera(-value, false);
+                nodeCamera.move(cam.getDirection().normalize().negateLocal().mult(0.2f));
             }else if (name.equals("FLYCAM_StrafeLeft")){
-                mFreeCamera.moveCamera(value, true);
+                nodeCamera.move(cam.getLeft().normalize().mult(0.2f));
             }else if (name.equals("FLYCAM_StrafeRight")){
-                mFreeCamera.moveCamera(-value, true);
+                nodeCamera.move(cam.getLeft().normalize().negateLocal().mult(0.2f));
             }else if (name.equals("FLYCAM_Rise")){
-                mFreeCamera.riseCamera(value);
+                nodeCamera.move(cam.getUp().normalize().mult(0.2f));
             }else if (name.equals("FLYCAM_Lower")){
-                mFreeCamera.riseCamera(-value);
-            }else if (name.equals("FLYCAM_ZoomIn")){
-                mFreeCamera.zoomCamera(value);
-            }else if (name.equals("FLYCAM_ZoomOut")){
-                mFreeCamera.zoomCamera(-value);
+                nodeCamera.move(cam.getUp().normalize().negateLocal().mult(0.2f));
             }
+            
+//            if (name.equals("FLYCAM_Left")){
+//                mFreeCamera.rotateCamera(value, mFreeCamera.getUpVector());
+//            }else if (name.equals("FLYCAM_Right")){
+//                mFreeCamera.rotateCamera(-value, mFreeCamera.getUpVector());
+//            }else if (name.equals("FLYCAM_Up")){
+//                mFreeCamera.rotateCamera(-value, mFreeCamera.getEngineCamera().getLeft());
+//            }else if (name.equals("FLYCAM_Down")){
+//                mFreeCamera.rotateCamera(value, mFreeCamera.getEngineCamera().getLeft());
+//            }else if (name.equals("FLYCAM_Forward")){
+//                mFreeCamera.moveCamera(value, false);
+//            }else if (name.equals("FLYCAM_Backward")){
+//                mFreeCamera.moveCamera(-value, false);
+//            }else if (name.equals("FLYCAM_StrafeLeft")){
+//                mFreeCamera.moveCamera(value, true);
+//            }else if (name.equals("FLYCAM_StrafeRight")){
+//                mFreeCamera.moveCamera(-value, true);
+//            }else if (name.equals("FLYCAM_Rise")){
+//                mFreeCamera.riseCamera(value);
+//            }else if (name.equals("FLYCAM_Lower")){
+//                mFreeCamera.riseCamera(-value);
+//            }else if (name.equals("FLYCAM_ZoomIn")){
+//                mFreeCamera.zoomCamera(value);
+//            }else if (name.equals("FLYCAM_ZoomOut")){
+//                mFreeCamera.zoomCamera(-value);
+//            }
             
             if (name.equals("MOUSE_MOVE_LEFT") || name.equals("MOUSE_MOVE_RIGHT")) {
                 // Reset results list.
@@ -363,6 +394,51 @@ public class BBSceneGrid extends BBApplication{
             } // else if ...
 
         }
+        
+  public void cameraPlayer(Node playerNode) {
+
+    
+    // Disable the default first-person cam!
+//    cam.setEnabled(false);
+    
+    // Enable a chase cam
+    chaseCam = new ChaseCamera(cam, playerNode, BBInputManager.getInstance().getInputManager());
+
+    //Uncomment this to invert the camera's vertical rotation Axis 
+    chaseCam.setInvertVerticalAxis(true);
+
+    //Uncomment this to invert the camera's horizontal rotation Axis
+//    chaseCam.setInvertHorizontalAxis(true);
+
+    //Comment this to disable smooth camera motion
+//    chaseCam.setSmoothMotion(true);
+//    chaseCam.setChasingSensitivity(100);
+//    chaseCam.setTrailingSensitivity(500);
+//    chaseCam.setDragToRotate(false);
+
+    //Uncomment this to disable trailing of the camera 
+    //WARNING, trailing only works with smooth motion enabled. It is true by default.
+    chaseCam.setTrailingEnabled(false);
+
+    //Uncomment this to look 3 world units above the target
+//    chaseCam.setLookAtOffset(Vector3f.UNIT_Y.mult(3));
+    chaseCam.setMinVerticalRotation(-FastMath.PI*0.45f);
+    chaseCam.setMaxVerticalRotation(FastMath.PI*0.45f);
+    //Uncomment this to enable rotation when the middle mouse button is pressed (like Blender)
+    //WARNING : setting this trigger disable the rotation on right and left mouse button click
+//    chaseCam.setToggleRotationTrigger(new MouseButtonTrigger(MouseInput.BUTTON_MIDDLE));
+
+    //Uncomment this to set mutiple triggers to enable rotation of the cam
+    //Here spade bar and middle mouse button
+    chaseCam.setToggleRotationTrigger(new MouseButtonTrigger(MouseInput.BUTTON_MIDDLE));
+
+    chaseCam.setDefaultDistance(10);
+    chaseCam.setMinDistance(0.05f);
+    chaseCam.setMaxDistance(500);
+    
+//    chaseCam.setLookAtOffset(new Vector3f(0, player.getBoundingVolume().getYExtent()*2, 0));
+  }         
+        
     }//end myClass
     
     

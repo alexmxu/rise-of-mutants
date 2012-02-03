@@ -221,12 +221,12 @@ public class BBSceneGizmo {
         scaleAxisNode.setLocalTranslation(0f, 0f, 2f);
     }
     
-    // A red ball that marks the last spot that was "hit" by the mouse.
+    // A yellow ball that marks the last spot that was "hit" by the mouse.
     private void initMark() {
-        Sphere sphere = new Sphere(30, 30, 0.2f);
+        Sphere sphere = new Sphere(30, 30, 0.05f);
         mark = new Geometry("BOOM!", sphere);
         Material mark_mat = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
-        mark_mat.setColor("m_Color", ColorRGBA.Red);
+        mark_mat.setColor("m_Color", new ColorRGBA(1, 0.9f, 0.2f, 1));
         mark.setMaterial(mark_mat);
         mark.setLocalTranslation(markPosition);
         helperNode.attachChild(mark);
