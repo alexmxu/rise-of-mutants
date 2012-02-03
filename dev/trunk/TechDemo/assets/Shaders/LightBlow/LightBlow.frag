@@ -25,7 +25,7 @@ uniform vec4 m_Diffuse;
 
 #ifndef VERTEX_LIGHTING
   uniform vec4 g_LightDirection;
-  varying vec3 vPosition;
+ // varying vec3 vPosition;
   varying vec3 vViewDir;
   varying vec4 vLightDir;
   varying vec3 mat;
@@ -221,7 +221,7 @@ float lightComputeSpecular(in vec3 norm, in vec3 viewdir, in vec3 lightdir, in f
 #endif
 
 
-vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec3 wvLightDir){
+vec2 computeLighting(in vec3 wvNorm, in vec3 wvViewDir, in vec3 wvLightDir){
    
 float diffuseFactor = lightComputeDiffuse(wvNorm, wvLightDir, wvViewDir);
 float specularFactor;
@@ -470,7 +470,7 @@ vec4 diffuseColor;
        vec4 lightDir = vLightDir;
        lightDir.xyz = normalize(lightDir.xyz);
 
-       vec2   light = computeLighting(vPosition, normal, vViewDir.xyz, lightDir.xyz) * spotFallOff;
+       vec2   light = computeLighting(normal, vViewDir.xyz, lightDir.xyz) * spotFallOff;
 
 
     #ifdef MULTIPLY_COLOR
