@@ -61,7 +61,7 @@ public abstract class BBCanvasApplication {
     private static JmeCanvasContext context;
     private static Canvas mCanvas;
     protected static BBApplication app;
-    private static JPanel canvasPanel;
+    protected static JPanel canvasPanel;
     private static JPanel optionPanel;
     private static final String appClass = "bigboots.editor.BBSceneGrid";
 
