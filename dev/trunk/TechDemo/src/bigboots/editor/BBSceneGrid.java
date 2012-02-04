@@ -193,6 +193,7 @@ public class BBSceneGrid extends BBApplication{
     }
 
     
+        
     public void loadExternalTexture(String name, String path){       
         // convert to / for windows
         if (File.separatorChar == '\\'){
@@ -220,16 +221,35 @@ public class BBSceneGrid extends BBApplication{
         // Set Diffuse Map
         TextureKey tkDif = new TextureKey(name, check);
         tkDif.setAnisotropy(4);
-        //System.out.println("ANISOTROPYYY : " + tkDif.getAnisotropy());
         tkDif.setGenerateMips(true);
         Texture diffuseTex = BBSceneManager.getInstance().getAssetManager().loadTexture(tkDif);
         diffuseTex.setWrap(Texture.WrapMode.Repeat);
         
+        // Set Normal Map
+        String strNormal = name.substring(0, name.indexOf(".")) + "_nor" + name.substring(name.indexOf("."), name.length());
+        Texture normalTex = null;
+        if (strNormal != null) {
+        TextureKey tkNor = new TextureKey(strNormal, check);
+        tkDif.setAnisotropy(4);
+        tkDif.setGenerateMips(true);
+        normalTex = BBSceneManager.getInstance().getAssetManager().loadTexture(tkNor);
+        normalTex.setWrap(Texture.WrapMode.Repeat);
+        }
+        
         for (Geometry geo : geoGet) {
+
+        if (geo.getName().indexOf("CAPSULE") != 0 && geo.getName().indexOf("BOX") != 0  
+                && geo.getName().indexOf("CYLINDER") != 0 && geo.getName().indexOf("HULL") != 0 && geo.getName().indexOf("MESH") != 0
+                && geo.getName().indexOf("PLANE") != 0 && geo.getName().indexOf("SPHERE") != 0 && geo.getName().indexOf("CONE") != 0 
+                && geo.getName().indexOf("COMPLEX") != 0) {
             
         geo.getMaterial().setTexture("DiffuseMap", diffuseTex);
         
+        if (strNormal != null) {
+          geo.getMaterial().setTexture("NormalMap", normalTex);  
+         }
         }
+       }
         
         BBSceneManager.getInstance().removeFileLocator(path);        
     }
@@ -241,7 +261,23 @@ public class BBSceneGrid extends BBApplication{
         
         for (Geometry geo : lst) {
 
-        Material matNew = new Material(BBSceneManager.getInstance().getAssetManager(), "MatDefs/LightBlow/LightBlow.j3md");
+        Material matNew;
+        
+        if (geo.getName().indexOf("CAPSULE") == 0 || geo.getName().indexOf("BOX") == 0  
+        || geo.getName().indexOf("CYLINDER") == 0 || geo.getName().indexOf("HULL") == 0 || geo.getName().indexOf("MESH") == 0
+        || geo.getName().indexOf("PLANE") == 0 || geo.getName().indexOf("SPHERE") == 0 || geo.getName().indexOf("CONE") == 0 
+        || geo.getName().indexOf("COMPLEX") == 0 ){  
+            
+        matNew = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
+        matNew.setColor("Color", ColorRGBA.Orange);
+        matNew.getAdditionalRenderState().setWireframe(true);
+        matNew.setReceivesShadows(false);
+
+        geo.setShadowMode(ShadowMode.Off);
+
+        } else {         
+            
+        matNew = new Material(BBSceneManager.getInstance().getAssetManager(), "MatDefs/LightBlow/LightBlow.j3md");
         matNew.setName(geo.getMaterial().getName());
         String str = matNew.getName();        
         System.err.println(str + "xxxxxx");
@@ -262,9 +298,11 @@ public class BBSceneGrid extends BBApplication{
      //       tkk.setGenerateMips(true);
             Texture ibl = BBSceneManager.getInstance().getAssetManager().loadTexture(tkk);
             matNew.setTexture("IblMap_Simple", ibl);              
-                
-            geo.setMaterial(matNew); 
-        }
+        }    
+        
+        geo.setMaterial(matNew); 
+        
+      }
         
     }
     
