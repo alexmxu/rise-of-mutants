@@ -78,7 +78,7 @@ public class BBSceneGrid extends BBApplication{
     private BBFreeCamera mFreeCamera;
     private Camera cam;
     private Node gridNode, sceneNode;
-    private BBSceneGizmo mSceneGizmo;
+    protected BBSceneGizmo mSceneGizmo;
     private ChaseCamera chaseCam;
     private Node nodeCamera;
     private Quaternion rotNodeCamera;
@@ -129,7 +129,6 @@ public class BBSceneGrid extends BBApplication{
         createGrid();
         mSceneGizmo = new BBSceneGizmo();
         mSceneGizmo.init();
-        mSceneGizmo.setTranAxisVisible(true);
         
         //Attach node to rootNode
         BBSceneManager.getInstance().addChild(gridNode);
