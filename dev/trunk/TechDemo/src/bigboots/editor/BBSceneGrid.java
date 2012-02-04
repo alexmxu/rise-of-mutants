@@ -65,6 +65,7 @@ import com.jme3.scene.debug.Grid;
 import com.jme3.scene.shape.Line;
 import com.jme3.texture.Texture;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -83,6 +84,7 @@ public class BBSceneGrid extends BBApplication{
     private Quaternion rotNodeCamera;
     
     private int mEntityID = 0;
+    private List <BBEntity> entList = new ArrayList<BBEntity>();
     
     public BBSceneGrid() {
         super();
@@ -95,7 +97,7 @@ public class BBSceneGrid extends BBApplication{
         cam.setFrustumPerspective(45f, (float)cam.getWidth() / cam.getHeight(), 0.001f, 1000f);
 //        cam.setLocation(new Vector3f(0f, 0f, 1f));
 //        cam.lookAt(new Vector3f(0f, 0f, 0f), Vector3f.UNIT_Y);
-        
+
         //Set up the main viewPort
         ViewPort vp = engineSystem.getRenderManager().createMainView("CUSTOM_VIEW", cam);
         vp.setClearFlags(true, true, true);
@@ -166,13 +168,13 @@ public class BBSceneGrid extends BBApplication{
 
         Spatial tmpSpatial =  BBSceneManager.getInstance().getAssetManager().loadModel(name);
         
-        BBEntity entity;
+        BBEntity entity = null;
         
         if(tmpSpatial instanceof Geometry){
             Node tmpNode = new Node(tmpSpatial.getName());
             tmpNode.attachChild(tmpSpatial);
             entity = new BBEntity("ENTITY"+mEntityID, tmpNode);
-        }else{
+        }else if (tmpSpatial instanceof Node){
             entity = new BBEntity("ENTITY"+mEntityID, (Node)tmpSpatial);
         }
         
@@ -180,7 +182,7 @@ public class BBSceneGrid extends BBApplication{
         BBNodeComponent pnode = entity.addComponent(CompType.NODE);
         pnode.setLocalTranslation(mSceneGizmo.getMarkPosition());
         entity.loadModel("");
-        setShader(entity); 
+        setShader(entity, name); 
         entity.attachToRoot();
         entity.attachToNode(sceneNode);
         mSceneGizmo.getTranAxis().setLocalTranslation(mSceneGizmo.getMarkPosition());
@@ -188,9 +190,53 @@ public class BBSceneGrid extends BBApplication{
         BBSceneManager.getInstance().removeFileLocator(path);
         
         mEntityID++;
+        entList.add(entity);
     }
 
-    private void setShader(BBEntity ent){
+    
+    public void loadExternalTexture(String name, String path){       
+        // convert to / for windows
+        if (File.separatorChar == '\\'){
+            path = path.replace('\\', '/');
+        }
+        if(!path.endsWith("/")){
+            path += "/";
+        }
+        
+        BBSceneManager.getInstance().addFileLocator(path);
+        
+        // get the last loaded Entity and its geometries
+        List <Geometry> geoGet = entList.get(mEntityID - 1).getAllGeometries(); 
+
+         boolean check;
+
+             if (name.indexOf(".xml") >= 0 ) {
+                 
+                 check = true;
+             }
+             else {
+                 check = false;
+             }
+             
+        // Set Diffuse Map
+        TextureKey tkDif = new TextureKey(name, check);
+        tkDif.setAnisotropy(2);
+        //System.out.println("ANISOTROPYYY : " + tkDif.getAnisotropy());
+        tkDif.setGenerateMips(true);
+        Texture diffuseTex = BBSceneManager.getInstance().getAssetManager().loadTexture(tkDif);
+        diffuseTex.setWrap(Texture.WrapMode.Repeat);
+        
+        for (Geometry geo : geoGet) {
+            
+        geo.getMaterial().setTexture("DiffuseMap", diffuseTex);
+        
+        }
+        
+        BBSceneManager.getInstance().removeFileLocator(path);        
+    }
+
+    
+    private void setShader(BBEntity ent, String nameFile){
         
         List <Geometry> lst = ent.getAllGeometries();
         
@@ -202,14 +248,14 @@ public class BBSceneGrid extends BBApplication{
         System.err.println(str + "xxxxxx");
 
         
-         boolean check = false;
+         boolean check = true;
 
-             if (str != null && str.indexOf("-geom-") >= 0) {
-                 check = false;
-             }
-             else {
-                 check = true;
-             }
+//             if (nameFile.indexOf(".xml") >= 0 ) {
+//                 check = true;
+//             }
+//             else {
+//                 check = false;
+//             }
              
             TextureKey tkk = new TextureKey("Textures/skyboxes/sky_box_01/skybox_01_low.png", check);
             tkk.setAsCube(false);

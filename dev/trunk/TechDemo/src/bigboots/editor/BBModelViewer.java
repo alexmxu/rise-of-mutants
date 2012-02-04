@@ -30,15 +30,23 @@ import javax.swing.JMenuItem;
  * @author @author Ulrich Nzuzi <ulrichnz@code.google.com>
  */
 public class BBModelViewer extends BBCanvasApplication{
-    private final JFileChooser mFileC;
+    private final JFileChooser mFileCm;
+    private final JFileChooser mFileCt;
     
     
     public BBModelViewer(){
-        //Create a file chooser
-        mFileC = new JFileChooser();
+        //Create a file chooser for Models
+        mFileCm = new JFileChooser();
         //mFileC.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        mFileC.addChoosableFileFilter(new BBModelFilter());
-        mFileC.setAcceptAllFileFilterUsed(false);
+        mFileCm.addChoosableFileFilter(new BBModelFilter());
+        mFileCm.setAcceptAllFileFilterUsed(false);
+        
+        //Create a file chooser for Textures
+        mFileCt = new JFileChooser();
+        //mFileC.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        mFileCt.addChoosableFileFilter(new BBTextureFilter());
+        mFileCt.setAcceptAllFileFilterUsed(false);
+        
     }
 
     public static void main(String[] args){  
@@ -58,13 +66,21 @@ public class BBModelViewer extends BBCanvasApplication{
                 loadModelFromFile();
             }
         });
+        
+        final JMenuItem itemLoadTexture = new JMenuItem("Load Diffuse Texture");
+        menuAsset.add(itemLoadTexture);
+        itemLoadTexture.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                loadTextureFromFile();
+            }
+        });
     }
 
     private void loadModelFromFile(){
-        int returnVal = mFileC.showOpenDialog(null);
+        int returnVal = mFileCm.showOpenDialog(null);
         
         if (returnVal == JFileChooser.APPROVE_OPTION) {
-            File file = mFileC.getSelectedFile();
+            File file = mFileCm.getSelectedFile();
             try{
                 mLogArea.append("Loading file : " + file.getCanonicalPath() +"\n");
                 ((BBSceneGrid)app).loadExternalModel(file.getName(), file.getParent());
@@ -72,8 +88,24 @@ public class BBModelViewer extends BBCanvasApplication{
             
         }
         
-        mFileC.setSelectedFile(null);
+        mFileCm.setSelectedFile(null);
     }
 
+    private void loadTextureFromFile(){
+        int returnVal = mFileCt.showOpenDialog(null);
+        
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File file = mFileCt.getSelectedFile();
+            try{
+                mLogArea.append("Loading file : " + file.getCanonicalPath() +"\n");
+                ((BBSceneGrid)app).loadExternalTexture(file.getName(), file.getParent());
+            }catch (IOException ex){}
+            
+        }
+        
+        mFileCt.setSelectedFile(null);
+    }    
     
+        
+
 }
