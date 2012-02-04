@@ -17,21 +17,29 @@ package bigboots.editor;
 
 import com.bigboots.BBCanvasApplication;
 import java.awt.Dimension;
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+
 import javax.swing.filechooser.FileFilter;
+
+import javax.swing.JToolBar;
+
 
 
 /**
  *
  * @author @author Ulrich Nzuzi <ulrichnz@code.google.com>
  */
-public class BBModelViewer extends BBCanvasApplication{
+public class BBModelViewer extends BBCanvasApplication implements ActionListener{
     private final JFileChooser mFileCm;
     private FileFilter modFilter = new BBModelFilter();
     private FileFilter texFilter = new BBTextureFilter();
@@ -73,6 +81,14 @@ public class BBModelViewer extends BBCanvasApplication{
                 loadTextureFromFile();
             }
         });
+        
+        JToolBar toolBar = new JToolBar("Viewer Options");
+        toolBar.setFloatable(false);
+        toolBar.setRollover(true);
+        addButtons(toolBar);
+        mMainFrame.add(toolBar, BorderLayout.PAGE_START);
+        
+
     }
 
     private void loadModelFromFile(){
@@ -107,6 +123,74 @@ public class BBModelViewer extends BBCanvasApplication{
         mFileCm.setSelectedFile(null);
     }    
     
-        
+    static final private String PREVIOUS = "previous";
+    static final private String UP = "up";
+    static final private String NEXT = "next";
+    static final private String SOMETHING_ELSE = "other";
+    static final private String TEXT_ENTERED = "text";
+    protected void addButtons(JToolBar toolBar) {
+        JButton button = null;
+ 
+        //first button
+        button = makeNavigationButton("Up24", UP,
+                                      "Selection tool",
+                                      "SELECT");
+        toolBar.add(button);
+ 
+        //second button
+        button = makeNavigationButton("Back24", PREVIOUS,
+                                      "Rotation tool",
+                                      "ROTATE");
+        toolBar.add(button);
+ 
+        //third button
+        button = makeNavigationButton("Forward24", NEXT,
+                                      "Scale",
+                                      "SCALE");
+        toolBar.add(button);
+ 
+        //separator
+        toolBar.addSeparator();
+ 
+    }
+    protected JButton makeNavigationButton(String imageName,
+                                           String actionCommand,
+                                           String toolTipText,
+                                           String altText) {
+        //Look for the image.
+        String imgLocation = "images/"
+                             + imageName
+                             + ".gif";
+        URL imageURL = BBModelViewer.class.getResource(imgLocation);
 
+        //Create and initialize the button.
+        JButton button = new JButton();
+        button.setActionCommand(actionCommand);
+        button.setToolTipText(toolTipText);
+        button.addActionListener(this);
+ 
+        if (imageURL != null) {                      //image found
+            button.setIcon(new ImageIcon(imageURL, altText));
+        } else {                                     //no image found
+            button.setText(altText);
+            System.err.println("Resource not found: "
+                               + imgLocation);
+        }
+ 
+        return button;
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        String cmd = e.getActionCommand();
+        String description = null;
+ 
+        // Handle each button.
+        if (PREVIOUS.equals(cmd)) { //first button clicked
+            ((BBSceneGrid)app).mSceneGizmo.setRotateAxisVisible(true);
+        } else if (UP.equals(cmd)) { // second button clicked
+            ((BBSceneGrid)app).mSceneGizmo.setTranAxisVisible(true);
+        } else if (NEXT.equals(cmd)) { // third button clicked
+            ((BBSceneGrid)app).mSceneGizmo.setScaleAxisVisible(true);
+        }
+    }
 }
