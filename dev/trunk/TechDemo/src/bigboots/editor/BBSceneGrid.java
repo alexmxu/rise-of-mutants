@@ -80,6 +80,7 @@ public class BBSceneGrid extends BBApplication{
     private BBSceneGizmo mSceneGizmo;
     private ChaseCamera chaseCam;
     private Node nodeCamera;
+    private Quaternion rotNodeCamera;
     
     private int mEntityID = 0;
     
@@ -145,6 +146,10 @@ public class BBSceneGrid extends BBApplication{
     
     @Override
     public void simpleUpdate(){
+
+     nodeCamera.getLocalRotation().lookAt(cam.getDirection().multLocal(1f, 0f, 1f), Vector3f.UNIT_Y);
+     nodeCamera.setLocalRotation(nodeCamera.getLocalRotation());
+     rotNodeCamera = nodeCamera.getLocalRotation();
         
     }
     
@@ -301,30 +306,31 @@ public class BBSceneGrid extends BBApplication{
             nodeCamera = new Node("Camera");
             
         // line for Camera Movement
-        final Line xAxis = new Line(new Vector3f(-0.1f, 0f, 0f), new Vector3f(0.1f, 0f, 0f));
-        xAxis.setLineWidth(1f);
-        Geometry gxAxis = new Geometry("XAxis", xAxis);
-        gxAxis.setModelBound(new BoundingBox());
         Material mat = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
-        mat.setColor("Color", new ColorRGBA(0.5f, 0.1f, 0.1f, 0.3f));
+        mat.setColor("Color", new ColorRGBA(0.5f, 0.1f, 0.1f, 0.2f));
         mat.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
+            
+        final Line rotHelper = new Line(new Vector3f(-0.05f, 0f, 0f), new Vector3f(0.05f, 0f, 0f));
+        rotHelper.setLineWidth(1f);
+        Geometry gxAxis = new Geometry("rotHelper", rotHelper);
+        gxAxis.setModelBound(new BoundingBox());
         gxAxis.setQueueBucket(Bucket.Transparent);
         gxAxis.setShadowMode(ShadowMode.Off);
         gxAxis.setMaterial(mat);
         nodeCamera.attachChild(gxAxis);            
 
-        final Line xAxis2 = new Line(new Vector3f(0f, -0.1f, 0f), new Vector3f(0f, 0.1f, 0f));
-        xAxis2.setLineWidth(1f);
-        Geometry gxAxis2 = new Geometry("XAxis", xAxis2);
+        final Line rotHelper2 = new Line(new Vector3f(0f, -0.05f, 0f), new Vector3f(0f, 0.05f, 0f));
+        rotHelper2.setLineWidth(1f);
+        Geometry gxAxis2 = new Geometry("rotHelper2", rotHelper2);
         gxAxis2.setModelBound(new BoundingBox());
         gxAxis2.setQueueBucket(Bucket.Transparent);
         gxAxis2.setShadowMode(ShadowMode.Off);
         gxAxis2.setMaterial(mat);
         nodeCamera.attachChild(gxAxis2);            
 
-        final Line xAxis3 = new Line(new Vector3f(0f, 0f, -0.1f), new Vector3f(0f, 0f, 0.1f));
-        xAxis3.setLineWidth(1f);
-        Geometry gxAxis3 = new Geometry("XAxis", xAxis3);
+        final Line rotHelper3 = new Line(new Vector3f(0f, 0f, -0.05f), new Vector3f(0f, 0f, 0.05f));
+        rotHelper3.setLineWidth(1f);
+        Geometry gxAxis3 = new Geometry("rotHelper3", rotHelper3);
         gxAxis3.setModelBound(new BoundingBox());
         gxAxis3.setQueueBucket(Bucket.Transparent);
         gxAxis3.setShadowMode(ShadowMode.Off);
@@ -363,17 +369,17 @@ public class BBSceneGrid extends BBApplication{
 
 
             if (name.equals("FLYCAM_Forward")){
-                nodeCamera.move(cam.getDirection().normalize().mult(0.03f));
+                nodeCamera.move(rotNodeCamera.mult(Vector3f.UNIT_Z).normalizeLocal().multLocal(0.03f));
             }else if (name.equals("FLYCAM_Backward")){
-                nodeCamera.move(cam.getDirection().normalize().negateLocal().mult(0.03f));
+                nodeCamera.move(rotNodeCamera.mult(Vector3f.UNIT_Z).normalizeLocal().multLocal(0.03f).negateLocal());
             }else if (name.equals("FLYCAM_StrafeLeft")){
-                nodeCamera.move(cam.getLeft().normalize().mult(0.03f));
+                nodeCamera.move(rotNodeCamera.mult(Vector3f.UNIT_X).normalizeLocal().multLocal(0.03f));
             }else if (name.equals("FLYCAM_StrafeRight")){
-                nodeCamera.move(cam.getLeft().normalize().negateLocal().mult(0.03f));
+                nodeCamera.move(rotNodeCamera.mult(Vector3f.UNIT_X).normalizeLocal().multLocal(0.03f).negateLocal());
             }else if (name.equals("FLYCAM_Rise")){
-                nodeCamera.move(cam.getUp().normalize().mult(0.03f));
+                nodeCamera.move(rotNodeCamera.mult(Vector3f.UNIT_Y).normalizeLocal().multLocal(0.03f));
             }else if (name.equals("FLYCAM_Lower")){
-                nodeCamera.move(cam.getUp().normalize().negateLocal().mult(0.03f));
+                nodeCamera.move(rotNodeCamera.mult(Vector3f.UNIT_Y).normalizeLocal().multLocal(0.03f).negateLocal());
             }
             
 //            if (name.equals("FLYCAM_Left")){
