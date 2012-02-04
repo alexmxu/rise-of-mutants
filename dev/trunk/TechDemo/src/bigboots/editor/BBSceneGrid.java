@@ -22,21 +22,19 @@ import com.bigboots.components.BBEntity;
 import com.bigboots.components.BBLightComponent;
 import com.bigboots.components.BBNodeComponent;
 import com.bigboots.components.BBObject.ObjectTag;
-import com.bigboots.components.camera.BBCameraComponent;
-import com.bigboots.components.camera.BBCameraManager;
 import com.bigboots.core.BBSceneManager;
 import com.bigboots.core.BBSettings;
 import com.bigboots.input.BBInputManager;
 import com.bigboots.core.BBDebugInfo;
 import com.bigboots.components.camera.BBFreeCamera;
 import com.bigboots.gui.BBGuiManager;
+import com.jme3.asset.TextureKey;
 import com.jme3.bounding.BoundingBox;
 import com.jme3.collision.CollisionResult;
 import com.jme3.collision.CollisionResults;
 import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
 import com.jme3.input.ChaseCamera;
-import com.jme3.input.InputManager;
 
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
@@ -65,7 +63,9 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.debug.Grid;
 import com.jme3.scene.shape.Line;
+import com.jme3.texture.Texture;
 import java.io.File;
+import java.util.List;
 
 /**
  *
@@ -93,8 +93,8 @@ public class BBSceneGrid extends BBApplication{
         //Load the main camera
         cam = new Camera(BBSettings.getInstance().getSettings().getWidth(), BBSettings.getInstance().getSettings().getHeight());
         cam.setFrustumPerspective(45f, (float)cam.getWidth() / cam.getHeight(), 0.001f, 1000f);
-        cam.setLocation(new Vector3f(0f, 0f, 1f));
-        cam.lookAt(new Vector3f(0f, 0f, 0f), Vector3f.UNIT_Y);
+//        cam.setLocation(new Vector3f(0f, 0f, 1f));
+//        cam.lookAt(new Vector3f(0f, 0f, 0f), Vector3f.UNIT_Y);
         
         //Set up the main viewPort
         ViewPort vp = engineSystem.getRenderManager().createMainView("CUSTOM_VIEW", cam);
@@ -107,7 +107,7 @@ public class BBSceneGrid extends BBApplication{
         //mFreeCamera.setDragToRotate(false);
         
         //Set up basic light and sky coming with the standard scene manager
-        BBSceneManager.getInstance().setupBasicLight();
+//        BBSceneManager.getInstance().setupBasicLight();
         BBSceneManager.getInstance().createSky();
         
         //Set up keys and listener to read it
@@ -120,7 +120,7 @@ public class BBSceneGrid extends BBApplication{
         BBLightComponent compLight = new BBLightComponent();
         compLight.setLightType(Type.Directional);
         compLight.getLight(DirectionalLight.class).setDirection(new Vector3f(0.5432741f, -0.58666015f, -0.6005691f).normalizeLocal());
-        compLight.getLight(DirectionalLight.class).setColor(new ColorRGBA(1.1f,1.1f,1.1f,1));
+        compLight.getLight(DirectionalLight.class).setColor(new ColorRGBA(1.0f,1.0f,1.0f,1));
         BBSceneManager.getInstance().getRootNode().addLight(compLight.getLight(DirectionalLight.class));
         
         //create grid
@@ -134,8 +134,8 @@ public class BBSceneGrid extends BBApplication{
         BBSceneManager.getInstance().addChild(sceneNode);
         
         //Relocate the camera
-        cam.setLocation(new Vector3f(13f,9f,15f));
-        cam.lookAt(new Vector3f(-3f, -3f, -3f), Vector3f.UNIT_Y);
+//        cam.setLocation(new Vector3f(2.1672912f, 3.917244f, 8.941927f));
+//        cam.lookAt(new Vector3f(-0.2167291f, -0.3917244f, -0.8941926f), Vector3f.UNIT_Y);
         
         //Set debub info on
         BBDebugInfo.getInstance().setDisplayFps(true);
@@ -179,16 +179,50 @@ public class BBSceneGrid extends BBApplication{
         entity.setObjectTag(ObjectTag.PLAYER);
         BBNodeComponent pnode = entity.addComponent(CompType.NODE);
         pnode.setLocalTranslation(mSceneGizmo.getMarkPosition());
-        entity.attachToRoot();
         entity.loadModel("");
+        setShader(entity); 
+        entity.attachToRoot();
         entity.attachToNode(sceneNode);
-        
         mSceneGizmo.getTranAxis().setLocalTranslation(mSceneGizmo.getMarkPosition());
         
         BBSceneManager.getInstance().removeFileLocator(path);
         
         mEntityID++;
     }
+
+    private void setShader(BBEntity ent){
+        
+        List <Geometry> lst = ent.getAllGeometries();
+        
+        for (Geometry geo : lst) {
+
+        Material matNew = new Material(BBSceneManager.getInstance().getAssetManager(), "MatDefs/LightBlow/LightBlow.j3md");
+        matNew.setName(geo.getMaterial().getName());
+        String str = matNew.getName();        
+        System.err.println(str + "xxxxxx");
+
+        
+         boolean check = false;
+
+             if (str != null && str.indexOf("-geom-") >= 0) {
+                 check = false;
+             }
+             else {
+                 check = true;
+             }
+             
+            TextureKey tkk = new TextureKey("Textures/skyboxes/sky_box_01/skybox_01_low.png", check);
+            tkk.setAsCube(false);
+     //       tkk.setAnisotropy(2);
+     //       tkk.setGenerateMips(true);
+            Texture ibl = BBSceneManager.getInstance().getAssetManager().loadTexture(tkk);
+            matNew.setTexture("IblMap_Simple", ibl);              
+                
+            geo.setMaterial(matNew); 
+        }
+        
+    }
+    
     
     private void createGrid(){
         gridNode = new Node("gridNode");
@@ -369,17 +403,17 @@ public class BBSceneGrid extends BBApplication{
 
 
             if (name.equals("FLYCAM_Forward")){
-                nodeCamera.move(rotNodeCamera.mult(Vector3f.UNIT_Z).normalizeLocal().multLocal(0.03f));
+                nodeCamera.move(rotNodeCamera.mult(Vector3f.UNIT_Z).normalizeLocal().multLocal(0.05f));
             }else if (name.equals("FLYCAM_Backward")){
-                nodeCamera.move(rotNodeCamera.mult(Vector3f.UNIT_Z).normalizeLocal().multLocal(0.03f).negateLocal());
+                nodeCamera.move(rotNodeCamera.mult(Vector3f.UNIT_Z).normalizeLocal().multLocal(0.05f).negateLocal());
             }else if (name.equals("FLYCAM_StrafeLeft")){
-                nodeCamera.move(rotNodeCamera.mult(Vector3f.UNIT_X).normalizeLocal().multLocal(0.03f));
+                nodeCamera.move(rotNodeCamera.mult(Vector3f.UNIT_X).normalizeLocal().multLocal(0.05f));
             }else if (name.equals("FLYCAM_StrafeRight")){
-                nodeCamera.move(rotNodeCamera.mult(Vector3f.UNIT_X).normalizeLocal().multLocal(0.03f).negateLocal());
+                nodeCamera.move(rotNodeCamera.mult(Vector3f.UNIT_X).normalizeLocal().multLocal(0.05f).negateLocal());
             }else if (name.equals("FLYCAM_Rise")){
-                nodeCamera.move(rotNodeCamera.mult(Vector3f.UNIT_Y).normalizeLocal().multLocal(0.03f));
+                nodeCamera.move(rotNodeCamera.mult(Vector3f.UNIT_Y).normalizeLocal().multLocal(0.05f));
             }else if (name.equals("FLYCAM_Lower")){
-                nodeCamera.move(rotNodeCamera.mult(Vector3f.UNIT_Y).normalizeLocal().multLocal(0.03f).negateLocal());
+                nodeCamera.move(rotNodeCamera.mult(Vector3f.UNIT_Y).normalizeLocal().multLocal(0.05f).negateLocal());
             }
             
 //            if (name.equals("FLYCAM_Left")){

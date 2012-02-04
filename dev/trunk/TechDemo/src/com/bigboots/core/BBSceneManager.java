@@ -226,7 +226,7 @@ public class BBSceneManager {
         // We add light so we see the scene
         DirectionalLight dl = new DirectionalLight();
         dl.setDirection(new Vector3f(0.5f, -0.5f, -0.6f).normalizeLocal());
-        dl.setColor(new ColorRGBA(1.1f,1.1f,1.1f,1));
+        dl.setColor(new ColorRGBA(1.0f,1.0f,1.0f,1));
         rootNode.addLight(dl); 
     }  
     
