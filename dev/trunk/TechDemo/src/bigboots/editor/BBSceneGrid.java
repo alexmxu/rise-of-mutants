@@ -220,7 +220,7 @@ public class BBSceneGrid extends BBApplication{
              
         // Set Diffuse Map
         TextureKey tkDif = new TextureKey(name, check);
-        tkDif.setAnisotropy(2);
+        tkDif.setAnisotropy(4);
         //System.out.println("ANISOTROPYYY : " + tkDif.getAnisotropy());
         tkDif.setGenerateMips(true);
         Texture diffuseTex = BBSceneManager.getInstance().getAssetManager().loadTexture(tkDif);
