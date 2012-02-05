@@ -261,8 +261,8 @@ public class BBSceneGrid extends BBApplication{
         Texture normalTex = null;
         if (flCheck.exists() == true) {
         TextureKey tkNor = new TextureKey(strNormal, check);
-        tkDif.setAnisotropy(4);
-        if (name.indexOf(".dds") < 0) tkDif.setGenerateMips(true);
+        tkNor.setAnisotropy(4);
+        if (name.indexOf(".dds") < 0) tkNor.setGenerateMips(true);
         normalTex = BBSceneManager.getInstance().getAssetManager().loadTexture(tkNor);
         normalTex.setWrap(Texture.WrapMode.Repeat);
         }
