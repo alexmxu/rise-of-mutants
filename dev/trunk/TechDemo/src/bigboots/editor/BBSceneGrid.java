@@ -251,7 +251,7 @@ public class BBSceneGrid extends BBApplication{
         // Set Diffuse Map
         TextureKey tkDif = new TextureKey(name, check);
         tkDif.setAnisotropy(4);
-        tkDif.setGenerateMips(true);
+        if (name.indexOf(".dds") < 0) tkDif.setGenerateMips(true);
         Texture diffuseTex = BBSceneManager.getInstance().getAssetManager().loadTexture(tkDif);
         diffuseTex.setWrap(Texture.WrapMode.Repeat);
         
@@ -262,7 +262,7 @@ public class BBSceneGrid extends BBApplication{
         if (flCheck.exists() == true) {
         TextureKey tkNor = new TextureKey(strNormal, check);
         tkDif.setAnisotropy(4);
-        tkDif.setGenerateMips(true);
+        if (name.indexOf(".dds") < 0) tkDif.setGenerateMips(true);
         normalTex = BBSceneManager.getInstance().getAssetManager().loadTexture(tkNor);
         normalTex.setWrap(Texture.WrapMode.Repeat);
         }
@@ -410,7 +410,7 @@ public class BBSceneGrid extends BBApplication{
         ch.setSize(guiFont.getCharSet().getRenderedSize());
         ch.setText("W,A,S,D,Q,Z, MiddleMouseButton, RightMouseButton, Scroll"); // crosshairs
         ch.setColor(new ColorRGBA(1f,0.8f,0.1f,0.5f));
-        ch.setLocalTranslation(BBSettings.getInstance().getSettings().getWidth()*0.3f,BBSettings.getInstance().getSettings().getHeight()*0.1f,0);
+        ch.setLocalTranslation(BBSettings.getInstance().getSettings().getWidth()*0.1f,BBSettings.getInstance().getSettings().getHeight()*0.1f,0);
         BBGuiManager.getInstance().getGuiNode().attachChild(ch);           
         
     }
