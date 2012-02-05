@@ -312,7 +312,7 @@ public class BBEntity extends BBObject{
         
         tmpSpatial.removeFromParent();
         
-        ((BBAudioComponent)mMainAudio).destroy();
+       if ((BBAudioComponent)mMainAudio != null) ((BBAudioComponent)mMainAudio).destroy();
         mMainAudio = null;
         
         mAnimation = null;

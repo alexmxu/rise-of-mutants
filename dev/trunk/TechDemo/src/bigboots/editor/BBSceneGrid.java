@@ -29,6 +29,8 @@ import com.bigboots.input.BBInputManager;
 import com.bigboots.core.BBDebugInfo;
 import com.bigboots.components.camera.BBFreeCamera;
 import com.bigboots.gui.BBGuiManager;
+import com.jme3.asset.DesktopAssetManager;
+import com.jme3.asset.ModelKey;
 import com.jme3.asset.TextureKey;
 import com.jme3.bounding.BoundingBox;
 import com.jme3.collision.CollisionResult;
@@ -53,6 +55,7 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Ray;
+import com.jme3.math.Transform;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
@@ -63,6 +66,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.debug.Grid;
+import com.jme3.scene.debug.WireBox;
 import com.jme3.scene.shape.Line;
 import com.jme3.texture.Texture;
 import java.io.File;
@@ -83,10 +87,13 @@ public class BBSceneGrid extends BBApplication{
     private ChaseCamera chaseCam;
     private Node nodeCamera;
     private Quaternion rotNodeCamera;
-    private Node entityNode = new Node("entityNode");
+//    private Node entityNode = new Node("entityNode");
+    private WireBox wireBox = new WireBox(1, 1, 1);
+    private Geometry selectionBox;
     
     private int mEntityID = 0;
     private List <BBEntity> entList = new ArrayList<BBEntity>();
+    private String selectedEntity = null;
     
     public BBSceneGrid() {
         super();
@@ -135,11 +142,22 @@ public class BBSceneGrid extends BBApplication{
         //Attach node to rootNode
         BBSceneManager.getInstance().addChild(gridNode);
         BBSceneManager.getInstance().addChild(sceneNode);
-        BBSceneManager.getInstance().addChild(entityNode);
+//        BBSceneManager.getInstance().addChild(entityNode);
         
         //Relocate the camera
 //        cam.setLocation(new Vector3f(2.1672912f, 3.917244f, 8.941927f));
 //        cam.lookAt(new Vector3f(-0.2167291f, -0.3917244f, -0.8941926f), Vector3f.UNIT_Y);
+        
+        // Selection box
+        Material mat_box = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
+        mat_box.setColor("m_Color", new ColorRGBA(0.3f, 0.3f, 0.3f, 0.5f));
+        mat_box.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
+        selectionBox = new Geometry("TheMesh", wireBox);
+        selectionBox.setMaterial(mat_box);
+        selectionBox.setShadowMode(ShadowMode.Off);
+        selectionBox.setQueueBucket(Bucket.Transparent);        
+
+        
         
         //Set debub info on
         BBDebugInfo.getInstance().setDisplayFps(true);
@@ -151,10 +169,10 @@ public class BBSceneGrid extends BBApplication{
     @Override
     public void simpleUpdate(){
 
+     // Camera Helper rotation alignment   
      nodeCamera.getLocalRotation().lookAt(cam.getDirection().multLocal(1f, 0f, 1f), Vector3f.UNIT_Y);
      nodeCamera.setLocalRotation(nodeCamera.getLocalRotation());
      rotNodeCamera = nodeCamera.getLocalRotation();
-        
     }
     
     public void loadExternalModel(String name, String path){       
@@ -167,8 +185,11 @@ public class BBSceneGrid extends BBApplication{
         }
         
         BBSceneManager.getInstance().addFileLocator(path);
-
-        Spatial tmpSpatial =  BBSceneManager.getInstance().getAssetManager().loadModel(name);
+        
+        // Load Model
+        DesktopAssetManager dsk = (DesktopAssetManager) BBSceneManager.getInstance().getAssetManager();        
+        ModelKey bk = new ModelKey(name);        
+        Spatial tmpSpatial =  BBSceneManager.getInstance().getAssetManager().loadModel(bk);
         
         BBEntity entity = null;
         
@@ -185,7 +206,7 @@ public class BBSceneGrid extends BBApplication{
         pnode.setLocalTranslation(mSceneGizmo.getMarkPosition());
         entity.loadModel("");
         setShader(entity, name); 
-        entityNode.attachChild(entity.getComponent(BBNodeComponent.class));
+//        entityNode.attachChild(entity.getComponent(BBNodeComponent.class));
         entity.attachToNode(sceneNode);
         mSceneGizmo.getTranAxis().setLocalTranslation(mSceneGizmo.getMarkPosition());
         BBWorldManager.getInstance().addEntity(entity);
@@ -193,6 +214,11 @@ public class BBSceneGrid extends BBApplication{
         
         mEntityID++;
         entList.add(entity);
+        selectedEntity = entity.getObjectName();
+        
+        //Clear Cache
+        dsk.clearCache();         
+        
     }
 
     
@@ -208,8 +234,9 @@ public class BBSceneGrid extends BBApplication{
         
         BBSceneManager.getInstance().addFileLocator(path);
         
+        if (selectedEntity != null) {
         // get the last loaded Entity and its geometries
-        List <Geometry> geoGet = entList.get(mEntityID - 1).getAllGeometries(); 
+        List <Geometry> geoGet = BBWorldManager.getInstance().getEntity(selectedEntity).getAllGeometries(); 
 
          boolean check;
 
@@ -254,7 +281,7 @@ public class BBSceneGrid extends BBApplication{
          }
         }
        }
-        
+      }  
         BBSceneManager.getInstance().removeFileLocator(path);        
     }
 
@@ -309,8 +336,32 @@ public class BBSceneGrid extends BBApplication{
       }
         
     }
-    
-    
+
+        public void RemoveSelectedEntity(){ 
+            
+            if (selectedEntity != null) {
+            BBEntity entRemove = BBWorldManager.getInstance().getEntity(selectedEntity);
+            entList.remove(entRemove);
+            entRemove.destroy();
+            entRemove = null;
+            }  
+            selectedEntity = null;
+        }
+
+        public void ClearScene(){ 
+            selectedEntity = null;
+            
+            if (entList != null) {
+            for (BBEntity ent : entList) {
+            BBEntity entRemove = ent;
+//            entList.remove(entRemove);
+            entRemove.destroy();
+            entRemove = null;
+            }  
+          }
+           entList.clear(); 
+        }        
+        
     private void createGrid(){
         gridNode = new Node("gridNode");
     	sceneNode = new Node("sceneNode");
@@ -357,7 +408,7 @@ public class BBSceneGrid extends BBApplication{
         BitmapFont guiFont = BBSceneManager.getInstance().getAssetManager().loadFont("Interface/Fonts/Default.fnt");
         BitmapText ch = new BitmapText(guiFont, false);
         ch.setSize(guiFont.getCharSet().getRenderedSize());
-        ch.setText("W,A,S,D,Q,Z, MiddleMouseButton, Scroll"); // crosshairs
+        ch.setText("W,A,S,D,Q,Z, MiddleMouseButton, RightMouseButton, Scroll"); // crosshairs
         ch.setColor(new ColorRGBA(1f,0.8f,0.1f,0.5f));
         ch.setLocalTranslation(BBSettings.getInstance().getSettings().getWidth()*0.3f,BBSettings.getInstance().getSettings().getHeight()*0.1f,0);
         BBGuiManager.getInstance().getGuiNode().attachChild(ch);           
@@ -482,27 +533,66 @@ public class BBSceneGrid extends BBApplication{
                 }
             }
             
-            if(binding.equals("MOUSE_CLICK_RIGHT")){
-             CollisionResults results = new CollisionResults();
-                Vector2f click2d = BBInputManager.getInstance().getInputManager().getCursorPosition();
-                Vector3f click3d = cam.getWorldCoordinates(new Vector2f(click2d.x, click2d.y), 0f).clone();
-                Vector3f dir = cam.getWorldCoordinates(new Vector2f(click2d.x, click2d.y), 1f).subtract(click3d).normalize();
+            if(binding.equals("MOUSE_CLICK_RIGHT") && keyPressed){
+             CollisionResults results2 = new CollisionResults();
+                Vector2f click2d2 = BBInputManager.getInstance().getInputManager().getCursorPosition();
+                Vector3f click3d2 = cam.getWorldCoordinates(new Vector2f(click2d2.x, click2d2.y), 0f).clone();
+                Vector3f dir2 = cam.getWorldCoordinates(new Vector2f(click2d2.x, click2d2.y), 1f).subtract(click3d2);
                 // Aim the ray from the clicked spot forwards.
-                Ray ray = new Ray(click3d, dir);      
-                entityNode.collideWith(ray, results);
-                if (results.size() > 0) {
+                Ray ray2 = new Ray(click3d2, dir2);      
+                sceneNode.collideWith(ray2, results2);
+                if (results2.size() > 0) {
                 
-                    Geometry resultGeo = results.getClosestCollision().getGeometry();
+                    Geometry resultGeo = results2.getClosestCollision().getGeometry();
                     
                     String strEnt = resultGeo.getUserData("entityName");
                     if (strEnt != null) {
                         BBEntity entityGet = BBWorldManager.getInstance().getEntity(strEnt);
-                        entityGet.getComponent(BBNodeComponent.class).setLocalScale(entityGet.getComponent(BBNodeComponent.class).getLocalScale().mult(0.1f));                
-                    }      
-                }
-            }            
+                        selectedEntity = strEnt;
+                        
+                    }     
+                } else selectedEntity = null; 
+           if (selectedEntity != null) {
+           BBSceneManager.getInstance().getRootNode().attachChild(selectionBox);                 
+           }   else if (selectedEntity == null){
+           BBSceneManager.getInstance().getRootNode().detachChild(selectionBox);                          
+           }                      
+             }            
             
-            if(binding.equals("MOUSE_CLICK_LEFT") && !keyPressed){
+            
+            if(binding.equals("MOUSE_CLICK_LEFT")){
+                // Reset results list.
+                CollisionResults results = new CollisionResults();
+                // Convert screen click to 3d position
+                Vector2f click2d = BBInputManager.getInstance().getInputManager().getCursorPosition();
+                Vector3f click3d = cam.getWorldCoordinates(new Vector2f(click2d.x, click2d.y), 0f).clone();
+                Vector3f dir = cam.getWorldCoordinates(new Vector2f(click2d.x, click2d.y), 1f).subtractLocal(click3d);
+                // Aim the ray from the clicked spot forwards.
+                Ray ray = new Ray(click3d, dir);
+                // Collect intersections between ray and all nodes in results list.
+                gridNode.collideWith(ray, results);
+                // (Print the results so we see what is going on:)
+                for (int i = 0; i < results.size(); i++) {
+                  // (For each “hit”, we know distance, impact point, geometry.)
+                  float dist = results.getCollision(i).getDistance();
+                  Vector3f pt = results.getCollision(i).getContactPoint();
+                  String target = results.getCollision(i).getGeometry().getName();
+                  //System.out.println("Selection #" + i + ": " + target + " at " + pt + ", " + dist + " WU away.");
+                }
+                // Use the results -- we rotate the selected geometry.
+                if (results.size() > 0) {
+                  // The closest result is the target that the player picked:
+                  Geometry target = results.getClosestCollision().getGeometry();
+                  //System.out.println("ooo GEOM FOUND : "+target.getName());
+                  // The closest collision point is what was truly hit:
+                  CollisionResult closest = results.getClosestCollision();
+                  // Here comes the action:
+                  if (target.getName().equals("GRID")) {
+                    // Let's interact - we mark the hit with a red dot.
+                    mSceneGizmo.setMarkPosition(closest.getContactPoint());
+                    //System.out.println("xxxxxx FOUND : "+markPosition.toString());
+                  }
+                }                
                 //update the mark location
                mSceneGizmo.updateMarkGizmo();
             }
@@ -550,41 +640,20 @@ public class BBSceneGrid extends BBApplication{
 //            }else if (name.equals("FLYCAM_ZoomOut")){
 //                mFreeCamera.zoomCamera(-value);
 //            }
+
+         if (name.equals("MOUSE_MOVE_RIGHT") || name.equals("MOUSE_MOVE_LEFT")) {
+           if (selectedEntity != null) {             
+           BoundingBox bound = (BoundingBox) BBWorldManager.getInstance().getEntity(selectedEntity).getComponent(BBNodeComponent.class).getWorldBound();                
+           selectionBox.setLocalTranslation(BBWorldManager.getInstance().getEntity(selectedEntity).getComponent(BBNodeComponent.class).getLocalTranslation());
+           selectionBox.setLocalRotation(BBWorldManager.getInstance().getEntity(selectedEntity).getComponent(BBNodeComponent.class).getLocalRotation());
+           selectionBox.setLocalScale(bound.getXExtent(), bound.getYExtent(), bound.getZExtent());             
+           
+           }
+         }   
             
-            if (name.equals("MOUSE_MOVE_LEFT") || name.equals("MOUSE_MOVE_RIGHT")) {
-                // Reset results list.
-                CollisionResults results = new CollisionResults();
-                // Convert screen click to 3d position
-                Vector2f click2d = BBInputManager.getInstance().getInputManager().getCursorPosition();
-                Vector3f click3d = cam.getWorldCoordinates(new Vector2f(click2d.x, click2d.y), 0f).clone();
-                Vector3f dir = cam.getWorldCoordinates(new Vector2f(click2d.x, click2d.y), 1f).subtractLocal(click3d);
-                // Aim the ray from the clicked spot forwards.
-                Ray ray = new Ray(click3d, dir);
-                // Collect intersections between ray and all nodes in results list.
-                gridNode.collideWith(ray, results);
-                // (Print the results so we see what is going on:)
-                for (int i = 0; i < results.size(); i++) {
-                  // (For each “hit”, we know distance, impact point, geometry.)
-                  float dist = results.getCollision(i).getDistance();
-                  Vector3f pt = results.getCollision(i).getContactPoint();
-                  String target = results.getCollision(i).getGeometry().getName();
-                  //System.out.println("Selection #" + i + ": " + target + " at " + pt + ", " + dist + " WU away.");
-                }
-                // Use the results -- we rotate the selected geometry.
-                if (results.size() > 0) {
-                  // The closest result is the target that the player picked:
-                  Geometry target = results.getClosestCollision().getGeometry();
-                  //System.out.println("ooo GEOM FOUND : "+target.getName());
-                  // The closest collision point is what was truly hit:
-                  CollisionResult closest = results.getClosestCollision();
-                  // Here comes the action:
-                  if (target.getName().equals("GRID")) {
-                    // Let's interact - we mark the hit with a red dot.
-                    mSceneGizmo.setMarkPosition(closest.getContactPoint());
-                    //System.out.println("xxxxxx FOUND : "+markPosition.toString());
-                  }
-                }
-            } // else if ...
+//            if (name.equals("MOUSE_MOVE_LEFT")) {
+//
+//            } // else if ...
 
         }
         

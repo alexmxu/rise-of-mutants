@@ -82,6 +82,22 @@ public class BBModelViewer extends BBCanvasApplication implements ActionListener
             }
         });
         
+        final JMenuItem removeSelEntity = new JMenuItem("Remove Selected Model");
+        menuAsset.add(removeSelEntity);
+        removeSelEntity.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                ((BBSceneGrid)app).RemoveSelectedEntity();
+            }
+        });
+        
+        final JMenuItem clearScene = new JMenuItem("Clear Scene");
+        menuAsset.add(clearScene);
+        clearScene.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                ((BBSceneGrid)app).ClearScene();
+            }
+        });        
+        
         JToolBar toolBar = new JToolBar("Viewer Options");
         toolBar.setFloatable(false);
         toolBar.setRollover(true);
