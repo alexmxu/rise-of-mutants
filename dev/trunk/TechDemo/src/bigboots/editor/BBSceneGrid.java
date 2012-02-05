@@ -17,6 +17,7 @@ package bigboots.editor;
 
 import com.bigboots.BBApplication;
 import com.bigboots.BBGlobals;
+import com.bigboots.BBWorldManager;
 import com.bigboots.components.BBComponent.CompType;
 import com.bigboots.components.BBEntity;
 import com.bigboots.components.BBLightComponent;
@@ -82,6 +83,7 @@ public class BBSceneGrid extends BBApplication{
     private ChaseCamera chaseCam;
     private Node nodeCamera;
     private Quaternion rotNodeCamera;
+    private Node entityNode = new Node("entityNode");
     
     private int mEntityID = 0;
     private List <BBEntity> entList = new ArrayList<BBEntity>();
@@ -133,6 +135,7 @@ public class BBSceneGrid extends BBApplication{
         //Attach node to rootNode
         BBSceneManager.getInstance().addChild(gridNode);
         BBSceneManager.getInstance().addChild(sceneNode);
+        BBSceneManager.getInstance().addChild(entityNode);
         
         //Relocate the camera
 //        cam.setLocation(new Vector3f(2.1672912f, 3.917244f, 8.941927f));
@@ -182,10 +185,10 @@ public class BBSceneGrid extends BBApplication{
         pnode.setLocalTranslation(mSceneGizmo.getMarkPosition());
         entity.loadModel("");
         setShader(entity, name); 
-        entity.attachToRoot();
+        entityNode.attachChild(entity.getComponent(BBNodeComponent.class));
         entity.attachToNode(sceneNode);
         mSceneGizmo.getTranAxis().setLocalTranslation(mSceneGizmo.getMarkPosition());
-        
+        BBWorldManager.getInstance().addEntity(entity);
         BBSceneManager.getInstance().removeFileLocator(path);
         
         mEntityID++;
@@ -227,8 +230,9 @@ public class BBSceneGrid extends BBApplication{
         
         // Set Normal Map
         String strNormal = name.substring(0, name.indexOf(".")) + "_nor" + name.substring(name.indexOf("."), name.length());
+        File flCheck = new File(path + "/" + strNormal);
         Texture normalTex = null;
-        if (strNormal != null) {
+        if (flCheck.exists() == true) {
         TextureKey tkNor = new TextureKey(strNormal, check);
         tkDif.setAnisotropy(4);
         tkDif.setGenerateMips(true);
@@ -245,7 +249,7 @@ public class BBSceneGrid extends BBApplication{
             
         geo.getMaterial().setTexture("DiffuseMap", diffuseTex);
         
-        if (strNormal != null) {
+        if (flCheck.exists() == true) {
           geo.getMaterial().setTexture("NormalMap", normalTex);  
          }
         }
@@ -280,7 +284,7 @@ public class BBSceneGrid extends BBApplication{
         matNew = new Material(BBSceneManager.getInstance().getAssetManager(), "MatDefs/LightBlow/LightBlow.j3md");
         matNew.setName(geo.getMaterial().getName());
         String str = matNew.getName();        
-        System.err.println(str + "xxxxxx");
+//        System.err.println(str + "xxxxxx");
 
         
          boolean check = true;
@@ -379,6 +383,7 @@ public class BBSceneGrid extends BBApplication{
             "FLYCAM_ZoomIn",
             "FLYCAM_ZoomOut",
             "MOUSE_CLICK_LEFT",
+            "MOUSE_CLICK_RIGHT",
 
             "FLYCAM_Rise",
             "FLYCAM_Lower",
@@ -399,6 +404,7 @@ public class BBSceneGrid extends BBApplication{
 //        BBInputManager.getInstance().mapKey("FLYCAM_ZoomIn", new MouseAxisTrigger(MouseInput.AXIS_WHEEL, false));
 //        BBInputManager.getInstance().mapKey("FLYCAM_ZoomOut", new MouseAxisTrigger(MouseInput.AXIS_WHEEL, true));
         BBInputManager.getInstance().mapKey("MOUSE_CLICK_LEFT", new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
+        BBInputManager.getInstance().mapKey("MOUSE_CLICK_RIGHT", new MouseButtonTrigger(MouseInput.BUTTON_RIGHT));
 
         // keyboard only WASD for movement and WZ for rise/lower height
         BBInputManager.getInstance().mapKey("FLYCAM_StrafeLeft", new KeyTrigger(KeyInput.KEY_A));
@@ -476,7 +482,27 @@ public class BBSceneGrid extends BBApplication{
                 }
             }
             
-            if(binding.equals("MOUSE_CLICK_LEFT")){
+            if(binding.equals("MOUSE_CLICK_RIGHT")){
+             CollisionResults results = new CollisionResults();
+                Vector2f click2d = BBInputManager.getInstance().getInputManager().getCursorPosition();
+                Vector3f click3d = cam.getWorldCoordinates(new Vector2f(click2d.x, click2d.y), 0f).clone();
+                Vector3f dir = cam.getWorldCoordinates(new Vector2f(click2d.x, click2d.y), 1f).subtract(click3d).normalize();
+                // Aim the ray from the clicked spot forwards.
+                Ray ray = new Ray(click3d, dir);      
+                entityNode.collideWith(ray, results);
+                if (results.size() > 0) {
+                
+                    Geometry resultGeo = results.getClosestCollision().getGeometry();
+                    
+                    String strEnt = resultGeo.getUserData("entityName");
+                    if (strEnt != null) {
+                        BBEntity entityGet = BBWorldManager.getInstance().getEntity(strEnt);
+                        entityGet.getComponent(BBNodeComponent.class).setLocalScale(entityGet.getComponent(BBNodeComponent.class).getLocalScale().mult(0.1f));                
+                    }      
+                }
+            }            
+            
+            if(binding.equals("MOUSE_CLICK_LEFT") && !keyPressed){
                 //update the mark location
                mSceneGizmo.updateMarkGizmo();
             }
