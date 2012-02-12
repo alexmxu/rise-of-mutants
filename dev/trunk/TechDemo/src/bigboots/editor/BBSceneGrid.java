@@ -86,8 +86,7 @@ public class BBSceneGrid extends BBApplication{
     protected BBSceneGizmo mSceneGizmo;
     private ChaseCamera chaseCam;
     private Node nodeCamera;
-    private Quaternion rotNodeCamera;
-//    private Node entityNode = new Node("entityNode");
+    private Quaternion rotateNodeCamera;
     private WireBox wireBox = new WireBox(1, 1, 1);
     private Geometry selectionBox;
     
@@ -104,8 +103,6 @@ public class BBSceneGrid extends BBApplication{
         //Load the main camera
         cam = new Camera(BBSettings.getInstance().getSettings().getWidth(), BBSettings.getInstance().getSettings().getHeight());
         cam.setFrustumPerspective(45f, (float)cam.getWidth() / cam.getHeight(), 0.001f, 1000f);
-//        cam.setLocation(new Vector3f(0f, 0f, 1f));
-//        cam.lookAt(new Vector3f(0f, 0f, 0f), Vector3f.UNIT_Y);
 
         //Set up the main viewPort
         ViewPort vp = engineSystem.getRenderManager().createMainView("CUSTOM_VIEW", cam);
@@ -113,12 +110,6 @@ public class BBSceneGrid extends BBApplication{
         vp.setBackgroundColor(ColorRGBA.Gray);
         BBSceneManager.getInstance().setViewPort(vp);
         
-//        mFreeCamera = new BBFreeCamera("FREE_CAM", cam);
-//        mFreeCamera.setMoveSpeed(30);
-        //mFreeCamera.setDragToRotate(false);
-        
-        //Set up basic light and sky coming with the standard scene manager
-//        BBSceneManager.getInstance().setupBasicLight();
         BBSceneManager.getInstance().createSky();
         
         //Set up keys and listener to read it
@@ -142,11 +133,6 @@ public class BBSceneGrid extends BBApplication{
         //Attach node to rootNode
         BBSceneManager.getInstance().addChild(gridNode);
         BBSceneManager.getInstance().addChild(sceneNode);
-//        BBSceneManager.getInstance().addChild(entityNode);
-        
-        //Relocate the camera
-//        cam.setLocation(new Vector3f(2.1672912f, 3.917244f, 8.941927f));
-//        cam.lookAt(new Vector3f(-0.2167291f, -0.3917244f, -0.8941926f), Vector3f.UNIT_Y);
         
         // Selection box
         Material mat_box = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
@@ -172,7 +158,7 @@ public class BBSceneGrid extends BBApplication{
      // Camera Helper rotation alignment   
      nodeCamera.getLocalRotation().lookAt(cam.getDirection().multLocal(1f, 0f, 1f), Vector3f.UNIT_Y);
      nodeCamera.setLocalRotation(nodeCamera.getLocalRotation());
-     rotNodeCamera = nodeCamera.getLocalRotation();
+     rotateNodeCamera = nodeCamera.getLocalRotation();
     }
     
     public void loadExternalModel(String name, String path){       
@@ -219,70 +205,6 @@ public class BBSceneGrid extends BBApplication{
         //Clear Cache
         dsk.clearCache();         
         
-    }
-
-    
-        
-    public void loadExternalTexture(String name, String path){       
-        // convert to / for windows
-        if (File.separatorChar == '\\'){
-            path = path.replace('\\', '/');
-        }
-        if(!path.endsWith("/")){
-            path += "/";
-        }
-        
-        BBSceneManager.getInstance().addFileLocator(path);
-        
-        if (selectedEntity != null) {
-        // get the last loaded Entity and its geometries
-        List <Geometry> geoGet = BBWorldManager.getInstance().getEntity(selectedEntity).getAllGeometries(); 
-
-         boolean check;
-
-             if (name.indexOf(".xml") >= 0 ) {
-                 
-                 check = true;
-             }
-             else {
-                 check = false;
-             }
-             
-        // Set Diffuse Map
-        TextureKey tkDif = new TextureKey(name, check);
-        tkDif.setAnisotropy(4);
-        if (name.indexOf(".dds") < 0) tkDif.setGenerateMips(true);
-        Texture diffuseTex = BBSceneManager.getInstance().getAssetManager().loadTexture(tkDif);
-        diffuseTex.setWrap(Texture.WrapMode.Repeat);
-        
-        // Set Normal Map
-        String strNormal = name.substring(0, name.indexOf(".")) + "_nor" + name.substring(name.indexOf("."), name.length());
-        File flCheck = new File(path + "/" + strNormal);
-        Texture normalTex = null;
-        if (flCheck.exists() == true) {
-        TextureKey tkNor = new TextureKey(strNormal, check);
-        tkNor.setAnisotropy(4);
-        if (name.indexOf(".dds") < 0) tkNor.setGenerateMips(true);
-        normalTex = BBSceneManager.getInstance().getAssetManager().loadTexture(tkNor);
-        normalTex.setWrap(Texture.WrapMode.Repeat);
-        }
-        
-        for (Geometry geo : geoGet) {
-
-        if (geo.getName().indexOf("CAPSULE") != 0 && geo.getName().indexOf("BOX") != 0  
-                && geo.getName().indexOf("CYLINDER") != 0 && geo.getName().indexOf("HULL") != 0 && geo.getName().indexOf("MESH") != 0
-                && geo.getName().indexOf("PLANE") != 0 && geo.getName().indexOf("SPHERE") != 0 && geo.getName().indexOf("CONE") != 0 
-                && geo.getName().indexOf("COMPLEX") != 0) {
-            
-        geo.getMaterial().setTexture("DiffuseMap", diffuseTex);
-        
-        if (flCheck.exists() == true) {
-          geo.getMaterial().setTexture("NormalMap", normalTex);  
-         }
-        }
-       }
-      }  
-        BBSceneManager.getInstance().removeFileLocator(path);        
     }
 
     
@@ -336,7 +258,106 @@ public class BBSceneGrid extends BBApplication{
       }
         
     }
+    
+    
+    public void loadDiffuseTexture(String name, String path){       
+        // convert to / for windows
+        if (File.separatorChar == '\\'){
+            path = path.replace('\\', '/');
+        }
+        if(!path.endsWith("/")){
+            path += "/";
+        }
+        
+        BBSceneManager.getInstance().addFileLocator(path);
+        
+        if (selectedEntity != null) {
+        // get the last loaded Entity and its geometries
+        List <Geometry> geoGet = BBWorldManager.getInstance().getEntity(selectedEntity).getAllGeometries(); 
 
+         boolean check;
+
+             if (name.indexOf(".xml") >= 0 ) {
+                 
+                 check = true;
+             }
+             else {
+                 check = false;
+             }
+             
+        // Set Diffuse Map
+        TextureKey tkDif = new TextureKey(name, check);
+        tkDif.setAnisotropy(4);
+        if (name.indexOf(".dds") < 0) tkDif.setGenerateMips(true);
+        Texture diffuseTex = BBSceneManager.getInstance().getAssetManager().loadTexture(tkDif);
+        diffuseTex.setWrap(Texture.WrapMode.Repeat);
+        
+        for (Geometry geo : geoGet) {
+
+        if (geo.getName().indexOf("CAPSULE") != 0 && geo.getName().indexOf("BOX") != 0  
+                && geo.getName().indexOf("CYLINDER") != 0 && geo.getName().indexOf("HULL") != 0 && geo.getName().indexOf("MESH") != 0
+                && geo.getName().indexOf("PLANE") != 0 && geo.getName().indexOf("SPHERE") != 0 && geo.getName().indexOf("CONE") != 0 
+                && geo.getName().indexOf("COMPLEX") != 0) {
+            
+        geo.getMaterial().setTexture("DiffuseMap", diffuseTex);
+        
+
+        }
+       }
+      }  
+        BBSceneManager.getInstance().removeFileLocator(path);        
+    }
+
+
+    
+    public void loadNormalTexture(String name, String path){       
+        // convert to / for windows
+        if (File.separatorChar == '\\'){
+            path = path.replace('\\', '/');
+        }
+        if(!path.endsWith("/")){
+            path += "/";
+        }
+        
+        BBSceneManager.getInstance().addFileLocator(path);
+        
+        if (selectedEntity != null) {
+        // get the last loaded Entity and its geometries
+        List <Geometry> geoGet = BBWorldManager.getInstance().getEntity(selectedEntity).getAllGeometries(); 
+
+         boolean check;
+
+             if (name.indexOf(".xml") >= 0 ) {
+                 
+                 check = true;
+             }
+             else {
+                 check = false;
+             }
+             
+        // Set Normal Map
+        String strNormal = name;
+        File flCheck = new File(path + "/" + strNormal);
+        Texture normalTex = null;
+        if (flCheck.exists() == true) {
+        TextureKey tkNor = new TextureKey(strNormal, check);
+        tkNor.setAnisotropy(4);
+        if (name.indexOf(".dds") < 0) tkNor.setGenerateMips(true);
+        normalTex = BBSceneManager.getInstance().getAssetManager().loadTexture(tkNor);
+        normalTex.setWrap(Texture.WrapMode.Repeat);
+        }
+        
+        for (Geometry geo : geoGet) {
+            
+        if (flCheck.exists() == true) {
+          geo.getMaterial().setTexture("NormalMap", normalTex);  
+         }
+        
+       }
+      }  
+        BBSceneManager.getInstance().removeFileLocator(path);        
+    }    
+    
         public void RemoveSelectedEntity(){ 
             
             if (selectedEntity != null) {
@@ -445,15 +466,7 @@ public class BBSceneGrid extends BBApplication{
         BBInputManager.getInstance().mapKey("MOUSE_MOVE_LEFT", new MouseAxisTrigger(MouseInput.AXIS_X, true));
         BBInputManager.getInstance().mapKey("MOUSE_MOVE_RIGHT", new MouseAxisTrigger(MouseInput.AXIS_X, false));
         
-        // button - rotation of cam
-//        BBInputManager.getInstance().mapKey("FLYCAM_Left", new KeyTrigger(KeyInput.KEY_LEFT));
-//        BBInputManager.getInstance().mapKey("FLYCAM_Right", new KeyTrigger(KeyInput.KEY_RIGHT));
-//        BBInputManager.getInstance().mapKey("FLYCAM_Up", new KeyTrigger(KeyInput.KEY_UP));
-//        BBInputManager.getInstance().mapKey("FLYCAM_Down", new KeyTrigger(KeyInput.KEY_DOWN));
-
-        // mouse only - zoom in/out with wheel, and rotate drag
-//        BBInputManager.getInstance().mapKey("FLYCAM_ZoomIn", new MouseAxisTrigger(MouseInput.AXIS_WHEEL, false));
-//        BBInputManager.getInstance().mapKey("FLYCAM_ZoomOut", new MouseAxisTrigger(MouseInput.AXIS_WHEEL, true));
+        // mouse only - select, move helper
         BBInputManager.getInstance().mapKey("MOUSE_CLICK_LEFT", new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
         BBInputManager.getInstance().mapKey("MOUSE_CLICK_RIGHT", new MouseButtonTrigger(MouseInput.BUTTON_RIGHT));
 
@@ -602,45 +615,19 @@ public class BBSceneGrid extends BBApplication{
 
 
             if (name.equals("FLYCAM_Forward")){
-                nodeCamera.move(rotNodeCamera.mult(Vector3f.UNIT_Z).normalizeLocal().multLocal(0.05f));
+                nodeCamera.move(rotateNodeCamera.mult(Vector3f.UNIT_Z).normalizeLocal().multLocal(0.05f));
             }else if (name.equals("FLYCAM_Backward")){
-                nodeCamera.move(rotNodeCamera.mult(Vector3f.UNIT_Z).normalizeLocal().multLocal(0.05f).negateLocal());
+                nodeCamera.move(rotateNodeCamera.mult(Vector3f.UNIT_Z).normalizeLocal().multLocal(0.05f).negateLocal());
             }else if (name.equals("FLYCAM_StrafeLeft")){
-                nodeCamera.move(rotNodeCamera.mult(Vector3f.UNIT_X).normalizeLocal().multLocal(0.05f));
+                nodeCamera.move(rotateNodeCamera.mult(Vector3f.UNIT_X).normalizeLocal().multLocal(0.05f));
             }else if (name.equals("FLYCAM_StrafeRight")){
-                nodeCamera.move(rotNodeCamera.mult(Vector3f.UNIT_X).normalizeLocal().multLocal(0.05f).negateLocal());
+                nodeCamera.move(rotateNodeCamera.mult(Vector3f.UNIT_X).normalizeLocal().multLocal(0.05f).negateLocal());
             }else if (name.equals("FLYCAM_Rise")){
-                nodeCamera.move(rotNodeCamera.mult(Vector3f.UNIT_Y).normalizeLocal().multLocal(0.05f));
+                nodeCamera.move(rotateNodeCamera.mult(Vector3f.UNIT_Y).normalizeLocal().multLocal(0.05f));
             }else if (name.equals("FLYCAM_Lower")){
-                nodeCamera.move(rotNodeCamera.mult(Vector3f.UNIT_Y).normalizeLocal().multLocal(0.05f).negateLocal());
+                nodeCamera.move(rotateNodeCamera.mult(Vector3f.UNIT_Y).normalizeLocal().multLocal(0.05f).negateLocal());
             }
             
-//            if (name.equals("FLYCAM_Left")){
-//                mFreeCamera.rotateCamera(value, mFreeCamera.getUpVector());
-//            }else if (name.equals("FLYCAM_Right")){
-//                mFreeCamera.rotateCamera(-value, mFreeCamera.getUpVector());
-//            }else if (name.equals("FLYCAM_Up")){
-//                mFreeCamera.rotateCamera(-value, mFreeCamera.getEngineCamera().getLeft());
-//            }else if (name.equals("FLYCAM_Down")){
-//                mFreeCamera.rotateCamera(value, mFreeCamera.getEngineCamera().getLeft());
-//            }else if (name.equals("FLYCAM_Forward")){
-//                mFreeCamera.moveCamera(value, false);
-//            }else if (name.equals("FLYCAM_Backward")){
-//                mFreeCamera.moveCamera(-value, false);
-//            }else if (name.equals("FLYCAM_StrafeLeft")){
-//                mFreeCamera.moveCamera(value, true);
-//            }else if (name.equals("FLYCAM_StrafeRight")){
-//                mFreeCamera.moveCamera(-value, true);
-//            }else if (name.equals("FLYCAM_Rise")){
-//                mFreeCamera.riseCamera(value);
-//            }else if (name.equals("FLYCAM_Lower")){
-//                mFreeCamera.riseCamera(-value);
-//            }else if (name.equals("FLYCAM_ZoomIn")){
-//                mFreeCamera.zoomCamera(value);
-//            }else if (name.equals("FLYCAM_ZoomOut")){
-//                mFreeCamera.zoomCamera(-value);
-//            }
-
          if (name.equals("MOUSE_MOVE_RIGHT") || name.equals("MOUSE_MOVE_LEFT")) {
            if (selectedEntity != null) {             
            BoundingBox bound = (BoundingBox) BBWorldManager.getInstance().getEntity(selectedEntity).getComponent(BBNodeComponent.class).getWorldBound();                
@@ -659,10 +646,6 @@ public class BBSceneGrid extends BBApplication{
         
   public void cameraPlayer(Node playerNode) {
 
-    
-    // Disable the default first-person cam!
-//    cam.setEnabled(false);
-    
     // Enable a chase cam
     chaseCam = new ChaseCamera(cam, playerNode, BBInputManager.getInstance().getInputManager());
 
@@ -698,7 +681,6 @@ public class BBSceneGrid extends BBApplication{
     chaseCam.setMinDistance(0.05f);
     chaseCam.setMaxDistance(500);
     
-//    chaseCam.setLookAtOffset(new Vector3f(0, player.getBoundingVolume().getYExtent()*2, 0));
   }         
         
     }//end myClass

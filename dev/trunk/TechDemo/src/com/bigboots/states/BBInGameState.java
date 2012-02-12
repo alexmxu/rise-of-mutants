@@ -61,6 +61,7 @@ import com.jme3.input.controls.KeyTrigger;
 import com.jme3.input.controls.MouseAxisTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.util.BufferUtils;
 import de.lessvoid.nifty.screen.Screen;
@@ -335,9 +336,9 @@ public class BBInGameState extends BBAbstractState{
         Node enemyNode = new Node("enemyNode");
         BBSceneManager.getInstance().getRootNode().attachChild(enemyNode);
         
-        for (int i=0; i<5; i++){
-         Vector3f mPos = new Vector3f(100 + i*10, 100, 0f);  
-         BBMonsterManager.getInstance().createMonter("ENEMY" + i, "Scenes/TestScene/mutant.j3o", mPos, new Vector3f(0,-1.0f, 0), 1+i*0.5f);
+        for (int i=0; i<30; i++){
+         Vector3f mPos = new Vector3f(100 + i*13, 100, 0f);  
+         BBMonsterManager.getInstance().createMonter("ENEMY" + i, "Scenes/TestScene/mutant.j3o", mPos, new Vector3f(0,-1.0f, 0), 1+FastMath.nextRandomFloat()*2);
          enemyNode.attachChild(BBMonsterManager.getInstance().getMonster("ENEMY" + i).getComponent(BBNodeComponent.class));
         }
         

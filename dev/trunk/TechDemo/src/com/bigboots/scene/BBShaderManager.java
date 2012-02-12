@@ -86,7 +86,7 @@ public class BBShaderManager {
     SceneGraphVisitor sgvIBL = new SceneGraphVisitor() {
 
     public void visit(Spatial spatial) {
-     boolean check;
+     boolean check = true;
           
      //System.out.println(spatial + " Visited Shader Geometry");
         if (spatial instanceof Geometry) {
@@ -96,8 +96,8 @@ public class BBShaderManager {
          String matShaderName = geo.getMaterial().getMaterialDef().getName();
          
          if (matShaderName.equals("LightBlow")) {
-             if (matName != null && matName.indexOf("-geom-") >= 0) check = false;
-             else check = true;
+//             if (matName != null && matName.indexOf("-geom-") >= 0) check = false;
+//             else check = true;
             TextureKey tkk = new TextureKey(PathIBL, check);
         //    tkk.setAnisotropy(2);
             tkk.setAsCube(true);
@@ -120,7 +120,7 @@ public class BBShaderManager {
     SceneGraphVisitor sgvSIBL = new SceneGraphVisitor() {
 
     public void visit(Spatial spatial) {
-     boolean check;
+     boolean check = true;
      
      //System.out.println(spatial + " Visited Shader Geometry");
         if (spatial instanceof Geometry) {
@@ -130,8 +130,8 @@ public class BBShaderManager {
          String matShaderName = geo.getMaterial().getMaterialDef().getName();
          
          if (matShaderName.equals("LightBlow")) {
-             if (matName != null && matName.indexOf("-geom-") >= 0) check = false;
-             else check = true;
+//             if (matName != null && matName.indexOf("-geom-") >= 0) check = false;
+//             else check = true;
             TextureKey tkk = new TextureKey(PathSIBL, check);
             tkk.setAsCube(false);
      //       tkk.setAnisotropy(2);
@@ -152,7 +152,7 @@ public class BBShaderManager {
     SceneGraphVisitor sgvRef = new SceneGraphVisitor() {
 
     public void visit(Spatial spatial) {
-     boolean check;   
+     boolean check = true;   
      //System.out.println(spatial + " Visited Shader Geometry");
         if (spatial instanceof Geometry) {
          Geometry geo = (Geometry) spatial;
@@ -161,10 +161,10 @@ public class BBShaderManager {
          String matShaderName = geo.getMaterial().getMaterialDef().getName();
 
          if (matShaderName.equals("LightBlow")) {
-             if (matName != null && matName.indexOf("-geom-") >= 0) check = false;
-             else check = true;
+//             if (matName != null && matName.indexOf("-geom-") >= 0) check = false;
+//             else check = true;
             TextureKey tkk = new TextureKey(PathRef, check);
-            tkk.setAnisotropy(2);
+//            tkk.setAnisotropy(2);
             tkk.setAsCube(true);
             tkk.setGenerateMips(true);
             Texture ref = assetman.loadTexture(tkk);
