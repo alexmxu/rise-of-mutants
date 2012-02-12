@@ -190,20 +190,7 @@ public abstract class BBCanvasApplication {
         // Create the options and properties panel
         optionPanel = new JPanel();
         optionPanel.setLayout(new FlowLayout());
-//        optionPanel.setLayout(new GridLayout(2,1));
 
-        JButton jbutton1 = new JButton("Button1"); 
-        jbutton1.setSize(200, 20);
-        jbutton1.setPreferredSize(new Dimension(150, 20));
-        jbutton1.setVerticalTextPosition(AbstractButton.CENTER);
-        jbutton1.setHorizontalTextPosition(AbstractButton.LEADING); 
-        optionPanel.add(jbutton1);
-
-//         optionPanel.add(new Button("2"));
-//         optionPanel.add(new Button("3"));
-//         optionPanel.add(new Button("4"));
-//         optionPanel.add(new Button("5"));
-//         optionPanel.add(new Button("6"));
         // Set the size
         optionPanel.setMinimumSize(new Dimension(30,30));	
         optionPanel.setPreferredSize(new Dimension(200,10));

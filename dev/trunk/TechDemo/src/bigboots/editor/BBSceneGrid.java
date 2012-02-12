@@ -69,6 +69,7 @@ import com.jme3.scene.debug.Grid;
 import com.jme3.scene.debug.WireBox;
 import com.jme3.scene.shape.Line;
 import com.jme3.texture.Texture;
+import com.jme3.util.TangentBinormalGenerator;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -88,11 +89,12 @@ public class BBSceneGrid extends BBApplication{
     private Node nodeCamera;
     private Quaternion rotateNodeCamera;
     private WireBox wireBox = new WireBox(1, 1, 1);
-    private Geometry selectionBox;
+    protected  Geometry selectionBox;
+    private BoundingBox selectionBound;
     
     private int mEntityID = 0;
-    private List <BBEntity> entList = new ArrayList<BBEntity>();
-    private String selectedEntity = null;
+    protected List <BBEntity> entList = new ArrayList<BBEntity>();
+    protected String selectedEntity = null;
     
     public BBSceneGrid() {
         super();
@@ -100,6 +102,7 @@ public class BBSceneGrid extends BBApplication{
     
     @Override
     public void simpleInitialize(){
+        
         //Load the main camera
         cam = new Camera(BBSettings.getInstance().getSettings().getWidth(), BBSettings.getInstance().getSettings().getHeight());
         cam.setFrustumPerspective(45f, (float)cam.getWidth() / cam.getHeight(), 0.001f, 1000f);
@@ -182,9 +185,9 @@ public class BBSceneGrid extends BBApplication{
         if(tmpSpatial instanceof Geometry){
             Node tmpNode = new Node(tmpSpatial.getName());
             tmpNode.attachChild(tmpSpatial);
-            entity = new BBEntity("ENTITY"+mEntityID, tmpNode);
+            entity = new BBEntity(tmpSpatial.getName()+mEntityID, tmpNode);
         }else if (tmpSpatial instanceof Node){
-            entity = new BBEntity("ENTITY"+mEntityID, (Node)tmpSpatial);
+            entity = new BBEntity(tmpSpatial.getName()+mEntityID, (Node)tmpSpatial);
         }
         
         entity.setObjectTag(ObjectTag.PLAYER);
@@ -193,18 +196,19 @@ public class BBSceneGrid extends BBApplication{
         entity.loadModel("");
         setShader(entity, name); 
 //        entityNode.attachChild(entity.getComponent(BBNodeComponent.class));
+        TangentBinormalGenerator.generate(pnode);
         entity.attachToNode(sceneNode);
         mSceneGizmo.getTranAxis().setLocalTranslation(mSceneGizmo.getMarkPosition());
         BBWorldManager.getInstance().addEntity(entity);
         BBSceneManager.getInstance().removeFileLocator(path);
         
-        mEntityID++;
         entList.add(entity);
         selectedEntity = entity.getObjectName();
         
         //Clear Cache
         dsk.clearCache();         
-        
+
+        mEntityID++;        
     }
 
     
@@ -231,24 +235,15 @@ public class BBSceneGrid extends BBApplication{
         } else {         
             
         matNew = new Material(BBSceneManager.getInstance().getAssetManager(), "MatDefs/LightBlow/LightBlow.j3md");
+//        matNew = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Light/Lighting.j3md");
         matNew.setName(geo.getMaterial().getName());
         String str = matNew.getName();        
-//        System.err.println(str + "xxxxxx");
-
         
          boolean check = true;
 
-//             if (nameFile.indexOf(".xml") >= 0 ) {
-//                 check = true;
-//             }
-//             else {
-//                 check = false;
-//             }
              
             TextureKey tkk = new TextureKey("Textures/skyboxes/sky_box_01/skybox_01_low.png", check);
             tkk.setAsCube(false);
-     //       tkk.setAnisotropy(2);
-     //       tkk.setGenerateMips(true);
             Texture ibl = BBSceneManager.getInstance().getAssetManager().loadTexture(tkk);
             matNew.setTexture("IblMap_Simple", ibl);              
         }    
@@ -260,7 +255,7 @@ public class BBSceneGrid extends BBApplication{
     }
     
     
-    public void loadDiffuseTexture(String name, String path){       
+    public void loadDiffuseTexture(String name, String path, List<String> strGeometryNames){       
         // convert to / for windows
         if (File.separatorChar == '\\'){
             path = path.replace('\\', '/');
@@ -271,13 +266,13 @@ public class BBSceneGrid extends BBApplication{
         
         BBSceneManager.getInstance().addFileLocator(path);
         
-        if (selectedEntity != null) {
-        // get the last loaded Entity and its geometries
-        List <Geometry> geoGet = BBWorldManager.getInstance().getEntity(selectedEntity).getAllGeometries(); 
+        if (selectedEntity != null && strGeometryNames != null) {
+        // get selected Entity 
+        BBEntity geoGet = BBWorldManager.getInstance().getEntity(selectedEntity); 
 
          boolean check;
 
-             if (name.indexOf(".xml") >= 0 ) {
+             if (name.indexOf(".xml") <= 0 ) {
                  
                  check = true;
              }
@@ -292,14 +287,14 @@ public class BBSceneGrid extends BBApplication{
         Texture diffuseTex = BBSceneManager.getInstance().getAssetManager().loadTexture(tkDif);
         diffuseTex.setWrap(Texture.WrapMode.Repeat);
         
-        for (Geometry geo : geoGet) {
+        for (String geoName :  strGeometryNames) {
 
-        if (geo.getName().indexOf("CAPSULE") != 0 && geo.getName().indexOf("BOX") != 0  
-                && geo.getName().indexOf("CYLINDER") != 0 && geo.getName().indexOf("HULL") != 0 && geo.getName().indexOf("MESH") != 0
-                && geo.getName().indexOf("PLANE") != 0 && geo.getName().indexOf("SPHERE") != 0 && geo.getName().indexOf("CONE") != 0 
-                && geo.getName().indexOf("COMPLEX") != 0) {
-            
-        geo.getMaterial().setTexture("DiffuseMap", diffuseTex);
+        if (geoName.indexOf("CAPSULE") != 0 && geoName.indexOf("BOX") != 0  
+                && geoName.indexOf("CYLINDER") != 0 && geoName.indexOf("HULL") != 0 && geoName.indexOf("MESH") != 0
+                && geoName.indexOf("PLANE") != 0 && geoName.indexOf("SPHERE") != 0 && geoName.indexOf("CONE") != 0 
+                && geoName.indexOf("COMPLEX") != 0) {
+
+            geoGet.getChildMesh(geoName).getMaterial().setTexture("DiffuseMap", diffuseTex);
         
 
         }
@@ -310,7 +305,7 @@ public class BBSceneGrid extends BBApplication{
 
 
     
-    public void loadNormalTexture(String name, String path){       
+    public void loadNormalTexture(String name, String path, List<String> strGeometryNames){       
         // convert to / for windows
         if (File.separatorChar == '\\'){
             path = path.replace('\\', '/');
@@ -322,12 +317,12 @@ public class BBSceneGrid extends BBApplication{
         BBSceneManager.getInstance().addFileLocator(path);
         
         if (selectedEntity != null) {
-        // get the last loaded Entity and its geometries
-        List <Geometry> geoGet = BBWorldManager.getInstance().getEntity(selectedEntity).getAllGeometries(); 
+        // get selected Entity 
+        BBEntity geoGet = BBWorldManager.getInstance().getEntity(selectedEntity); 
 
          boolean check;
 
-             if (name.indexOf(".xml") >= 0 ) {
+             if (name.indexOf(".xml") <= 0 ) {
                  
                  check = true;
              }
@@ -347,13 +342,20 @@ public class BBSceneGrid extends BBApplication{
         normalTex.setWrap(Texture.WrapMode.Repeat);
         }
         
-        for (Geometry geo : geoGet) {
-            
-        if (flCheck.exists() == true) {
-          geo.getMaterial().setTexture("NormalMap", normalTex);  
-         }
-        
-       }
+
+        for (String geoName :  strGeometryNames) {
+
+        if (geoName.indexOf("CAPSULE") != 0 && geoName.indexOf("BOX") != 0  
+                && geoName.indexOf("CYLINDER") != 0 && geoName.indexOf("HULL") != 0 && geoName.indexOf("MESH") != 0
+                && geoName.indexOf("PLANE") != 0 && geoName.indexOf("SPHERE") != 0 && geoName.indexOf("CONE") != 0 
+                && geoName.indexOf("COMPLEX") != 0) {
+
+          geoGet.getChildMesh(geoName).getMaterial().setTexture("NormalMap", normalTex);  
+//          geoGet.getChildMesh(geoName).getMaterial().setBoolean("Nor_Inv_Y", true);  
+//          geoGet.getChildMesh(geoName).getMaterial().setBoolean("Nor_Inv_X", true);          
+
+        }
+       }        
       }  
         BBSceneManager.getInstance().removeFileLocator(path);        
     }    
@@ -388,10 +390,10 @@ public class BBSceneGrid extends BBApplication{
     	sceneNode = new Node("sceneNode");
         
         //Create a grid plane
-        Geometry g = new Geometry("GRID", new Grid(40, 40, 0.5f) );
+        Geometry g = new Geometry("GRID", new Grid(41, 41, 0.5f) );
         Material floor_mat = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
         floor_mat.getAdditionalRenderState().setWireframe(true);
-        floor_mat.setColor("Color", new ColorRGBA(0.3f, 0.3f, 0.3f, 0.2f));
+        floor_mat.setColor("Color", new ColorRGBA(0.3f, 0.3f, 0.3f, 0.13f));
         floor_mat.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
         g.setShadowMode(ShadowMode.Off);
         g.setQueueBucket(Bucket.Transparent);
@@ -405,7 +407,7 @@ public class BBSceneGrid extends BBApplication{
         Geometry gxAxis = new Geometry("XAxis", xAxis);
         gxAxis.setModelBound(new BoundingBox());
         Material mat = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
-        mat.setColor("Color", new ColorRGBA(1.0f, 0.2f, 0.2f, 0.5f));
+        mat.setColor("Color", new ColorRGBA(1.0f, 0.2f, 0.2f, 0.3f));
         mat.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
         gxAxis.setQueueBucket(Bucket.Transparent);
         gxAxis.setShadowMode(ShadowMode.Off);
@@ -418,7 +420,7 @@ public class BBSceneGrid extends BBApplication{
         Geometry gzAxis = new Geometry("ZAxis", zAxis);
         gzAxis.setModelBound(new BoundingBox());
         mat = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
-        mat.setColor("Color", new ColorRGBA(0.2f, 0.2f, 1.0f, 0.5f));
+        mat.setColor("Color", new ColorRGBA(0.2f, 0.2f, 1.0f, 0.3f));
         mat.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
         gxAxis.setQueueBucket(Bucket.Transparent);        
         gzAxis.setShadowMode(ShadowMode.Off);
@@ -430,7 +432,7 @@ public class BBSceneGrid extends BBApplication{
         BitmapText ch = new BitmapText(guiFont, false);
         ch.setSize(guiFont.getCharSet().getRenderedSize());
         ch.setText("W,A,S,D,Q,Z, MiddleMouseButton, RightMouseButton, Scroll"); // crosshairs
-        ch.setColor(new ColorRGBA(1f,0.8f,0.1f,0.5f));
+        ch.setColor(new ColorRGBA(1f,0.8f,0.1f,0.3f));
         ch.setLocalTranslation(BBSettings.getInstance().getSettings().getWidth()*0.1f,BBSettings.getInstance().getSettings().getHeight()*0.1f,0);
         BBGuiManager.getInstance().getGuiNode().attachChild(ch);           
         
@@ -484,6 +486,15 @@ public class BBSceneGrid extends BBApplication{
         
         BBInputManager.getInstance().getInputManager().setCursorVisible(false);
     }
+    
+       public void selectionBoxTransform() {
+           selectionBound = (BoundingBox) BBWorldManager.getInstance().getEntity(selectedEntity).getComponent(BBNodeComponent.class).getWorldBound();   
+           selectionBox.setLocalTranslation(BBWorldManager.getInstance().getEntity(selectedEntity).getComponent(BBNodeComponent.class).getLocalTranslation());
+           selectionBox.setLocalRotation(BBWorldManager.getInstance().getEntity(selectedEntity).getComponent(BBNodeComponent.class).getLocalRotation());
+           selectionBox.setLocalScale(selectionBound.getXExtent(), selectionBound.getYExtent(), selectionBound.getZExtent());              
+//           BBSceneManager.getInstance().getRootNode().updateGeometricState();                     
+       }    
+       
     
     class MyTestAction implements AnalogListener, ActionListener{
         
@@ -630,11 +641,7 @@ public class BBSceneGrid extends BBApplication{
             
          if (name.equals("MOUSE_MOVE_RIGHT") || name.equals("MOUSE_MOVE_LEFT")) {
            if (selectedEntity != null) {             
-           BoundingBox bound = (BoundingBox) BBWorldManager.getInstance().getEntity(selectedEntity).getComponent(BBNodeComponent.class).getWorldBound();                
-           selectionBox.setLocalTranslation(BBWorldManager.getInstance().getEntity(selectedEntity).getComponent(BBNodeComponent.class).getLocalTranslation());
-           selectionBox.setLocalRotation(BBWorldManager.getInstance().getEntity(selectedEntity).getComponent(BBNodeComponent.class).getLocalRotation());
-           selectionBox.setLocalScale(bound.getXExtent(), bound.getYExtent(), bound.getZExtent());             
-           
+           selectionBoxTransform();
            }
          }   
             
@@ -643,6 +650,9 @@ public class BBSceneGrid extends BBApplication{
 //            } // else if ...
 
         }
+        
+        
+
         
   public void cameraPlayer(Node playerNode) {
 

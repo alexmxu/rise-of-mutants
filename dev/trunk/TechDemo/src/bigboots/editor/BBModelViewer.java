@@ -16,6 +16,8 @@
 package bigboots.editor;
 
 import com.bigboots.BBCanvasApplication;
+import com.bigboots.BBWorldManager;
+import com.bigboots.core.BBSceneManager;
 import com.jme3.math.FastMath;
 import java.awt.Dimension;
 import java.awt.BorderLayout;
@@ -25,6 +27,10 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.AbstractButton;
+import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -52,7 +58,7 @@ public class BBModelViewer extends BBCanvasApplication implements ActionListener
     private FileFilter modFilter = new BBModelFilter();
     private FileFilter texFilter = new BBTextureFilter();
     private JList listEntity, listGeo;
-    
+    private DefaultListModel modelEntity, modelGeo;
     
     public BBModelViewer(){
         //Create a file chooser for Models
@@ -76,36 +82,37 @@ public class BBModelViewer extends BBCanvasApplication implements ActionListener
         JMenu menuAsset = new JMenu("Asset");
         menuBar.add(menuAsset);
 
-        final JMenuItem itemLoadModel = new JMenuItem("Load Model");
-        menuAsset.add(itemLoadModel);
-        itemLoadModel.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                loadModelFromFile();
-            }
-        });
+//        final JMenuItem itemLoadModel = new JMenuItem("Load Model");
+//        menuAsset.add(itemLoadModel);
+//        itemLoadModel.addActionListener(new ActionListener() {
+//            public void actionPerformed(ActionEvent e) {
+//                loadModelFromFile();
+//            }
+//        });
+//        
+//        final JMenuItem itemLoadDifTexture = new JMenuItem("Load Diffuse Texture");
+//        menuAsset.add(itemLoadDifTexture);
+//        itemLoadDifTexture.addActionListener(new ActionListener() {
+//            public void actionPerformed(ActionEvent e) {
+//                loadDiffuseTexture();
+//            }
+//        });
         
-        final JMenuItem itemLoadDifTexture = new JMenuItem("Load Diffuse Texture");
-        menuAsset.add(itemLoadDifTexture);
-        itemLoadDifTexture.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                loadDiffuseTexture();
-            }
-        });
         
-        
-        final JMenuItem itemLoadNorTexture = new JMenuItem("Load Normal Texture");
-        menuAsset.add(itemLoadNorTexture);
-        itemLoadNorTexture.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                loadNormalTexture();
-            }
-        });
+//        final JMenuItem itemLoadNorTexture = new JMenuItem("Load Normal Texture");
+//        menuAsset.add(itemLoadNorTexture);
+//        itemLoadNorTexture.addActionListener(new ActionListener() {
+//            public void actionPerformed(ActionEvent e) {
+//                loadNormalTexture();
+//            }
+//        });
         
         
         final JMenuItem removeSelEntity = new JMenuItem("Remove Selected Model");
         menuAsset.add(removeSelEntity);
         removeSelEntity.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                modelEntity.removeElement(((BBSceneGrid)app).selectedEntity);                
                 ((BBSceneGrid)app).RemoveSelectedEntity();
             }
         });
@@ -115,6 +122,7 @@ public class BBModelViewer extends BBCanvasApplication implements ActionListener
         clearScene.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 ((BBSceneGrid)app).ClearScene();
+                modelGeo.clear();
             }
         });        
         
@@ -126,95 +134,118 @@ public class BBModelViewer extends BBCanvasApplication implements ActionListener
         mMainFrame.add(toolBar, BorderLayout.PAGE_START);
         
         // entityList
-        entityList(optionPanel);
-        geometryList(optionPanel);
+        buttons();
+        entityList();
+        geometryList();
         
 
     }
 
     
-    private void entityList(JPanel jpn) {
-
+    private void buttons() {
         
-		// Create some items to add to the list
-		String	listData[] =
-		{
-			"Object 1",
-			"Object 2",
-			"Object 3",
-			"Object 4",
-			"Object 1",
-			"Object 2",
-			"Object 3",
-			"Object 4",
-			"Object 1",
-			"Object 2",
-			"Object 3",
-			"Object 4",
-			"Object 4",
-			"Object 1",
-			"Object 2",
-			"Object 3",
-			"Object 4"                           
-		};
+        JButton loadModelButton = new JButton("Load Model"); 
+        loadModelButton.setSize(200, 20);
+        loadModelButton.setPreferredSize(new Dimension(190, 20));
+        loadModelButton.setVerticalTextPosition(AbstractButton.CENTER);
+        loadModelButton.setHorizontalTextPosition(AbstractButton.LEADING); 
+        loadModelButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                loadModelFromFile();
+                
+            }
+        });         
+        optionPanel.add(loadModelButton);          
+        
+        JButton loadDiffuseButton = new JButton("Load Diffuse Texture"); 
+        loadDiffuseButton.setSize(200, 20);
+        loadDiffuseButton.setPreferredSize(new Dimension(190, 20));
+        loadDiffuseButton.setVerticalTextPosition(AbstractButton.CENTER);
+        loadDiffuseButton.setHorizontalTextPosition(AbstractButton.LEADING); 
+        loadDiffuseButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                loadDiffuseTexture();
+                
+                
+            }
+        });         
+        optionPanel.add(loadDiffuseButton);          
+
+        JButton loadNormalButton = new JButton("Load Normal Texture"); 
+        loadNormalButton.setSize(200, 20);
+        loadNormalButton.setPreferredSize(new Dimension(190, 20));
+        loadNormalButton.setVerticalTextPosition(AbstractButton.CENTER);
+        loadNormalButton.setHorizontalTextPosition(AbstractButton.LEADING); 
+        loadNormalButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                loadNormalTexture();
+            }
+        });         
+        optionPanel.add(loadNormalButton);         
+        
+    }
+    
+    private void entityList() {
+
+        // Create a list that allows adds and removes
+        modelEntity = new DefaultListModel();
                 
 		// Create a new listbox control
-		listEntity = new JList( listData );
+		listEntity = new JList(modelEntity);
                 
 		// Set the frame characteristics
 //		listbox.setTitle( "Simple ListBox Application" );
-                listEntity.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+                listEntity.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
                 listEntity.setLayoutOrientation(JList.VERTICAL);
 		listEntity.setSize( 180, 200 );
-                listEntity.setPreferredSize(new Dimension(150, 200));
+                listEntity.setPreferredSize(new Dimension(180, 200));
 		listEntity.setBackground( new Color(245,245,245));
                 listEntity.addListSelectionListener (this);
                 
                 JScrollPane listScroller = new JScrollPane(listEntity);
-                jpn.add(listScroller, BorderLayout.CENTER);                
+                listScroller.setSize(listEntity.getSize());   
+                listScroller.setPreferredSize(listEntity.getPreferredSize());
+                optionPanel.add(listScroller, BorderLayout.CENTER);                
         
     }
     
 
-    private void geometryList(JPanel jpn) {
+    private void geometryList() {
 
         
-		// Create some items to add to the list
-		String	listData2[] =
-		{
-			"Geo 1",
-			"Geo 2",
-			"Geo 3",
-			"Geo 4",
-			"Geo 1",
-			"Geo 2",
-			"Geo 3",
-			"Geo 4",
-			"Geo 1",
-			"Geo 2",
-			"Geo 3",
-			"Geo 4",
-			"Geo 4",
-			"Geo 1",
-			"Geo 2",
-			"Geo 3",
-			"Geo 4"                           
-		};
+        // Create a list that allows adds and removes
+        modelGeo = new DefaultListModel();
                 
+// Get the index of all the selected items
+//int[] selectedIx = listGeo.getSelectedIndices();
+
 		// Create a new listbox control
-		listGeo = new JList( listData2 );
+		listGeo = new JList( modelGeo );
                 
 		// Set the frame characteristics
 //		listGeo.setTitle( "Simple ListBox Application" );
                 listGeo.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
                 listGeo.setLayoutOrientation(JList.VERTICAL);
 		listGeo.setSize( 180, 200 );
-                listGeo.setPreferredSize(new Dimension(150, 200));
+                listGeo.setPreferredSize(new Dimension(180, 200));
 		listGeo.setBackground( new Color(245,245,245));
                 listGeo.addListSelectionListener (this);
                 
+//                listGeo.setSelectedIndices(selectedIx);
+//                Object[] selected = listGeo.getSelectedValues();
+
+                // Get number of items in the list
+//                int size = list.getModel().getSize();
+
+        // Get all item objects
+//        for (int i=0; i<size; i++) {
+//        Object item = list.getModel().getElementAt(i);
+//        }                
+                
                 JScrollPane listScroller2 = new JScrollPane(listGeo);
-                jpn.add(listScroller2, BorderLayout.CENTER);                
+                listScroller2.setSize(listGeo.getSize());
+                listScroller2.setPreferredSize(listGeo.getPreferredSize());
+                optionPanel.add(listScroller2, BorderLayout.CENTER);                
                 
     }
     
@@ -228,6 +259,19 @@ public class BBModelViewer extends BBCanvasApplication implements ActionListener
             try{
                 mLogArea.append("Loading file : " + file.getCanonicalPath() +"\n");
                 ((BBSceneGrid)app).loadExternalModel(file.getName(), file.getParent());
+                
+                //Load Entity list
+//                modelEntity.clear();
+//                for (int i=0; i<((BBSceneGrid)app).entList.size(); i++) {
+//                modelEntity.add(i, ((BBSceneGrid)app).entList.get(i).getObjectName());
+                modelEntity.addElement(((BBSceneGrid)app).selectedEntity);
+                
+                // Load Geometries list
+                modelGeo.clear();
+                for (int i=0; i<BBWorldManager.getInstance().getEntity(((BBSceneGrid)app).selectedEntity).getAllGeometries().toArray().length; i++) {
+                modelGeo.add(i, BBWorldManager.getInstance().getEntity(((BBSceneGrid)app).selectedEntity).getAllGeometries().get(i).getName());
+                
+                }                
             }catch (IOException ex){}
             
         }
@@ -244,7 +288,14 @@ public class BBModelViewer extends BBCanvasApplication implements ActionListener
 //            mFileCt.setCurrentDirectory(file);
             try{
                 mLogArea.append("Loading file : " + file.getCanonicalPath() +"\n");
-                ((BBSceneGrid)app).loadDiffuseTexture(file.getName(), file.getParent());
+                int[] selIndexes = listGeo.getSelectedIndices();
+                if (selIndexes != null && ((BBSceneGrid)app).selectedEntity != null) {
+                List<String> strLst = new ArrayList<String>();
+                for(int i : selIndexes){
+                    strLst.add(modelGeo.get(i).toString());
+                }
+                ((BBSceneGrid)app).loadDiffuseTexture(file.getName(), file.getParent(), strLst);
+                }
             }catch (IOException ex){}
         }
         
@@ -260,7 +311,14 @@ public class BBModelViewer extends BBCanvasApplication implements ActionListener
 //            mFileCt.setCurrentDirectory(file);
             try{
                 mLogArea.append("Loading file : " + file.getCanonicalPath() +"\n");
-                ((BBSceneGrid)app).loadNormalTexture(file.getName(), file.getParent());
+                int[] selIndexes = listGeo.getSelectedIndices();
+                if (selIndexes != null && ((BBSceneGrid)app).selectedEntity != null) {
+                List<String> strLst = new ArrayList<String>();
+                for(int i : selIndexes){
+                    strLst.add(modelGeo.get(i).toString());
+                }
+                ((BBSceneGrid)app).loadNormalTexture(file.getName(), file.getParent(), strLst);
+                }
             }catch (IOException ex){}
         }
         
@@ -343,11 +401,19 @@ public class BBModelViewer extends BBCanvasApplication implements ActionListener
 
     public void valueChanged(ListSelectionEvent lse) {
 
-        JList lst = (JList) lse.getSource();
+      JList lst = (JList) lse.getSource();
 
-      if (!lse.getValueIsAdjusting())  System.out.println(lst.getSelectedIndex());
+      // If Entity is changed in the Entitylist
+      if (lst.equals(listEntity)) {
+         ((BBSceneGrid)app).selectedEntity = (String) listEntity.getModel().getElementAt(lst.getSelectedIndex());
 
-      
-      
+          // Load Geometries list
+          modelGeo.clear();
+          for (int i=0; i<BBWorldManager.getInstance().getEntity(((BBSceneGrid)app).selectedEntity).getAllGeometries().toArray().length; i++) {
+          modelGeo.add(i, BBWorldManager.getInstance().getEntity(((BBSceneGrid)app).selectedEntity).getAllGeometries().get(i).getName());
+                } 
+          
+      }      
+//      if (!lse.getValueIsAdjusting())  System.out.println(lst.getSelectedIndices().length);
     }
 }
