@@ -271,8 +271,9 @@ public class BBSceneGrid extends BBApplication{
         BBEntity geoGet = BBWorldManager.getInstance().getEntity(selectedEntity); 
 
          boolean check;
-
-             if (name.indexOf(".xml") <= 0 ) {
+         
+             // check for ogre mesh   
+             if (geoGet.getChildMesh(strGeometryNames.get(0)).getName().indexOf("-geom") < 0 ) {
                  
                  check = true;
              }
@@ -316,13 +317,14 @@ public class BBSceneGrid extends BBApplication{
         
         BBSceneManager.getInstance().addFileLocator(path);
         
-        if (selectedEntity != null) {
+        if (selectedEntity != null && strGeometryNames != null) {
         // get selected Entity 
         BBEntity geoGet = BBWorldManager.getInstance().getEntity(selectedEntity); 
 
          boolean check;
-
-             if (name.indexOf(".xml") <= 0 ) {
+         
+             // check for ogre mesh   
+             if (geoGet.getChildMesh(strGeometryNames.get(0)).getName().indexOf("-geom") < 0 ) {
                  
                  check = true;
              }
@@ -489,7 +491,7 @@ public class BBSceneGrid extends BBApplication{
     
        public void selectionBoxTransform() {
            selectionBound = (BoundingBox) BBWorldManager.getInstance().getEntity(selectedEntity).getComponent(BBNodeComponent.class).getWorldBound();   
-           selectionBox.setLocalTranslation(BBWorldManager.getInstance().getEntity(selectedEntity).getComponent(BBNodeComponent.class).getLocalTranslation());
+           selectionBox.setLocalTranslation(selectionBound.getCenter());
            selectionBox.setLocalRotation(BBWorldManager.getInstance().getEntity(selectedEntity).getComponent(BBNodeComponent.class).getLocalRotation());
            selectionBox.setLocalScale(selectionBound.getXExtent(), selectionBound.getYExtent(), selectionBound.getZExtent());              
 //           BBSceneManager.getInstance().getRootNode().updateGeometricState();                     

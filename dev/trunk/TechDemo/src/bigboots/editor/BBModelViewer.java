@@ -82,49 +82,13 @@ public class BBModelViewer extends BBCanvasApplication implements ActionListener
         JMenu menuAsset = new JMenu("Asset");
         menuBar.add(menuAsset);
 
-//        final JMenuItem itemLoadModel = new JMenuItem("Load Model");
-//        menuAsset.add(itemLoadModel);
-//        itemLoadModel.addActionListener(new ActionListener() {
+//        final JMenuItem clearScene = new JMenuItem("Clear Scene");
+//        menuAsset.add(clearScene);
+//        clearScene.addActionListener(new ActionListener() {
 //            public void actionPerformed(ActionEvent e) {
-//                loadModelFromFile();
+//
 //            }
-//        });
-//        
-//        final JMenuItem itemLoadDifTexture = new JMenuItem("Load Diffuse Texture");
-//        menuAsset.add(itemLoadDifTexture);
-//        itemLoadDifTexture.addActionListener(new ActionListener() {
-//            public void actionPerformed(ActionEvent e) {
-//                loadDiffuseTexture();
-//            }
-//        });
-        
-        
-//        final JMenuItem itemLoadNorTexture = new JMenuItem("Load Normal Texture");
-//        menuAsset.add(itemLoadNorTexture);
-//        itemLoadNorTexture.addActionListener(new ActionListener() {
-//            public void actionPerformed(ActionEvent e) {
-//                loadNormalTexture();
-//            }
-//        });
-        
-        
-        final JMenuItem removeSelEntity = new JMenuItem("Remove Selected Model");
-        menuAsset.add(removeSelEntity);
-        removeSelEntity.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                modelEntity.removeElement(((BBSceneGrid)app).selectedEntity);                
-                ((BBSceneGrid)app).RemoveSelectedEntity();
-            }
-        });
-        
-        final JMenuItem clearScene = new JMenuItem("Clear Scene");
-        menuAsset.add(clearScene);
-        clearScene.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                ((BBSceneGrid)app).ClearScene();
-                modelGeo.clear();
-            }
-        });        
+//        });        
         
         // ToolBar
         JToolBar toolBar = new JToolBar("Viewer Options");
@@ -141,7 +105,6 @@ public class BBModelViewer extends BBCanvasApplication implements ActionListener
 
     }
 
-    
     private void buttons() {
         
         JButton loadModelButton = new JButton("Load Model"); 
@@ -182,6 +145,42 @@ public class BBModelViewer extends BBCanvasApplication implements ActionListener
             }
         });         
         optionPanel.add(loadNormalButton);         
+        
+        JButton RemoveSelectedModel = new JButton("Remove Selected Model"); 
+        RemoveSelectedModel.setSize(200, 20);
+        RemoveSelectedModel.setPreferredSize(new Dimension(190, 20));
+        RemoveSelectedModel.setVerticalTextPosition(AbstractButton.CENTER);
+        RemoveSelectedModel.setHorizontalTextPosition(AbstractButton.LEADING); 
+        RemoveSelectedModel.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                modelGeo.clear();
+                listGeo.repaint();
+        
+                if (((BBSceneGrid)app).selectedEntity != null || listEntity.getSelectedValue() != null){
+                    modelEntity.removeElement(((BBSceneGrid)app).selectedEntity);
+                
+                listEntity.repaint();         
+                ((BBSceneGrid)app).RemoveSelectedEntity();                 
+              }
+            }
+        });         
+        optionPanel.add(RemoveSelectedModel);         
+        
+        JButton clearScene = new JButton("Clear Scene"); 
+        clearScene.setSize(200, 20);
+        clearScene.setPreferredSize(new Dimension(190, 20));
+        clearScene.setVerticalTextPosition(AbstractButton.CENTER);
+        clearScene.setHorizontalTextPosition(AbstractButton.LEADING); 
+        clearScene.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                ((BBSceneGrid)app).ClearScene();
+                modelEntity.clear();
+                listEntity.repaint();
+                modelGeo.clear();
+                listGeo.repaint();
+            }
+        });         
+        optionPanel.add(clearScene);         
         
     }
     
@@ -261,17 +260,16 @@ public class BBModelViewer extends BBCanvasApplication implements ActionListener
                 ((BBSceneGrid)app).loadExternalModel(file.getName(), file.getParent());
                 
                 //Load Entity list
-//                modelEntity.clear();
-//                for (int i=0; i<((BBSceneGrid)app).entList.size(); i++) {
-//                modelEntity.add(i, ((BBSceneGrid)app).entList.get(i).getObjectName());
+
                 modelEntity.addElement(((BBSceneGrid)app).selectedEntity);
-                
+                listEntity.repaint();
                 // Load Geometries list
                 modelGeo.clear();
                 for (int i=0; i<BBWorldManager.getInstance().getEntity(((BBSceneGrid)app).selectedEntity).getAllGeometries().toArray().length; i++) {
                 modelGeo.add(i, BBWorldManager.getInstance().getEntity(((BBSceneGrid)app).selectedEntity).getAllGeometries().get(i).getName());
                 
                 }                
+                listGeo.repaint();
             }catch (IOException ex){}
             
         }
@@ -404,15 +402,17 @@ public class BBModelViewer extends BBCanvasApplication implements ActionListener
       JList lst = (JList) lse.getSource();
 
       // If Entity is changed in the Entitylist
-      if (lst.equals(listEntity)) {
+      if (lst != null && lst.equals(listEntity) && lst.getSelectedIndex() != -1 
+          && BBWorldManager.getInstance().getEntity(((BBSceneGrid)app).selectedEntity) != null) {
          ((BBSceneGrid)app).selectedEntity = (String) listEntity.getModel().getElementAt(lst.getSelectedIndex());
 
           // Load Geometries list
           modelGeo.clear();
+          if (((BBSceneGrid)app).selectedEntity != null) {
           for (int i=0; i<BBWorldManager.getInstance().getEntity(((BBSceneGrid)app).selectedEntity).getAllGeometries().toArray().length; i++) {
           modelGeo.add(i, BBWorldManager.getInstance().getEntity(((BBSceneGrid)app).selectedEntity).getAllGeometries().get(i).getName());
                 } 
-          
+          }
       }      
 //      if (!lse.getValueIsAdjusting())  System.out.println(lst.getSelectedIndices().length);
     }
