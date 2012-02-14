@@ -39,12 +39,14 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.event.ListSelectionEvent;
 
 import javax.swing.filechooser.FileFilter;
 
 import javax.swing.JToolBar;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
 import javax.swing.event.ListSelectionListener;
 
 
@@ -59,6 +61,7 @@ public class BBModelViewer extends BBCanvasApplication implements ActionListener
     private FileFilter texFilter = new BBTextureFilter();
     private JList listEntity, listGeo;
     private DefaultListModel modelEntity, modelGeo;
+    private List<String> strLst = new ArrayList<String>();
     
     public BBModelViewer(){
         //Create a file chooser for Models
@@ -127,7 +130,7 @@ public class BBModelViewer extends BBCanvasApplication implements ActionListener
         loadDiffuseButton.setHorizontalTextPosition(AbstractButton.LEADING); 
         loadDiffuseButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                loadDiffuseTexture();
+              if (((BBSceneGrid)app).selectedEntity != null && strLst.size() > 0) loadDiffuseTexture();
                 
                 
             }
@@ -141,10 +144,13 @@ public class BBModelViewer extends BBCanvasApplication implements ActionListener
         loadNormalButton.setHorizontalTextPosition(AbstractButton.LEADING); 
         loadNormalButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                loadNormalTexture();
+              if (((BBSceneGrid)app).selectedEntity != null && strLst.size() > 0) loadNormalTexture();
             }
         });         
         optionPanel.add(loadNormalButton);         
+        
+        optionPanel.add(new JSeparator(SwingConstants.HORIZONTAL));         
+        
         
         JButton RemoveSelectedModel = new JButton("Remove Selected Model"); 
         RemoveSelectedModel.setSize(200, 20);
@@ -153,13 +159,15 @@ public class BBModelViewer extends BBCanvasApplication implements ActionListener
         RemoveSelectedModel.setHorizontalTextPosition(AbstractButton.LEADING); 
         RemoveSelectedModel.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                modelGeo.clear();
-                listGeo.repaint();
+
         
                 if (((BBSceneGrid)app).selectedEntity != null || listEntity.getSelectedValue() != null){
-                    modelEntity.removeElement(((BBSceneGrid)app).selectedEntity);
+                modelGeo.clear();
+                listGeo.repaint();
                 
+                modelEntity.removeElement(((BBSceneGrid)app).selectedEntity);
                 listEntity.repaint();         
+                
                 ((BBSceneGrid)app).RemoveSelectedEntity();                 
               }
             }
@@ -180,8 +188,117 @@ public class BBModelViewer extends BBCanvasApplication implements ActionListener
                 listGeo.repaint();
             }
         });         
-        optionPanel.add(clearScene);         
+        optionPanel.add(clearScene);     
         
+        
+        optionPanel.add(new JSeparator(SwingConstants.HORIZONTAL));         
+        
+        
+        
+        JButton Nor_Inv_X = new JButton("Normal InvertX"); 
+        Nor_Inv_X.setSize(200, 20);
+        Nor_Inv_X.setPreferredSize(new Dimension(190, 20));
+        Nor_Inv_X.setVerticalTextPosition(AbstractButton.CENTER);
+        Nor_Inv_X.setHorizontalTextPosition(AbstractButton.LEADING); 
+        Nor_Inv_X.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (((BBSceneGrid)app).selectedEntity != null && strLst.size() > 0) 
+                    ((BBSceneGrid)app).setShaderParam("Nor_Inv_X", strLst);
+            }
+        });         
+        optionPanel.add(Nor_Inv_X); 
+        
+        JButton Nor_Inv_Y = new JButton("Normal InvertY"); 
+        Nor_Inv_Y.setSize(200, 20);
+        Nor_Inv_Y.setPreferredSize(new Dimension(190, 20));
+        Nor_Inv_Y.setVerticalTextPosition(AbstractButton.CENTER);
+        Nor_Inv_Y.setHorizontalTextPosition(AbstractButton.LEADING); 
+        Nor_Inv_Y.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (((BBSceneGrid)app).selectedEntity != null && strLst.size() > 0) 
+                    ((BBSceneGrid)app).setShaderParam("Nor_Inv_Y", strLst);
+            }
+        });         
+        optionPanel.add(Nor_Inv_Y); 
+        
+        JButton Alpha_A_Dif = new JButton("Alpha Diffuse"); 
+        Alpha_A_Dif.setSize(200, 20);
+        Alpha_A_Dif.setPreferredSize(new Dimension(190, 20));
+        Alpha_A_Dif.setVerticalTextPosition(AbstractButton.CENTER);
+        Alpha_A_Dif.setHorizontalTextPosition(AbstractButton.LEADING); 
+        Alpha_A_Dif.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (((BBSceneGrid)app).selectedEntity != null && strLst.size() > 0) 
+                    ((BBSceneGrid)app).setShaderParam("Alpha_A_Dif", strLst);
+            }
+        });         
+        optionPanel.add(Alpha_A_Dif); 
+        
+        JButton EmissiveMap = new JButton("Emissive Alpha Diffuse"); 
+        EmissiveMap.setSize(200, 20);
+        EmissiveMap.setPreferredSize(new Dimension(190, 20));
+        EmissiveMap.setVerticalTextPosition(AbstractButton.CENTER);
+        EmissiveMap.setHorizontalTextPosition(AbstractButton.LEADING); 
+        EmissiveMap.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (((BBSceneGrid)app).selectedEntity != null && strLst.size() > 0) 
+                    ((BBSceneGrid)app).setShaderParam("EmissiveMap", strLst);
+            }
+        });         
+        optionPanel.add(EmissiveMap); 
+        
+        JButton Spec_A_Nor = new JButton("Specular Normal"); 
+        Spec_A_Nor.setSize(200, 20);
+        Spec_A_Nor.setPreferredSize(new Dimension(190, 20));
+        Spec_A_Nor.setVerticalTextPosition(AbstractButton.CENTER);
+        Spec_A_Nor.setHorizontalTextPosition(AbstractButton.LEADING); 
+        Spec_A_Nor.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (((BBSceneGrid)app).selectedEntity != null && strLst.size() > 0) 
+                    ((BBSceneGrid)app).setShaderParam("Spec_A_Nor", strLst);
+            }
+        });         
+        optionPanel.add(Spec_A_Nor); 
+        
+        JButton Spec_A_Dif = new JButton("Specular Diffuse"); 
+        Spec_A_Dif.setSize(200, 20);
+        Spec_A_Dif.setPreferredSize(new Dimension(190, 20));
+        Spec_A_Dif.setVerticalTextPosition(AbstractButton.CENTER);
+        Spec_A_Dif.setHorizontalTextPosition(AbstractButton.LEADING); 
+        Spec_A_Dif.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (((BBSceneGrid)app).selectedEntity != null && strLst.size() > 0) 
+                    ((BBSceneGrid)app).setShaderParam("Spec_A_Dif", strLst);
+            }
+        });         
+        optionPanel.add(Spec_A_Dif); 
+        
+//        JButton Ref_A_Nor = new JButton("Reflection Normal"); 
+//        Ref_A_Nor.setSize(200, 20);
+//        Ref_A_Nor.setPreferredSize(new Dimension(190, 20));
+//        Ref_A_Nor.setVerticalTextPosition(AbstractButton.CENTER);
+//        Ref_A_Nor.setHorizontalTextPosition(AbstractButton.LEADING); 
+//        Ref_A_Nor.addActionListener(new ActionListener() {
+//            public void actionPerformed(ActionEvent e) {
+//                if (((BBSceneGrid)app).selectedEntity != null && strLst.size() > 0) 
+//                    ((BBSceneGrid)app).setShaderParam("Ref_A_Nor", strLst);
+//            }
+//        });         
+//        optionPanel.add(Ref_A_Nor); 
+//        
+//        JButton Ref_A_Dif = new JButton("Reflection Normal"); 
+//        Ref_A_Dif.setSize(200, 20);
+//        Ref_A_Dif.setPreferredSize(new Dimension(190, 20));
+//        Ref_A_Dif.setVerticalTextPosition(AbstractButton.CENTER);
+//        Ref_A_Dif.setHorizontalTextPosition(AbstractButton.LEADING); 
+//        Ref_A_Dif.addActionListener(new ActionListener() {
+//            public void actionPerformed(ActionEvent e) {
+//                if (((BBSceneGrid)app).selectedEntity != null && strLst.size() > 0) 
+//                    ((BBSceneGrid)app).setShaderParam("Ref_A_Dif", strLst);
+//            }
+//        });         
+//        optionPanel.add(Ref_A_Dif); 
+                
     }
     
     private void entityList() {
@@ -270,6 +387,7 @@ public class BBModelViewer extends BBCanvasApplication implements ActionListener
                 
                 }                
                 listGeo.repaint();
+                strLst.clear();
             }catch (IOException ex){}
             
         }
@@ -286,13 +404,10 @@ public class BBModelViewer extends BBCanvasApplication implements ActionListener
 //            mFileCt.setCurrentDirectory(file);
             try{
                 mLogArea.append("Loading file : " + file.getCanonicalPath() +"\n");
-                int[] selIndexes = listGeo.getSelectedIndices();
-                if (selIndexes != null && ((BBSceneGrid)app).selectedEntity != null) {
-                List<String> strLst = new ArrayList<String>();
-                for(int i : selIndexes){
-                    strLst.add(modelGeo.get(i).toString());
-                }
-                ((BBSceneGrid)app).loadDiffuseTexture(file.getName(), file.getParent(), strLst);
+
+                if (strLst.size() > 0 && ((BBSceneGrid)app).selectedEntity != null) {
+
+                ((BBSceneGrid)app).loadTexture("DiffuseMap", file.getName(), file.getParent(), strLst);
                 }
             }catch (IOException ex){}
         }
@@ -309,13 +424,12 @@ public class BBModelViewer extends BBCanvasApplication implements ActionListener
 //            mFileCt.setCurrentDirectory(file);
             try{
                 mLogArea.append("Loading file : " + file.getCanonicalPath() +"\n");
-                int[] selIndexes = listGeo.getSelectedIndices();
-                if (selIndexes != null && ((BBSceneGrid)app).selectedEntity != null) {
-                List<String> strLst = new ArrayList<String>();
-                for(int i : selIndexes){
-                    strLst.add(modelGeo.get(i).toString());
-                }
-                ((BBSceneGrid)app).loadNormalTexture(file.getName(), file.getParent(), strLst);
+                
+
+                if (strLst.size() > 0 && ((BBSceneGrid)app).selectedEntity != null) {
+                
+                ((BBSceneGrid)app).loadTexture("NormalMap", file.getName(), file.getParent(), strLst);
+                
                 }
             }catch (IOException ex){}
         }
@@ -413,7 +527,18 @@ public class BBModelViewer extends BBCanvasApplication implements ActionListener
           modelGeo.add(i, BBWorldManager.getInstance().getEntity(((BBSceneGrid)app).selectedEntity).getAllGeometries().get(i).getName());
                 } 
           }
-      }      
-//      if (!lse.getValueIsAdjusting())  System.out.println(lst.getSelectedIndices().length);
+      }     
+
+      // List of selected geometries
+       if (lst.getSelectedIndex() != -1 && lst.equals(listGeo) && ((BBSceneGrid)app).selectedEntity != null) {
+           
+         strLst.clear();                
+         for(int i : listGeo.getSelectedIndices()){
+          strLst.add(modelGeo.get(i).toString());
+         }      
+       } else if (lst.getSelectedIndex() == -1 && lst.equals(listGeo)) strLst.clear();
+       
+       
     }
-}
+    
+}    

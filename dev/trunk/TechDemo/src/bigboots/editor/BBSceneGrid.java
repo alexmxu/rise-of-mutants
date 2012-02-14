@@ -255,7 +255,7 @@ public class BBSceneGrid extends BBApplication{
     }
     
     
-    public void loadDiffuseTexture(String name, String path, List<String> strGeometryNames){       
+    public void loadTexture(String texParam, String name, String path, List<String> strGeometryNames){       
         // convert to / for windows
         if (File.separatorChar == '\\'){
             path = path.replace('\\', '/');
@@ -266,85 +266,40 @@ public class BBSceneGrid extends BBApplication{
         
         BBSceneManager.getInstance().addFileLocator(path);
         
-        if (selectedEntity != null && strGeometryNames != null) {
+        if (selectedEntity != null && strGeometryNames.size() > 0) {
         // get selected Entity 
         BBEntity geoGet = BBWorldManager.getInstance().getEntity(selectedEntity); 
 
+        
+        // check for ogre mesh   
          boolean check;
-         
-             // check for ogre mesh   
-             if (geoGet.getChildMesh(strGeometryNames.get(0)).getName().indexOf("-geom") < 0 ) {
-                 
-                 check = true;
+         if (geoGet.getChildMesh(strGeometryNames.get(0)).getName().indexOf("-geom") < 0 ) {
+             check = true;
              }
-             else {
-                 check = false;
-             }
-             
+         else {
+            check = false;
+         }
+
         // Set Diffuse Map
+        Texture diffuseTex = null;
+        if (texParam.equals("DiffuseMap")) {    
         TextureKey tkDif = new TextureKey(name, check);
         tkDif.setAnisotropy(4);
         if (name.indexOf(".dds") < 0) tkDif.setGenerateMips(true);
-        Texture diffuseTex = BBSceneManager.getInstance().getAssetManager().loadTexture(tkDif);
+        diffuseTex = BBSceneManager.getInstance().getAssetManager().loadTexture(tkDif);
         diffuseTex.setWrap(Texture.WrapMode.Repeat);
-        
-        for (String geoName :  strGeometryNames) {
-
-        if (geoName.indexOf("CAPSULE") != 0 && geoName.indexOf("BOX") != 0  
-                && geoName.indexOf("CYLINDER") != 0 && geoName.indexOf("HULL") != 0 && geoName.indexOf("MESH") != 0
-                && geoName.indexOf("PLANE") != 0 && geoName.indexOf("SPHERE") != 0 && geoName.indexOf("CONE") != 0 
-                && geoName.indexOf("COMPLEX") != 0) {
-
-            geoGet.getChildMesh(geoName).getMaterial().setTexture("DiffuseMap", diffuseTex);
-        
-
-        }
-       }
-      }  
-        BBSceneManager.getInstance().removeFileLocator(path);        
-    }
-
-
-    
-    public void loadNormalTexture(String name, String path, List<String> strGeometryNames){       
-        // convert to / for windows
-        if (File.separatorChar == '\\'){
-            path = path.replace('\\', '/');
-        }
-        if(!path.endsWith("/")){
-            path += "/";
         }
         
-        BBSceneManager.getInstance().addFileLocator(path);
-        
-        if (selectedEntity != null && strGeometryNames != null) {
-        // get selected Entity 
-        BBEntity geoGet = BBWorldManager.getInstance().getEntity(selectedEntity); 
-
-         boolean check;
-         
-             // check for ogre mesh   
-             if (geoGet.getChildMesh(strGeometryNames.get(0)).getName().indexOf("-geom") < 0 ) {
-                 
-                 check = true;
-             }
-             else {
-                 check = false;
-             }
-             
         // Set Normal Map
-        String strNormal = name;
-        File flCheck = new File(path + "/" + strNormal);
         Texture normalTex = null;
-        if (flCheck.exists() == true) {
-        TextureKey tkNor = new TextureKey(strNormal, check);
+        if (texParam.equals("NormalMap")) {
+        TextureKey tkNor = new TextureKey(name, check);
         tkNor.setAnisotropy(4);
         if (name.indexOf(".dds") < 0) tkNor.setGenerateMips(true);
         normalTex = BBSceneManager.getInstance().getAssetManager().loadTexture(tkNor);
         normalTex.setWrap(Texture.WrapMode.Repeat);
         }
         
-
         for (String geoName :  strGeometryNames) {
 
         if (geoName.indexOf("CAPSULE") != 0 && geoName.indexOf("BOX") != 0  
@@ -352,15 +307,67 @@ public class BBSceneGrid extends BBApplication{
                 && geoName.indexOf("PLANE") != 0 && geoName.indexOf("SPHERE") != 0 && geoName.indexOf("CONE") != 0 
                 && geoName.indexOf("COMPLEX") != 0) {
 
-          geoGet.getChildMesh(geoName).getMaterial().setTexture("NormalMap", normalTex);  
-//          geoGet.getChildMesh(geoName).getMaterial().setBoolean("Nor_Inv_Y", true);  
-//          geoGet.getChildMesh(geoName).getMaterial().setBoolean("Nor_Inv_X", true);          
-
+            if (texParam.equals("DiffuseMap")) geoGet.getChildMesh(geoName).getMaterial().setTexture("DiffuseMap", diffuseTex);
+            else if (texParam.equals("NormalMap"))geoGet.getChildMesh(geoName).getMaterial().setTexture("NormalMap", normalTex);  
         }
-       }        
+       }
       }  
         BBSceneManager.getInstance().removeFileLocator(path);        
-    }    
+    }
+
+    public void setShaderParam(String texParam, List<String> strGeometryNames) {
+       
+        if (selectedEntity != null && strGeometryNames.size() > 0) {
+        // get selected Entity 
+        BBEntity geoGet = BBWorldManager.getInstance().getEntity(selectedEntity);         
+        
+        for (String geoName :  strGeometryNames) {
+
+        if (geoName.indexOf("CAPSULE") != 0 && geoName.indexOf("BOX") != 0  
+                && geoName.indexOf("CYLINDER") != 0 && geoName.indexOf("HULL") != 0 && geoName.indexOf("MESH") != 0
+                && geoName.indexOf("PLANE") != 0 && geoName.indexOf("SPHERE") != 0 && geoName.indexOf("CONE") != 0 
+                && geoName.indexOf("COMPLEX") != 0) {
+
+          // check for boolean   
+           boolean check = true;
+           
+           if (geoGet.getChildMesh(geoName).getMaterial().getParam(texParam) != null) {
+               boolean isAlreadyOn = (Boolean) geoGet.getChildMesh(geoName).getMaterial().getParam(texParam).getValue();
+               if (isAlreadyOn == true) check = false;
+           }
+            
+
+           
+           
+            if (texParam.equals("Nor_Inv_X")) geoGet.getChildMesh(geoName).getMaterial().setBoolean("Nor_Inv_X", check);
+            else if (texParam.equals("Nor_Inv_Y")) geoGet.getChildMesh(geoName).getMaterial().setBoolean("Nor_Inv_Y", check);
+            else if (texParam.equals("Alpha_A_Dif")) {
+                geoGet.getChildMesh(geoName).getMaterial().setBoolean("Alpha_A_Dif", check);
+                    geoGet.getChildMesh(geoName).setQueueBucket(Bucket.Transparent); 
+            }
+            else if (texParam.equals("EmissiveMap")) geoGet.getChildMesh(geoName).getMaterial().setBoolean("EmissiveMap", check);
+            else if (texParam.equals("Spec_A_Nor")) { 
+                geoGet.getChildMesh(geoName).getMaterial().setBoolean("Spec_A_Nor", check);
+                geoGet.getChildMesh(geoName).getMaterial().setBoolean("Specular_Lighting", check);
+                if (check == true) {
+                    geoGet.getChildMesh(geoName).getMaterial().setColor("Specular", ColorRGBA.White);
+                    geoGet.getChildMesh(geoName).getMaterial().setFloat("Shininess", 3.0f);                
+                 }    
+            }
+            else if (texParam.equals("Spec_A_Dif")) {
+                geoGet.getChildMesh(geoName).getMaterial().setBoolean("Spec_A_Dif", check);
+                geoGet.getChildMesh(geoName).getMaterial().setBoolean("Specular_Lighting", check);
+                if (check == true) {
+                    geoGet.getChildMesh(geoName).getMaterial().setColor("Specular", ColorRGBA.White);
+                    geoGet.getChildMesh(geoName).getMaterial().setFloat("Shininess", 3.0f);                
+                 }    
+            }
+//            else if (texParam.equals("Ref_A_Nor")) geoGet.getChildMesh(geoName).getMaterial().setBoolean("Ref_A_Nor", check);
+//            else if (texParam.equals("Ref_A_Dif")) geoGet.getChildMesh(geoName).getMaterial().setBoolean("Ref_A_Dif", check);
+       }   
+      }
+     }
+    }
     
         public void RemoveSelectedEntity(){ 
             
