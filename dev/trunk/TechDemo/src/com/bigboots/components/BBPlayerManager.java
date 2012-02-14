@@ -165,7 +165,7 @@ public class BBPlayerManager {
 
         
         // Create a bix mesh for SWORD FIGHTING
-        Box a = new Box(Vector3f.ZERO, 0.5f, 1.0f, 0.5f);
+        Box a = new Box(Vector3f.ZERO, 0.5f, 0.7f, 0.5f);
         swordCollision = new Geometry("Box", a);
 //        swordCollision.setLocalTranslation(0, -1, 0);
         swordCollision.updateModelBound();
