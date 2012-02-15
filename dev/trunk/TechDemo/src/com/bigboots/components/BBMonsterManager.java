@@ -32,10 +32,12 @@ import com.jme3.bounding.BoundingVolume;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.control.CharacterControl;
 import com.jme3.material.Material;
+import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
+import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
@@ -114,11 +116,13 @@ public class BBMonsterManager {
         Geometry geoCollision = new Geometry("additiveCollision", meshCollision);
         
         Material matCollision = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
-        matCollision.setColor("Color", ColorRGBA.Orange);
-        matCollision.getAdditionalRenderState().setWireframe(true);
+        matCollision.setColor("Color", new ColorRGBA(0.9f, 0.5f, 0.1f, 0.3f));
+        matCollision.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);        
         matCollision.setReceivesShadows(false);
         geoCollision.setMaterial(matCollision);
         geoCollision.setShadowMode(ShadowMode.Off);
+        geoCollision.setQueueBucket(Bucket.Transparent);  
+        matCollision.getAdditionalRenderState().setWireframe(true);        
         
         Node childToAttach = (Node) node.getChild(0);
         geoCollision.setLocalTranslation(posOffset.negate());
