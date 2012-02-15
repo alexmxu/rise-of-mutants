@@ -47,6 +47,7 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.JToolBar;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
+import javax.swing.border.Border;
 import javax.swing.event.ListSelectionListener;
 
 
@@ -149,7 +150,7 @@ public class BBModelViewer extends BBCanvasApplication implements ActionListener
         });         
         optionPanel.add(loadNormalButton);         
         
-        optionPanel.add(new JSeparator(SwingConstants.HORIZONTAL));         
+        optionPanel.add(new JToolBar.Separator());         
         
         
         JButton RemoveSelectedModel = new JButton("Remove Selected Model"); 
@@ -191,7 +192,7 @@ public class BBModelViewer extends BBCanvasApplication implements ActionListener
         optionPanel.add(clearScene);     
         
         
-        optionPanel.add(new JSeparator(SwingConstants.HORIZONTAL));         
+        optionPanel.add(new JToolBar.Separator());         
         
         
         
