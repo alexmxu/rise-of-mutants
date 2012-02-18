@@ -469,8 +469,9 @@ vec4 diffuseColor;
     #else
        vec4 lightDir = vLightDir;
        lightDir.xyz = normalize(lightDir.xyz);
+       vec3 viewDir = normalize(vViewDir);
 
-       vec2   light = computeLighting(normal, vViewDir.xyz, lightDir.xyz) * spotFallOff;
+       vec2   light = computeLighting(normal, viewDir, lightDir.xyz) * spotFallOff;
 
 
     #ifdef MULTIPLY_COLOR
