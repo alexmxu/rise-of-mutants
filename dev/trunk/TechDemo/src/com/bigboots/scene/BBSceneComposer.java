@@ -17,6 +17,7 @@ package com.bigboots.scene;
 
 
 import com.bigboots.BBWorldManager;
+import com.bigboots.FixedTangentBinormalGenerator;
 import com.bigboots.components.BBCollisionComponent;
 import com.bigboots.components.BBCollisionComponent.ShapeType;
 import com.bigboots.components.BBComponent.CompType;
@@ -91,7 +92,7 @@ public class BBSceneComposer {
                     Node alNd = (Node) originSearch;  
                     replaceMeshWithOgre(alNd, levelFold);
                     composeMaterial(alNd, null);
-                    TangentBinormalGenerator.generate(alNd);
+                    FixedTangentBinormalGenerator.generate(alNd);
                     alNodesOriginals.add(alNd);
                     isBlenderOrOgre = true;
                 } else if (originSearch.getName().indexOf("E") == 0 && originSearch.getName().indexOf("CAPSULE") != 0 && originSearch.getName().indexOf("BOX") != 0  
@@ -100,7 +101,7 @@ public class BBSceneComposer {
                 && originSearch.getName().indexOf("COMPLEX") != 0 ){
                     Node entNd = (Node) originSearch;
                     loadEntity(entFld, entNd);
-                    TangentBinormalGenerator.generate(entNd);
+                    FixedTangentBinormalGenerator.generate(entNd);
                     alNodesOriginals.add(entNd);
                     isBlenderOrOgre = true;
                 }  else if (originSearch.getName().indexOf("CAPSULE") == 0 || originSearch.getName().indexOf("BOX") == 0  
@@ -134,12 +135,12 @@ public class BBSceneComposer {
                     if (ndNode.getName().indexOf("E") != 0){
                     replaceMeshWithOgre(ndNode, levelFold);
                     composeMaterial(ndNode, null);
-                    TangentBinormalGenerator.generate(ndNode);
+                    FixedTangentBinormalGenerator.generate(ndNode);
                     alNodesOriginals.add(ndNode);
                     isBlenderOrOgre = true;
                 } else if (ndNode.getName().indexOf("E") == 0){
                     loadEntity(entFld, ndNode);
-                    TangentBinormalGenerator.generate(ndNode);
+                    FixedTangentBinormalGenerator.generate(ndNode);
                     alNodesOriginals.add(ndNode);
                     isBlenderOrOgre = true;
                 }

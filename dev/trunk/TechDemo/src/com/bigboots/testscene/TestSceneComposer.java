@@ -59,7 +59,7 @@ public class TestSceneComposer extends BBSimpleApplication {
         BBSceneComposer sc = new BBSceneComposer(nd, entities, scenePath, baseTex, levelTex, BBSceneManager.getInstance().getAssetManager());
 
         // ShaderManager test
-        BBShaderManager shm = new BBShaderManager(nd, BBSceneManager.getInstance().getAssetManager());
+        BBShaderManager shm = new BBShaderManager(BBSceneManager.getInstance().getRootNode(), BBSceneManager.getInstance().getAssetManager());
         shm.setSimpleIBLParam("Textures/skyboxes/sky_box_01/skybox_01_low.png");   
         shm.setFogParam(new ColorRGBA(0.67f,0.55f,0.2f, 70f), null);
         

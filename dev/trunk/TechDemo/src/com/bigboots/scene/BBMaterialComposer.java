@@ -160,6 +160,8 @@ public class BBMaterialComposer {
         Texture diffuseTex = asset.loadTexture(tkDif);
         diffuseTex.setWrap(Texture.WrapMode.Repeat);
         matThis.setTexture("DiffuseMap", diffuseTex);
+//        matThis.setBoolean("Nor_Inv_X", true);
+        
 
         // Set Normal Map if you have a "texPath3_nor.png" 
         if (texPath3_nor.length() > 3) {
@@ -170,6 +172,7 @@ public class BBMaterialComposer {
             Texture normalTex = asset.loadTexture(tkNor);
             normalTex.setWrap(Texture.WrapMode.Repeat);
             matThis.setTexture("NormalMap", normalTex);
+//        matThis.setBoolean("Nor_Inv_X", true);            
         }       
 
         // Set Specular Lighting

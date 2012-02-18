@@ -1,6 +1,7 @@
 package com.bigboots.testscene;
 
 
+import com.bigboots.FixedTangentBinormalGenerator;
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.asset.ModelKey;
@@ -59,7 +60,7 @@ public class TestScene extends SimpleApplication {
         Mesh sph_test = new Sphere(20, 20, 5);
         Geometry geo_test = new Geometry("geo_test", sph_test);
         geo_test.setMaterial(mat);
-        TangentBinormalGenerator.generate(sph_test);
+        FixedTangentBinormalGenerator.generate(sph_test);
         geo_test.setLocalTranslation(0, 0, 10);
         geo_test.rotate(1.6f, 0, 0);
         rootNode.attachChild(geo_test);
@@ -68,25 +69,25 @@ public class TestScene extends SimpleApplication {
         // Models
         obj01 = assetManager.loadModel("Scenes/TestScene/obj01.obj"); 
         obj01.setName("obj01");
-        TangentBinormalGenerator.generate(obj01);
+        FixedTangentBinormalGenerator.generate(obj01);
         obj01.setMaterial(mat);
         ndmd.attachChild(obj01);
         
         obj02 = assetManager.loadModel("Scenes/TestScene/obj02.obj"); 
         obj02.setName("obj02");
-        TangentBinormalGenerator.generate(obj02);
+        FixedTangentBinormalGenerator.generate(obj02);
         obj02.setMaterial(mat);
         ndmd.attachChild(obj02);
 
         obj03 = assetManager.loadModel("Scenes/TestScene/obj03.obj"); 
         obj03.setName("obj03");
-        TangentBinormalGenerator.generate(obj03);    
+        FixedTangentBinormalGenerator.generate(obj03);    
         obj03.setMaterial(mat);
         ndmd.attachChild(obj03);
 
         ledder = assetManager.loadModel("Scenes/TestScene/ledder.obj"); 
         ledder.setName("ledder");
-        TangentBinormalGenerator.generate(ledder);    
+        FixedTangentBinormalGenerator.generate(ledder);    
         ledder.setMaterial(mat);
         ndmd.attachChild(ledder);
 
