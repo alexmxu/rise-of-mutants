@@ -566,7 +566,7 @@ light.x = max(light.x, refColor);
 
 #ifdef MINNAERT
 // if (length(g_AmbientLightColor.xyz) != 0.0) { // 1st pass only
-        vec3 minnaert = pow( 1.0 - dot( normal.xyz, vViewDir.xyz ), 1.7 ) * m_Minnaert.xyz * m_Minnaert.w;
+        vec3 minnaert = pow( 1.0 - dot( normal.xyz, viewDir ), 1.5 ) * m_Minnaert.xyz * m_Minnaert.w;
       //  minnaert.a = 0.0;
        AmbientSum2 += minnaert.rgb*light.x;
     //   light.x += minnaert*0.1;
@@ -575,7 +575,7 @@ light.x = max(light.x, refColor);
 
 #ifdef RIM_LIGHTING
 // if (length(g_AmbientLightColor.xyz) != 0.0) { // 1st pass only
-        vec4 rim = pow( 1.0 - dot( normal, vViewDir.xyz ), 1.5 ) * m_RimLighting * m_RimLighting.w;
+        vec4 rim = pow( 1.0 - dot( normal, viewDir ), 1.5 ) * m_RimLighting * m_RimLighting.w;
         rim.a = 0.0;
        AmbientSum2 += rim.rgb*diffuseColor.rgb;
     //   light.x += rim*0.1;
@@ -584,7 +584,7 @@ light.x = max(light.x, refColor);
 
 #ifdef RIM_LIGHTING_2
 // if (length(g_AmbientLightColor.xyz) != 0.0) { // 1st pass only
-        vec3 rim2 = pow( 1.0 - dot( normal, vViewDir.xyz ), 1.5 ) * m_RimLighting2.xyz * m_RimLighting2.w;
+        vec3 rim2 = pow( 1.0 - dot( normal, viewDir ), 1.5 ) * m_RimLighting2.xyz * m_RimLighting2.w;
 
         AmbientSum2 += rim2;
       //  rim2.a = 0.0;
