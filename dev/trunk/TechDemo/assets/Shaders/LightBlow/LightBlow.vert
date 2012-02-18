@@ -189,10 +189,12 @@ void main(){
      mat = vec3(1.0) * tbnMat;
      mat = normalize(mat);
   //   vPosition = wvPosition * tbnMat;
-  //   vViewDir  = viewDir * tbnMat;
-     vViewDir  = -wvPosition * tbnMat;
+     vViewDir  = viewDir * tbnMat;
+  //   vViewDir  = -wvPosition * tbnMat;
+
      lightComputeDir(wvPosition, lightColor, wvLightPos, vLightDir);
      vLightDir.xyz = (vLightDir.xyz * tbnMat).xyz;
+
    #elif !defined(VERTEX_LIGHTING)
      vNormal = wvNormal;
 
@@ -249,7 +251,6 @@ void main(){
        vec3 N = normalize( (g_WorldMatrix * vec4(inNormal, 0.0)).xyz );      
 
         refVec = reflect(I, N);
-
  
         iblVec = refVec;
  
