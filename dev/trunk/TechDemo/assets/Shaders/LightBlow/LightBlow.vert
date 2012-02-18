@@ -189,7 +189,8 @@ void main(){
      mat = vec3(1.0) * tbnMat;
      mat = normalize(mat);
   //   vPosition = wvPosition * tbnMat;
-     vViewDir  = viewDir * tbnMat;
+  //   vViewDir  = viewDir * tbnMat;
+     vViewDir  = -wvPosition * tbnMat;
      lightComputeDir(wvPosition, lightColor, wvLightPos, vLightDir);
      vLightDir.xyz = (vLightDir.xyz * tbnMat).xyz;
    #elif !defined(VERTEX_LIGHTING)
