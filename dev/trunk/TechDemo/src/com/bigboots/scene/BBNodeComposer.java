@@ -17,6 +17,7 @@ package com.bigboots.scene;
 
 
 import com.bigboots.BBWorldManager;
+import com.bigboots.FixedTangentBinormalGenerator;
 import com.bigboots.components.BBCollisionComponent;
 import com.bigboots.components.BBCollisionComponent.ShapeType;
 import com.bigboots.components.BBComponent.CompType;
@@ -91,7 +92,7 @@ public class BBNodeComposer {
                     
                     Node entNd = (Node) originSearch;
                     loadEntity(entFld, entNd);
-                    TangentBinormalGenerator.generate(entNd);
+                    FixedTangentBinormalGenerator.generate(entNd);
                     alNodesOriginals.add(entNd);
                     isBlenderOrOgre = true;
                     

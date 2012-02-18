@@ -15,6 +15,7 @@
  */
 package bigboots.editor;
 
+import com.bigboots.FixedTangentBinormalGenerator;
 import com.bigboots.BBApplication;
 import com.bigboots.BBGlobals;
 import com.bigboots.BBWorldManager;
@@ -196,7 +197,7 @@ public class BBSceneGrid extends BBApplication{
         entity.loadModel("");
         setShader(entity, name); 
 //        entityNode.attachChild(entity.getComponent(BBNodeComponent.class));
-        TangentBinormalGenerator.generate(pnode);
+        FixedTangentBinormalGenerator.generate(pnode);
         entity.attachToNode(sceneNode);
         mSceneGizmo.getTranAxis().setLocalTranslation(mSceneGizmo.getMarkPosition());
         BBWorldManager.getInstance().addEntity(entity);

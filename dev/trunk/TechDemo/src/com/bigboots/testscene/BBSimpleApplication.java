@@ -73,7 +73,7 @@ public class BBSimpleApplication extends BBApplication{
         mFreeCamera.setMoveSpeed(30);
         
         //Set up basic light and sky coming with the standard scene manager
-        BBSceneManager.getInstance().setupBasicLight();
+//        BBSceneManager.getInstance().setupBasicLight();
         BBSceneManager.getInstance().createSky();
         
         //Set up keys and listener to read it
@@ -86,7 +86,7 @@ public class BBSimpleApplication extends BBApplication{
         BBLightComponent compLight = new BBLightComponent();
         compLight.setLightType(Type.Directional);
         compLight.getLight(DirectionalLight.class).setDirection(new Vector3f(0.5432741f, -0.58666015f, -0.6005691f).normalizeLocal());
-        compLight.getLight(DirectionalLight.class).setColor(new ColorRGBA(1.1f,1.1f,1.1f,1));
+        compLight.getLight(DirectionalLight.class).setColor(new ColorRGBA(1.0f,1.0f,1.0f,1));
         BBSceneManager.getInstance().getRootNode().addLight(compLight.getLight(DirectionalLight.class));
         
         //Set debub info on
