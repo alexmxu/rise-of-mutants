@@ -274,7 +274,7 @@ public class BBSceneGrid extends BBApplication{
         
         // check for ogre mesh   
          boolean check;
-         if (geoGet.getChildMesh(strGeometryNames.get(0)).getName().indexOf("-geom") < 0 ) {
+         if (geoGet.getChildMesh(strGeometryNames.get(0)).getUserData("Model").toString().indexOf("mesh.xml") < 0 ) {
              check = true;
              }
          else {
