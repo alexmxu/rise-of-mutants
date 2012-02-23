@@ -29,20 +29,20 @@ public class BBModelFilter extends FileFilter{
             return true;
         }
  
-        String extension = getExtension(f);
-        if (extension != null) {
-            if (extension.equals("j3o") ||
-                extension.equals("mesh.j3o")||
-                extension.equals("mesh.xml")||
-                extension.equals("obj") ||
-                extension.equals("blend")){
+//        String extension = getExtension(f);
+//        if (extension != null) {
+            if (f.getName().indexOf(".j3o") > 0 ||
+                f.getName().indexOf(".mesh.j3o") > 0 ||
+                f.getName().indexOf(".mesh.xml") > 0 ||
+                f.getName().indexOf(".obj") > 0 ||
+                f.getName().indexOf(".blend") > 0){
                     return true;
             } else {
                 return false;
             }
-        }
+//        }
  
-        return false;
+//        return false;
     }
  
     //The description of this filter
@@ -53,15 +53,15 @@ public class BBModelFilter extends FileFilter{
     /*
      * Get the extension of a file.
      */
-    private static String getExtension(File f) {
-        String ext = null;
-        String s = f.getName();
-        int i = s.indexOf('.');
-                //lastIndexOf('.');
- 
-        if (i > 0 &&  i < s.length() - 1) {
-            ext = s.substring(i+1).toLowerCase();
-        }
-        return ext;
-    }
+//    private static String getExtension(File f) {
+//        String ext = null;
+//        String s = f.getName();
+//        int i = s.indexOf('.');
+//                //lastIndexOf('.');
+// 
+//        if (i > 0 &&  i < s.length() - 1) {
+//            ext = s.substring(i+1).toLowerCase();
+//        }
+//        return ext;
+//    }
 }

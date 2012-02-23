@@ -19,6 +19,7 @@ import com.bigboots.BBCanvasApplication;
 import com.bigboots.BBWorldManager;
 import com.bigboots.core.BBSceneManager;
 import com.jme3.math.FastMath;
+import com.jme3.scene.Geometry;
 import java.awt.Dimension;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -383,12 +384,16 @@ public class BBModelViewer extends BBCanvasApplication implements ActionListener
                 listEntity.repaint();
                 // Load Geometries list
                 modelGeo.clear();
-                for (int i=0; i<BBWorldManager.getInstance().getEntity(((BBSceneGrid)app).selectedEntity).getAllGeometries().toArray().length; i++) {
-                modelGeo.add(i, BBWorldManager.getInstance().getEntity(((BBSceneGrid)app).selectedEntity).getAllGeometries().get(i).getName());
                 
-                }                
+                for (int i=0; i<BBWorldManager.getInstance().getEntity(((BBSceneGrid)app).selectedEntity).getAllGeometries().toArray().length; i++) {
+                    Geometry geo = BBWorldManager.getInstance().getEntity(((BBSceneGrid)app).selectedEntity).getAllGeometries().get(i);
+                    geo.setUserData("Model", file.getName());
+                    modelGeo.add(i, geo.getName());
+                    }                
+                
                 listGeo.repaint();
                 strLst.clear();
+                
             }catch (IOException ex){}
             
         }
