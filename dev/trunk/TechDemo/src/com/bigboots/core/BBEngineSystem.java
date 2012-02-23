@@ -159,7 +159,7 @@ public class BBEngineSystem {
         //if (speed == 0 || mSystemPaused)
         //    return;
         
-        //timer.update();
+        renderer.getStatistics().clearFrame();
        
         //float tpf = timer.getTimePerFrame() * speed;
         renderManager.render(tpf, context.isRenderable());
