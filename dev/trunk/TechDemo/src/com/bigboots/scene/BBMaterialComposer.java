@@ -72,9 +72,24 @@ public class BBMaterialComposer {
 
         // If this is Entity
         if (entPath != null) {
-           texDir = new File(entPath);
-           tmpString = entPath;
-           folderStr = "textures";
+           String entPath2 = entPath.substring(13);  // remove "assets/Models" name
+           entPath2 = "assets/Textures" + entPath2;
+           File someDir = new File(entPath2);
+           texDir = someDir.getParentFile();
+           tmpString = someDir.getParent();
+
+        // convert to / for windows
+        if (File.separatorChar == '\\'){
+            tmpString = tmpString.replace('\\', '/');
+        }
+        if(!tmpString.endsWith("/")){
+            tmpString += "/";
+        }           
+            
+            tmpString = tmpString.substring(0, tmpString.length() - 1);
+        
+//           System.out.println(tmpString + "xxxxxxxxxxxxxxxxxxxxxxx");
+           folderStr = someDir.getName();
            fileStr = matName.substring(2, 4);
 
         } else {
@@ -83,8 +98,9 @@ public class BBMaterialComposer {
 
         }
 
-        //System.out.println("Get Folder " + folderStr);
-        //System.out.println("Get File " + fileStr);
+//        System.out.println("Get Folder " + folderStr);
+//        System.out.println("Get File " + fileStr);
+//        System.out.println("Get Entity " + strEntity);
 
         Material matNew = new Material(asset, "MatDefs/LightBlow/LightBlow.j3md");
         matNew.setName(matName);
@@ -96,7 +112,7 @@ public class BBMaterialComposer {
    
     private void setYourTexture(Material mat, String foldID, String fileID, String entityPath) {
         Material matThis = mat;     
-        String texPath = tmpString;//texDir.toString();
+        String texPath = tmpString; //texDir.toString();
         String texPath2 = new String();
         String texPath3 = new String();
         String texPath3_nor = new String();
@@ -111,12 +127,12 @@ public class BBMaterialComposer {
             for (int i=0; i<children.length; i++) {
                 // Get filename of directory
                 String filename = children[i];
-                //System.out.println("********** File name in children : " + filename);        
+//                System.out.println("********** File name in children : " + filename);        
                 if (filename.indexOf(foldID) >= 0) {
                     //Searching file        
                     texPath2 = texPath + "/" + filename;
                     File fileTex = new File(texPath2);
-                    //System.out.println("folder textPath2 " + texPath2);
+//                    System.out.println("folder textPath2 " + texPath2);
 
                     String[] children2 = fileTex.list();
                     if (children2 == null) {
@@ -125,7 +141,7 @@ public class BBMaterialComposer {
                         for (int j=0; j<children2.length; j++) {
                             // Get filename of file
                             String filename2 = children2[j];
-                            //System.out.println("********** File name 2 in children : " + filename2); 
+//                            System.out.println("********** File name 2 in children : " + filename2); 
                             int ent;
 
 
@@ -155,7 +171,7 @@ public class BBMaterialComposer {
         // Set Diffuse Map
         TextureKey tkDif = new TextureKey(texPath3, BlenderOgreCheck);
         tkDif.setAnisotropy(2);
-        //System.out.println("ANISOTROPYYY : " + tkDif.getAnisotropy());
+//        System.out.println("Texpath3 : " + texPath3);
         tkDif.setGenerateMips(true);
         Texture diffuseTex = asset.loadTexture(tkDif);
         diffuseTex.setWrap(Texture.WrapMode.Repeat);

@@ -430,16 +430,11 @@ public class BBInGameState extends BBAbstractState{
     private void loadScene(){       
         // Load a blender file Scene. 
         DesktopAssetManager dsk = (DesktopAssetManager) BBSceneManager.getInstance().getAssetManager();        
-        ModelKey bk = new ModelKey("Scenes/levels/level_01/level_01.blend");
+        ModelKey bk = new ModelKey("J3O/Scenes/level_01.j3o");
         Node nd =  (Node) dsk.loadModel(bk);                 
         
-        String entities = "assets/Models";
-        String baseTex = "assets/Textures/base_textures";
-        String levelTex = "assets/Textures/level_textures";
-        String scenePath = bk.getFolder().substring(0, bk.getFolder().length() - 1); //BlenderKey sets "File.separator" in the end of String
-
         // Creating Entities from the Blend Scene
-        BBSceneComposer sc = new BBSceneComposer(nd, entities, scenePath, baseTex, levelTex, BBSceneManager.getInstance().getAssetManager());
+        BBSceneComposer sc = new BBSceneComposer(nd, BBSceneManager.getInstance().getAssetManager());
 
         //Clear Blend File
         nd.detachAllChildren();
