@@ -23,6 +23,7 @@ import com.bigboots.scene.BBSceneComposer;
 import com.bigboots.scene.BBShaderManager;
 import com.jme3.asset.BlenderKey;
 import com.jme3.asset.DesktopAssetManager;
+import com.jme3.asset.ModelKey;
 
 import com.jme3.math.*;
 import com.jme3.scene.Node;
@@ -45,18 +46,19 @@ public class TestSceneComposer extends BBSimpleApplication {
         //Set up the physic engine
         BBPhysicsManager.getInstance().init(engineSystem);
           
-        // Load a blender file. 
+        // Load a blender file Scene. 
         DesktopAssetManager dsk = (DesktopAssetManager) BBSceneManager.getInstance().getAssetManager();        
-        BlenderKey bk = new BlenderKey("Scenes/levels/level_01/level_01.blend");
-        Node nd =  (Node) dsk.loadModel(bk); 
-        nd.setName("nd");
+        ModelKey bk = new ModelKey("J3O/Scenes/level_01.j3o");
+        Node nd =  (Node) dsk.loadModel(bk);                 
+        
+        // Creating Entities from the Blend Scene
+        BBSceneComposer sc = new BBSceneComposer(nd, BBSceneManager.getInstance().getAssetManager());
 
-        String entities = "assets/Models";
-        String baseTex = "assets/Textures/base_textures";
-        String levelTex = "assets/Textures/level_textures";
-        String scenePath = bk.getFolder().substring(0, bk.getFolder().length() - 1); //BlenderKey sets "File.separator" in the end of String
-
-        BBSceneComposer sc = new BBSceneComposer(nd, entities, scenePath, baseTex, levelTex, BBSceneManager.getInstance().getAssetManager());
+        //Clear Blend File
+        nd.detachAllChildren();
+        nd.removeFromParent();
+        nd = null;
+        dsk.clearCache();  
 
         // ShaderManager test
         BBShaderManager shm = new BBShaderManager(BBSceneManager.getInstance().getRootNode(), BBSceneManager.getInstance().getAssetManager());
