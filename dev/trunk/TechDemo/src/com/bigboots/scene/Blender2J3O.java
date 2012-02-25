@@ -16,27 +16,15 @@
 package com.bigboots.scene;
 
 
-import com.bigboots.*;
 import com.bigboots.scene.*;
-import com.bigboots.BBWorldManager;
 import com.bigboots.FixedTangentBinormalGenerator;
-import com.bigboots.components.BBCollisionComponent;
-import com.bigboots.components.BBCollisionComponent.ShapeType;
-import com.bigboots.components.BBComponent.CompType;
-import com.bigboots.components.BBEntity;
-import com.bigboots.components.BBNodeComponent;
-import com.bigboots.physics.BBPhysicsManager;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.asset.ModelKey;
-import com.jme3.bullet.collision.shapes.CollisionShape;
-import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.export.binary.BinaryExporter;
 import com.jme3.material.*;
-import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
 import com.jme3.scene.*;
-import com.jme3.util.TangentBinormalGenerator;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -97,7 +85,7 @@ public class Blender2J3O {
                     Node alNd = (Node) originSearch;  
                     replaceMeshWithOgre(alNd, levelFold);
                     composeMaterial(alNd, null);
-                    FixedTangentBinormalGenerator.generate(alNd);
+//                    FixedTangentBinormalGenerator.generate(alNd);
                     alNodesOriginals.add(alNd);
                     isBlenderOrOgre = true;
                 } else if (originSearch.getName().indexOf("E") == 0 && originSearch.getName().indexOf("CAPSULE") != 0 && originSearch.getName().indexOf("BOX") != 0  
@@ -470,7 +458,6 @@ public class Blender2J3O {
                         String strF3 = f.getParentFile().toString();
                         if (strF3.indexOf("assets") == 0) strF3 = strF3.substring(7);
                         replaceMeshWithOgre(ndToOgre, strF3);
-                        FixedTangentBinormalGenerator.generate(ndToOgre);
                     }
                   }      
                 }
