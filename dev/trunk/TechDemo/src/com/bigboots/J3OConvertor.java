@@ -18,6 +18,7 @@ package com.bigboots;
 
 import com.bigboots.scene.*;
 import com.jme3.app.Application;
+import com.jme3.system.JmeContext;
 
 
 /**
@@ -29,7 +30,7 @@ public class J3OConvertor extends Application {
     public static void main(String[] args) {
         
         J3OConvertor app = new J3OConvertor();
-        app.start();
+        app.start(JmeContext.Type.Headless);
 
     }    
     
