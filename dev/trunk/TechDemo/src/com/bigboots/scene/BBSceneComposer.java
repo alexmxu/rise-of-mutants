@@ -79,6 +79,32 @@ public class BBSceneComposer {
         }
 
         
+       // Search for Original Objects with "." name
+       for (Spatial spatNode : sceneNode.getChildren()) {
+           
+           if (spatNode instanceof Node && spatNode.getName().indexOf(".") > 0) {
+               boolean cloneFound = false; // Check for existing Original Object
+               Node ndNode = (Node) spatNode;
+               String strCompare = ndNode.getName().toString();
+               strCompare = strCompare.substring(0, ndNode.getName().indexOf("."));
+               for (Object nodeTemp : alNodesOriginals.toArray()) {
+                  Node nodeSearch = (Node) nodeTemp;
+                  if (nodeSearch.getName().equals(strCompare)) {
+                      cloneFound = true;
+                  }
+               }
+             
+              if (cloneFound == false) {
+                  ndNode.setName(strCompare);
+                    if (ndNode.getName().indexOf("E") != 0){
+                    alNodesOriginals.add(ndNode);
+                } else if (ndNode.getName().indexOf("E") == 0){
+                    alNodesOriginals.add(ndNode);
+                }
+              }      
+           }         
+        }          
+        
         
         // Creating Entities
        for (Object sp : alNodesOriginals.toArray()) {
