@@ -470,6 +470,7 @@ public class Blender2J3O {
                         String strF3 = f.getParentFile().toString();
                         if (strF3.indexOf("assets") == 0) strF3 = strF3.substring(7);
                         replaceMeshWithOgre(ndToOgre, strF3);
+                        FixedTangentBinormalGenerator.generate(ndToOgre);
                     }
                   }      
                 }
