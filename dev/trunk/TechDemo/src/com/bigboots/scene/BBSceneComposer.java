@@ -65,6 +65,10 @@ public class BBSceneComposer {
 
         startCompose();
         
+        alNodesOriginals.clear();
+        alEntitiesOriginals.clear();
+        alEntitiesClones.clear();        
+        
     }
 
 
