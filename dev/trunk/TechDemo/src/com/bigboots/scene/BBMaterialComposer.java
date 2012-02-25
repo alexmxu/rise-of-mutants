@@ -77,6 +77,7 @@ public class BBMaterialComposer {
            File someDir = new File(entPath2);
            texDir = someDir.getParentFile();
            tmpString = someDir.getParent();
+           
 
         // convert to / for windows
         if (File.separatorChar == '\\'){
@@ -88,6 +89,8 @@ public class BBMaterialComposer {
             
             tmpString = tmpString.substring(0, tmpString.length() - 1);
         
+            System.out.println(someDir + "uuuuuuuuuuuuu");            
+            
 //           System.out.println(tmpString + "xxxxxxxxxxxxxxxxxxxxxxx");
            folderStr = someDir.getName();
            fileStr = matName.substring(2, 4);
@@ -171,7 +174,7 @@ public class BBMaterialComposer {
         // Set Diffuse Map
         TextureKey tkDif = new TextureKey(texPath3, BlenderOgreCheck);
         tkDif.setAnisotropy(2);
-//        System.out.println("Texpath3 : " + texPath3);
+        System.out.println("Texpath3 : " + texPath3);
         tkDif.setGenerateMips(true);
         Texture diffuseTex = asset.loadTexture(tkDif);
         diffuseTex.setWrap(Texture.WrapMode.Repeat);
@@ -232,9 +235,23 @@ public class BBMaterialComposer {
             File aoDir;
             Texture textureAO;
 
-            if (entiPath != null){ 
-                texLightMaps = entiPath + "/" + "textures";
+            if (entiPath != null){
+           String entPath3 = entiPath.substring(13);  // remove "assets/Models" name
+           entPath3 = "assets/Textures" + entPath3;
+           File someDir = new File(entPath3);
+           texLightMaps = someDir.getParent();
+
+        // convert to / for windows
+        if (File.separatorChar == '\\'){
+            texLightMaps = texLightMaps.replace('\\', '/');
+        }
+        if(!texLightMaps.endsWith("/")){
+            texLightMaps += "/";
+        }           
+            
+            texLightMaps = entPath3;
             }
+
             aoDir = new File(texLightMaps);
             
             String[] childrenAO = aoDir.list();
@@ -247,10 +264,10 @@ public class BBMaterialComposer {
 
                     String matCheck = new String(); 
                     if (matName.indexOf("oR") > 0 || matName.indexOf("oG") > 0 || matName.indexOf("oB") > 0){ 
-                        matCheck =matName.substring(matName.indexOf("o") + 2, matName.indexOf("o") + 4);
+                        matCheck = matName.substring(matName.indexOf("o") + 2, matName.indexOf("o") + 4);
                     }
                     else if (matName.indexOf("oR") < 0 && matName.indexOf("oG") < 0 && matName.indexOf("oB") < 0){ 
-                        matCheck =matName.substring(matName.indexOf("o") + 1, matName.indexOf("o") + 3);
+                        matCheck = matName.substring(matName.indexOf("o") + 1, matName.indexOf("o") + 3);
                     }
 
                     if (fileAO.indexOf(matCheck) >= 0 && fileAO.indexOf("lightmap") >= 0 
@@ -259,6 +276,7 @@ public class BBMaterialComposer {
                         //strAO.replaceAll(File.separator.toString(), "/");
                         //System.out.println(strAO + " LightMap Loading");
                         if (strAO.indexOf("assets/") == 0) {
+            System.out.println(strAO + " UUUUUUUUUUUUUUUUUUUUUU");
                             TextureKey tkAO = new TextureKey(strAO.substring(7), BlenderOgreCheck);
                             tkAO.setAnisotropy(2);
                             tkAO.setGenerateMips(true);

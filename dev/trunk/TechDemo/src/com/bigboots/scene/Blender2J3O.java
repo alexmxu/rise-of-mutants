@@ -443,7 +443,7 @@ public class Blender2J3O {
                 // Load a blender file. 
                 DesktopAssetManager dsk = (DesktopAssetManager) assett; 
                 String strF2 = strF;
-                if (strF.indexOf("assets") == 0) strF2 = strF2.substring(7);
+                if (strF2.indexOf("assets") == 0) strF2 = strF2.substring(7);
                 ModelKey bk = new ModelKey(strF2);
                 Node nodeEnt =  (Node) dsk.loadModel(bk);                 
                 
@@ -468,7 +468,7 @@ public class Blender2J3O {
                         for (Spatial sp2 : fullNode.getChildren()) {
                         Node ndToOgre = (Node) sp2;    
                         String strF3 = f.getParentFile().toString();
-                        if (strF.indexOf("assets") == 0) strF3 = strF3.substring(7);
+                        if (strF3.indexOf("assets") == 0) strF3 = strF3.substring(7);
                         replaceMeshWithOgre(ndToOgre, strF3);
                     }
                   }      
