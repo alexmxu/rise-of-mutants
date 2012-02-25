@@ -18,15 +18,6 @@ package com.bigboots;
 
 import com.bigboots.scene.*;
 import com.jme3.app.Application;
-import com.jme3.app.SimpleApplication;
-import com.jme3.asset.DesktopAssetManager;
-import com.jme3.asset.ModelKey;
-import com.jme3.scene.Node;
-import com.jme3.system.AppSettings;
-import com.jme3.system.JmeSystem;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.logging.Level;
 
 
 /**
