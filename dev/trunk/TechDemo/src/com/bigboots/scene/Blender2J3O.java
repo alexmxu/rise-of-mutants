@@ -85,7 +85,7 @@ public class Blender2J3O {
                     Node alNd = (Node) originSearch;  
                     replaceMeshWithOgre(alNd, levelFold);
                     composeMaterial(alNd, null);
-//                    FixedTangentBinormalGenerator.generate(alNd);
+                    FixedTangentBinormalGenerator.generate(alNd);
                     alNodesOriginals.add(alNd);
                     isBlenderOrOgre = true;
                 } else if (originSearch.getName().indexOf("E") == 0 && originSearch.getName().indexOf("CAPSULE") != 0 && originSearch.getName().indexOf("BOX") != 0  
@@ -94,7 +94,7 @@ public class Blender2J3O {
                 && originSearch.getName().indexOf("COMPLEX") != 0 ){
                     Node entNd = (Node) originSearch;
                     loadEntity(entFld, entNd);
-//                    FixedTangentBinormalGenerator.generate(entNd);
+                    FixedTangentBinormalGenerator.generate(entNd);
                     alNodesOriginals.add(entNd);
                     isBlenderOrOgre = true;
                 }  else if (originSearch.getName().indexOf("CAPSULE") == 0 || originSearch.getName().indexOf("BOX") == 0  
