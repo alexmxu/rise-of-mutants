@@ -117,7 +117,7 @@ public class BBSceneComposer {
            
            // Load j3o Model
            Node loadedNode = loadModelNow(pathDir + "Models/" + ndEnt.getName()  + ".j3o");
-           FixedTangentBinormalGenerator.generate(loadedNode);
+//           FixedTangentBinormalGenerator.generate(loadedNode);
            loadedNode.setLocalTransform(ndEnt.getLocalTransform());
            loadedNode.setName(ndEnt.getName());
            
