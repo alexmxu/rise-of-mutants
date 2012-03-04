@@ -7,6 +7,7 @@ package com.bigboots.scene;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.asset.ModelKey;
+import com.jme3.asset.plugins.FileLocator;
 import com.jme3.scene.Node;
 
 /**
@@ -18,26 +19,39 @@ public class SceneLoading {
     
     public SceneLoading(AssetManager asm) {
 
-            // Load a blender file Scene. 
-        DesktopAssetManager dsk = (DesktopAssetManager) asm;        
-        ModelKey bk = new ModelKey("Scenes/levels/level_01/level_01.blend");
+        // TestLevel
+        convertNow("level_01", "Scenes/levels/level_01/level_01.blend", asm);
+        
+    }
+
+    
+    private void convertNow(String sceneName, String scenePath, AssetManager assett) {
+        
+        // Load a blender file Scene. 
+        DesktopAssetManager dsk = (DesktopAssetManager) assett;  
+        
+        // Register file locator for the AssetManager
+        assett.registerLocator("blsets", FileLocator.class);
+
+        ModelKey bk = new ModelKey(scenePath);
         Node nd =  (Node) dsk.loadModel(bk);               
 
-        String entities = "assets/Models";
+        // Clear blend file
+        dsk.clearCache();       
+        assett.unregisterLocator("blsets", FileLocator.class);
+        
+        String models = "blsets/Models";
         String baseTex = "assets/Textures/base_textures";
         String levelTex = "assets/Textures/level_textures";
-        String scenePath = bk.getFolder().substring(0, bk.getFolder().length() - 1); //BlenderKey sets "File.separator" in the end of String
+        String sceneFilePath = bk.getFolder().substring(0, bk.getFolder().length() - 1); //BlenderKey sets "File.separator" in the end of String
 
-        // Creating Entities from the Blend Scene
-        Blender2J3O sc = new Blender2J3O(nd, "level_01", entities, scenePath, baseTex, levelTex, asm);
+        // Creating j3o from the Blend Scene
+        Blender2J3O sc = new Blender2J3O(nd, sceneName, models, sceneFilePath, baseTex, levelTex, assett);
 
-        //Clear Blend File
+        //Clear nd Node
         nd.detachAllChildren();
         nd.removeFromParent();
-        nd = null;
-        dsk.clearCache();       
-        
-        
+        nd = null;        
     }
     
     
