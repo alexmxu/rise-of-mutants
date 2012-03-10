@@ -49,13 +49,13 @@ public class BBShaderManager {
     SceneGraphVisitor sgvFog = new SceneGraphVisitor() {
 
     public void visit(Spatial spatial) {
-     boolean check;
+     boolean check = true;
      
      //System.out.println(spatial + " Visited Shader Geometry");
         if (spatial instanceof Geometry) {
          Geometry geo = (Geometry) spatial;
-         Material mat = geo.getMaterial();
-         String matName = geo.getMaterial().getName();
+//         Material mat = geo.getMaterial();
+//         String matName = geo.getMaterial().getName();
          String matShaderName = geo.getMaterial().getMaterialDef().getName();
          
          if (matShaderName.equals("LightBlow") && colFog != null) {
@@ -63,10 +63,10 @@ public class BBShaderManager {
             geo.getMaterial().setColor("FogColor", colFog);              
          }
          else if (matShaderName.equals("LightBlow") && PathFog != null) {
-             if (matName != null && matName.indexOf("-geom-") >= 0) check = false;
-             else check = true;
+//             if (matName != null && matName.indexOf("-geom-") >= 0) check = false;
+//             else check = true;
             TextureKey tkk = new TextureKey(PathFog, check);
-            tkk.setAnisotropy(2);
+//            tkk.setAnisotropy(2);
             tkk.setAsCube(true);            
             tkk.setGenerateMips(true);
             Texture ibl = assetman.loadTexture(tkk);
@@ -91,8 +91,8 @@ public class BBShaderManager {
      //System.out.println(spatial + " Visited Shader Geometry");
         if (spatial instanceof Geometry) {
          Geometry geo = (Geometry) spatial;
-         Material mat = geo.getMaterial();
-         String matName = geo.getMaterial().getName();
+//         Material mat = geo.getMaterial();
+//         String matName = geo.getMaterial().getName();
          String matShaderName = geo.getMaterial().getMaterialDef().getName();
          
          if (matShaderName.equals("LightBlow")) {
@@ -125,8 +125,8 @@ public class BBShaderManager {
      //System.out.println(spatial + " Visited Shader Geometry");
         if (spatial instanceof Geometry) {
          Geometry geo = (Geometry) spatial;
-         Material mat = geo.getMaterial();
-         String matName = geo.getMaterial().getName();
+//         Material mat = geo.getMaterial();
+//         String matName = geo.getMaterial().getName();
          String matShaderName = geo.getMaterial().getMaterialDef().getName();
          
          if (matShaderName.equals("LightBlow")) {
@@ -156,8 +156,8 @@ public class BBShaderManager {
      //System.out.println(spatial + " Visited Shader Geometry");
         if (spatial instanceof Geometry) {
          Geometry geo = (Geometry) spatial;
-         Material mat = geo.getMaterial();
-         String matName = geo.getMaterial().getName();
+//         Material mat = geo.getMaterial();
+//         String matName = geo.getMaterial().getName();
          String matShaderName = geo.getMaterial().getMaterialDef().getName();
 
          if (matShaderName.equals("LightBlow")) {
