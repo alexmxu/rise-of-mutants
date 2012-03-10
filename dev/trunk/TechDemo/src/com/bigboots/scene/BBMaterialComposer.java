@@ -276,7 +276,7 @@ public class BBMaterialComposer {
                         //strAO.replaceAll(File.separator.toString(), "/");
                         //System.out.println(strAO + " LightMap Loading");
                         if (strAO.indexOf("assets/") == 0) {
-            System.out.println(strAO + " UUUUUUUUUUUUUUUUUUUUUU");
+//            System.out.println(strAO + " UUUUUUUUUUUUUUUUUUUUUU");
                             TextureKey tkAO = new TextureKey(strAO.substring(7), BlenderOgreCheck);
                             tkAO.setAnisotropy(2);
                             tkAO.setGenerateMips(true);

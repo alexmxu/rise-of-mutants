@@ -428,7 +428,7 @@ public class Blender2J3O {
         File[] a = dir.listFiles();
 
         for (File f : a) {
-            if (f.isDirectory()) {
+            if (f.isDirectory() && f.getName().indexOf("svn") < 0) {
                 // Recursive search
                 //System.out.println("****** CHECKing Dir : "+f.getName());
                 String recursDir = dirModel + "/" + f.getName();
