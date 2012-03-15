@@ -197,14 +197,14 @@ public class BBMaterialComposer {
         // Set Specular Lighting
         if (matName.indexOf("s") == 0) {
             matThis.setBoolean("Specular_Lighting", true);
-            matThis.setColor("Specular", ColorRGBA.White);
+//            matThis.setColor("Specular", ColorRGBA.White);
             matThis.setBoolean("Spec_A_Dif", true);
-            matThis.setFloat("Shininess", 3.0f);
+//            matThis.setFloat("Shininess", 3.0f);
         } else if (matName.indexOf("s") == 1) {
             matThis.setBoolean("Specular_Lighting", true);
-            matThis.setColor("Specular", ColorRGBA.White);
+//            matThis.setColor("Specular", ColorRGBA.White);
             matThis.setBoolean("Spec_A_Nor", true);
-            matThis.setFloat("Shininess", 3.0f);
+//            matThis.setFloat("Shininess", 3.0f);
         }
 
         // Set Transparency
@@ -433,9 +433,9 @@ public class BBMaterialComposer {
         // Set Specular Map 
         if (matName.indexOf("s") > 3) {
             matThat.setBoolean("Specular_Lighting", true);
-            matThat.setColor("Specular", ColorRGBA.White);
+//            matThat.setColor("Specular", ColorRGBA.White);
             matThat.setBoolean("Spec_A_Nor", true);
-            matThat.setFloat("Shininess", 3.0f);           
+//            matThat.setFloat("Shininess", 3.0f);           
         }
 
         // Set Mask Texture

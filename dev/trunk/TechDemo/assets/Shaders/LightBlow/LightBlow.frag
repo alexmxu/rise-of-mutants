@@ -12,7 +12,11 @@ varying vec2 texCoord;
 
 varying vec3 AmbientSum;
 varying vec4 DiffuseSum;
-varying vec3 SpecularSum;
+
+#if defined(SPECULAR_LIGHTING)
+ varying vec3 SpecularSum;
+// uniform float m_Shininess;
+#endif
 
 #ifdef MULTIPLY_COLOR
 uniform vec4 m_Diffuse;
@@ -113,9 +117,7 @@ uniform float m_AlphaDiscardThreshold;
 
 #ifndef VERTEX_LIGHTING
 
-#ifdef SPECULAR_LIGHTING
-uniform float m_Shininess;
-#endif
+
 
 #ifdef HQ_ATTENUATION
 uniform vec4 g_LightPosition;
@@ -128,11 +130,11 @@ uniform vec4 m_RimLighting2;
 #endif
 
 #if defined(IBL) || defined(REFLECTION)
-#import "Shaders/LightBlow/Optics.glsllib"
+#import "Common/ShaderLib/Optics.glsllib"
 #endif
 
-#if defined(IBL) || defined(IBL_SIMPLE)
-varying vec3 iblVec;
+#if defined(IBL) || defined(IBL_SIMPLE) || defined(REFLECTION)
+varying vec3 refVec;
 #endif
 
 #ifdef IBL 
@@ -145,7 +147,7 @@ uniform sampler2D m_IblMap_Simple;
 
 #ifdef REFLECTION 
     uniform float m_RefIntensity;
-    varying vec3 refVec;
+//    varying vec3 refVec;
     uniform ENVMAP m_RefMap;
     #endif
 
@@ -227,8 +229,14 @@ float diffuseFactor = lightComputeDiffuse(wvNorm, wvLightDir, wvViewDir);
 float specularFactor;
     
     #ifdef SPECULAR_LIGHTING
-    specularFactor = lightComputeSpecular(wvNorm, wvViewDir, wvLightDir, m_Shininess);
-    specularFactor =  (specularFactor * step(1.0, m_Shininess));
+    specularFactor = lightComputeSpecular(wvNorm, wvViewDir, wvLightDir, 3.0);
+//    specularFactor = lightComputeSpecular(wvNorm, wvViewDir, wvLightDir, m_Shininess);
+//    specularFactor =  (specularFactor * step(1.0, m_Shininess));
+
+// if (m_Shininess <= 1.0) {
+// specularFactor = 0.0; // should be one instruction on most cards ..
+// }
+
      #else
    specularFactor = 0.0;
      #endif
@@ -241,6 +249,8 @@ float specularFactor;
     float att = vLightDir.w;
    #endif
 
+
+
 return vec2(diffuseFactor, specularFactor) * vec2(att);
 }
 #endif
@@ -252,7 +262,9 @@ void main(){
   vec2 newTexCoord = texCoord;
 
        // Workaround, since it is not possible to modify varying variables
+       #if defined(SPECULAR_LIGHTING)
        vec4 SpecularSum2 = vec4(SpecularSum, 1.0);
+       #endif
        vec3 AmbientSum2 = AmbientSum;
 
 
@@ -489,11 +501,11 @@ diffuseColor.rgb *= m_Diffuse.rgb;
 
         #ifdef IBL_SIMPLE
        // IBL - Image Based Lighting. The lighting based on either cube map or sphere map.
-     //  iblVec.y = -iblVec.y;
+
            #if  defined (IBL_SIMPLE) && defined (NORMALMAP)
-            vec3 iblLight = texture2D(m_IblMap_Simple, (((-iblVec.xy) + mat.xy * normal.xy) * vec2(0.49)) + vec2(0.49)).rgb;
+            vec3 iblLight = texture2D(m_IblMap_Simple, (((-refVec.xy) + mat.xy * normal.xy) * vec2(0.49)) + vec2(0.49)).rgb;
            #elif  defined (IBL_SIMPLE) && !defined (NORMALMAP)
-            vec3 iblLight = texture2D(m_IblMap_Simple,  ((-iblVec.xy) * vec2(0.49)) + vec2(0.49)).rgb;
+            vec3 iblLight = texture2D(m_IblMap_Simple,  ((-refVec.xy) * vec2(0.49)) + vec2(0.49)).rgb;
            #endif
         
         //Albedo 
@@ -503,9 +515,9 @@ diffuseColor.rgb *= m_Diffuse.rgb;
         #ifdef IBL
        // IBL - Image Based Lighting. The lighting based on either cube map or sphere map.
            #if  defined (IBL) && defined (NORMALMAP)
-            vec3 iblLight = Optics_GetEnvColor(m_IblMap, (iblVec - mat * normal)).rgb;
+            vec3 iblLight = Optics_GetEnvColor(m_IblMap, (refVec - mat * normal)).rgb;
            #elif  defined (IBL) && !defined (NORMALMAP)
-            vec3 iblLight = Optics_GetEnvColor(m_IblMap,  iblVec).rgb;
+            vec3 iblLight = Optics_GetEnvColor(m_IblMap,  refVec).rgb;
            #endif
         
         //Albedo 
@@ -566,6 +578,7 @@ light.x = max(light.x, refColor);
 
 #ifdef MINNAERT
 // if (length(g_AmbientLightColor.xyz) != 0.0) { // 1st pass only
+
         vec3 minnaert = pow( 1.0 - dot( normal.xyz, viewDir ), 1.5 ) * m_Minnaert.xyz * m_Minnaert.w;
       //  minnaert.a = 0.0;
        AmbientSum2 += minnaert.rgb*light.x;
@@ -598,37 +611,24 @@ light.x = max(light.x, refColor);
      vec4 lightMapColor;
            #if defined(SEPERATE_TEXCOORD) && !defined(SEPERATE_TEXCOORD2)
             lightMapColor = texture2D(m_LightMap, texCoord2);
-            lightMapColor.rgb = max(lightMapColor.rgb, 0.2);
            #elif defined(SEPERATE_TEXCOORD) && defined(SEPERATE_TEXCOORD2)
             lightMapColor = texture2D(m_LightMap, texCoord3);
-            lightMapColor.rgb = max(lightMapColor.rgb, 0.2);
         #else
             lightMapColor = texture2D(m_LightMap, texCoord);
-            lightMapColor.rgb = max(lightMapColor.rgb, 0.2);
         #endif
     
 
 
         #if defined(LIGHTMAP_R)
         diffuseColor.rgb  *= vec3(lightMapColor.r);
-        //AmbientSum2.rgb *= vec3(lightMapColor.r);
-       // AmbientSum2.rgb = min(AmbientSum2.rgb,lightMapColor.r);
         #elif defined(LIGHTMAP_G)
         diffuseColor.rgb  *= vec3(lightMapColor.g);
-        //AmbientSum2.rgb *= vec3(lightMapColor.g);
-        //AmbientSum2.rgb = min(AmbientSum2.rgb,lightMapColor.g);
         #elif defined(LIGHTMAP_B)
         diffuseColor.rgb  *= vec3(lightMapColor.b);
-        //AmbientSum2.rgb *= vec3(lightMapColor.b);
-        //AmbientSum2.rgb = min(AmbientSum2.rgb,lightMapColor.b);
         #elif defined(LIGHTMAP_A)
         diffuseColor.rgb  *= vec3(lightMapColor.a);
-        //AmbientSum2.rgb *= vec3(lightMapColor.a);
-        //AmbientSum2.rgb = min(AmbientSum2.rgb,lightMapColor.a);
         #else
         diffuseColor.rgb  *= lightMapColor.rgb;
-        //AmbientSum2.rgb *= lightMapColor.rgb;
-        //AmbientSum2.rgb = min(AmbientSum2.rgb,lightMapColor.r);
         #endif
 
      #ifdef SPECULAR_LIGHTING
@@ -644,7 +644,6 @@ light.x = max(light.x, refColor);
         specularColor.rgb  *= lightMapColor.rgb;
         #endif
     #endif
-//AmbientSum2.rgb = min(AmbientSum2.rgb,lightMapColor.r + 0.2);
 
  #endif
 
@@ -677,13 +676,12 @@ fogColor.rgb = Optics_GetEnvColor(m_FogSkyBox, I).rgb;
     #endif
 
 float fogDistance = fogColor.a;
-float depth = (fog_z - fogDistance*0.5)/ fogDistance;
+float depth = (fog_z - fogDistance)/ fogDistance;
 depth = max(depth, 0.0);
 fogFactor = exp2(-depth*depth);
 fogFactor = clamp(fogFactor, 0.05, 1.0);
 
 gl_FragColor.rgb = mix(fogColor.rgb,gl_FragColor.rgb,vec3(fogFactor));
-
 
 #endif
 

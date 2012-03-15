@@ -30,9 +30,6 @@ MaterialDef LightBlow {
         Boolean LightMap_B
         Boolean LightMap_A
 
-        // Glow intensity
-        Float GlowIntensity : 1
-
         // No attenuation increases fps
         Boolean No_Attenuation
 
@@ -61,7 +58,7 @@ MaterialDef LightBlow {
 
         // Specular lighting
         Boolean Specular_Lighting
-        Float Shininess (MaterialShininess) : 1 // Specular power/shininess
+       // Float Shininess (MaterialShininess) : 1 // Specular power/shininess
         Boolean Spec_A_Nor // Output specular from the normal map alpha channel
         Boolean Spec_A_Dif // Output specular from the diffuse map alpha channel
 
@@ -111,7 +108,7 @@ MaterialDef LightBlow {
         Color Diffuse (MaterialDiffuse)
 
         // Specular color
-        Color Specular (MaterialSpecular)
+       // Color Specular (MaterialSpecular)
 
 
         // Texture Mask for texture blending

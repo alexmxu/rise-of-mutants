@@ -10,8 +10,12 @@ varying vec3 mat;
 
 uniform vec4 m_Ambient;
 uniform vec4 m_Diffuse;
-uniform vec4 m_Specular;
-uniform float m_Shininess;
+
+#if defined(SPECULAR_LIGHTING)
+varying vec3 SpecularSum;
+// uniform vec4 m_Specular;
+// uniform float m_Shininess;
+#endif
 
 uniform vec4 g_LightColor;
 uniform vec4 g_LightPosition;
@@ -31,7 +35,6 @@ varying vec2 texCoord;
 
 varying vec3 AmbientSum;
 varying vec4 DiffuseSum;
-varying vec3 SpecularSum;
 
 attribute vec3 inPosition;
 attribute vec2 inTexCoord;
@@ -67,7 +70,6 @@ varying vec3 lightVec;
 
 #if defined(REFLECTION) || defined(IBL) || defined(IBL_SIMPLE)
     varying vec3 refVec;
-    varying vec3 iblVec;
 #endif 
 
 
@@ -131,7 +133,7 @@ vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec4 w
      }
      float diffuseFactor = lightComputeDiffuse(wvNorm, lightDir.xyz);
    #if defined(SPECULAR_LIGHTING) && defined(VERTEX_LIGHTING)
-float specularFactor = lightComputeSpecular(wvNorm, wvViewDir, lightDir.xyz, m_Shininess);
+float specularFactor = lightComputeSpecular(wvNorm, wvViewDir, lightDir.xyz, 0.3);
     #endif 
  #if !defined(SPECULAR_LIGHTING) && defined(VERTEX_LIGHTING)
      float specularFactor = 0.0;
@@ -188,7 +190,7 @@ void main(){
      
      mat = vec3(1.0) * tbnMat;
      mat = normalize(mat);
-  //   vPosition = wvPosition * tbnMat;
+//     vPosition = wvPosition * tbnMat;
   //   vViewDir  = viewDir * tbnMat;
      vViewDir  = -wvPosition * tbnMat;
 
@@ -198,8 +200,9 @@ void main(){
    #elif !defined(VERTEX_LIGHTING)
      vNormal = wvNormal;
 
-  //   vPosition = wvPosition;
+//     vPosition = wvPosition;
      vViewDir = viewDir;
+
 
      lightComputeDir(wvPosition, lightColor, wvLightPos, vLightDir);
      
@@ -220,12 +223,19 @@ void main(){
    #ifdef MATERIAL_COLORS
       AmbientSum  = (m_Ambient  * g_AmbientLightColor).rgb;
       DiffuseSum  = m_Diffuse  * lightColor;
-      SpecularSum = (m_Specular * lightColor).rgb;
+        #if defined(SPECULAR_LIGHTING)
+      SpecularSum = (lightColor).rgb;
+//      SpecularSum = (m_Specular * lightColor).rgb;
+        #endif
+
     #else
       AmbientSum  = vec3(0.2, 0.2, 0.2) * g_AmbientLightColor.rgb; // Default: ambient color is dark gray
       DiffuseSum  = lightColor;
-      SpecularSum = (m_Specular * lightColor).rgb;
+        #if defined(SPECULAR_LIGHTING)
+    SpecularSum = (lightColor).rgb;
+  //    SpecularSum = (m_Specular * lightColor).rgb;
   //    SpecularSum = vec3(0.0);
+        #endif
     #endif
 
 
@@ -249,11 +259,8 @@ void main(){
 //Reflection vectors calculation
 
        vec3 N = normalize( (g_WorldMatrix * vec4(inNormal, 0.0)).xyz );      
+       refVec = reflect(I, N);
 
-        refVec = reflect(I, N);
- 
-        iblVec = refVec;
- 
     #endif
 
 
