@@ -309,7 +309,10 @@ public class BBSceneGrid extends BBApplication{
                 && geoName.indexOf("COMPLEX") != 0) {
 
             if (texParam.equals("DiffuseMap")) geoGet.getChildMesh(geoName).getMaterial().setTexture("DiffuseMap", diffuseTex);
-            else if (texParam.equals("NormalMap"))geoGet.getChildMesh(geoName).getMaterial().setTexture("NormalMap", normalTex);  
+            else if (texParam.equals("NormalMap")) {
+                geoGet.getChildMesh(geoName).getMaterial().setTexture("NormalMap", normalTex);
+                if (check == true) geoGet.getChildMesh(geoName).getMaterial().setBoolean("Nor_Inv_Y", true);
+            }  
         }
        }
       }  
@@ -350,18 +353,18 @@ public class BBSceneGrid extends BBApplication{
             else if (texParam.equals("Spec_A_Nor")) { 
                 geoGet.getChildMesh(geoName).getMaterial().setBoolean("Spec_A_Nor", check);
                 geoGet.getChildMesh(geoName).getMaterial().setBoolean("Specular_Lighting", check);
-                if (check == true) {
-                    geoGet.getChildMesh(geoName).getMaterial().setColor("Specular", ColorRGBA.White);
-                    geoGet.getChildMesh(geoName).getMaterial().setFloat("Shininess", 3.0f);                
-                 }    
+//                if (check == true) {
+//                    geoGet.getChildMesh(geoName).getMaterial().setColor("Specular", ColorRGBA.White);
+//                    geoGet.getChildMesh(geoName).getMaterial().setFloat("Shininess", 3.0f);                
+//                 }    
             }
             else if (texParam.equals("Spec_A_Dif")) {
                 geoGet.getChildMesh(geoName).getMaterial().setBoolean("Spec_A_Dif", check);
                 geoGet.getChildMesh(geoName).getMaterial().setBoolean("Specular_Lighting", check);
-                if (check == true) {
-                    geoGet.getChildMesh(geoName).getMaterial().setColor("Specular", ColorRGBA.White);
-                    geoGet.getChildMesh(geoName).getMaterial().setFloat("Shininess", 3.0f);                
-                 }    
+//                if (check == true) {
+//                    geoGet.getChildMesh(geoName).getMaterial().setColor("Specular", ColorRGBA.White);
+//                    geoGet.getChildMesh(geoName).getMaterial().setFloat("Shininess", 3.0f);                
+//                 }    
             }
 //            else if (texParam.equals("Ref_A_Nor")) geoGet.getChildMesh(geoName).getMaterial().setBoolean("Ref_A_Nor", check);
 //            else if (texParam.equals("Ref_A_Dif")) geoGet.getChildMesh(geoName).getMaterial().setBoolean("Ref_A_Dif", check);
