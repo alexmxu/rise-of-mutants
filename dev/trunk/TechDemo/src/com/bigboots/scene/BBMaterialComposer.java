@@ -175,7 +175,7 @@ public class BBMaterialComposer {
         TextureKey tkDif = new TextureKey(texPath3, BlenderOgreCheck);
         tkDif.setAnisotropy(2);
         System.out.println("Texpath3 : " + texPath3);
-        tkDif.setGenerateMips(true);
+        if (texPath3.indexOf(".dds") < 0) tkDif.setGenerateMips(true);
         Texture diffuseTex = asset.loadTexture(tkDif);
         diffuseTex.setWrap(Texture.WrapMode.Repeat);
         matThis.setTexture("DiffuseMap", diffuseTex);
@@ -187,7 +187,7 @@ public class BBMaterialComposer {
             if (texPath3_nor.indexOf("assets/") == 0) texPath3_nor = texPath3_nor.substring(7);
             TextureKey tkNor = new TextureKey(texPath3_nor, BlenderOgreCheck);
             tkNor.setAnisotropy(2);
-            tkNor.setGenerateMips(true);
+            if (texPath3_nor.indexOf(".dds") < 0) tkNor.setGenerateMips(true);
             Texture normalTex = asset.loadTexture(tkNor);
             normalTex.setWrap(Texture.WrapMode.Repeat);
             matThis.setTexture("NormalMap", normalTex);
@@ -279,14 +279,14 @@ public class BBMaterialComposer {
 //            System.out.println(strAO + " UUUUUUUUUUUUUUUUUUUUUU");
                             TextureKey tkAO = new TextureKey(strAO.substring(7), BlenderOgreCheck);
                             tkAO.setAnisotropy(2);
-                            tkAO.setGenerateMips(true);
+                            if (strAO.indexOf(".dds") < 0) tkAO.setGenerateMips(true);
                             textureAO = asset.loadTexture(tkAO);
                             textureAO.setWrap(Texture.WrapMode.Repeat);                
                         }
                         else {
                             TextureKey tkAO = new TextureKey(strAO, BlenderOgreCheck);
                             tkAO.setAnisotropy(2);
-                            tkAO.setGenerateMips(true);
+                            if (strAO.indexOf(".dds") < 0) tkAO.setGenerateMips(true);
                             textureAO = asset.loadTexture(tkAO);
                             textureAO.setWrap(Texture.WrapMode.Repeat);
                         }
@@ -367,7 +367,7 @@ public class BBMaterialComposer {
         if (matName.indexOf("cR") >= 0) {
             TextureKey tkDifR = new TextureKey(ctexPath3, BlenderOgreCheck);
             tkDifR.setAnisotropy(2);
-            tkDifR.setGenerateMips(true);
+            if (ctexPath3.indexOf(".dds") < 0) tkDifR.setGenerateMips(true);
             Texture diffuseTexR = asset.loadTexture(tkDifR);
             diffuseTexR.setWrap(Texture.WrapMode.Repeat);
             matThat.setTexture("DiffuseMap_1", diffuseTexR);
@@ -377,7 +377,7 @@ public class BBMaterialComposer {
         else if (matName.indexOf("cG") >= 0) {
             TextureKey tkDifG = new TextureKey(ctexPath3, BlenderOgreCheck);
             tkDifG.setAnisotropy(2);
-            tkDifG.setGenerateMips(true);
+            if (ctexPath3.indexOf(".dds") < 0) tkDifG.setGenerateMips(true);
             Texture diffuseTexG = asset.loadTexture(tkDifG);
             diffuseTexG.setWrap(Texture.WrapMode.Repeat);
             matThat.setTexture("DiffuseMap_2", diffuseTexG);
@@ -387,7 +387,7 @@ public class BBMaterialComposer {
         else if (matName.indexOf("cB") >= 0) {
             TextureKey tkDifB = new TextureKey(ctexPath3, BlenderOgreCheck);
             tkDifB.setAnisotropy(2);
-            tkDifB.setGenerateMips(true);
+            if (ctexPath3.indexOf(".dds") < 0) tkDifB.setGenerateMips(true);
             Texture diffuseTexB = asset.loadTexture(tkDifB);
             diffuseTexB.setWrap(Texture.WrapMode.Repeat);
             matThat.setTexture("DiffuseMap_3", diffuseTexB);
@@ -401,7 +401,7 @@ public class BBMaterialComposer {
             if (matName.indexOf("cR") >= 0) {
                 TextureKey tkNorR = new TextureKey(ctexPath3_nor, BlenderOgreCheck);   
                 tkNorR.setAnisotropy(2);
-                tkNorR.setGenerateMips(true);
+                if (ctexPath3_nor.indexOf(".dds") < 0) tkNorR.setGenerateMips(true);
                 Texture normalTexR = asset.loadTexture(tkNorR);
                 normalTexR.setWrap(Texture.WrapMode.Repeat);
                 matThat.setTexture("NormalMap_1", normalTexR);
@@ -411,7 +411,7 @@ public class BBMaterialComposer {
             else if (matName.indexOf("cG") >= 0) {
                 TextureKey tkNorG = new TextureKey(ctexPath3_nor, BlenderOgreCheck);  
                 tkNorG.setAnisotropy(2);
-                tkNorG.setGenerateMips(true);
+                if (ctexPath3_nor.indexOf(".dds") < 0) tkNorG.setGenerateMips(true);
                 Texture normalTexG = asset.loadTexture(tkNorG);
                 normalTexG.setWrap(Texture.WrapMode.Repeat);
                 matThat.setTexture("NormalMap_2", normalTexG);
@@ -421,7 +421,7 @@ public class BBMaterialComposer {
             else if (matName.indexOf("cB") >= 0) {
                 TextureKey tkNorB = new TextureKey(ctexPath3_nor, BlenderOgreCheck);
                 tkNorB.setAnisotropy(2);
-                tkNorB.setGenerateMips(true);
+                if (ctexPath3_nor.indexOf(".dds") < 0) tkNorB.setGenerateMips(true);
                 Texture normalTexB = asset.loadTexture(tkNorB);
                 normalTexB.setWrap(Texture.WrapMode.Repeat);
                 matThat.setTexture("NormalMap_3", normalTexB);
