@@ -191,7 +191,7 @@ public class BBMaterialComposer {
             Texture normalTex = asset.loadTexture(tkNor);
             normalTex.setWrap(Texture.WrapMode.Repeat);
             matThis.setTexture("NormalMap", normalTex);
-            if (BlenderOgreCheck == false) matThis.setBoolean("Nor_Inv_Y", true);            
+//            if (BlenderOgreCheck == false) matThis.setBoolean("Nor_Inv_Y", true);            
         }       
 
         // Set Specular Lighting
@@ -405,7 +405,7 @@ public class BBMaterialComposer {
                 Texture normalTexR = asset.loadTexture(tkNorR);
                 normalTexR.setWrap(Texture.WrapMode.Repeat);
                 matThat.setTexture("NormalMap_1", normalTexR);
-                if (BlenderOgreCheck == false) matThat.setBoolean("Nor_Inv_Y", true);
+//                if (BlenderOgreCheck == false) matThat.setBoolean("Nor_Inv_Y", true);
             }
             // Set Normal Map G channel
             else if (matName.indexOf("cG") >= 0) {
@@ -415,7 +415,7 @@ public class BBMaterialComposer {
                 Texture normalTexG = asset.loadTexture(tkNorG);
                 normalTexG.setWrap(Texture.WrapMode.Repeat);
                 matThat.setTexture("NormalMap_2", normalTexG);
-                if (BlenderOgreCheck == false) matThat.setBoolean("Nor_Inv_Y", true);
+//                if (BlenderOgreCheck == false) matThat.setBoolean("Nor_Inv_Y", true);
             }
             // Set Normal Map B channel
             else if (matName.indexOf("cB") >= 0) {
@@ -425,7 +425,7 @@ public class BBMaterialComposer {
                 Texture normalTexB = asset.loadTexture(tkNorB);
                 normalTexB.setWrap(Texture.WrapMode.Repeat);
                 matThat.setTexture("NormalMap_3", normalTexB);
-                if (BlenderOgreCheck == false) matThat.setBoolean("Nor_Inv_Y", true);
+//                if (BlenderOgreCheck == false) matThat.setBoolean("Nor_Inv_Y", true);
                 
             }
         }      

@@ -17,7 +17,6 @@ package com.bigboots.scene;
 
 
 import com.bigboots.BBWorldManager;
-import com.bigboots.FixedTangentBinormalGenerator;
 import com.bigboots.components.BBCollisionComponent;
 import com.bigboots.components.BBCollisionComponent.ShapeType;
 import com.bigboots.components.BBComponent.CompType;
@@ -25,18 +24,13 @@ import com.bigboots.components.BBEntity;
 import com.bigboots.components.BBNodeComponent;
 import com.bigboots.physics.BBPhysicsManager;
 import com.jme3.asset.AssetManager;
-import com.jme3.asset.DesktopAssetManager;
 import com.jme3.asset.ModelKey;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
-import com.jme3.material.*;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
 import com.jme3.scene.*;
-import com.jme3.util.TangentBinormalGenerator;
-import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 
 
 /**

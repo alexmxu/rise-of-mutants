@@ -16,7 +16,6 @@
 package com.bigboots.scene;
 
 
-import com.bigboots.FixedTangentBinormalGenerator;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.asset.ModelKey;
@@ -28,6 +27,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.SceneGraphVisitor;
 import com.jme3.scene.Spatial;
+import com.jme3.util.TangentBinormalGenerator;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -86,7 +86,7 @@ public class Blender2J3O {
                     Node alNd = (Node) originSearch;
                     replaceMeshWithOgre(alNd, levelFold);
                     composeMaterial(alNd, null);
-                    FixedTangentBinormalGenerator.generate(alNd);
+                    TangentBinormalGenerator.generate(alNd);
                     alNodesOriginals.add(alNd);
                     isBlenderOrOgre = true;
                 } else if (originSearch.getName().indexOf("E") == 0 && originSearch.getName().indexOf("CAPSULE") != 0 && originSearch.getName().indexOf("BOX") != 0
@@ -95,7 +95,7 @@ public class Blender2J3O {
                         && originSearch.getName().indexOf("COMPLEX") != 0) {
                     Node entNd = (Node) originSearch;
                     loadEntity(modelsFld, entNd);
-                    FixedTangentBinormalGenerator.generate(entNd);
+                    TangentBinormalGenerator.generate(entNd);
                     alNodesOriginals.add(entNd);
                     isBlenderOrOgre = true;
                 } else if (originSearch.getName().indexOf("CAPSULE") == 0 || originSearch.getName().indexOf("BOX") == 0
@@ -129,12 +129,12 @@ public class Blender2J3O {
                     if (ndNode.getName().indexOf("E") != 0) {
                         replaceMeshWithOgre(ndNode, levelFold);
                         composeMaterial(ndNode, null);
-                        FixedTangentBinormalGenerator.generate(ndNode);
+                        TangentBinormalGenerator.generate(ndNode);
                         alNodesOriginals.add(ndNode);
                         isBlenderOrOgre = true;
                     } else if (ndNode.getName().indexOf("E") == 0) {
                         loadEntity(modelsFld, ndNode);
-                        FixedTangentBinormalGenerator.generate(ndNode);
+                        TangentBinormalGenerator.generate(ndNode);
                         alNodesOriginals.add(ndNode);
                         isBlenderOrOgre = true;
                     }
