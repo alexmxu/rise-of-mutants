@@ -15,7 +15,6 @@
  */
 package bigboots.editor;
 
-import com.bigboots.FixedTangentBinormalGenerator;
 import com.bigboots.BBApplication;
 import com.bigboots.BBGlobals;
 import com.bigboots.BBWorldManager;
@@ -197,7 +196,7 @@ public class BBSceneGrid extends BBApplication{
         entity.loadModel("");
         setShader(entity, name); 
 //        entityNode.attachChild(entity.getComponent(BBNodeComponent.class));
-        FixedTangentBinormalGenerator.generate(pnode);
+        TangentBinormalGenerator.generate(pnode);
         entity.attachToNode(sceneNode);
         mSceneGizmo.getTranAxis().setLocalTranslation(mSceneGizmo.getMarkPosition());
         BBWorldManager.getInstance().addEntity(entity);
@@ -240,7 +239,7 @@ public class BBSceneGrid extends BBApplication{
         matNew.setName(geo.getMaterial().getName());
         String str = matNew.getName();        
         
-         boolean check = true;
+         boolean check = false;
 
              
             TextureKey tkk = new TextureKey("Textures/skyboxes/sky_box_01/skybox_01_low.png", check);
@@ -311,7 +310,7 @@ public class BBSceneGrid extends BBApplication{
             if (texParam.equals("DiffuseMap")) geoGet.getChildMesh(geoName).getMaterial().setTexture("DiffuseMap", diffuseTex);
             else if (texParam.equals("NormalMap")) {
                 geoGet.getChildMesh(geoName).getMaterial().setTexture("NormalMap", normalTex);
-                if (check == true) geoGet.getChildMesh(geoName).getMaterial().setBoolean("Nor_Inv_Y", true);
+               // if (check == true) geoGet.getChildMesh(geoName).getMaterial().setBoolean("Nor_Inv_Y", true);
             }  
         }
        }
