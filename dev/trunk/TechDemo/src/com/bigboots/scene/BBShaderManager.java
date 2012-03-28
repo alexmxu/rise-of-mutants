@@ -120,7 +120,7 @@ public class BBShaderManager {
     SceneGraphVisitor sgvSIBL = new SceneGraphVisitor() {
 
     public void visit(Spatial spatial) {
-     boolean check = true;
+     boolean check = false;
      
      //System.out.println(spatial + " Visited Shader Geometry");
         if (spatial instanceof Geometry) {
