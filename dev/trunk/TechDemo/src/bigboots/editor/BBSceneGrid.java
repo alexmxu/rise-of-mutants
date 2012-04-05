@@ -310,7 +310,7 @@ public class BBSceneGrid extends BBApplication{
             if (texParam.equals("DiffuseMap")) geoGet.getChildMesh(geoName).getMaterial().setTexture("DiffuseMap", diffuseTex);
             else if (texParam.equals("NormalMap")) {
                 geoGet.getChildMesh(geoName).getMaterial().setTexture("NormalMap", normalTex);
-               // if (check == true) geoGet.getChildMesh(geoName).getMaterial().setBoolean("Nor_Inv_Y", true);
+                if (check == false) geoGet.getChildMesh(geoName).getMaterial().setBoolean("Nor_Inv_Y", true);
             }  
         }
        }
