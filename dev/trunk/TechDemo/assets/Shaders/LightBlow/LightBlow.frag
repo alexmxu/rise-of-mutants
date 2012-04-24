@@ -43,7 +43,7 @@ uniform vec4 m_Diffuse;
   uniform sampler2D m_SpecularMap;
 #endif
 
-#if (defined(PARALLAXMAP) || (defined(NORMALMAP_PARALLAX) && defined(NORMALMAP))) && !defined(VERTEX_LIGHTING) 
+#if defined(PARALLAXMAP) || defined(NORMALMAP_PARALLAX) && defined(NORMALMAP) && !defined(VERTEX_LIGHTING) 
   #import "Common/ShaderLib/Parallax.glsllib"
   uniform sampler2D m_ParallaxMap;
   float m_ParallaxHeight;
@@ -52,8 +52,8 @@ uniform vec4 m_Diffuse;
 
 #ifdef DIFFUSEMAP
   uniform sampler2D m_DiffuseMap;
-  
 #endif
+
 #if defined(DIFFUSEMAP_1) && defined(TEXTURE_MASK)
   uniform sampler2D m_DiffuseMap_1;
 #endif
@@ -123,7 +123,7 @@ uniform float m_AlphaDiscardThreshold;
 uniform vec4 g_LightPosition;
 #endif
 
-#if defined RIM_LIGHTING || RIM_LIGHTING_2
+#if defined (RIM_LIGHTING) || defined (RIM_LIGHTING_2)
 uniform vec4 m_RimLighting;
 uniform vec4 m_RimLighting2;
 // uniform vec4 g_AmbientLightColor;
@@ -241,9 +241,9 @@ float specularFactor;
    specularFactor = 0.0;
      #endif
 
-   #ifdef HQ_ATTENUATION
+   #if defined (HQ_ATTENUATION)
     float att = clamp(1.0 - g_LightPosition.w * length(lightVec), 0.0, 1.0);
-    #elif NO_ATTENUATION
+    #elif defined(NO_ATTENUATION)
     float att = 1.0;
    #else
     float att = vLightDir.w;
@@ -303,7 +303,7 @@ normalHeightCalc.rg = mix( normalHeightCalc.rg, normalHeight3.rg, textureBlend.b
 #endif
 
 
-   #if (defined(PARALLAXMAP) || (defined(NORMALMAP_PARALLAX) && defined(NORMALMAP))) && !defined(VERTEX_LIGHTING) 
+   #if defined(PARALLAXMAP) || defined(NORMALMAP_PARALLAX) && defined(NORMALMAP) && !defined(VERTEX_LIGHTING) 
 
        #ifdef STEEP_PARALLAX
            #ifdef NORMALMAP_PARALLAX
@@ -354,7 +354,7 @@ vec4 diffuseColor;
 #endif
 
 
-    #if defined(NORMALMAP) && !defined(VERTEX_LIGHTING)
+  #if defined(NORMALMAP) && !defined(VERTEX_LIGHTING)
       normalHeight = normalHeightCalc;
       vec3 normal = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
   //    normal = normalize(normal);
@@ -375,8 +375,8 @@ vec4 diffuseColor;
  
           #elif !defined(VERTEX_LIGHTING)
       vec3 normal = vNormal;
- 
-    #endif
+  #endif
+
  #if !defined(LOW_QUALITY) && !defined(V_TANGENT)
          normal = normalize(normal);
       #endif
@@ -388,7 +388,7 @@ vec4 diffuseColor;
       vec4 specularColor = vec4(1.0);
     #endif
 
-    #if defined(SPECULAR_LIGHTING) && defined(SPEC_A_NOR) && defined(NORMALMAP) && !defined(SPECULARMAP)
+ #if defined(SPECULAR_LIGHTING) && defined(SPEC_A_NOR) && defined(NORMALMAP) && !defined(SPECULARMAP)
     float specA = normalHeight.a;
     specularColor =  vec4(specA);
 
@@ -408,7 +408,7 @@ vec4 diffuseColor;
         #endif  
 
  specularColor =  vec4(specA); 
-    #endif
+  #endif
 
 
 
@@ -459,26 +459,26 @@ vec4 diffuseColor;
 
 
 
-    #ifdef VERTEX_LIGHTING
+ #ifdef VERTEX_LIGHTING
       vec2 light = vertexLightValues.xy;
-       #ifdef COLORRAMP
+        #ifdef COLORRAMP
            light.x = texture2D(m_ColorRamp, vec2(light.x, 0.0)).r;
            light.y = texture2D(m_ColorRamp, vec2(light.y, 0.0)).r;
-       #endif
+        #endif
 
-     #if defined(SPECULAR_LIGHTING) && defined(VERTEX_LIGHTING)
+        #if defined(SPECULAR_LIGHTING) && defined(VERTEX_LIGHTING)
        gl_FragColor.rgb =  AmbientSum2     * diffuseColor.rgb + 
                            DiffuseSum.rgb * diffuseColor.rgb  * vec3(light.x) +
                            SpecularSum.rgb    * specularColor.rgb * vec3(light.y);
         #endif
 
 
-    #if !defined(SPECULAR_LIGHTING) && defined(VERTEX_LIGHTING)
+       #if !defined(SPECULAR_LIGHTING) && defined(VERTEX_LIGHTING)
                         gl_FragColor.rgb = AmbientSum2 * diffuseColor.rgb + 
                                        DiffuseSum.rgb * diffuseColor.rgb  * vec3(light.x);
         #endif
 
-    #else
+ #else
        vec4 lightDir = vLightDir;
        lightDir.xyz = normalize(lightDir.xyz);
        vec3 viewDir = normalize(vViewDir);
@@ -486,21 +486,23 @@ vec4 diffuseColor;
        vec2   light = computeLighting(normal, viewDir, lightDir.xyz) * spotFallOff;
 
 
-    #ifdef MULTIPLY_COLOR
-diffuseColor.rgb *= m_Diffuse.rgb;
-    #endif
 
 
-       #ifdef COLORRAMP
+      #ifdef MULTIPLY_COLOR
+      diffuseColor.rgb *= m_Diffuse.rgb;
+      #endif
+
+
+      #ifdef COLORRAMP
            light.x = texture2D(m_ColorRamp, vec2(light.x, 0.0)).r;
            light.y = texture2D(m_ColorRamp, vec2(light.y, 0.0)).r;
-       #endif
+      #endif
 
 
 
 
-        #ifdef IBL_SIMPLE
-       // IBL - Image Based Lighting. The lighting based on either cube map or sphere map.
+      #ifdef IBL_SIMPLE
+      // IBL - Image Based Lighting. The lighting based on either cube map or sphere map.
 
            #if  defined (IBL_SIMPLE) && defined (NORMALMAP)
             vec3 iblLight = texture2D(m_IblMap_Simple, (((refVec.xy) - mat.xy * normal.xy) * vec2(0.49)) + vec2(0.49)).rgb;
@@ -510,9 +512,9 @@ diffuseColor.rgb *= m_Diffuse.rgb;
         
         //Albedo 
         AmbientSum2.rgb += iblLight;
-        #endif
+      #endif
 
-        #ifdef IBL
+      #ifdef IBL
        // IBL - Image Based Lighting. The lighting based on either cube map or sphere map.
            #if  defined (IBL) && defined (NORMALMAP)
             vec3 iblLight = Optics_GetEnvColor(m_IblMap, (refVec - mat * normal)).rgb;
@@ -522,10 +524,10 @@ diffuseColor.rgb *= m_Diffuse.rgb;
         
         //Albedo 
         AmbientSum2.rgb += iblLight;
-        #endif
+      #endif
 
 
-#if defined(EMISSIVEMAP) && defined(DIFFUSEMAP)
+        #if defined(EMISSIVEMAP) && defined(DIFFUSEMAP)
         //Illumination based on diffuse map alpha chanel.
 	float emissiveTex = diffuseColor.a;
 
@@ -538,18 +540,18 @@ diffuseColor.rgb *= m_Diffuse.rgb;
         #endif
 
 
-#if defined (REFLECTION) 
+     #if defined (REFLECTION) 
     // Reflection based on either cube map or sphere map.
 // float refTex = 1.0;
 
-    #if  defined (REFLECTION) && defined (NORMALMAP)
-  //  vec4 refGet = Optics_GetEnvColor(m_RefMap, (refVec.xyz - mat.xyz * normal.xyz)*-1.5);
-vec3 refGet = Optics_GetEnvColor(m_RefMap, (refVec - (mat * normal))).rgb;
-  #elif defined (REFLECTION) && !defined (NORMALMAP)
-    vec3 refGet = Optics_GetEnvColor(m_RefMap, refVec).rgb;
-    #endif
+         #if  defined (REFLECTION) && defined (NORMALMAP)
+      //  vec4 refGet = Optics_GetEnvColor(m_RefMap, (refVec.xyz - mat.xyz * normal.xyz)*-1.5);
+        vec3 refGet = Optics_GetEnvColor(m_RefMap, (refVec - (mat * normal))).rgb;
+        #elif defined (REFLECTION) && !defined (NORMALMAP)
+        vec3 refGet = Optics_GetEnvColor(m_RefMap, refVec).rgb;
+        #endif
 
-    vec3 refColor = refGet * m_RefIntensity;
+        vec3 refColor = refGet * m_RefIntensity;
     
 
     #if defined(REF_A_NOR) && defined(NORMALMAP)
@@ -563,28 +565,28 @@ vec3 refGet = Optics_GetEnvColor(m_RefMap, (refVec - (mat * normal))).rgb;
     
     
 
-#ifdef ADDITIVE_REFLECTION
-AmbientSum2.rgb +=  refColor*0.5;
-diffuseColor.rgb += refColor;
-//AmbientSum2.rgb = max(AmbientSum2.rgb, refGet* refTex);
-#else
-light.x = max(light.x, refColor);
- diffuseColor.rgb = max(diffuseColor.rgb, vec3(refColor));   
- #endif
+        #ifdef ADDITIVE_REFLECTION
+        AmbientSum2.rgb +=  refColor*0.5;
+        diffuseColor.rgb += refColor;
+        //AmbientSum2.rgb = max(AmbientSum2.rgb, refGet* refTex);
+        #else
+        light.x = max(light.x, refColor);
+        diffuseColor.rgb = max(diffuseColor.rgb, vec3(refColor));   
+        #endif
 
-#endif
+    #endif
 
 
 
-#ifdef MINNAERT
-// if (length(g_AmbientLightColor.xyz) != 0.0) { // 1st pass only
+        #ifdef MINNAERT
+        // if (length(g_AmbientLightColor.xyz) != 0.0) { // 1st pass only
 
         vec3 minnaert = pow( 1.0 - dot( normal.xyz, viewDir ), 1.5 ) * m_Minnaert.xyz * m_Minnaert.w;
       //  minnaert.a = 0.0;
        AmbientSum2 += minnaert.rgb*light.x;
     //   light.x += minnaert*0.1;
-// }
-#endif
+        // }
+        #endif
 
 #ifdef RIM_LIGHTING
 // if (length(g_AmbientLightColor.xyz) != 0.0) { // 1st pass only
