@@ -29,6 +29,7 @@ import com.bigboots.input.BBInputManager;
 import com.bigboots.core.BBDebugInfo;
 import com.bigboots.components.camera.BBFreeCamera;
 import com.bigboots.gui.BBGuiManager;
+import com.jme3.asset.BlenderKey;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.asset.ModelKey;
 import com.jme3.asset.TextureKey;
@@ -177,7 +178,8 @@ public class BBSceneGrid extends BBApplication{
         
         // Load Model
         DesktopAssetManager dsk = (DesktopAssetManager) BBSceneManager.getInstance().getAssetManager();        
-        ModelKey bk = new ModelKey(name);        
+        BlenderKey bk = new BlenderKey(name);   
+        bk.setLoadObjectProperties(false);
         Spatial tmpSpatial =  BBSceneManager.getInstance().getAssetManager().loadModel(bk);
         
         BBEntity entity = null;
