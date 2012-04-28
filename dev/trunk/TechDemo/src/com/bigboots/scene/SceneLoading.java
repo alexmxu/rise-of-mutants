@@ -5,6 +5,7 @@
 package com.bigboots.scene;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.asset.BlenderKey;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.asset.ModelKey;
 import com.jme3.asset.plugins.FileLocator;
@@ -33,7 +34,8 @@ public class SceneLoading {
         // Register file locator for the AssetManager
         assett.registerLocator("blsets", FileLocator.class);
 
-        ModelKey bk = new ModelKey(scenePath);
+        BlenderKey bk = new BlenderKey(scenePath);
+        bk.setLoadObjectProperties(false);
         Node nd =  (Node) dsk.loadModel(bk);               
 
         // Clear blend file

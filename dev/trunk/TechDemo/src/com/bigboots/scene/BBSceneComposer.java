@@ -24,6 +24,7 @@ import com.bigboots.components.BBEntity;
 import com.bigboots.components.BBNodeComponent;
 import com.bigboots.physics.BBPhysicsManager;
 import com.jme3.asset.AssetManager;
+import com.jme3.asset.BlenderKey;
 import com.jme3.asset.ModelKey;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
@@ -270,7 +271,8 @@ public class BBSceneComposer {
  
         // Load a blender file Scene. 
 //        DesktopAssetManager dsk = (DesktopAssetManager) asm;        
-        ModelKey bk = new ModelKey(Path);
+        BlenderKey bk = new BlenderKey(Path);
+        bk.setLoadObjectProperties(false);
         Node nd =  (Node) assett.loadModel(bk);               
 
 //        //Clear Blend File
