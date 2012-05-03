@@ -435,7 +435,7 @@ public class Blender2J3O {
                 loadEntity(recursDir, emptyNode);
             } else if (f.getName().indexOf(emptyNode.getName()) >= 0 && f.getName().endsWith(".blend")) {
                 String strF = dirModel + "/" + f.getName();
-                //System.out.println("========>>FOUND ENTITY :: " + strF);
+                System.out.println("========>>FOUND ENTITY :: " + strF);
 
                 // Load a blender file. 
                 DesktopAssetManager dsk = (DesktopAssetManager) assett;
@@ -511,6 +511,7 @@ public class Blender2J3O {
                     Geometry geom_sc = (Geometry) spatial;
                     if (alMaterials.isEmpty() == true || entPath != null) {
                         setGeneration(geom_sc, entPath);
+                        System.out.println("set generation " + entPath + " __ " + geom_sc);
                     } else {
                         //Generate Material
                         for (Object matTemp : alMaterials.toArray()) {
@@ -531,7 +532,7 @@ public class Blender2J3O {
                 Geometry geomGen = geo;
 
                 BBMaterialComposer matComp = new BBMaterialComposer(geomGen, dirbase, dirlevel, assett, isBlenderOrOgre);
-                //System.out.println("Composing Material: " + geomGen.getMaterial().getName() + " for Geometry " + geomGen.getName());
+                System.out.println("Composing Material: " + geomGen.getMaterial().getName() + " for Geometry " + geomGen.getName());
                 matComp.generateMaterial(entPath3);
                 if (entPath3 == null) {
                     alMaterials.add(geomGen.getMaterial());

@@ -101,9 +101,9 @@ public class BBMaterialComposer {
 
         }
 
-//        System.out.println("Get Folder " + folderStr);
-//        System.out.println("Get File " + fileStr);
-//        System.out.println("Get Entity " + strEntity);
+        System.out.println("Get Folder " + folderStr);
+        System.out.println("Get File " + fileStr);
+        System.out.println("Get Entity " + strEntity);
 
         Material matNew = new Material(asset, "MatDefs/LightBlow/LightBlow.j3md");
         matNew.setName(matName);
@@ -130,12 +130,12 @@ public class BBMaterialComposer {
             for (int i=0; i<children.length; i++) {
                 // Get filename of directory
                 String filename = children[i];
-//                System.out.println("********** File name in children : " + filename);        
+                System.out.println("********** File name in children : " + filename);        
                 if (filename.indexOf(foldID) >= 0) {
                     //Searching file        
                     texPath2 = texPath + "/" + filename;
                     File fileTex = new File(texPath2);
-//                    System.out.println("folder textPath2 " + texPath2);
+                    System.out.println("folder textPath2 " + texPath2);
 
                     String[] children2 = fileTex.list();
                     if (children2 == null) {
@@ -155,7 +155,7 @@ public class BBMaterialComposer {
                                     && filename2.indexOf(".psd") < 0  && filename2.indexOf(".xcf") < 0 && filename2.indexOf("lightmap_") < 0 && filename2.indexOf("mask_") < 0) {
                                 texPath3 = texPath2 + "/" + filename2;
                                 //texPath3.replaceAll(File.separator.toString(), "/");
-                                //System.out.println("file " + texPath3);
+                                System.out.println("file " + texPath3);
                             }
                             // Get Normal Map
                             else if (filename2.indexOf(fileID + "_nor.") >= 0 && filename2.indexOf(".blend") < 0 
