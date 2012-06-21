@@ -112,7 +112,7 @@ uniform vec4 m_Diffuse;
   uniform sampler2D m_ColorRamp;
 #endif
 
-uniform float m_AlphaDiscardThreshold;
+// uniform float m_AlphaDiscardThreshold;
 
 
 #ifndef VERTEX_LIGHTING
@@ -422,9 +422,9 @@ vec4 diffuseColor;
     #elif defined (ALPHA_A_NOR) && defined (NORMALMAP)
        alpha *= normalHeight.a;   
     #endif
-    if(alpha < m_AlphaDiscardThreshold){
-        discard;
-    }
+   // if(alpha < m_AlphaDiscardThreshold){
+   //     discard;
+   //  }
 
 
      #ifndef VERTEX_LIGHTING
