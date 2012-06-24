@@ -19,7 +19,7 @@ package com.bigboots.testscene;
 
 import com.bigboots.core.BBSceneManager;
 import com.bigboots.physics.BBPhysicsManager;
-import com.bigboots.scene.BBSceneComposer;
+import com.bigboots.scene.BBSceneComposer_old;
 import com.bigboots.scene.BBShaderManager;
 import com.jme3.asset.BlenderKey;
 import com.jme3.asset.DesktopAssetManager;
@@ -52,7 +52,7 @@ public class TestSceneComposer extends BBSimpleApplication {
         Node nd =  (Node) dsk.loadModel(bk);                 
         
         // Creating Entities from the Blend Scene
-        BBSceneComposer sc = new BBSceneComposer(nd, BBSceneManager.getInstance().getAssetManager());
+        BBSceneComposer_old sc = new BBSceneComposer_old(nd, BBSceneManager.getInstance().getAssetManager());
 
         //Clear Blend File
         nd.detachAllChildren();

@@ -25,6 +25,13 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.scene.*;
 import com.jme3.texture.Texture;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 
 /**
@@ -34,36 +41,95 @@ import java.io.File;
 public class BBMaterialComposer {
     
     private AssetManager asset;
-    private Geometry geo;
-    private String matName;    
-    private String texMasks;
-    private String texLightMaps;    
-    private File texDir;
-    private String tmpString;
-    private boolean BlenderOgreCheck;
-    
-    public BBMaterialComposer (Geometry geom_mc, String dirBase, String dirLevel, AssetManager assetManager, boolean BlenderOrOgre) {
-        asset = assetManager;    
-        geo = geom_mc;
-        BlenderOgreCheck = BlenderOrOgre;
-                
-        if (geo.getMaterial().getName().indexOf("L") == 0) {
-            matName = geo.getMaterial().getName().toString().substring(1);
-            texDir = new File(dirLevel);
-            tmpString = dirLevel;
-        } else {
-            matName = geo.getMaterial().getName().toString();
-            texDir = new File(dirBase);
-            tmpString = dirBase;
-        }
+    private Node nodeMain;
+    private ArrayList geometries;
+    private JSONObject jsObj;
+    private String sceneName;
+    public BBMaterialComposer (Node node, AssetManager assetManager, String sceneNAME) throws FileNotFoundException, IOException, ParseException {
 
-        //Texture Path of Ambient Occlusion and Composing Masks Textures
-        texMasks = dirLevel + "/" + "masks";
-        texLightMaps = dirLevel + "/" + "lightmaps";
+        asset = assetManager;    
+        nodeMain = node;
+        sceneName = sceneNAME;
+        
+        getGeometries(nodeMain);
+
+        // Load JSON script
+        JSONParser json = new JSONParser();
+        FileReader fileRead = new FileReader(new File("assets/Scripts/Scenes/" + sceneName + ".json"));
+        jsObj = (JSONObject) json.parse(fileRead);        
+        
+        setShader();
+        
+        
+        
+        jsObj.clear();
+        fileRead.close();        
     }
    
-   
-   
+    
+    // Get all Geometries
+    private void getGeometries(Node nodeMat) {
+
+        Node ndMat = nodeMat;
+
+        //Search for geometries        
+        SceneGraphVisitor sgv = new SceneGraphVisitor() {
+
+            public void visit(Spatial spatial) {
+//                System.out.println(spatial + " Visited Spatial");
+                if (spatial instanceof Geometry) {
+                    Geometry geom_sc = (Geometry) spatial;
+                    geometries.add(geom_sc);
+          }
+        }
+     };
+
+        ndMat.depthFirstTraversal(sgv);
+        //  sc.breadthFirstTraversal(sgv);     
+    }   
+    
+    private void setShader(){
+    
+        JSONObject jsonMat = (JSONObject) jsObj.get("Materials");
+    for (Object geo : geometries.toArray()) {
+     
+        Geometry geom = (Geometry) geo;
+        JSONObject jsonMatName = (JSONObject) jsonMat.get(geom.getName());    
+        String jsonShaderName =  (String) jsonMatName.get("Shader");
+        
+        if (jsonShaderName.equals("LightBlow")) setLightBlow(jsonMatName, geom);
+        
+     }
+        
+    }
+    
+    private void setLightBlow(JSONObject material, Geometry geo){
+    
+        Geometry geomLB = geo;
+        
+        Material matNew = new Material(asset, "MatDefs/LightBlow/LightBlow.j3md");
+        matNew.setName(geomLB.getMaterial().getName());
+        geomLB.setMaterial(matNew);
+
+        
+    // DiffuseMap
+    if (material.get("DiffuseMap") != null) {
+        // Set Diffuse Map
+        TextureKey tkDif = new TextureKey(texPath3, BlenderOgreCheck);
+        tkDif.setAnisotropy(2);
+        Texture diffuseTex = asset.loadTexture(tkDif);
+        diffuseTex.setWrap(Texture.WrapMode.Repeat);
+        matThis.setTexture("DiffuseMap", diffuseTex);
+    
+    }
+    
+    }
+
+    
+    
+    
+    
+    
     public void  generateMaterial (String entPath) {
         //System.out.println("Generating Material");
         String fileStr = new String();
