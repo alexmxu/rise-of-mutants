@@ -1,0 +1,66 @@
+/* 
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+{
+    
+    "Materials" : {
+        
+        "mat1" : {
+            "Shadows" : "Receive",
+            "Shader" : "LightBlow",
+            "DiffuseMap" : "Textures/base_textures/base_08_rock/base_08_rock_03.dds",
+            "AO" :  "Textures/level_textures/lightmaps/lightmap_01.png"
+            
+        },
+        "mat2" : {
+            "Shadows" : "Receive",
+            "Shader" : "LightBlow",
+            "DiffuseMap" : "Textures/base_textures/base_13_walls/base_13_walls_05.dds",
+            "AO" :  "Textures/level_textures/lightmaps/lightmap_01.png"
+        },
+        "mat3" : {
+            "Shadows" : "Receive",
+            "Shader" : "LightBlow",
+            "DiffuseMap" : "Textures/base_textures/base_09_roofs/base_09_roofs_07.dds",
+            "AO" :  "Textures/level_textures/lightmaps/lightmap_01.png"
+        },
+        "mat4" : {
+            "Shadows" : "Receive",
+            "Shader" : "LightBlow",
+            "DiffuseMap" : "Textures/base_textures/base_07_road/base_07_road_03.dds",
+            "AO" :  "Textures/level_textures/lightmaps/lightmap_01.png"
+        },
+        "mat5" : {
+            "Shadows" : "Receive",
+            "Shader" : "LightBlow",
+            "DiffuseMap" : "Textures/base_textures/base_02_grass/base_02_grass_01.dds",
+            "AO" :  "Textures/level_textures/lightmaps/lightmap_01.png"
+        },
+        "mat6" : {
+            "Shadows" : "Receive",
+            "Shader" : "LightBlow",
+            "DiffuseMap" : "Textures/base_textures/base_03_ground/base_03_ground_08.dds",
+            "DiffuseMap_1" : "Textures/base_textures/base_10_sand/base_10_sand_01.dds",
+            "TextureMask" : "Textures/level_textures/masks/mask_01.png",
+            "UV_Scale_0" : "1.0",
+            "UV_Scale_1" : "1.0",
+            "AO" :  "Textures/level_textures/lightmaps/lightmap_01.png"
+        },
+        "mat7" : {
+            "Shadows" : "Receive",
+            "Shader" : "LightBlow",
+            "DiffuseMap" : "Textures/base_textures/base_05_metal/base_05_metal_05.dds",
+            "AO" :  "Textures/level_textures/lightmaps/lightmap_01.png"
+        }        
+    },
+    
+    "Objects" : {
+        "lv_01_base2" : {},
+        "lv_01_base3" : {},
+        "lv_01_base4" : {},
+        "lv_01_base6" : {}
+    }
+
+}

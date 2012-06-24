@@ -21,7 +21,7 @@ public class SceneLoading {
     public SceneLoading(AssetManager asm) {
 
         // TestLevel
-        convertNow("level_01", "Scenes/levels/level_01/level_01.blend", asm);
+        convertNow("level_01", "Scenes/levels/level_01/", asm);
         
     }
 
@@ -34,21 +34,22 @@ public class SceneLoading {
         // Register file locator for the AssetManager
         assett.registerLocator("blsets", FileLocator.class);
 
-        BlenderKey bk = new BlenderKey(scenePath);
-        bk.setLoadObjectProperties(false);
-        Node nd =  (Node) dsk.loadModel(bk);               
+        ModelKey mKey = new ModelKey(scenePath + "/" + sceneName + ".scene");
+//        bk.setLoadObjectProperties(false);
+        Node nd =  (Node) dsk.loadModel(mKey);               
+        nd.setName(sceneName);
 
         // Clear blend file
         dsk.clearCache();       
         assett.unregisterLocator("blsets", FileLocator.class);
         
-        String models = "blsets/Models";
-        String baseTex = "assets/Textures/base_textures";
-        String levelTex = "assets/Textures/level_textures";
-        String sceneFilePath = bk.getFolder().substring(0, bk.getFolder().length() - 1); //BlenderKey sets "File.separator" in the end of String
+//        String models = "blsets/Models";
+//        String baseTex = "assets/Textures/base_textures";
+//        String levelTex = "assets/Textures/level_textures";
+//        String sceneFilePath = mKey.getFolder().substring(0, mKey.getFolder().length() - 1); //BlenderKey sets "File.separator" in the end of String
 
         // Creating j3o from the Blend Scene
-        Blender2J3O sc = new Blender2J3O(nd, sceneName, models, sceneFilePath, baseTex, levelTex, assett);
+        Ogre2J3O sc = new Ogre2J3O(nd, sceneName, scenePath, assett);
 
         //Clear nd Node
         nd.detachAllChildren();

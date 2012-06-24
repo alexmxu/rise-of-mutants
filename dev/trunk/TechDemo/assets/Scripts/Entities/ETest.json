@@ -1,0 +1,48 @@
+/* 
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+{
+    "Path": "Models/assets_level_01/Etest",
+        
+    "Physics" : {
+        "Type" : "Static"
+    },
+    
+    "Materials" : {
+        
+        "bb01" : {
+            "Shadows" : "Cast",
+            "Shader" : "LightBlow",
+            "DiffuseMap" : "Textures/assets_level_01/Etest/Etest_01.png"
+        },
+        
+        "bb02" : {
+            "Shadows" : "Cast",
+            "Shader" : "LightBlow",
+            "DiffuseMap" : "Textures/assets_level_01/Etest/Etest_02.png"            
+        },
+        
+        "bb03" : {
+            "Shadows" : "Cast",
+            "Shader" : "LightBlow",
+            "DiffuseMap" : "Textures/assets_level_01/Etest/Etest_03.png"            
+        },
+        
+        "bb04" : {
+            "Shadows" : "Cast",
+            "Shader" : "LightBlow",
+            "DiffuseMap" : "Textures/assets_level_01/Etest/Etest_04.png"            
+        }
+    },
+    
+    "Objects" : {
+        "Cube" : {},
+        "Cube2" : {},
+        "Cube3" : {},
+        "sword1" : {},
+        "sword2" : {}
+    }    
+        
+}

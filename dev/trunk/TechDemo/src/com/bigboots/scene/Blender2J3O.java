@@ -531,7 +531,7 @@ public class Blender2J3O {
                 String entPath3 = entityPath2; // Path for Entity Textures
                 Geometry geomGen = geo;
 
-                BBMaterialComposer matComp = new BBMaterialComposer(geomGen, dirbase, dirlevel, assett, isBlenderOrOgre);
+                BBMaterialComposer_old matComp = new BBMaterialComposer_old(geomGen, dirbase, dirlevel, assett, isBlenderOrOgre);
                 System.out.println("Composing Material: " + geomGen.getMaterial().getName() + " for Geometry " + geomGen.getName());
                 matComp.generateMaterial(entPath3);
                 if (entPath3 == null) {
