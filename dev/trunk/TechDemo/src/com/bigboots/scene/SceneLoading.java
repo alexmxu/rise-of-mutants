@@ -21,7 +21,7 @@ public class SceneLoading {
     public SceneLoading(AssetManager asm) {
 
         // TestLevel
-        convertNow("level_01", "Scenes/levels/level_01/", asm);
+        convertNow("level_01", "Scenes/levels/level_01", asm);
         
     }
 
@@ -39,7 +39,7 @@ public class SceneLoading {
         Node nd =  (Node) dsk.loadModel(mKey);               
         nd.setName(sceneName);
 
-        // Clear blend file
+        // Clear loaded file
         dsk.clearCache();       
         assett.unregisterLocator("blsets", FileLocator.class);
         
@@ -49,7 +49,7 @@ public class SceneLoading {
 //        String sceneFilePath = mKey.getFolder().substring(0, mKey.getFolder().length() - 1); //BlenderKey sets "File.separator" in the end of String
 
         // Creating j3o from the Blend Scene
-        Ogre2J3O sc = new Ogre2J3O(nd, sceneName, scenePath, assett);
+        Ogre2J3O sc = new Ogre2J3O(nd, sceneName, scenePath, assett, true);
 
         //Clear nd Node
         nd.detachAllChildren();
