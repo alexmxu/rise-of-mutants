@@ -15,32 +15,26 @@
  */
 package com.bigboots.scene;
 
-import java.io.FileNotFoundException;
-import org.json.simple.*;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.asset.ModelKey;
 import com.jme3.asset.plugins.FileLocator;
 import com.jme3.export.binary.BinaryExporter;
-import com.jme3.material.Material;
 import com.jme3.math.Transform;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
-import com.jme3.scene.SceneGraphVisitor;
 import com.jme3.scene.Spatial;
 import com.jme3.util.TangentBinormalGenerator;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
+import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
 /**
  *
@@ -51,29 +45,29 @@ public class Ogre2J3O {
     private AssetManager assett;
     private Node sceneNode;
     private String ScenePath, sceneNAME;
-    private ArrayList allNodesOriginals, allCollisionMesh;
-    
+    private ArrayList sceneEntities, CollisionMeshes, modelEntities;
+    private boolean composeEnt;
 
-    public Ogre2J3O(Node scene, String sceneName, String scenePath, AssetManager assetM) throws FileNotFoundException, IOException, ParseException {
+    public Ogre2J3O(Node scene, String sceneName, String scenePath, AssetManager assetM, boolean composeEntities) {
 
         sceneNAME = sceneName;
         ScenePath = scenePath;
         assett = assetM;
         sceneNode = scene;
+        composeEnt = composeEntities;
 
-
-
-        allNodesOriginals = new ArrayList();
-        allCollisionMesh = new ArrayList();
+        modelEntities = new ArrayList();
+        sceneEntities = new ArrayList();
+        CollisionMeshes = new ArrayList();
 
         
 
         
         startCompose();
 
-
-        allNodesOriginals.clear();
-        allCollisionMesh.clear();
+        modelEntities.clear();
+        sceneEntities.clear();
+        CollisionMeshes.clear();
 
     }
 
@@ -88,53 +82,61 @@ public class Ogre2J3O {
         for (Spatial originSearch : sceneNode.getChildren()) {
             if (originSearch instanceof Node) {
                 
-                // Scene Entities
-                if (originSearch.getName().indexOf("E") != 0 && originSearch.getName().indexOf("CAPSULE") != 0 && originSearch.getName().indexOf("BOX") != 0
-                        && originSearch.getName().indexOf("CYLINDER") != 0 && originSearch.getName().indexOf("HULL") != 0 && originSearch.getName().indexOf("MESH") != 0
-                        && originSearch.getName().indexOf("PLANE") != 0 && originSearch.getName().indexOf("SPHERE") != 0 && originSearch.getName().indexOf("CONE") != 0
-                        && originSearch.getName().indexOf("COMPLEX") != 0) {
+                Node ndSearch = (Node) originSearch;
+                String str = ndSearch.getName();
+                if (str.indexOf(".") > 0) str = str.substring(0, str.indexOf("."));
 
-                    boolean sceneMeshExists = false;
+                
+                // Scene Entities
+                if (str.indexOf("E") != 0 && str.indexOf("CAPSULE") != 0 && str.indexOf("BOX") != 0
+                        && str.indexOf("CYLINDER") != 0 && str.indexOf("HULL") != 0 && str.indexOf("MESH") != 0
+                        && str.indexOf("PLANE") != 0 && str.indexOf("SPHERE") != 0 && str.indexOf("CONE") != 0
+                        && str.indexOf("COMPLEX") != 0) {
+
+                    boolean exists = false;
                     
-                    Node scEntity = (Node) originSearch;
-                    String strScEntity = scEntity.getName();
-                    
-                    if (strScEntity.indexOf(".") > 0) strScEntity = strScEntity.substring(0, strScEntity.indexOf("."));
-                    System.out.println("Searched Scene Mesh: " + strScEntity);
-                    
-                    if (allNodesOriginals != null) {
-                     for (Object node : allNodesOriginals.toArray()) {
-                        Node origNode = (Node) node;
-                        if (strScEntity.equals(origNode.getName())) sceneMeshExists = true;
+                    if (sceneEntities.isEmpty() == false) {
+                    for (Object ob : sceneEntities.toArray()){
+                        Node nd = (Node) ob;
+                        if (nd.getName().equals(str)) exists = true;
                      }
                     }
-                    
-                    if (sceneMeshExists = false) {
-                    loadSceneMesh(scEntity); // Load models made in a scene
-                    TangentBinormalGenerator.generate(scEntity);
-                    allNodesOriginals.add(scEntity);
-                  }
+                    if (exists == false) loadSceneMesh(str, "sceneEnt"); // Load models made in a scene
                 } 
                 
+                
                 // Entities
-//                else if (originSearch.getName().indexOf("E") == 0 && originSearch.getName().indexOf("CAPSULE") != 0 && originSearch.getName().indexOf("BOX") != 0
-//                        && originSearch.getName().indexOf("CYLINDER") != 0 && originSearch.getName().indexOf("HULL") != 0 && originSearch.getName().indexOf("MESH") != 0
-//                        && originSearch.getName().indexOf("PLANE") != 0 && originSearch.getName().indexOf("SPHERE") != 0 && originSearch.getName().indexOf("CONE") != 0
-//                        && originSearch.getName().indexOf("COMPLEX") != 0) {
-//                    Node entity = (Node) originSearch;
-//                    loadMesh(entity);
-//                    TangentBinormalGenerator.generate(entity);
-//                    allNodesOriginals.add(entity);
-//                } 
+                else if (str.indexOf("E") == 0 && composeEnt == true && str.indexOf("CAPSULE") != 0 && str.indexOf("BOX") != 0
+                        && str.indexOf("CYLINDER") != 0 && str.indexOf("HULL") != 0 && str.indexOf("MESH") != 0
+                        && str.indexOf("PLANE") != 0 && str.indexOf("SPHERE") != 0 && str.indexOf("CONE") != 0
+                        && str.indexOf("COMPLEX") != 0) {
+                    
+                    boolean exists2 = false;
+
+                    if (modelEntities.isEmpty() == false) {
+                    for (Object ob : modelEntities.toArray()){
+                        Node nd = (Node) ob;
+                        if (nd.getName().equals(str)) exists2 = true;
+                     }  
+                    }
+                    if (exists2 == false) loadSceneMesh(str, "modelEnt");
+                } 
                 
                 // Collision Meshes
-                else if (originSearch.getName().indexOf("CAPSULE") == 0 || originSearch.getName().indexOf("BOX") == 0
-                        || originSearch.getName().indexOf("CYLINDER") == 0 || originSearch.getName().indexOf("HULL") == 0 || originSearch.getName().indexOf("MESH") == 0
-                        || originSearch.getName().indexOf("PLANE") == 0 || originSearch.getName().indexOf("SPHERE") == 0 || originSearch.getName().indexOf("CONE") == 0
-                        || originSearch.getName().indexOf("COMPLEX") == 0) {
-                    Node collisionNode = new Node(originSearch.getName());
-                    loadSceneMesh(collisionNode);
-                    allCollisionMesh.add(collisionNode);
+                else if (str.indexOf("CAPSULE") == 0 || str.indexOf("BOX") == 0
+                        || str.indexOf("CYLINDER") == 0 || str.indexOf("HULL") == 0 || str.indexOf("MESH") == 0
+                        || str.indexOf("PLANE") == 0 || str.indexOf("SPHERE") == 0 || str.indexOf("CONE") == 0
+                        || str.indexOf("COMPLEX") == 0) {
+                    
+                    boolean exists3 = false;
+                    
+                    if (CollisionMeshes.isEmpty() == false) {
+                    for (Object ob : CollisionMeshes.toArray()){
+                        Node nd = (Node) ob;
+                        if (nd.getName().equals(str)) exists3 = true;
+                     }
+                    }
+                    if (exists3 == false) loadSceneMesh(str, "Collision");
                 }
             }
         }
@@ -142,11 +144,11 @@ public class Ogre2J3O {
 
 
 
-        // Searching for collision meshes
-        for (Object sp : allNodesOriginals.toArray()) {
+        // Searching for collision meshes for Scene Entities
+        for (Object sp : sceneEntities.toArray()) {
             Node ndColSearch = (Node) sp;
 
-            for (Object sp2 : allCollisionMesh.toArray()) {
+            for (Object sp2 : CollisionMeshes.toArray()) {
                 Node ndCol = (Node) sp2;
                 if (ndCol.getName().endsWith(ndColSearch.getName())) {
 
@@ -161,11 +163,31 @@ public class Ogre2J3O {
             }
         }
 
+        // Searching for collision meshes for Entities
+        for (Object sp : modelEntities.toArray()) {
+            Node ndColSearch = (Node) sp;
+
+            for (Object sp2 : CollisionMeshes.toArray()) {
+                Node ndCol = (Node) sp2;
+                if (ndCol.getName().endsWith(ndColSearch.getName())) {
+
+
+                    if (ndCol.getName().indexOf("CAPSULE") == 0 || ndCol.getName().indexOf("BOX") == 0
+                            || ndCol.getName().indexOf("CYLINDER") == 0 || ndCol.getName().indexOf("HULL") == 0 || ndCol.getName().indexOf("MESH") == 0
+                            || ndCol.getName().indexOf("PLANE") == 0 || ndCol.getName().indexOf("SPHERE") == 0 || ndCol.getName().indexOf("CONE") == 0
+                            || ndCol.getName().indexOf("COMPLEX") == 0) {
+                        ndColSearch.setUserData("PhysicsCollision", ndCol.getName());
+                    }
+                }
+            }
+        }
+        
         
         
 
         // Saving scene with empty Nodes to j3o
         Node sceneSave = new Node(sceneNAME);
+
         for (Object sp : sceneNode.getChildren()) {
             Node ndGet = (Node) sp;
             if (ndGet.getName().indexOf("CAPSULE") != 0 && ndGet.getName().indexOf("BOX") != 0
@@ -177,22 +199,35 @@ public class Ogre2J3O {
                 sceneSave.attachChild(ndSave);
             }
         }
-        binaryExport(ScenePath + "/" + sceneSave.getName(), sceneSave);
+        binaryExport("J3O/Scenes/" + sceneSave.getName(), sceneSave);
+        
 
-
-        // Saving scene Meshes
-        for (Object sp : allNodesOriginals) {
+        // Saving scene Entities
+   
+        for (Object sp : sceneEntities) {
             Node ndSave = (Node) sp;
             ndSave.removeFromParent();
             ndSave.setLocalTransform(new Transform());
-            binaryExport(ScenePath + "/Models/" + ndSave.getName(), ndSave);
+            binaryExport("J3O/Models/" + ndSave.getName(), ndSave);
         }
-
-        // Saving collision Meshes
-        for (Object sp : allCollisionMesh) {
+        
+        // Saving Entities
+        if(composeEnt == true){    
+        for (Object sp : modelEntities) {
             Node ndSave = (Node) sp;
+            ndSave.removeFromParent();
             ndSave.setLocalTransform(new Transform());
-            binaryExport(ScenePath + "/CollisionMeshes/" + ndSave.getName(), ndSave);
+            binaryExport("J3O/Models/" + ndSave.getName(), ndSave);
+        }
+        }
+        
+        
+        // Saving collision Meshes
+        for (Object sp : CollisionMeshes) {
+            Node ndSave = (Node) sp;
+            ndSave.removeFromParent();
+            ndSave.setLocalTransform(new Transform());
+            binaryExport("J3O/CollisionMeshes/" + ndSave.getName(), ndSave);
         }
         
     }
@@ -214,7 +249,7 @@ public class Ogre2J3O {
     
     private void binaryExport(String name, Node saveNode) {
 
-        String str = new String("assets/J3O/" + name + ".j3o");
+        String str = new String("assets/" + name + ".j3o");
 
         // convert to / for windows
         if (File.separatorChar == '\\') {
@@ -243,19 +278,140 @@ public class Ogre2J3O {
 
     
     // Load Entity
-    private void loadSceneMesh(Node entNode) throws FileNotFoundException, IOException, ParseException {
+    private void loadSceneMesh(String entNode, String isEntity) {
 
+
+        
+       // Scene Mesh 
+       if (isEntity.equals("sceneEnt")) {
+
+        // Register file locator for the AssetManager
+        assett.registerLocator("blsets", FileLocator.class);
+        
         // Load a Mesh. 
         DesktopAssetManager dskMesh = (DesktopAssetManager) assett;  
-        ModelKey mKey = new ModelKey(ScenePath + "/ogre/" + entNode.getName() + ".mesh.xml");
+        ModelKey mKey = new ModelKey(ScenePath + "/ogre/" + entNode + ".mesh.xml");
         Node ndMesh =  (Node) dskMesh.loadModel(mKey); 
         
+        // Clear loaded file
+        dskMesh.clearCache();  
+        assett.unregisterLocator("blsets", FileLocator.class);
         
-        BBMaterialComposer composer = new BBMaterialComposer(ndMesh, assett, sceneNAME);
+        BBMaterialComposer composer = new BBMaterialComposer(ndMesh, assett, "Scripts/Scenes/" + sceneNAME);
         
-        Node thisNode = entNode;
+        TangentBinormalGenerator.generate(ndMesh);
+        ndMesh.setName(entNode);
+        sceneEntities.add(ndMesh);
+       } 
+       
+       
+       // Entity Mesh
+       else if (isEntity.equals("modelEnt")) {
+        // Load JSON script
+        JSONParser json = new JSONParser();
         
+         FileReader fileRead = null;
+         
+            try {
+                fileRead = new FileReader(new File("assets/Scripts/Entities/List/GameEntities_01.json"));
+            } catch (FileNotFoundException ex) {
+                Logger.getLogger(BBMaterialComposer.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            try {
+                JSONObject jsObj = (JSONObject) json.parse(fileRead);
+
+                // Register file locator for the AssetManager
+                assett.registerLocator("blsets", FileLocator.class);
+        
+                // Load a Entity. 
+                DesktopAssetManager dskMesh = (DesktopAssetManager) assett;  
+                ModelKey sceneKey = new ModelKey((String) jsObj.get(entNode) + "/" + entNode + ".scene");
+                Node ndEntity =  (Node) dskMesh.loadModel(sceneKey); 
+                ndEntity.setName(entNode);
+                clearNodes(ndEntity);
+                
+                for (Spatial sp : ndEntity.getChildren()) {
+                    
+                    Node ndTemp = (Node) sp;
+                    String str4 = sp.getName();
+                    if (str4.indexOf(".") > 0) str4 = str4.substring(0, str4.indexOf("."));
+                    
+                    // Load a Mesh. 
+                    DesktopAssetManager dsk = (DesktopAssetManager) assett;  
+                    ModelKey modKey = new ModelKey((String) jsObj.get(entNode) + "/ogre/" + str4 + ".mesh.xml");
+                    Node ndMesh =  (Node) dsk.loadModel(modKey);     
+                    
+                    
+                    if (str4.indexOf("CAPSULE") == 0 || str4.indexOf("BOX") == 0
+                    || str4.indexOf("CYLINDER") == 0 || str4.indexOf("HULL") == 0 || str4.indexOf("MESH") == 0
+                    || str4.indexOf("PLANE") == 0 || str4.indexOf("SPHERE") == 0 || str4.indexOf("CONE") == 0
+                    || str4.indexOf("COMPLEX") == 0) {                    
+                    CollisionMeshes.add(ndMesh);
+                    ndMesh.setName(str4);
+                    ndMesh.removeFromParent();
+                    } 
+                    else {
+                        ndMesh.setLocalTransform(ndTemp.getLocalTransform());
+                        ndMesh.setName(ndTemp.getName());
+                        ndTemp.removeFromParent();
+                        ndEntity.attachChild(ndMesh);
+                    }
+                    
+                // Clear cache file
+                dsk.clearCache();                      
+                
+                BBMaterialComposer composer = new BBMaterialComposer(ndEntity, assett, "Scripts/Entities/" + entNode);
+                TangentBinormalGenerator.generate(ndEntity);
+                modelEntities.add(ndEntity);                    
+                }
+                
+                
+
+                
+                // Clear loaded file
+                dskMesh.clearCache();  
+                assett.unregisterLocator("blsets", FileLocator.class);                
+                
+                
+                
+            } catch (IOException ex) {
+                Logger.getLogger(Ogre2J3O.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (org.json.simple.parser.ParseException ex) {
+                Logger.getLogger(Ogre2J3O.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            
+           try {
+               fileRead.close();
+           } catch (IOException ex) {
+             Logger.getLogger(BBMaterialComposer.class.getName()).log(Level.SEVERE, null, ex);
+         }
+        
+       } 
+       
+       // Entity Mesh
+       else if (isEntity.equals("Collision")) {
+           
+        // Register file locator for the AssetManager
+        assett.registerLocator("blsets", FileLocator.class);
+        
+        // Load a Mesh. 
+        DesktopAssetManager dskMesh = (DesktopAssetManager) assett;  
+        ModelKey mKey = new ModelKey(ScenePath + "/ogre/" + entNode + ".mesh.xml");
+        Node colMesh =  (Node) dskMesh.loadModel(mKey); 
+        
+        CollisionMeshes.add(colMesh);
+        colMesh.setName(entNode);
+        
+        // Clear loaded file
+        dskMesh.clearCache();  
+        assett.unregisterLocator("blsets", FileLocator.class);
+        
+
     }
+       
+       }       
+      }
 
 
-}

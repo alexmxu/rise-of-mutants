@@ -15,37 +15,17 @@
  */
 package com.bigboots.testscene;
 
-import com.bigboots.animation.BBAnimManager;
-import com.bigboots.components.BBAnimComponent;
-import com.bigboots.components.BBCollisionComponent;
-import com.bigboots.components.BBCollisionComponent.ShapeType;
-import com.bigboots.components.BBComponent.CompType;
-import com.bigboots.components.BBControlComponent;
 import com.bigboots.core.BBSceneManager;
 
 //Entity
-import com.bigboots.components.BBEntity;
-import com.bigboots.components.BBMeshComponent;
-import com.bigboots.components.BBNodeComponent;
-import com.bigboots.components.BBObject;
 import com.bigboots.physics.BBPhysicsManager;
-import com.bigboots.scene.BBSceneComposer_old;
+import com.bigboots.scene.BBSceneComposer;
 import com.bigboots.scene.BBShaderManager;
-import com.jme3.animation.AnimChannel;
-import com.jme3.animation.AnimControl;
-import com.jme3.animation.LoopMode;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.asset.ModelKey;
-import com.jme3.bullet.control.CharacterControl;
-import com.jme3.bullet.collision.shapes.CollisionShape;
-import com.jme3.bullet.control.RigidBodyControl;
 
-import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
-import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
-import com.jme3.scene.control.Control;
-import com.jme3.scene.shape.Box;
 
 
 
@@ -76,7 +56,7 @@ public class TestSimpleApp1 extends BBSimpleApplication{
         Node nd =  (Node) dsk.loadModel(bk);                 
         
         // Creating Entities from the Blend Scene
-        BBSceneComposer_old sc = new BBSceneComposer_old(nd, BBSceneManager.getInstance().getAssetManager());
+        BBSceneComposer sc = new BBSceneComposer(nd, BBSceneManager.getInstance().getAssetManager());
 
         //Clear Blend File
         nd.detachAllChildren();
