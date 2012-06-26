@@ -357,7 +357,7 @@ vec4 diffuseColor;
   #if defined(NORMALMAP) && !defined(VERTEX_LIGHTING)
       normalHeight = normalHeightCalc;
       vec3 normal = (normalHeight.xyz * vec3(2.0) - vec3(1.0));
-  //    normal = normalize(normal);
+      normal = normalize(normal);
      #ifdef LATC
         normal.z = sqrt(1.0 - (normal.x * normal.x) - (normal.y * normal.y));
       #endif
