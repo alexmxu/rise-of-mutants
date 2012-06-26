@@ -13,7 +13,7 @@
             
         },
         "mat2" : {
-            "Shadows" : "Receive",
+            "Shadows" : "Cast",
             "Shader" : "LightBlow",
             "DiffuseMap" : "Textures/base_textures/base_13_walls/base_13_walls_05.dds",
             "NormalMap" : "Textures/base_textures/base_13_walls/base_13_walls_05_nor.dds",
@@ -21,7 +21,7 @@
             "WrapMode" : "Repeat"
         },
         "mat3" : {
-            "Shadows" : "Receive",
+            "Shadows" : "Cast",
             "Shader" : "LightBlow",
             "DiffuseMap" : "Textures/base_textures/base_09_roofs/base_09_roofs_07.dds",
             "NormalMap" : "Textures/base_textures/base_09_roofs/base_09_roofs_07_nor.dds",
