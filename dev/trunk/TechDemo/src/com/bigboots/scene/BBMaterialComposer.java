@@ -250,8 +250,10 @@ public class BBMaterialComposer {
         tkTexMask.setAnisotropy(2);
         if (strMask.indexOf(".dds") < 0) tkTexMask.setGenerateMips(true);
         Texture diffuseTex = asset.loadTexture(tkTexMask);
-   
-        matNew.setTexture("TextureMask", diffuseTex);        
+        
+        matNew.setBoolean("SeperateTexCoord", true);
+        matNew.setTexture("TextureMask", diffuseTex);  
+        
         
         // set Wrap
         String checkWrap = (String) material.get("WrapMode");
@@ -269,6 +271,7 @@ public class BBMaterialComposer {
         // Set LightMap
         String lightmap = null;
         
+        
         if(material.get("LightMap") != null) lightmap = (String) material.get("LightMap");
         else if(material.get("LightMap_R") != null) lightmap = (String) material.get("LightMap_R");
         else if(material.get("LightMap_G") != null) lightmap = (String) material.get("LightMap_G");
@@ -280,12 +283,13 @@ public class BBMaterialComposer {
         Texture AOTex = asset.loadTexture(tkAO);
         
         // set a Texture and RGB channels
+        matNew.setBoolean("SeperateTexCoord", true);
         matNew.setTexture("LightMap", AOTex);
         if(material.get("LightMap_R") != null) matNew.setBoolean("LightMap_R", true);
         else if(material.get("LightMap_G") != null) matNew.setBoolean("LightMap_G", true);
         else if(material.get("LightMap_B") != null) matNew.setBoolean("LightMap_B", true);          
         
-        matNew.setBoolean("SeperateTexCoord", true);
+        
         
         // set Wrap
         String checkWrap = (String) material.get("WrapMode");
