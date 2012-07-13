@@ -226,7 +226,7 @@ public class BBSceneGizmo {
         Sphere sphere = new Sphere(30, 30, 0.05f);
         mark = new Geometry("BOOM!", sphere);
         Material mark_mat = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
-        mark_mat.setColor("m_Color", new ColorRGBA(1, 0.9f, 0.2f, 1));
+        mark_mat.setColor("Color", new ColorRGBA(1, 0.9f, 0.2f, 1));
         mark.setMaterial(mark_mat);
         mark.setLocalTranslation(markPosition);
         helperNode.attachChild(mark);

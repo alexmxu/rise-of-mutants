@@ -140,7 +140,7 @@ public class BBSceneGrid extends BBApplication{
         
         // Selection box
         Material mat_box = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
-        mat_box.setColor("m_Color", new ColorRGBA(0.3f, 0.3f, 0.3f, 0.5f));
+        mat_box.setColor("Color", new ColorRGBA(0.3f, 0.3f, 0.3f, 0.5f));
         mat_box.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
         selectionBox = new Geometry("TheMesh", wireBox);
         selectionBox.setMaterial(mat_box);
