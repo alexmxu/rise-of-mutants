@@ -102,7 +102,7 @@ public class BBEntity extends BBObject{
        }
        tmpSpatial.updateModelBound();
        tmpSpatial.updateGeometricState();
-       tmpSpatial.setShadowMode(ShadowMode.CastAndReceive);
+//       tmpSpatial.setShadowMode(ShadowMode.CastAndReceive);
        this.getComponent(BBNodeComponent.class).attachChild(tmpSpatial);
        
        //Populate the list of meshes
