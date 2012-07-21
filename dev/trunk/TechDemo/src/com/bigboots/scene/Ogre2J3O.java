@@ -21,6 +21,7 @@ import com.jme3.asset.ModelKey;
 import com.jme3.asset.plugins.FileLocator;
 import com.jme3.export.binary.BinaryExporter;
 import com.jme3.math.Transform;
+import com.jme3.scene.AssetLinkNode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
@@ -243,7 +244,30 @@ public class Ogre2J3O {
             }
         }
             
+        
+        // Saving scene with linked Nodes to j3o (for scene viewing)
+        Node sceneSaveView = new Node(sceneNAME);
+
+        for (Object sp : sceneNode.getChildren()) {
+            Node ndGet = (Node) sp;
+            if (ndGet.getName().indexOf("CAPSULE") != 0 && ndGet.getName().indexOf("BOX") != 0
+                    && ndGet.getName().indexOf("CYLINDER") != 0 && ndGet.getName().indexOf("HULL") != 0 && ndGet.getName().indexOf("MESH") != 0
+                    && ndGet.getName().indexOf("PLANE") != 0 && ndGet.getName().indexOf("SPHERE") != 0 && ndGet.getName().indexOf("CONE") != 0
+                    && ndGet.getName().indexOf("COMPLEX") != 0) {
+                
+                String str = ndGet.getName();
+                if (str.indexOf(".") > 0) str.substring(0, str.indexOf("."));
+                
+                ModelKey mkLinkToScene = new ModelKey("J3O/Models/" + str + ".j3o");
+                AssetLinkNode ndSave = new AssetLinkNode(mkLinkToScene);
+                ndSave.setName(ndGet.getName());
+                ndSave.setLocalTransform(ndGet.getLocalTransform());
+                sceneSaveView.attachChild(ndSave);
+            }
         }
+        binaryExport("J3O/Scenes/" + sceneSaveView.getName() + "_preview", sceneSaveView);
+        
+      }
         
         
     
