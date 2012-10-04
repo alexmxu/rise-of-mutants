@@ -13,8 +13,8 @@ uniform vec4 m_Diffuse;
 
 #if defined(SPECULAR_LIGHTING)
 varying vec3 SpecularSum;
-// uniform vec4 m_Specular;
-// uniform float m_Shininess;
+uniform vec4 m_Specular;
+uniform float m_Shininess;
 #endif
 
 uniform vec4 g_LightColor;
@@ -45,6 +45,7 @@ varying vec3 lightVec;
 
 #ifdef VERTEX_COLOR
   attribute vec4 inColor;
+  varying vec4 vColor;
 #endif
 
 #ifndef VERTEX_LIGHTING
@@ -133,7 +134,7 @@ vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec4 w
      }
      float diffuseFactor = lightComputeDiffuse(wvNorm, lightDir.xyz);
    #if defined(SPECULAR_LIGHTING) && defined(VERTEX_LIGHTING)
-float specularFactor = lightComputeSpecular(wvNorm, wvViewDir, lightDir.xyz, 0.3);
+float specularFactor = lightComputeSpecular(wvNorm, wvViewDir, lightDir.xyz, m_Shininess);
     #endif 
  #if !defined(SPECULAR_LIGHTING) && defined(VERTEX_LIGHTING)
      float specularFactor = 0.0;
@@ -224,24 +225,23 @@ void main(){
       AmbientSum  = (m_Ambient  * g_AmbientLightColor).rgb;
       DiffuseSum  = m_Diffuse  * lightColor;
         #if defined(SPECULAR_LIGHTING)
-      SpecularSum = (lightColor).rgb;
-//      SpecularSum = (m_Specular * lightColor).rgb;
+      SpecularSum = (m_Specular * lightColor).rgb;
         #endif
 
     #else
       AmbientSum  = vec3(0.2, 0.2, 0.2) * g_AmbientLightColor.rgb; // Default: ambient color is dark gray
       DiffuseSum  = lightColor;
         #if defined(SPECULAR_LIGHTING)
-    SpecularSum = (lightColor).rgb;
-  //    SpecularSum = (m_Specular * lightColor).rgb;
+      SpecularSum = (m_Specular * lightColor).rgb;
   //    SpecularSum = vec3(0.0);
         #endif
     #endif
 
 
     #ifdef VERTEX_COLOR
-      AmbientSum *= inColor.rgb;
-      DiffuseSum *= inColor;
+  //    AmbientSum *= inColor.rgb;
+  //    DiffuseSum *= inColor;
+      vColor = inColor;
     #endif
 
  

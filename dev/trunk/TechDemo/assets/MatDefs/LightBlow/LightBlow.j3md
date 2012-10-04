@@ -24,6 +24,7 @@ MaterialDef LightBlow {
         // Light Map
         Boolean SeperateTexCoord
         Boolean SeperateTexCoord2
+        Boolean OverlayLightmap
         Texture2D LightMap
         Boolean LightMap_R
         Boolean LightMap_G
@@ -36,6 +37,9 @@ MaterialDef LightBlow {
      // Output emission from the diffuse map alpha channel
         Boolean EmissiveMap
         
+        // Apha threshold for fragment discarding
+        Float AlphaDiscardThreshold (AlphaTestFallOff)
+
      // Output alpha from the diffuse map
         Boolean Alpha_A_Dif
 
@@ -58,7 +62,7 @@ MaterialDef LightBlow {
 
         // Specular lighting
         Boolean Specular_Lighting
-       // Float Shininess (MaterialShininess) : 1 // Specular power/shininess
+        Float Shininess (MaterialShininess) : 1 // Specular power/shininess
         Boolean Spec_A_Nor // Output specular from the normal map alpha channel
         Boolean Spec_A_Dif // Output specular from the diffuse map alpha channel
 
@@ -78,9 +82,6 @@ MaterialDef LightBlow {
 
         // Improve quality at the cost of performance
         Boolean HighQuality
-
-        // Apha threshold for fragment discarding
-       // Float AlphaDiscardThreshold
 
         // Normal map is in BC5/ATI2n/LATC/3Dc compression format
         Boolean LATC
@@ -108,7 +109,7 @@ MaterialDef LightBlow {
         Color Diffuse (MaterialDiffuse)
 
         // Specular color
-       // Color Specular (MaterialSpecular)
+        Color Specular (MaterialSpecular)
 
 
         // Texture Mask for texture blending
@@ -160,7 +161,6 @@ MaterialDef LightBlow {
         Boolean EnvMapAsSphereMap
 
 
-
         //shadows
          Int FilterMode
         Boolean HardwareShadows
@@ -179,7 +179,7 @@ MaterialDef LightBlow {
         Matrix4 LightViewProjectionMatrix3
 
         Float PCFEdge
-
+        Float ShadowMapSize
     }
 
     Technique {
@@ -202,6 +202,7 @@ MaterialDef LightBlow {
 
             RIM_LIGHTING_2 : RimLighting2
             RIM_LIGHTING : RimLighting
+            OVERLAYLIGHTMAP : OverlayLightmap
             SEPERATE_TEXCOORD : SeperateTexCoord
             SEPERATE_TEXCOORD2 : SeperateTexCoord2
             HAS_LIGHTMAP : LightMap
@@ -311,7 +312,8 @@ MaterialDef LightBlow {
         }
 
         Defines {
-            DIFFUSEMAP : DiffuseMap
+            COLOR_MAP : ColorMap
+            DISCARD_ALPHA : AlphaDiscardThreshold
         }
 
         RenderState {
@@ -323,8 +325,6 @@ MaterialDef LightBlow {
         }
 
     }
-
-
 
 Technique PostShadow15{
         VertexShader GLSL150:   Common/MatDefs/Shadow/PostShadowPSSM.vert
@@ -339,11 +339,15 @@ Technique PostShadow15{
             HARDWARE_SHADOWS : HardwareShadows
             FILTER_MODE : FilterMode
             PCFEDGE : PCFEdge
-            DIFFUSEMAP : DiffuseMap         
+            DISCARD_ALPHA : AlphaDiscardThreshold
+            COLOR_MAP : ColorMap
+            SHADOWMAP_SIZE : ShadowMapSize
         }
 
-        RenderState {
-            Blend Alpha
+         ForcedRenderState {
+            Blend Modulate
+            DepthWrite Off
+            PolyOffset -0.1 0
         }
     }
 
@@ -360,14 +364,17 @@ Technique PostShadow15{
             HARDWARE_SHADOWS : HardwareShadows
             FILTER_MODE : FilterMode
             PCFEDGE : PCFEdge
-            DIFFUSEMAP : DiffuseMap     
+            DISCARD_ALPHA : AlphaDiscardThreshold
+            COLOR_MAP : ColorMap
+            SHADOWMAP_SIZE : ShadowMapSize
         }
 
-        RenderState {
-            Blend Alpha
+        ForcedRenderState {
+            Blend Modulate
+            DepthWrite Off
+            PolyOffset -0.1 0
         }
     }
-
 
   Technique PreNormalPass {
 
@@ -428,7 +435,7 @@ Technique PostShadow15{
 
     Technique Glow {
 
-        VertexShader GLSL100:   Common/MatDefs/Misc/SimpleTextured.vert
+        VertexShader GLSL100:   Common/MatDefs/Misc/Unshaded.vert
         FragmentShader GLSL100: Shaders/PostBlow/GlowBlow.frag
 
         WorldParameters {
