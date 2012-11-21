@@ -457,7 +457,7 @@ public class BBInGameState extends BBAbstractState{
         // Load the main map (here blend loading)
         BBSceneManager.getInstance().setupBasicLight();
         BBSceneManager.getInstance().createSky();
-        BBSceneManager.getInstance().setUpBasicShadow();  
+//        BBSceneManager.getInstance().setUpBasicShadow();  
               
         mLoadCtrl.setProgressLoading("Loading main player avatar ...");
     }

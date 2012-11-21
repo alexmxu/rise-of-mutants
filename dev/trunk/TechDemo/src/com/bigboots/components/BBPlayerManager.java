@@ -151,7 +151,7 @@ public class BBPlayerManager {
         BBAudioManager.getInstance().getAudioRenderer().setListener(lst);
         //Create associated audio
         BBAudioComponent stepSound = new BBAudioComponent();
-        stepSound.setSoundName("Sounds/step1.wav", false);
+        stepSound.setSoundName("Sounds/step1.ogg", false);
         stepSound.setLooping(false);
         stepSound.setVolume(0.1f);
         mMainPlayer.addAudio("STEP", stepSound);
