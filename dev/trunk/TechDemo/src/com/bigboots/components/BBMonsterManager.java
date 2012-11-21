@@ -171,7 +171,7 @@ public class BBMonsterManager {
         BBAudioManager.getInstance().getAudioRenderer().setListener(lst);
         //Create associated audio
         BBAudioComponent audnde = new BBAudioComponent();
-        audnde.setSoundName("Sounds/growling1.wav", false);
+        audnde.setSoundName("Sounds/growling1.ogg", false);
         audnde.setLooping(true);
         audnde.setVolume(0.05f);
         mEnemy.addAudio("GROWLING", audnde);
