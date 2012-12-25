@@ -276,10 +276,10 @@ public class BBSceneGrid extends BBApplication{
         // check for ogre mesh   
          boolean check;
          if (geoGet.getChildMesh(strGeometryNames.get(0)).getUserData("Model").toString().indexOf("mesh.xml") < 0 ) {
-             check = true;
+             check = false;
              }
          else {
-            check = false;
+            check = true;
          }
 
         // Set Diffuse Map
