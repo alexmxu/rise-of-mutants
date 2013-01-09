@@ -23,9 +23,10 @@ import com.jme3.util.JmeFormatter;
 import java.awt.BorderLayout;
 import java.awt.Canvas;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.GridLayout;
 import java.awt.Insets;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -35,6 +36,8 @@ import java.util.concurrent.Callable;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
 import java.util.logging.Logger;
+import javax.swing.AbstractButton;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -61,8 +64,8 @@ public abstract class BBCanvasApplication {
     private static JmeCanvasContext context;
     private static Canvas mCanvas;
     protected static BBApplication app;
-    private static JPanel canvasPanel;
-    private static JPanel optionPanel;
+    protected static JPanel canvasPanel;
+    protected static JPanel optionPanel;
     private static final String appClass = "bigboots.editor.BBSceneGrid";
 
     /*
@@ -103,8 +106,16 @@ public abstract class BBCanvasApplication {
     
     private static void createCanvas(String appClass){
         AppSettings settings = new AppSettings(true);
-        settings.setWidth(800);
-        settings.setHeight(600);
+
+        // Get the default toolkit
+	Toolkit toolkit = Toolkit.getDefaultToolkit();
+
+	// Get the current screen size
+	Dimension scrnsize = toolkit.getScreenSize();
+        
+        settings.setWidth(scrnsize.width - 300);
+        settings.setHeight(scrnsize.height - 300);
+        
 
         try{
             Class<? extends BBApplication> clazz = (Class<? extends BBApplication>) Class.forName(appClass);
@@ -178,11 +189,11 @@ public abstract class BBCanvasApplication {
         
         // Create the options and properties panel
         optionPanel = new JPanel();
-        optionPanel.setLayout(new GridLayout(2,1));
+        optionPanel.setLayout(new FlowLayout());
+
         // Set the size
         optionPanel.setMinimumSize(new Dimension(30,30));	
         optionPanel.setPreferredSize(new Dimension(200,10));
-        
 
         // Create the log area
         mLogArea = new JTextArea(5,20);
@@ -204,6 +215,10 @@ public abstract class BBCanvasApplication {
                 
         mMainFrame.add(splitLog, BorderLayout.CENTER);        
     }
+    
+    
+
+    
     
     private void createMenu(){
         menuBar = new JMenuBar();
@@ -243,10 +258,8 @@ public abstract class BBCanvasApplication {
         
     }
     
+    
     public abstract void createCustomMenu();
-    
-    
-
     
     
 }

@@ -6,7 +6,6 @@
 
 #ifdef HAS_GLOWMAP
   uniform sampler2D m_GlowMap;
-  uniform float m_GlowIntensity;
 #endif
 
 #ifdef HAS_GLOWCOLOR
@@ -19,11 +18,9 @@ void main(){
     #ifdef HAS_GLOWMAP
         #if defined(NEED_TEXCOORD1) 
 vec4 GlowTex = texture2D(m_GlowMap, texCoord1);
-     GlowTex = GlowTex * m_GlowIntensity;
            gl_FragColor = GlowTex;
         #else 
 vec4 GlowTex = texture2D(m_GlowMap, texCoord);
-     GlowTex = GlowTex * m_GlowIntensity;
            gl_FragColor = GlowTex;
         #endif
     #else

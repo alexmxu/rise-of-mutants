@@ -35,8 +35,10 @@ import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.control.CharacterControl;
 import com.jme3.collision.CollisionResults;
 import com.jme3.material.Material;
+import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
+import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
@@ -99,12 +101,14 @@ public class BBPlayerManager {
         Mesh meshCollision = new Box( bv.getXExtent()*0.5f, bv.getYExtent()*0.8f, bv.getZExtent()*0.6f);
         Geometry geoCollision = new Geometry("additiveCollision", meshCollision);
         
-        Material matCollision = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
-        matCollision.setColor("Color", ColorRGBA.Orange);
-        matCollision.getAdditionalRenderState().setWireframe(true);
-        matCollision.setReceivesShadows(false);
-        geoCollision.setMaterial(matCollision);
+        Material matPlayerCollision = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
+        matPlayerCollision.setColor("Color", new ColorRGBA(0.8f, 0.8f, 0.05f, 0.1f));
+        matPlayerCollision.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);        
+        matPlayerCollision.setReceivesShadows(false);
         geoCollision.setShadowMode(ShadowMode.Off);
+        geoCollision.setQueueBucket(Bucket.Transparent);  
+        matPlayerCollision.getAdditionalRenderState().setWireframe(true);
+        geoCollision.setMaterial(matPlayerCollision);
         
         Node childToAttach = (Node) pnode.getChild(0);
         geoCollision.setLocalTranslation(posOffset.negate());
@@ -147,7 +151,7 @@ public class BBPlayerManager {
         BBAudioManager.getInstance().getAudioRenderer().setListener(lst);
         //Create associated audio
         BBAudioComponent stepSound = new BBAudioComponent();
-        stepSound.setSoundName("Sounds/step1.wav", false);
+        stepSound.setSoundName("Sounds/step1.ogg", false);
         stepSound.setLooping(false);
         stepSound.setVolume(0.1f);
         mMainPlayer.addAudio("STEP", stepSound);
@@ -165,18 +169,20 @@ public class BBPlayerManager {
 
         
         // Create a bix mesh for SWORD FIGHTING
-        Box a = new Box(Vector3f.ZERO, 0.5f, 1.0f, 0.5f);
+        Box a = new Box(Vector3f.ZERO, 0.5f, 0.7f, 0.5f);
         swordCollision = new Geometry("Box", a);
 //        swordCollision.setLocalTranslation(0, -1, 0);
         swordCollision.updateModelBound();
                 
         Material mat = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
-        mat.setColor("Color", ColorRGBA.Blue);
-        mat.getAdditionalRenderState().setWireframe(true);
+        mat.setColor("Color", new ColorRGBA(0.1f, 0.1f, 0.9f, 0.3f));
+        mat.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);                
         mat.setReceivesShadows(false);
         swordCollision.setMaterial(mat);
         swordCollision.setShadowMode(ShadowMode.Off);
-
+        swordCollision.setQueueBucket(Bucket.Transparent);          
+        mat.getAdditionalRenderState().setWireframe(true);
+        
         BBSceneManager.getInstance().getRootNode().attachChild(swordCollision);
         skeletonControl = mMainPlayer.getComponent(BBNodeComponent.class).getChild(0).getControl(SkeletonControl.class);
 
@@ -271,7 +277,7 @@ public class BBPlayerManager {
                 health = health - 50;
                 monster.setSkills("HEALTH", health);
                 BBGuiManager.getInstance().getNifty().getScreen("hud").findControl("enemy_progress", BBProgressbarController.class).setProgress(health / 100.0f);                
-                System.out.println(entity+" -- SWORD KILLING");
+//                System.out.println(entity+" -- SWORD KILLING");
                 strike = true;
                }
               }

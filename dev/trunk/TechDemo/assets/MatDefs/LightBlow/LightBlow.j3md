@@ -24,14 +24,12 @@ MaterialDef LightBlow {
         // Light Map
         Boolean SeperateTexCoord
         Boolean SeperateTexCoord2
+        Boolean OverlayLightmap
         Texture2D LightMap
         Boolean LightMap_R
         Boolean LightMap_G
         Boolean LightMap_B
         Boolean LightMap_A
-
-        // Glow intensity
-        Float GlowIntensity : 1
 
         // No attenuation increases fps
         Boolean No_Attenuation
@@ -39,6 +37,9 @@ MaterialDef LightBlow {
      // Output emission from the diffuse map alpha channel
         Boolean EmissiveMap
         
+        // Apha threshold for fragment discarding
+        Float AlphaDiscardThreshold (AlphaTestFallOff)
+
      // Output alpha from the diffuse map
         Boolean Alpha_A_Dif
 
@@ -81,9 +82,6 @@ MaterialDef LightBlow {
 
         // Improve quality at the cost of performance
         Boolean HighQuality
-
-        // Apha threshold for fragment discarding
-        Float AlphaDiscardThreshold
 
         // Normal map is in BC5/ATI2n/LATC/3Dc compression format
         Boolean LATC
@@ -160,7 +158,28 @@ MaterialDef LightBlow {
       //  Vector3 FresnelParams
 
         // the ref map is a spheremap and not a cube map
-        Boolean SphereMap
+        Boolean EnvMapAsSphereMap
+
+
+        //shadows
+         Int FilterMode
+        Boolean HardwareShadows
+
+        Texture2D ShadowMap0
+        Texture2D ShadowMap1
+        Texture2D ShadowMap2
+        Texture2D ShadowMap3
+        
+        Float ShadowIntensity
+        Vector4 Splits
+
+        Matrix4 LightViewProjectionMatrix0
+        Matrix4 LightViewProjectionMatrix1
+        Matrix4 LightViewProjectionMatrix2
+        Matrix4 LightViewProjectionMatrix3
+
+        Float PCFEdge
+        Float ShadowMapSize
     }
 
     Technique {
@@ -183,6 +202,7 @@ MaterialDef LightBlow {
 
             RIM_LIGHTING_2 : RimLighting2
             RIM_LIGHTING : RimLighting
+            OVERLAYLIGHTMAP : OverlayLightmap
             SEPERATE_TEXCOORD : SeperateTexCoord
             SEPERATE_TEXCOORD2 : SeperateTexCoord2
             HAS_LIGHTMAP : LightMap
@@ -235,7 +255,7 @@ MaterialDef LightBlow {
             COLORRAMP : ColorRamp
             REFLECTION : RefMap
             ADDITIVE_REFLECTION : AdditiveReflection
-            SPHERE_MAP : SphereMap
+            SPHERE_MAP : EnvMapAsSphereMap
             MULTIPLY_COLOR : Multiply_Color
             FOG : FogColor
             FOG_SKY : FogSkyBox
@@ -292,7 +312,8 @@ MaterialDef LightBlow {
         }
 
         Defines {
-            DIFFUSEMAP_ALPHA : DiffuseMap
+            COLOR_MAP : ColorMap
+            DISCARD_ALPHA : AlphaDiscardThreshold
         }
 
         RenderState {
@@ -303,6 +324,56 @@ MaterialDef LightBlow {
             ColorWrite Off
         }
 
+    }
+
+Technique PostShadow15{
+        VertexShader GLSL150:   Common/MatDefs/Shadow/PostShadow.vert
+        FragmentShader GLSL150: Common/MatDefs/Shadow/PostShadow15.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldMatrix
+        }
+
+        Defines {
+            HARDWARE_SHADOWS : HardwareShadows
+            FILTER_MODE : FilterMode
+            PCFEDGE : PCFEdge
+            DISCARD_ALPHA : AlphaDiscardThreshold
+            COLOR_MAP : ColorMap
+            SHADOWMAP_SIZE : ShadowMapSize
+        }
+
+         ForcedRenderState {
+            Blend Modulate
+            DepthWrite Off
+            PolyOffset -0.1 0
+        }
+    }
+
+    Technique PostShadow{
+        VertexShader GLSL100:   Common/MatDefs/Shadow/PostShadow.vert
+        FragmentShader GLSL100: Common/MatDefs/Shadow/PostShadow.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldMatrix
+        }
+
+        Defines {
+            HARDWARE_SHADOWS : HardwareShadows
+            FILTER_MODE : FilterMode
+            PCFEDGE : PCFEdge
+            DISCARD_ALPHA : AlphaDiscardThreshold
+            COLOR_MAP : ColorMap
+            SHADOWMAP_SIZE : ShadowMapSize
+        }
+
+        ForcedRenderState {
+            Blend Modulate
+            DepthWrite Off
+            PolyOffset -0.1 0
+        }
     }
 
   Technique PreNormalPass {
@@ -328,7 +399,7 @@ MaterialDef LightBlow {
     }
 
 
-    Technique FixedFunc {
+    Technique  {
         LightMode FixedPipeline
     }
 
@@ -358,13 +429,13 @@ MaterialDef LightBlow {
         }
     }
 
-    Technique FixedFunc {
+    Technique  {
         LightMode FixedPipeline
     }
 
     Technique Glow {
 
-        VertexShader GLSL100:   Common/MatDefs/Misc/SimpleTextured.vert
+        VertexShader GLSL100:   Common/MatDefs/Misc/Unshaded.vert
         FragmentShader GLSL100: Shaders/PostBlow/GlowBlow.frag
 
         WorldParameters {

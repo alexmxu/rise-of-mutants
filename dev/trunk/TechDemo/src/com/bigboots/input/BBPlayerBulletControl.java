@@ -50,7 +50,7 @@ public class BBPlayerBulletControl extends AbstractControl implements Savable, C
     protected void controlUpdate(float tpf) {
         
         timer2 += tpf;
-        System.out.println(timer2);
+//        System.out.println(timer2);
         if (work == true) {   
             
             // Approach 1        
