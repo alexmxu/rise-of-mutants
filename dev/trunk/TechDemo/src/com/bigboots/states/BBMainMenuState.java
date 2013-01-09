@@ -46,7 +46,7 @@ public class BBMainMenuState extends BBAbstractState {
         
         //init global music
         music = new BBAudioComponent("Sounds/mainmenu.ogg", false);
-        music.setVolume(3);
+        music.setVolume(0.1f);
         music.setLooping(true);
         music.play();
     }
@@ -68,10 +68,9 @@ public class BBMainMenuState extends BBAbstractState {
 
         music.destroy();
         music = null;        
-        //reset input
+        //reset input : Just remove the listener as the reset input cause input issue
+        BBInputManager.getInstance().getInputManager().clearMappings(); 
         BBInputManager.getInstance().getInputManager().removeListener(actionListener);
-        BBInputManager.getInstance().getInputManager().clearMappings();
-        BBInputManager.getInstance().resetInput(); 
      
     }
        

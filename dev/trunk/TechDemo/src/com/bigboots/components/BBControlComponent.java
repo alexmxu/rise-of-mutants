@@ -16,8 +16,10 @@
 package com.bigboots.components;
 
 //import com.jme3.bullet.control.PhysicsControl;
+import com.bigboots.physics.BBPhysicsManager;
 import com.jme3.bullet.collision.PhysicsCollisionObject;
 import com.jme3.bullet.control.*;
+import com.jme3.scene.Node;
 
 
 /**
@@ -28,11 +30,16 @@ public class BBControlComponent implements BBComponent{
     
     public enum ControlType {
         NONE,
-        CHARACTER
+        CHARACTER,
+        VEHICULE,
+        RIGIDBODY,
+        GHOST,
+        RAGDOLL
     }
     
     private PhysicsCollisionObject mControl;
     private ControlType mType;
+    protected boolean mEnabled = true;
     
     public BBControlComponent(){
         mType = ControlType.NONE;
@@ -45,6 +52,10 @@ public class BBControlComponent implements BBComponent{
         mType  = tp;
     }
     
+    public ControlType getControlType(){
+        return mType;
+    }
+    
     public PhysicsCollisionObject getControl(){
         if(mType.equals(ControlType.CHARACTER)){
             return (CharacterControl) mControl;
@@ -52,11 +63,28 @@ public class BBControlComponent implements BBComponent{
         return null;
     }
     
-    public CompType getType(){
+    public PhysicsControl clone(Node cloneNode){
+        PhysicsControl physicCtrl = null;
+        
+        if(mType.equals(ControlType.CHARACTER)){
+            physicCtrl = (CharacterControl) ((CharacterControl) mControl).cloneForSpatial(cloneNode);
+        }
+        return physicCtrl;
+    }
+    
+    public CompType getCompType(){
         return CompType.CONTROLLER;
     }
     
-    public CompFamily getFamily(){
+    public CompFamily getCompFamily(){
         return CompFamily.PHYSICS;
+    }
+    
+    public boolean isEnabled(){
+        return mEnabled;
+    }
+    
+    public void setEnable(boolean value){
+        mEnabled = value;
     }
 }

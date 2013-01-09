@@ -75,7 +75,8 @@ public class BBMainMenuController implements ScreenController, Controller{
     
        /** custom methods */ 
     public void startGame() {
-        // switch to another screen        
+        // switch to another screen
+        mNifty.exit();
         
         //TODO : Next time use message notification to notify the change
         BBStateManager.getInstance().detach(BBStateManager.getInstance().getState(BBMainMenuState.class));
@@ -84,8 +85,6 @@ public class BBMainMenuController implements ScreenController, Controller{
         BBInGameState state = new BBInGameState();
         //BBCreditState state = new BBCreditState();
         BBStateManager.getInstance().attach(state);
-        
-        
     }
 
     public void optionGame() {

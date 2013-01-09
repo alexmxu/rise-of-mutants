@@ -27,6 +27,8 @@ import com.jme3.audio.AudioNode;
 public class BBAudioComponent extends AudioNode implements BBComponent{
     private String mSoundName = "";
     private boolean streamCache = false;
+    protected boolean mEnabled = true;
+    
     public BBAudioComponent(){
         super();
     }
@@ -34,16 +36,17 @@ public class BBAudioComponent extends AudioNode implements BBComponent{
     public BBAudioComponent(String name, boolean stream){
         super(BBSceneManager.getInstance().getAssetManager(), name, stream, false);
     }
+    
     public void setSoundName(String name, boolean stream){
         mSoundName = name;
         this.audioKey = new AudioKey(name, stream, streamCache);
         this.data = (AudioData) BBSceneManager.getInstance().getAssetManager().loadAsset(audioKey);
     }
-    public CompType getType(){
+    public CompType getCompType(){
         return CompType.AUDIO;
     }
     
-    public CompFamily getFamily(){
+    public CompFamily getCompFamily(){
         return CompFamily.VISUAL;
     }
     
@@ -54,5 +57,13 @@ public class BBAudioComponent extends AudioNode implements BBComponent{
         this.removeFromParent();
         this.getWorldLightList().clear();
         this.getLocalLightList().clear();
+    }
+     
+    public boolean isEnabled(){
+        return mEnabled;
+    }
+    
+    public void setEnable(boolean value){
+        mEnabled = value;
     }
 }

@@ -76,9 +76,9 @@ public class TestCharacterOnTrack extends SimpleApplication implements AnimEvent
 
     public static void main(String[] args) {
         TestCharacterOnTrack app = new TestCharacterOnTrack();
-        AppSettings appSettings = new AppSettings(true);
-        appSettings.setVSync(true);
-        app.setSettings(appSettings);
+//        AppSettings appSettings = new AppSettings(true);
+//        appSettings.setVSync(true);
+//        app.setSettings(appSettings);
         app.start();
     }
     private HashMap<Long, Node> entities = new HashMap<Long, Node>();
@@ -128,7 +128,30 @@ public class TestCharacterOnTrack extends SimpleApplication implements AnimEvent
     rootNode.attachChild(humanStalker);
     
     //setupEnemies(playerLoc);    
-    setupEffects();
+//    setupEffects();
+    
+       ModelKey mk = new ModelKey("Scenes/TestScene/character.mesh.xml");
+       Node sinbadModel3 = (Node) assetManager.loadModel(mk);
+       Node humanx = new Node();
+       
+    for (int i=0; i<50; i++) {
+    
+        
+       Node sinbadModelx =  (Node) sinbadModel3.clone(false);       
+       
+
+       AnimControl control = sinbadModelx.getControl(AnimControl.class);
+       AnimChannel playerChannel = control.createChannel();
+       playerChannel.setAnim("run_01");
+       playerChannel.setLoopMode(LoopMode.Loop);
+       playerChannel.setSpeed(speed);        
+       sinbadModelx.setLocalTranslation(new Vector3f(0, 3, 0-i*2));
+       humanx.attachChild(sinbadModelx);
+       
+       
+    }
+
+    rootNode.attachChild(humanx);
     
     //Load sky
     Spatial sky = SkyFactory.createSky(assetManager, "Textures/sky/skysphere.jpg", true);
@@ -312,10 +335,11 @@ public class TestCharacterOnTrack extends SimpleApplication implements AnimEvent
       }
       if(pressed==1&&value&!binding.equals("Jump")&&!walk){
           walk = true;
+          
           if(!jump){
           logger.log(Level.INFO,"Character walking init.");
           //player.getControl(AnimControl.class).getChannel(0).setAnim("RunTop", 0.50f); // TODO: Must activate "RunBase" after a certain time.
-          player.getControl(AnimControl.class).getChannel(0).setAnim("run_01", 0.50f); // TODO: Must be activated after a certain time after "RunTop"
+          player.getControl(AnimControl.class).getChannel(0).setAnim("run_01", 0.20f); // TODO: Must be activated after a certain time after "RunTop"
           player.getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.Loop);
           }
       }
@@ -324,8 +348,9 @@ public class TestCharacterOnTrack extends SimpleApplication implements AnimEvent
           if(!jump){
           logger.log(Level.INFO,"Character walking end.");
           //playerChannel.setAnim("IdleTop", 0.50f);
-          player.getControl(AnimControl.class).getChannel(0).setAnim("base_stand", 0.50f);          
-          player.getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.DontLoop);          
+          player.getControl(AnimControl.class).getChannel(0).setAnim("base_stand", 0.20f);          
+          player.getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.DontLoop);  
+//          human.getControl(CharacterControl.class).setWalkDirection(Vector3f.ZERO);
           }
       }
     if (binding.equals("Jump") &! jump ) {
@@ -334,7 +359,7 @@ public class TestCharacterOnTrack extends SimpleApplication implements AnimEvent
         jump = true;
         // channel.setAnim("JumpStart", 0.5f); // TODO: Must activate "JumpLoop" after a certain time.
         human.getControl(CharacterControl.class).jump();
-        player.getControl(AnimControl.class).getChannel(0).setAnim("jump", 0.50f); // TODO: Must be activated after a certain time after "JumpStart"
+        player.getControl(AnimControl.class).getChannel(0).setAnim("jump", 0.20f); // TODO: Must be activated after a certain time after "JumpStart"
         player.getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.DontLoop);
         }
     }
@@ -345,6 +370,9 @@ public class TestCharacterOnTrack extends SimpleApplication implements AnimEvent
     boolean hasBeenOnGround = false;
     @Override
     public void simpleUpdate(float tpf) {
+        
+        System.nanoTime();
+        
         System.out.println(player.getControl(AnimControl.class).getChannel(0).getTime());
         System.out.println(player.getControl(AnimControl.class).getChannel(0).getAnimationName());
         System.out.println(player.getControl(AnimControl.class).getChannel(0).getLoopMode());    
@@ -353,8 +381,8 @@ public class TestCharacterOnTrack extends SimpleApplication implements AnimEvent
             Vector3f humanPos = human.getLocalTranslation().clone();
             Quaternion newRot = new Quaternion().fromAngleAxis(FastMath.rand.nextFloat()*2-.5f, Vector3f.UNIT_Y);
             humanPos.y = a.getLocalTranslation().y;            
-            a.lookAt(humanPos,Vector3f.UNIT_Y);
-            a.getLocalRotation().slerp(newRot,tpf);            
+//            a.lookAt(humanPos,Vector3f.UNIT_Y);
+//            a.getLocalRotation().slerp(newRot,tpf);            
             
             float distSquared = humanPos.distanceSquared(a.getLocalTranslation());
             if(distSquared>9){
@@ -390,9 +418,11 @@ public class TestCharacterOnTrack extends SimpleApplication implements AnimEvent
         if(anv.onGround()){
             if(jump)
             {
-                boolean hasBeenOnGroundCopy = hasBeenOnGround;
+                
                 if(!hasBeenOnGround)
                 hasBeenOnGround=true;
+                
+                boolean hasBeenOnGroundCopy = hasBeenOnGround;
          
                 if(hasBeenOnGroundCopy)
                 {
@@ -418,6 +448,11 @@ public class TestCharacterOnTrack extends SimpleApplication implements AnimEvent
                 hasBeenOnGround = false;
                 }
             }
+            
+            if(!walk && !jump){
+                    human.getControl(CharacterControl.class).setWalkDirection(Vector3f.ZERO);
+            }
+            
         }
         else if(!jump){
             logger.log(Level.INFO,"Character jumping start.");
@@ -425,6 +460,7 @@ public class TestCharacterOnTrack extends SimpleApplication implements AnimEvent
             //channel.setAnim("JumpStart", 0.5f); // TODO: Must activate "JumpLoop" after a certain time.
         player.getControl(AnimControl.class).getChannel(0).setAnim("jump", 0.50f); // TODO: Must be activated after a certain time after "JumpStart"
         player.getControl(AnimControl.class).getChannel(0).setLoopMode(LoopMode.DontLoop);
+        
         }
     }
 
@@ -432,8 +468,9 @@ public class TestCharacterOnTrack extends SimpleApplication implements AnimEvent
     public void simpleRender(RenderManager rm) {
         //TODO: add render code
     }
-
+        int timeBullet = 0;
     public void onAnalog(String binding, float value, float tpf) {
+                
         if(!jump)
         {
         if (binding.equals("Left")) {

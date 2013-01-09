@@ -31,13 +31,15 @@ public class BBCollisionComponent implements BBComponent{
         CYLINDER,
         HULL,
         MESH,
-        PLAN,
+        PLANE,
         SPHERE,
-        CONE
+        CONE,
+        COMPLEX
     }
     
     private ShapeType mType;
     private CollisionShape mSpecificShape;
+    protected boolean mEnabled = true;
     
     public BBCollisionComponent(){
         //super();
@@ -51,11 +53,27 @@ public class BBCollisionComponent implements BBComponent{
     public CollisionShape getShape(){
         return mSpecificShape;
     }
-    public CompType getType(){
+    public CompType getCompType(){
         return CompType.COLSHAPE;
     }
     
-    public CompFamily getFamily(){
+    public CompFamily getCompFamily(){
         return CompFamily.PHYSICS;
+    }
+    
+    public ShapeType getShapeType () {
+        return mType;
+    }   
+    
+    public void setShapeType (ShapeType newType) {
+        mType = newType;
+    }    
+    
+    public boolean isEnabled(){
+        return mEnabled;
+    }
+    
+    public void setEnable(boolean value){
+        mEnabled = value;
     }
 }

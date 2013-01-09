@@ -4,21 +4,20 @@
  */
 package com.bigboots;
 
-import com.bigboots.ai.controls.AutonomousCharacterControl;
+
 import com.bigboots.ai.controls.AutonomousControl;
 import com.bigboots.ai.controls.CommandControl;
 import com.bigboots.ai.controls.MovementControl;
 import com.bigboots.ai.util.NavMeshGenerator;
 import com.bigboots.ai.navmesh.NavMesh;
-import com.bigboots.ai.triggers.SphereTrigger;
 import com.bigboots.ai.triggers.TriggerControl;
+import com.bigboots.components.BBEntity;
+import com.bigboots.components.BBNodeComponent;
+import com.bigboots.core.BBSceneManager;
+import com.bigboots.physics.BBPhysicsManager;
 
-import com.jme3.app.Application;
-import com.jme3.app.state.AbstractAppState;
+
 import com.jme3.asset.AssetManager;
-import com.jme3.asset.DesktopAssetManager;
-import com.jme3.bullet.BulletAppState;
-import com.jme3.bullet.PhysicsSpace;
 import com.jme3.bullet.collision.PhysicsCollisionObject;
 import com.jme3.bullet.collision.PhysicsRayTestResult;
 import com.jme3.bullet.control.CharacterControl;
@@ -52,32 +51,38 @@ import jme3tools.optimize.GeometryBatchFactory;
  * Mostly copy paste from MonkeyZone, but Network functions has been removed.
  * Will most like needed a thorough review.
  */
-public class BBWorldManager extends AbstractAppState  {
-    private HashMap<Long, Spatial> entities = new HashMap<Long, Spatial>();
+public class BBWorldManager  {
+    private static BBWorldManager instance = new BBWorldManager();
+    
+    private BBWorldManager() {
+        
+    }
+    
+    public static BBWorldManager getInstance() { 
+        return instance; 
+    }
+    
+    
+    private HashMap<String, BBEntity> entities = new HashMap<String, BBEntity>();
     private NavMesh navMesh = new NavMesh();
-    private Node rootNode;
-    private Node worldRoot;
-    private Application app;
+    private Node worldRoot = new Node("WORLD");
     private AssetManager assetManager;
     private NavMeshGenerator generator = new NavMeshGenerator();
-    private PhysicsSpace space;
     private List<Control> userControls = new LinkedList<Control>();
     private int newId;
-    
-    
-    public BBWorldManager(Application app, Node rootNode) {
-        this.app = app;
-        this.rootNode = rootNode;
-        this.assetManager = app.getAssetManager();
-        this.space = app.getStateManager().getState(BulletAppState.class).getPhysicsSpace();
-    }
 
+    
+    public void init(){
+        this.assetManager = BBSceneManager.getInstance().getAssetManager();
+        BBSceneManager.getInstance().addChild(worldRoot); 
+    }
+    
     /**
      * gets the entity with the specified id
      * @param id
      * @return
      */
-    public Spatial getEntity(long id) {
+    public BBEntity getEntity(String id) {
         return entities.get(id);
     }
 
@@ -86,13 +91,11 @@ public class BBWorldManager extends AbstractAppState  {
      * @param object
      * @return
      */
-    public Spatial getEntity(PhysicsCollisionObject object) {
+    public BBEntity getEntity(PhysicsCollisionObject object) {
         Object obj = object.getUserObject();
         if (obj instanceof Spatial) {
             Spatial spatial = (Spatial) obj;
-            if (entities.containsValue(spatial)) {
-                return spatial;
-            }
+            return getEntity(spatial.getName());
         }
         return null;
     }
@@ -102,142 +105,30 @@ public class BBWorldManager extends AbstractAppState  {
      * @param entity
      * @return
      */
-    public long getEntityId(Spatial entity) {
-        for (Iterator<Entry<Long, Spatial>> it = entities.entrySet().iterator(); it.hasNext();) {
-            Entry<Long, Spatial> entry = it.next();
+    public String getEntityId(BBEntity entity) {
+        for (Iterator<Entry<String, BBEntity>> it = entities.entrySet().iterator(); it.hasNext();) {
+            Entry<String, BBEntity> entry = it.next();
             if (entry.getValue() == entity) {
                 return entry.getKey();
             }
         }
-        return -1;
+        return null;
     }
 
     /**
      * gets the entity belonging to a PhysicsCollisionObject
      * @param object
      * @return
-     */
-    public long getEntityId(PhysicsCollisionObject object) {
+     *
+    public String getEntityId(PhysicsCollisionObject object) {
         Object obj = object.getUserObject();
         if (obj instanceof Spatial) {
             Spatial spatial = (Spatial) obj;
             if (spatial != null) {
-                return getEntityId(spatial);
+                return getEntityId(spatial.getName());
             }
         }
-        return -1;
-    }
-    
-    public PhysicsSpace getPhysicsSpace(){
-    return space;
-    }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    /**
-     * get the NavMesh of the currently loaded level
-     * @return
-     */
-    public NavMesh getNavMesh() {
-        return navMesh;
-    }
-
-    /**
-     * get the world root node (not necessarily the application rootNode!)
-     * @return
-     */
-    public Node getWorldRoot() {
-        return worldRoot;
-    }
-
-    /**
-     * loads the specified level node
-     * @param name
-     */
-    public void loadLevel(String name) {
-        worldRoot = (Node) assetManager.loadModel(name);
-    }
-
-    /**
-     * detaches the level and clears the cache
-     */
-    public void closeLevel() {
-
-        entities.clear();
-        space.removeAll(worldRoot);
-        rootNode.detachChild(worldRoot);
-        ((DesktopAssetManager) assetManager).clearCache();
-    }
-
-    /**
-     * preloads the models with the given names
-     * @param modelNames
-     */
-    public void preloadModels(String[] modelNames) {
-        for (int i = 0; i < modelNames.length; i++) {
-            String string = modelNames[i];
-            assetManager.loadModel(string);
-        }
-    }
-
-    /**
-     * creates the nav mesh for the loaded level
-     */
-    public void createNavMesh() {
-
-        Mesh mesh = new Mesh();
-
-        //version a: from mesh
-        GeometryBatchFactory.mergeGeometries(findGeometries(worldRoot, new LinkedList<Geometry>()), mesh);
-        Mesh optiMesh = generator.optimize(mesh);
-
-        navMesh.loadFromMesh(optiMesh);
-
-        //TODO: navmesh only for debug
-        Geometry navGeom = new Geometry("NavMesh");
-        navGeom.setMesh(optiMesh);
-        Material green = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        green.setColor("Color", ColorRGBA.Green);
-        green.getAdditionalRenderState().setWireframe(true);
-        navGeom.setMaterial(green);
-
-        worldRoot.attachChild(navGeom);
-    }
-
-    /**
-     * attaches the level node to the rootnode
-     */
-    public void attachLevel() {
-        space.addAll(worldRoot);
-        rootNode.attachChild(worldRoot);
-    }
-
-    private List<Geometry> findGeometries(Node node, List<Geometry> geoms) {
-        for (Iterator<Spatial> it = node.getChildren().iterator(); it.hasNext();) {
-            Spatial spatial = it.next();
-            if (spatial instanceof Geometry) {
-                geoms.add((Geometry) spatial);
-            } else if (spatial instanceof Node) {
-                findGeometries((Node) spatial, geoms);
-            }
-        }
-        return geoms;
+        return null;
     }
 
     /**
@@ -246,17 +137,21 @@ public class BBWorldManager extends AbstractAppState  {
      * @param location
      * @param rotation
      * @return
-     */
+     *
     public long addNewEntity(String modelIdentifier, Vector3f location, Quaternion rotation) {
-//        long id = 0;
-//        while (entities.containsKey(id)) {
-//            id++;
-//        }
         newId++;
         addEntity(newId, modelIdentifier, location, rotation);
         return newId;
     }
 
+     */
+    public void addEntity(BBEntity entity){
+        if(this.getEntity(entity.getObjectName()) != null){
+            
+        }
+        entities.put(entity.getObjectName(), entity);
+    }
+  
     /**
      * add an entity (vehicle, immobile house etc), always related to a spatial
      * with specific userdata like hp, maxhp etc. (sends message if server)
@@ -265,23 +160,25 @@ public class BBWorldManager extends AbstractAppState  {
      * @param location
      * @param rotation
      */
-    public void addEntity(long id, String modelIdentifier, Vector3f location, Quaternion rotation) {
-        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Adding entity: {0}", id);
+    public void addEntity(String name, String modelIdentifier, Vector3f location, Quaternion rotation) {
 
-        Node entityModel = (Node) assetManager.loadModel(modelIdentifier);
-        setEntityTranslation(entityModel, location, rotation);
-        if (entityModel.getControl(CharacterControl.class) != null) {
-            // entityModel.addControl(new CharacterAnimControl());
-            //FIXME: strangeness setting these in jMP..
-            entityModel.getControl(CharacterControl.class).setFallSpeed(55);
-            entityModel.getControl(CharacterControl.class).setJumpSpeed(15);
+        if(getEntity(name) != null){
+            Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "try adding existing entity : {0}", name);
+            return;
         }
-        entityModel.setUserData("player_id", -1l);
-        entityModel.setUserData("group_id", -1);
-        entityModel.setUserData("entity_id", id);
-        entities.put(id, entityModel);
-        space.addAll(entityModel);
-        worldRoot.attachChild(entityModel);
+        
+        //Create the main Character as an entity      
+        BBEntity wlrdEnt = new BBEntity(name);
+        //Create first of all the translation component attached to the scene
+        BBNodeComponent pnode = wlrdEnt.addComponent(BBNodeComponent.CompType.NODE);
+        pnode.setLocalTranslation(location);
+        pnode.setLocalRotation(rotation);
+        wlrdEnt.attachToNode(worldRoot);
+        //Load the mesh file associated to this entity for visual
+        wlrdEnt.loadModel(modelIdentifier);
+        
+        entities.put(name, wlrdEnt);
+        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Adding entity: {0}", name);
     }
 
     /**
@@ -289,32 +186,31 @@ public class BBWorldManager extends AbstractAppState  {
      * (sends message if server)
      * @param id
      */
-    public void removeEntity(long id) {
+    public void removeEntity(String id) {
         Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Removing entity: {0}", id);
 
-        Spatial spat = entities.remove(id);
-        if (spat == null) {
+        BBEntity ent = entities.remove(id);
+        if (ent == null) {
             Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "try removing entity thats not there: {0}", id);
             return;
         }
-        Long playerId = (Long) spat.getUserData("player_id");
-        removeTransientControls(spat);
-        removeAIControls(spat);
+        //removeTransientControls(spat);
+        //removeAIControls(spat);
 
-        spat.removeFromParent();
-        space.removeAll(spat);
+        //spat.removeFromParent();
+        BBPhysicsManager.getInstance().removePhysic(ent.getComponent(BBNodeComponent.class));
     }
 
     /**
      * disables an entity so that it is not displayed
      * @param id
      */
-    public void disableEntity(long id) {
+    public void disableEntity(String id) {
         Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Disabling entity: {0}", id);
 
-        Spatial spat = getEntity(id);
-        spat.removeFromParent();
-        space.removeAll(spat);
+        BBEntity spat = getEntity(id);
+        //spat.removeFromParent();
+        //space.removeAll(spat);
     }
 
     /**
@@ -323,13 +219,13 @@ public class BBWorldManager extends AbstractAppState  {
      * @param location
      * @param rotation
      */
-    public void enableEntity(long id, Vector3f location, Quaternion rotation) {
+    public void enableEntity(String id, Vector3f location, Quaternion rotation) {
         Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Enabling entity: {0}", id);
 
-        Spatial spat = getEntity(id);
-        setEntityTranslation(spat, location, rotation);
-        worldRoot.attachChild(spat);
-        space.addAll(spat);
+        BBEntity spat = getEntity(id);
+        //setEntityTranslation(spat, location, rotation);
+        //worldRoot.attachChild(spat);
+        //space.addAll(spat);
     }
 
     /**
@@ -353,21 +249,7 @@ public class BBWorldManager extends AbstractAppState  {
             entityModel.setLocalRotation(rotation);
         }
     }
-
-
-    /**
-     * makes the specified entity ready to be controlled by an AIControl
-     * by adding an AutonomousControl based on entity type.
-     */
-    private void makeAutoControl(long entityId) {
-        Spatial spat = getEntity(entityId);
-        if (spat.getControl(CharacterControl.class) != null) {
-            Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Make autonomous character control for entity {0} ", entityId);
-            spat.addControl(new AutonomousCharacterControl(entityId));
-
-        }
-    }
-
+    
     /**
      * removes all movement controls (ManualControl / AutonomousControl) from
      * spatial
@@ -381,16 +263,32 @@ public class BBWorldManager extends AbstractAppState  {
         }
     }
 
+
+    
+    /**
+     * makes the specified entity ready to be controlled by an AIControl
+     * by adding an AutonomousControl based on entity type.
+     */
+    private void makeAutoControl(String entityId) {
+        BBEntity spat = getEntity(entityId);
+        if (spat.getComponent(BBNodeComponent.class).getControl(CharacterControl.class) != null) {
+            Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Make autonomous character control for entity {0} ", entityId);
+            //spat.getComponent(BBNodeComponent.class).addControl(new AutonomousCharacterControl(entityId));
+
+        }
+    }
+
+
     /**
      * adds the command queue and triggers for user controlled ai entities
      */
-    private void addAIControls(long playerId, long entityId) {
+    private void addAIControls(long playerId, String entityId) {
         //TODO: use stored controls for playerId
-        Spatial spat = getEntity(entityId);
-        spat.addControl(new CommandControl(this, playerId, entityId));
-//        Command command = new AttackCommand();
-        SphereTrigger trigger = new SphereTrigger(this);
-        spat.addControl(trigger);
+        BBEntity spat = getEntity(entityId);
+        //spat.addControl(new CommandControl(this, playerId, entityId));
+
+        //SphereTrigger trigger = new SphereTrigger(this);
+        //spat.addControl(trigger);
     }
 
     /**
@@ -408,7 +306,67 @@ public class BBWorldManager extends AbstractAppState  {
         }
     }
 
+    
+    /**
+     * get the NavMesh of the currently loaded level
+     * @return
+     */
+    public NavMesh getNavMesh() {
+        return navMesh;
+    }
 
+    /**
+     * get the world root node (not necessarily the application rootNode!)
+     * @return
+     */
+    public Node getWorldRoot() {
+        return worldRoot;
+    }
+
+ 
+
+    /**
+     * creates the nav mesh for the loaded level
+     */
+    public void createNavMesh(Node node) {
+
+        Mesh mesh = new Mesh();
+
+        //version a: from mesh
+        GeometryBatchFactory.mergeGeometries(findGeometries(node, new LinkedList<Geometry>()), mesh);
+        Mesh optiMesh = generator.optimize(mesh);
+        
+        navMesh.loadFromMesh(optiMesh);
+
+        //TODO: navmesh only for debug
+        Geometry navGeom = new Geometry("NavMesh", optiMesh);
+        //navGeom.setMesh(optiMesh);
+        Material green = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        green.setColor("Color", ColorRGBA.Green);
+        green.getAdditionalRenderState().setWireframe(true);
+        navGeom.setMaterial(green);
+
+        System.out.println("xxxxxx Geometry name : " + navGeom.getName());
+        
+        worldRoot.attachChild(navGeom);
+    }
+
+    
+
+    public List<Geometry> findGeometries(Node node, List<Geometry> geoms) {
+        
+        for (Iterator<Spatial> it = node.getChildren().iterator(); it.hasNext();) {
+            Spatial spatial = it.next();
+            if (spatial instanceof Geometry) {
+                System.out.println("ooooooo Goemetry found : "+((Geometry)spatial).getName()+" mode : "+((Geometry) spatial).getMesh().getMode());
+                geoms.add((Geometry) spatial);
+            } else if (spatial instanceof Node) {
+                System.out.println("ooo Node found : "+spatial.getName());
+                findGeometries((Node) spatial, geoms);
+            }
+        }
+        return geoms;
+    }
 
 
     /**
@@ -420,16 +378,16 @@ public class BBWorldManager extends AbstractAppState  {
      * @param storeVector
      * @return
      */
-    public Spatial doRayTest(Spatial entity, float length, Vector3f storeLocation) {
-        MovementControl control = entity.getControl(MovementControl.class);
+    public BBEntity doRayTest(BBEntity entity, float length, Vector3f storeLocation) {
+        MovementControl control = entity.getComponent(BBNodeComponent.class).getControl(MovementControl.class);
         Vector3f startLocation = control.getLocation();
         Vector3f endLocation = startLocation.add(control.getAimDirection().normalize().multLocal(length));
-        List<PhysicsRayTestResult> results = getPhysicsSpace().rayTest(startLocation, endLocation);
-        Spatial found = null;
+        List<PhysicsRayTestResult> results = BBPhysicsManager.getInstance().getPhysicsSpace().rayTest(startLocation, endLocation);
+        BBEntity found = null;
         float dist = Float.MAX_VALUE;
         for (Iterator<PhysicsRayTestResult> it = results.iterator(); it.hasNext();) {
             PhysicsRayTestResult physicsRayTestResult = it.next();
-            Spatial object = getEntity(physicsRayTestResult.getCollisionObject());
+            BBEntity object = getEntity(physicsRayTestResult.getCollisionObject());
             if (object == entity) {
                 continue;
             }
@@ -450,14 +408,14 @@ public class BBWorldManager extends AbstractAppState  {
      * @param storeLocation
      * @return
      */
-    public Spatial doRayTest(Vector3f startLocation, Vector3f endLocation, Vector3f storeLocation) {
-        List<PhysicsRayTestResult> results = getPhysicsSpace().rayTest(startLocation, endLocation);
+    public BBEntity doRayTest(Vector3f startLocation, Vector3f endLocation, Vector3f storeLocation) {
+        List<PhysicsRayTestResult> results = BBPhysicsManager.getInstance().getPhysicsSpace().rayTest(startLocation, endLocation);
         //TODO: sorting of results
-        Spatial found = null;
+        BBEntity found = null;
         float dist = Float.MAX_VALUE;
         for (Iterator<PhysicsRayTestResult> it = results.iterator(); it.hasNext();) {
             PhysicsRayTestResult physicsRayTestResult = it.next();
-            Spatial object = getEntity(physicsRayTestResult.getCollisionObject());
+            BBEntity object = getEntity(physicsRayTestResult.getCollisionObject());
             if (physicsRayTestResult.getHitFraction() < dist) {
                 dist = physicsRayTestResult.getHitFraction();
                 if (storeLocation != null) {
@@ -468,8 +426,5 @@ public class BBWorldManager extends AbstractAppState  {
         }
         return found;
     }
-
-    @Override
-    public void update(float tpf) {
-    }    
+ 
 }

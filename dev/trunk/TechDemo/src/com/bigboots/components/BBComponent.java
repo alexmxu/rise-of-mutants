@@ -33,7 +33,9 @@ public interface BBComponent {
         LISTENER,
         ANIMATION,
         CONTROLLER,
-        COLSHAPE
+        COLSHAPE,
+        CAMERA,
+        PARTICLE
     }
     
     /**
@@ -47,7 +49,16 @@ public interface BBComponent {
         PHYSICS
     }
     
-    public CompType getType();
     
-    public CompFamily getFamily();
+    /**
+     * @return If enabled
+     * @see BBCameraComponent#setEnabled(boolean)
+     */
+    public boolean isEnabled();
+    
+    public void setEnable(boolean value);
+    
+    public CompType getCompType();
+    
+    public CompFamily getCompFamily();
 }

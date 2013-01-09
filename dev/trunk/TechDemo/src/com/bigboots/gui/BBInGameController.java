@@ -32,9 +32,10 @@ import java.util.Properties;
  * @author @author Ulrich Nzuzi <ulrichnz@code.google.com>
  */
 public class BBInGameController implements ScreenController, Controller{
-        private Nifty mNifty;
+    
+    private Nifty mNifty;
     private Screen mScreen;
-
+    
     public void bind(Nifty nifty, 
             Screen screen, 
             Element element, 
@@ -42,7 +43,6 @@ public class BBInGameController implements ScreenController, Controller{
         
         mNifty = nifty;
         mScreen = screen;
-        
     }
             
     public void init(Properties parameter, Attributes controlDefinitionAttributes){
@@ -89,4 +89,5 @@ public class BBInGameController implements ScreenController, Controller{
         BBStateManager.getInstance().getEngine().stop(false);
     
     }
+    
 }

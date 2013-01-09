@@ -59,7 +59,9 @@ public class NavMeshGenerator {
                 minUnconnectedRegionSize, mergeRegionSize,
                 maxEdgeLength, edgeMaxDeviation, maxVertsPerPoly,
                 contourSampleDistance, contourMaxDeviation);
-
+        
+        System.out.println("mmmmm Mesh used : "+mesh.getMode());
+        
         FloatBuffer pb = mesh.getFloatBuffer(Type.Position);
         IndexBuffer ib = mesh.getIndexBuffer();
 

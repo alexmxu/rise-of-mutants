@@ -26,13 +26,22 @@ import com.jme3.input.TouchInput;
 import com.jme3.input.InputManager;
 import com.jme3.input.controls.Trigger;
 import com.jme3.system.JmeContext.Type;
+import org.lwjgl.input.Mouse;
 
 /**
  *
  * @author Ulrich Nzuzi <ulrichnz@code.google.com>
  */
 public class BBInputManager implements BBUpdateListener{
-        
+    private static BBInputManager instance = new BBInputManager();
+
+    private BBInputManager() {
+    }
+    
+    public static BBInputManager getInstance() { 
+        return instance; 
+    }
+    
     protected MouseInput mouseInput;
     protected KeyInput keyInput;
     protected JoyInput joyInput;
@@ -42,14 +51,7 @@ public class BBInputManager implements BBUpdateListener{
     protected boolean inputEnabled = true;
     protected BBEngineSystem myEng;
     
-    private static BBInputManager instance = new BBInputManager();
 
-    private BBInputManager() {
-    }
-    
-    public static BBInputManager getInstance() { 
-        return instance; 
-    }
         
     public void init(BBEngineSystem eng){
         
@@ -66,8 +68,10 @@ public class BBInputManager implements BBUpdateListener{
         
         //init input
         mouseInput = myEng.getContext().getMouseInput();
-        if (mouseInput != null)
+        if (mouseInput != null){
             mouseInput.initialize();
+        }
+            
 
         keyInput = myEng.getContext().getKeyInput();
         if (keyInput != null)
@@ -126,6 +130,10 @@ public class BBInputManager implements BBUpdateListener{
         return inputManager;
     }
     
+    public void setInputEnabled(boolean val){
+        inputEnabled = val;
+    }
+    
     public boolean isInputEnabled(){
         return inputEnabled;
     }
@@ -134,5 +142,14 @@ public class BBInputManager implements BBUpdateListener{
         if (inputManager != null) {
             inputManager.reset();
         }
+    }
+    
+    public void setMouseCenter(){
+        if (myEng.getContext().getType() == Type.Display) {
+            int x = BBSettings.getInstance().getSettings().getWidth() / 2;
+            int y = BBSettings.getInstance().getSettings().getHeight() / 2;
+            Mouse.setCursorPosition(x, y);
+        }
+        
     }
 }
