@@ -16,23 +16,32 @@
 package com.bigboots.states;
 
 import com.bigboots.BBGlobals;
+import com.bigboots.BBWorldManager;
 import com.bigboots.audio.BBAudioManager;
+import com.bigboots.components.camera.BBCameraComponent;
+import com.bigboots.components.camera.BBCameraManager;
+import com.bigboots.components.camera.BBSideModeCamera;
 import com.bigboots.components.BBAudioComponent;
 import com.bigboots.components.BBMonsterManager;
 import com.bigboots.components.BBNodeComponent;
 import com.bigboots.components.BBPlayerManager;
+import com.bigboots.components.camera.BBFirstPersonCamera;
+import com.bigboots.components.camera.BBThirdPersonCamera;
+import com.bigboots.components.emitters.BBParticlesManager;
 import com.bigboots.core.BBDebugInfo;
 import com.bigboots.core.BBEngineSystem;
 import com.bigboots.core.BBSceneManager;
 import com.bigboots.core.BBSettings;
 import com.bigboots.gui.BBGuiManager;
+import com.bigboots.gui.BBTextProgressController;
 import com.bigboots.input.BBInputManager;
 import com.bigboots.input.BBPlayerActions;
 import com.bigboots.physics.BBBasicCollisionListener;
 import com.bigboots.physics.BBPhysicsManager;
-import com.bigboots.scene.SceneComposer;
+import com.bigboots.scene.BBSceneComposer;
+import com.bigboots.scene.BBShaderManager;
+
 import com.jme3.animation.AnimChannel;
-import com.jme3.scene.Spatial;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
@@ -40,42 +49,34 @@ import com.jme3.renderer.ViewPort;
 //for player
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.AnimEventListener;
-import com.jme3.scene.CameraNode;
-import com.jme3.scene.control.CameraControl.ControlDirection;
+import com.jme3.asset.DesktopAssetManager;
 import com.jme3.scene.Node;
 import com.jme3.asset.ModelKey;
-
-import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.control.CharacterControl;
-import com.jme3.bullet.control.RigidBodyControl;
-
-import com.jme3.bullet.util.CollisionShapeFactory;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
+import com.jme3.input.controls.MouseAxisTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
-import com.jme3.light.DirectionalLight;
-import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
-import com.jme3.post.filters.BloomFilter;
-import com.jme3.post.filters.DepthOfFieldFilter;
-import com.jme3.post.filters.LightScatteringFilter;
-import com.jme3.renderer.queue.RenderQueue.ShadowMode;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.plugins.blender.BlenderModelLoader;
-import com.jme3.util.TangentBinormalGenerator;
+import com.jme3.util.BufferUtils;
+import de.lessvoid.nifty.screen.Screen;
+
 
 /**
  *
  * @author Ulrich Nzuzi <ulrichnz@code.google.com>
  */
 public class BBInGameState extends BBAbstractState{
-
+    
+    private float mTime = 0;
     private BBNodeComponent humanStalker;
+    private BBTextProgressController mLoadCtrl;
+    private Camera cam;
     //music
     private BBAudioComponent music;   
     private GameActionListener actionListener;
@@ -88,87 +89,27 @@ public class BBInGameState extends BBAbstractState{
     @Override
     public void initialize(BBEngineSystem eng) {       
         super.initialize(eng);
-        
         //BBGuiManager.getInstance().getNifty().gotoScreen("progress");
+        
+        BBGuiManager.getInstance().getNifty().gotoScreen("loadgame");
         //BBGuiManager.getInstance().enableProgressBar(true);
+        Screen mScreen = BBGuiManager.getInstance().getNifty().getScreen("loadgame");
+        mLoadCtrl = mScreen.findControl("text_progress", BBTextProgressController.class);    
+        mLoadCtrl.setProgressLoading("Loading Game ...");
         
-        actionListener = new GameActionListener(eng);
-        
-        BBPhysicsManager.getInstance().init(engineSystem);
-        
-        //Set up keys
-        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_CAMERA_POS, new KeyTrigger(KeyInput.KEY_C));
-        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_MEMORY, new KeyTrigger(KeyInput.KEY_M));
-        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_HIDE_STATS, new KeyTrigger(KeyInput.KEY_F5));
-        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_LEFT, new KeyTrigger(KeyInput.KEY_J));
-        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_RIGHT, new KeyTrigger(KeyInput.KEY_L));
-        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_UP, new KeyTrigger(KeyInput.KEY_I));
-        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_DOWN, new KeyTrigger(KeyInput.KEY_K));
-        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_JUMP, new KeyTrigger(KeyInput.KEY_SPACE));
-        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_EXIT, new KeyTrigger(KeyInput.KEY_ESCAPE));
-        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_DEBUG, new KeyTrigger(KeyInput.KEY_F1));
-        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_MLEFT, new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
-        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_MRIGHT, new MouseButtonTrigger(MouseInput.BUTTON_RIGHT));
-        
-        BBInputManager.getInstance().getInputManager().addListener(actionListener, BBGlobals.INPUT_MAPPING_EXIT, BBGlobals.INPUT_MAPPING_DEBUG);
-        BBInputManager.getInstance().getInputManager().addListener(playerListener, 
-                                                                    BBGlobals.INPUT_MAPPING_LEFT,
-                                                                    BBGlobals.INPUT_MAPPING_RIGHT, 
-                                                                    BBGlobals.INPUT_MAPPING_UP, 
-                                                                    BBGlobals.INPUT_MAPPING_DOWN,
-                                                                    BBGlobals.INPUT_MAPPING_JUMP,
-                                                                    BBGlobals.INPUT_MAPPING_MLEFT,
-                                                                    BBGlobals.INPUT_MAPPING_MRIGHT);
-        
-        BBInputManager.getInstance().getInputManager().setCursorVisible(false);
-        
-        
-        //Load first scene and camera
-        Camera cam = new Camera(BBSettings.getInstance().getSettings().getWidth(), BBSettings.getInstance().getSettings().getHeight());
-        cam.setFrustumPerspective(45f, (float)cam.getWidth() / cam.getHeight(), 1f, 1000f);
-        cam.setLocation(new Vector3f(25f, 10f, 0f));
-        cam.lookAt(new Vector3f(0f, 0f, 0f), Vector3f.UNIT_Y);
-              
-        ViewPort vp = engineSystem.getRenderManager().createMainView("TEST", cam);
-        vp.setClearFlags(true, true, true);
-        BBSceneManager.getInstance().setViewPort(vp);
-                
-        //init global music
-        music = new BBAudioComponent("Sounds/battle.ogg", false);
-        //music = new BBAudioComponent("Sounds/ingame.ogg", false);
-        music.setVolume(1);
-        music.setLooping(true);
-        music.play();
+        mLoadCtrl.setProgressLoading("Initializing Engine systems ...");
 
-        //*******************************************
-        //Create the main Character
-        BBPlayerManager.getInstance().createMainPlayer("PLAYER_NAME", "Scenes/TestScene/character.mesh.xml");
-                
-        // Create a component Node for camera 
-        humanStalker = new BBNodeComponent("HumanStalker");
-        BBSceneManager.getInstance().addChild(humanStalker);
+        //Init the physic manager before create collision shape
+        BBPhysicsManager.getInstance().init(engineSystem);  
         
-        CameraNode camNode = new CameraNode("Camera Node", cam);
-        camNode.setControlDir(ControlDirection.SpatialToCamera);
-        //camNode.rotate(new Quaternion().fromAngleAxis(-FastMath.HALF_PI, Vector3f.UNIT_Y));
-        camNode.setLocalTranslation(new Vector3f(25, 10, 0));
-        camNode.lookAt(humanStalker.getLocalTranslation(), Vector3f.UNIT_Y);
-        humanStalker.attachChild(camNode);
-        //BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).attachChild(camNode);
+        //Init world manager
+        BBWorldManager.getInstance().init();
         
-        //*******************************************
-        //Create enemies
-        Vector3f mPos = new Vector3f(-0.44354653f, 3f, -80.836426f);
-        BBMonsterManager.getInstance().createMonter("ENEMY", "Scenes/TestScene/mutant.j3o", mPos);
-
-        //********************************************
-        //Set collision listener
-        BBBasicCollisionListener basicCol = new BBBasicCollisionListener();
-        BBPhysicsManager.getInstance().getPhysicsSpace().addCollisionListener(basicCol);
-        
+        //Init particles manager
+        BBParticlesManager.getInstance().init();
+ /*       
         BBSceneManager.getInstance().createFilterProcessor();
         
-/*      
         //Create post effect processor
         BBSceneManager.getInstance().createFilter("GAME_BLOOM", BBSceneManager.FilterType.BLOOM);
         BloomFilter tmpFilter = (BloomFilter) BBSceneManager.getInstance().getFilterbyName("GAME_BLOOM");
@@ -182,26 +123,14 @@ public class BBInGameState extends BBAbstractState{
         tmpFltrBleur.setBlurScale(1.4f);
         
         //Create sun
-        DirectionalLight sun = new DirectionalLight();
-        Vector3f lightDir = new Vector3f(35.12f, -0.3729129f, 3.74847335f);
-        sun.setDirection(lightDir);
-        sun.setColor(ColorRGBA.White.clone().multLocal(2));
-        BBSceneManager.getInstance().getRootNode().addLight(sun);
-        
         BBSceneManager.getInstance().createFilter("GAME_LIGHT", BBSceneManager.FilterType.LIGHT);
         LightScatteringFilter tmpFltrLight = (LightScatteringFilter) BBSceneManager.getInstance().getFilterbyName("GAME_LIGHT");
+        Vector3f lightDir = new Vector3f(35.12f, -0.3729129f, 3.74847335f);
         Vector3f lightPos = lightDir.multLocal(-5000);
         tmpFltrLight.setLightPosition(lightPos);
      
         BBSceneManager.getInstance().createFilter("GAME_TOON", BBSceneManager.FilterType.CARTOON);
  */  
-        
-        BBGuiManager.getInstance().getNifty().gotoScreen("hud");
-        
-        // Load the main map (here blend loading)
-        BBSceneManager.getInstance().setupLight();
-        BBSceneManager.getInstance().createSky();
-        loadScene();
     }
     
     @Override
@@ -233,10 +162,60 @@ public class BBInGameState extends BBAbstractState{
         
     }
     
+    private boolean loadCam = true;
+    private boolean loadInput, loadScene, loadCharac, loadEnemy = false;
+    private boolean mInitGame, runGame = false;
+    
     @Override
     public void update(float tpf) {
-        super.update(tpf);
+        super.update(tpf);    
         
+        mTime += tpf;
+        //System.out.println("***** TIme : "+mTime);
+        
+        //Wait few times before continue loading game to let Nifty to display contents
+        if(true == loadCam && mTime > 1.5f){
+            this.loadCamera();
+            loadCam = false;
+            loadScene = true;
+            mTime =0;
+        }
+        if(true == loadScene && mTime > 2.2f){
+            this.loadScene();
+            loadScene = false;
+            loadCharac = true;
+            mTime =0;
+        }
+        
+        if(true == loadCharac && mTime > 2.0f){
+            this.loadCharact();
+            loadCharac = false;
+            loadEnemy = true;
+            mTime = 0;
+        }
+        if(true == loadEnemy && mTime > 2.2f){
+            this.loadEnemies();
+            loadEnemy = false;
+            loadInput = true;
+            mTime =0;
+        }
+
+        if(true == loadInput && mTime > 2.5f){
+            this.loadInputs();
+            loadInput = false;
+            mInitGame = true;
+        }
+        
+        if(true == mInitGame && mTime > 2.9f){
+            this.finishLoading();
+            mInitGame = false;
+            runGame = true;
+            mTime =0;
+        }
+        
+         if(false == runGame){
+             return;
+         }
         //******************************************************
         // Update character
         Vector3f pos = BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getControl(CharacterControl.class).getPhysicsLocation();
@@ -244,8 +223,10 @@ public class BBInGameState extends BBAbstractState{
         
         BBPlayerManager.getInstance().update(tpf);
         
+        BBCameraManager.getInstance().update();
+        
         BBMonsterManager.getInstance().update(tpf);
-   
+ 
     }
 
     private class GameActionListener implements AnimEventListener, ActionListener, AnalogListener {
@@ -263,16 +244,44 @@ public class BBInGameState extends BBAbstractState{
               //this.engineSystem.setSystemPause(!this.engineSystem.isSystemPause());
               return;
             }
-            if (binding.equals(BBGlobals.INPUT_MAPPING_DEBUG) && !keyPressed) { 
+            else if (binding.equals(BBGlobals.INPUT_MAPPING_DEBUG) && !keyPressed) { 
                 
               BBPhysicsManager.getInstance().setDebugInfo(!BBPhysicsManager.getInstance().isShowDebug());
               BBDebugInfo.getInstance().setDisplayFps(!BBDebugInfo.getInstance().isShowFPS());
               BBDebugInfo.getInstance().setDisplayStatView(!BBDebugInfo.getInstance().isShowStat());
-            } 
+            }
+            else if (binding.equals(BBGlobals.INPUT_MAPPING_CAMERA_POS) && !keyPressed) {
+                    Vector3f loc = BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getControl(CharacterControl.class).getPhysicsLocation();
+                    Quaternion rot = BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getLocalRotation();
+                    System.out.println("***** Character Position: ("
+                            + loc.x + ", " + loc.y + ", " + loc.z + ")");
+                    System.out.println("***** Character Rotation: " + rot);
+                    System.out.println("***** Character Direction: " + BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class).getControl(CharacterControl.class).getViewDirection());
+            } else if (binding.equals(BBGlobals.INPUT_MAPPING_MEMORY) && !keyPressed) {
+                BufferUtils.printCurrentDirectMemory(null);
+            }
         }//end onAAction
         
               
         public void onAnalog(String binding, float value, float tpf) {
+            
+            BBCameraComponent tmpCam = BBCameraManager.getInstance().getCurrentCamera();
+            
+            if (tmpCam.getCamMode().equals(BBCameraComponent.CamMode.FPS)){
+                BBFirstPersonCamera tmpFPS = (BBFirstPersonCamera)tmpCam;
+                if (binding.equals("MOUSE_LEFT")){
+                    tmpFPS.rotateCamera(value, tmpFPS.getUpVector());
+                }else if (binding.equals("MOUSE_RIGHT")){
+                    tmpFPS.rotateCamera(-value, tmpFPS.getUpVector());
+                }else if (binding.equals("MOUSE_UP")){
+                    tmpFPS.rotateCamera(-value, tmpFPS.getEngineCamera().getLeft());
+                }else if (binding.equals("MOUSE_DOWN")){
+                    tmpFPS.rotateCamera(value, tmpFPS.getEngineCamera().getLeft());
+                } 
+            }else{
+                return;
+            }
+
             
         }//end onAnalog
         
@@ -286,49 +295,171 @@ public class BBInGameState extends BBAbstractState{
         }
     }//end GameActionListener
 
+    //========================================================================
     
-     
-    public void loadScene(){
+    private void loadCamera(){
         
-        BBSceneManager.getInstance().getAssetManager().registerLoader(BlenderModelLoader.class, "blend");
-        // Load a blender file.       
-        ModelKey bk = new ModelKey("Scenes/levels/level_01/level_01.blend");
-        //("Scenes/TestScene/test_scene_01_1.blend");
-        Node nd =  (Node) BBSceneManager.getInstance().getAssetManager().loadModel(bk);
-        //nd.rotate(new Quaternion().fromAngleAxis(FastMath.HALF_PI, Vector3f.UNIT_Y));
+        mLoadCtrl.setProgressLoading("Creating Camera system ...");
+ 
+        //instanciate the actions to listen to for the main class state screen
+        actionListener = new GameActionListener(engineSystem);
         
-        String entities = "assets/Models";
-        String baseTex = "assets/Textures/base_textures";
-        String levelTex = "assets/Textures/level_textures";
-        String scenePath = bk.getFolder().substring(0, bk.getFolder().length() - 1); //BlenderKey sets "File.separator" in the end of String
+        //Load first scene and camera
+        cam = new Camera(BBSettings.getInstance().getSettings().getWidth(), BBSettings.getInstance().getSettings().getHeight());
+        cam.setFrustumPerspective(45f, (float)cam.getWidth() / cam.getHeight(), 1f, 1000f);
+        cam.setLocation(new Vector3f(25f, 10f, 0f));
+        cam.lookAt(new Vector3f(0f, 0f, 0f), Vector3f.UNIT_Y);
+              
+        ViewPort vp = engineSystem.getRenderManager().createMainView("TEST", cam);
+        vp.setClearFlags(true, true, true);
+        BBSceneManager.getInstance().setViewPort(vp);
+        
+        mLoadCtrl.setProgressLoading("Loading music ...");
 
-        SceneComposer sc = new SceneComposer(nd, entities, scenePath, baseTex, levelTex, BBSceneManager.getInstance().getAssetManager());
-        TangentBinormalGenerator.generate(nd);
+        //init global music
+        music = new BBAudioComponent("Sounds/battle.ogg", false);
+        //music = new BBAudioComponent("Sounds/ingame.ogg", false);
+        music.setVolume(0.1f);
+        music.setLooping(true);
+        music.play();
         
-        BBSceneManager.getInstance().addChild(nd);
-/*        
-        // Material
-        Material woodMat = BBSceneManager.getInstance().getAssetManager().loadMaterial("Scenes/TestScene/TestSceneMaterial.j3m");
-        Material boxMat = new Material(BBSceneManager.getInstance().getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
-        boxMat.setColor("m_Color", ColorRGBA.Blue);
+        mLoadCtrl.setProgressLoading("Loading world ...");
+    }
+    
+    private void loadEnemies(){
+        mLoadCtrl.setProgressLoading("Creating monsters ...");
+
+        //*******************************************
+        //Create enemies
+
+        // This node is needed for sword killing by the player
+        Node enemyNode = new Node("enemyNode");
+        BBSceneManager.getInstance().getRootNode().attachChild(enemyNode);
         
-        for (int i=0; i < nd.getChildren().size(); i++) {                     
-            String strndscene = nd.getChild(i).getName();            
-            if (strndscene.startsWith("spawn") == true){
-                nd.getChild(i).setMaterial(boxMat);
-            }else{
-                nd.getChild(i).setMaterial(woodMat);
-                nd.setShadowMode(ShadowMode.Receive);
-                //TangentBinormalGenerator.generate(nd);
-            }
-         } 
- */       
-        CollisionShape myComplexShape = CollisionShapeFactory.createMeshShape(nd);
-        RigidBodyControl worldPhysics = new RigidBodyControl(myComplexShape,0);  
-        worldPhysics.createDebugShape(BBSceneManager.getInstance().getAssetManager());
+        for (int i=0; i<30; i++){
+         Vector3f mPos = new Vector3f(100 + i*13, 100, 0f);  
+         BBMonsterManager.getInstance().createMonter("ENEMY" + i, "Scenes/TestScene/mutant.j3o", mPos, new Vector3f(0,-1.0f, 0), 1+FastMath.nextRandomFloat()*2);
+         enemyNode.attachChild(BBMonsterManager.getInstance().getMonster("ENEMY" + i).getComponent(BBNodeComponent.class));
+        }
         
-        BBPhysicsManager.getInstance().getPhysicsSpace().add(worldPhysics); 
-        //BBSceneManager.getInstance().getRootNode().attachChild(worldPhysics.debugShape());
         
     }
+    
+    private void loadInputs(){        
+        mLoadCtrl.setProgressLoading("Initializing game inputs ...");
+        //Set up keys
+        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_CAMERA_POS, new KeyTrigger(KeyInput.KEY_F2));
+        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_MEMORY, new KeyTrigger(KeyInput.KEY_F3));
+        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_HIDE_STATS, new KeyTrigger(KeyInput.KEY_F4));
+        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_LEFT, new KeyTrigger(KeyInput.KEY_J));
+        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_RIGHT, new KeyTrigger(KeyInput.KEY_L));
+        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_UP, new KeyTrigger(KeyInput.KEY_I));
+        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_DOWN, new KeyTrigger(KeyInput.KEY_K));
+        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_JUMP, new KeyTrigger(KeyInput.KEY_SPACE));
+        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_EXIT, new KeyTrigger(KeyInput.KEY_ESCAPE));
+        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_DEBUG, new KeyTrigger(KeyInput.KEY_F1));
+        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_MLEFT, new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
+        BBInputManager.getInstance().mapKey(BBGlobals.INPUT_MAPPING_MRIGHT, new MouseButtonTrigger(MouseInput.BUTTON_RIGHT));
+        
+        BBInputManager.getInstance().mapKey("MOUSE_LEFT", new MouseAxisTrigger(MouseInput.AXIS_X, true));
+        BBInputManager.getInstance().mapKey("MOUSE_RIGHT", new MouseAxisTrigger(MouseInput.AXIS_X, false));
+        BBInputManager.getInstance().mapKey("MOUSE_UP", new MouseAxisTrigger(MouseInput.AXIS_Y, false));
+        BBInputManager.getInstance().mapKey("MOUSE_DOWN", new MouseAxisTrigger(MouseInput.AXIS_Y, true));
+        
+        BBInputManager.getInstance().getInputManager().addListener(actionListener,
+                "MOUSE_LEFT","MOUSE_RIGHT","MOUSE_UP","MOUSE_DOWN",
+                                                                    BBGlobals.INPUT_MAPPING_EXIT, 
+                                                                    BBGlobals.INPUT_MAPPING_DEBUG,
+                                                                    BBGlobals.INPUT_MAPPING_CAMERA_POS,
+                                                                    BBGlobals.INPUT_MAPPING_MEMORY);
+        BBInputManager.getInstance().getInputManager().addListener(playerListener,
+                                                                    BBGlobals.INPUT_MAPPING_MLEFT,
+                                                                    BBGlobals.INPUT_MAPPING_MRIGHT,
+                                                                    BBGlobals.INPUT_MAPPING_LEFT,
+                                                                    BBGlobals.INPUT_MAPPING_RIGHT, 
+                                                                    BBGlobals.INPUT_MAPPING_UP, 
+                                                                    BBGlobals.INPUT_MAPPING_DOWN,
+                                                                    BBGlobals.INPUT_MAPPING_JUMP);
+        
+        BBInputManager.getInstance().setMouseCenter();
+        BBInputManager.getInstance().getInputManager().setCursorVisible(false);
+        mLoadCtrl.setProgressLoading("Creating main user interface ...");
+        mLoadCtrl.setProgressLoading("Loading complete ...");
+    }
+    
+    private void loadCharact(){
+        
+        //*******************************************
+        //Create the main Character
+        BBPlayerManager.getInstance().createMainPlayer("PLAYER_NAME", "Scenes/TestScene/character.mesh.xml", new Vector3f(0,-0.85f, 0), 1.0f);
+                
+        // Create a component Node for camera 
+        humanStalker = new BBNodeComponent("HumanStalker");
+        BBSceneManager.getInstance().addChild(humanStalker);
+        
+        BBCameraManager.getInstance().registerCamera("SIDE_CAM", BBCameraComponent.CamMode.SIDE, cam, true);
+        //BBCameraManager.getInstance().registerCamera("RPG_CAM", BBCameraComponent.CamMode.ORBITAL, cam, true);
+        //BBCameraManager.getInstance().registerCamera("FPS_CAM", BBCameraComponent.CamMode.FPS, cam, true);
+        BBCameraComponent camera = BBCameraManager.getInstance().getCurrentCamera();
+        
+        if(camera.getCamMode().equals(BBCameraComponent.CamMode.SIDE)){
+            BBSideModeCamera sideCam = (BBSideModeCamera)camera;
+            sideCam.initCamera();
+            sideCam.setPosition(new Vector3f(0, 4, 17));
+            sideCam.setTarget(humanStalker);
+        }else if(camera.getCamMode().equals(BBCameraComponent.CamMode.FPS)){
+            BBFirstPersonCamera fpsCam = (BBFirstPersonCamera)camera;
+            fpsCam.setTarget(BBPlayerManager.getInstance().getMainPlayer().getComponent(BBNodeComponent.class));
+        }else if(camera.getCamMode().equals(BBCameraComponent.CamMode.ORBITAL)){
+            BBThirdPersonCamera orbCam = (BBThirdPersonCamera)camera;
+            orbCam.initCamera();
+            orbCam.setTarget(humanStalker);
+        }  
+        
+        mLoadCtrl.setProgressLoading("Creating monsters ...");
+    }
+    private void finishLoading(){
+        mLoadCtrl.printDebug();
+        
+        //Display the HUD screen for this state
+        //TODO : here the screen need to be created before player
+        //because we init the life bar in BBPlayerMgr
+        BBGuiManager.getInstance().getNifty().gotoScreen("hud");
+    }
+     
+    private void loadScene(){       
+        // Load a blender file Scene. 
+        DesktopAssetManager dsk = (DesktopAssetManager) BBSceneManager.getInstance().getAssetManager();        
+        ModelKey bk = new ModelKey("J3O/Scenes/level_01.j3o");
+        Node nd =  (Node) dsk.loadModel(bk);                 
+        
+        // Creating Entities from the Blend Scene
+        BBSceneComposer sc = new BBSceneComposer(nd, BBSceneManager.getInstance().getAssetManager());
+
+        //Clear Blend File
+        nd.detachAllChildren();
+        nd.removeFromParent();
+        nd = null;
+        dsk.clearCache();        
+        
+        // Added scene effects (fog, ibl)
+        BBShaderManager shm = new BBShaderManager(BBSceneManager.getInstance().getRootNode(), BBSceneManager.getInstance().getAssetManager());
+        shm.setSimpleIBLParam("Textures/skyboxes/sky_box_01/skybox_01_low.png");   
+        shm.setFogParam(new ColorRGBA(0.7f,0.6f,0.2f, 43f), null);
+        
+        mLoadCtrl.setProgressLoading("Setting environment ...");
+        
+        //********************************************
+        //Set collision listener
+        BBBasicCollisionListener basicCol = new BBBasicCollisionListener();
+        BBPhysicsManager.getInstance().getPhysicsSpace().addCollisionListener(basicCol);
+        
+        // Load the main map (here blend loading)
+        BBSceneManager.getInstance().setupBasicLight();
+        BBSceneManager.getInstance().createSky();
+//        BBSceneManager.getInstance().setUpBasicShadow();  
+              
+        mLoadCtrl.setProgressLoading("Loading main player avatar ...");
+    }
+
 }

@@ -21,6 +21,8 @@ import com.jme3.audio.Listener;
  * @author @author Ulrich Nzuzi <ulrichnz@code.google.com>
  */
 public class BBListenerComponent extends Listener implements BBComponent{
+    protected boolean mEnabled = true;
+    
     public BBListenerComponent(){
         super();
     }
@@ -31,15 +33,23 @@ public class BBListenerComponent extends Listener implements BBComponent{
         super(source);
     }
     
-    public CompType getType(){
+    public CompType getCompType(){
         return CompType.LISTENER;
     }
     
-    public CompFamily getFamily(){
+    public CompFamily getCompFamily(){
         return CompFamily.AUDIBLE;
     }
     
     public void destroy(){
         
+    }
+    
+    public boolean isEnabled(){
+        return mEnabled;
+    }
+    
+    public void setEnable(boolean value){
+        mEnabled = value;
     }
 }

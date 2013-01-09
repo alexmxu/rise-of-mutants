@@ -46,6 +46,7 @@ import com.jme3.bullet.control.RigidBodyControl;
 //import com.jme3.bullet.util.CollisionShapeFactory;
 
 //settings
+import com.jme3.input.ChaseCamera;
 import com.jme3.system.AppSettings;
 
 //Input
@@ -105,7 +106,7 @@ public class TestAPIFrameWork extends SimpleApplication implements AnimEventList
     protected Spatial player;
     protected CameraNode camNode;
     //protected AnimChannel playerChannel;
-    
+    private ChaseCamera chaseCam;
     
     // Temp workaround, speed is reset after blending.
     private float smallManSpeed = .6f;
@@ -165,14 +166,20 @@ public class TestAPIFrameWork extends SimpleApplication implements AnimEventList
     //create the camera Node
     camNode = new CameraNode("Camera Node", cam);
     //This mode means that camera copies the movements of the target:
-    camNode.setControlDir(ControlDirection.SpatialToCamera);
-    
+    camNode.setControlDir(ControlDirection.SpatialToCamera);    
     //Move camNode, e.g. behind and above the target:
-    camNode.setLocalTranslation(new Vector3f(0, 10, -40));
+    camNode.setLocalTranslation(new Vector3f(0, 10, -60));
     //Rotate the camNode to look at the target:
     camNode.lookAt(humanStalker.getLocalTranslation(), Vector3f.UNIT_Y);
     //Attach the camNode to the target:
     humanStalker.attachChild(camNode);
+    
+    //chaseCam = new ChaseCamera(cam, human, inputManager);
+    //chaseCam.setMaxDistance(8);
+    //chaseCam.setMinDistance(2);
+    
+    
+    bulletAppState.getPhysicsSpace().enableDebug(assetManager);
     }
     
     public void setupEffects(){
@@ -464,6 +471,8 @@ public class TestAPIFrameWork extends SimpleApplication implements AnimEventList
         
         Vector3f pos = human.getControl(CharacterControl.class).getPhysicsLocation();
         humanStalker.setLocalTranslation(pos);
+        
+        //chaseCam.update(tpf);
         
         Vector2f pos2d = new Vector2f(pos.x,pos.z);
         float height = terrain.getHeight(pos2d);

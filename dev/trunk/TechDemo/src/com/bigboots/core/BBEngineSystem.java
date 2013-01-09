@@ -82,7 +82,36 @@ public class BBEngineSystem {
         context = JmeSystem.newContext(BBSettings.getInstance().getSettings(), JmeContext.Type.Display);
         
         context.create(false);
-        
+    }
+    
+     /**
+     * Initializes the application's canvas for use.
+     * <p>
+     * After calling this method, cast the {@link #getContext() context} to 
+     * {@link JmeCanvasContext},
+     * then acquire the canvas with {@link JmeCanvasContext#getCanvas() }
+     * and attach it to an AWT/Swing Frame.
+     * The rendering thread will start when the canvas becomes visible on
+     * screen, however if you wish to start the context immediately you
+     * may call {@link #startCanvas() } to force the rendering thread
+     * to start. 
+     * 
+     * @see JmeCanvasContext
+     * @see Type#Canvas
+     */
+    public void createCanvas(){
+        if (context != null && context.isCreated()){
+            logger.warning("createCanvas() called when application already created!");
+            return;
+        }
+
+        //if (settings == null){
+        //    settings = new AppSettings(true);
+        //}
+
+        logger.log(Level.FINE, "Starting application: {0}", getClass().getName());
+        context = JmeSystem.newContext(BBSettings.getInstance().getSettings(), JmeContext.Type.Canvas);
+        this.startCanvas();
     }
    
     
@@ -130,7 +159,7 @@ public class BBEngineSystem {
         //if (speed == 0 || mSystemPaused)
         //    return;
         
-        //timer.update();
+        renderer.getStatistics().clearFrame();
        
         //float tpf = timer.getTimePerFrame() * speed;
         renderManager.render(tpf, context.isRenderable());
@@ -174,6 +203,18 @@ public class BBEngineSystem {
         logger.log(Level.SEVERE, errMsg, t);
     }
 
+    /**
+     * Requests the context to close, shutting down the main loop
+     * and making necessary cleanup operations.
+     * 
+     * Same as calling stop(false)
+     * 
+     * @see #stop(boolean) 
+     */
+    public void stop(){
+        stop(false);
+    }    
+    
     /**
      * Requests the context to close, shutting down the main loop
      * and making necessary cleanup operations. 
@@ -233,5 +274,31 @@ public class BBEngineSystem {
     public boolean isSystemPause(){
         return mSystemPaused;
     }
+    
+
+    /**
+     * Starts the rendering thread after createCanvas() has been called.
+     * <p>
+     * Same as calling startCanvas(false)
+     * 
+     * @see #startCanvas(boolean) 
+     */
+    public void startCanvas(){
+        startCanvas(false);
+    }
+
+    /**
+     * Starts the rendering thread after createCanvas() has been called.
+     * <p>
+     * Calling this method is optional, the canvas will start automatically
+     * when it becomes visible.
+     * 
+     * @param waitFor If true, the current thread will block until the 
+     * rendering thread is running
+     */
+    public void startCanvas(boolean waitFor){
+        context.create(waitFor);
+    }
+    
     
 }

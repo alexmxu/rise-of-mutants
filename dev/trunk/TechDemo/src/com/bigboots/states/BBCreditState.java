@@ -67,7 +67,7 @@ public class BBCreditState extends BBAbstractState implements ScreenController {
         vp.setClearFlags(true, true, true);
         BBSceneManager.getInstance().setViewPort(vp);
         
-        BBSceneManager.getInstance().setupLight();
+        BBSceneManager.getInstance().setupBasicLight();
         BBSceneManager.getInstance().createSky();
         
         

@@ -22,6 +22,7 @@ import com.jme3.scene.Node;
  * @author @author Ulrich Nzuzi <ulrichnz@code.google.com>
  */
 public class BBNodeComponent extends Node implements BBComponent{
+    protected boolean mEnabled = true;
     
     public BBNodeComponent(){
         super();
@@ -31,11 +32,19 @@ public class BBNodeComponent extends Node implements BBComponent{
         super(name);
     }
     
-    public CompType getType(){
+    public CompType getCompType(){
         return CompType.NODE;
     }
     
-    public CompFamily getFamily(){
+    public CompFamily getCompFamily(){
         return CompFamily.VISUAL;
+    }
+    
+    public boolean isEnabled(){
+        return mEnabled;
+    }
+    
+    public void setEnable(boolean value){
+        mEnabled = value;
     }
 }

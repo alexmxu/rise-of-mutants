@@ -20,6 +20,8 @@ import com.bigboots.components.BBAudioComponent;
 import com.bigboots.components.BBEntity;
 import com.bigboots.components.BBMonsterManager;
 import com.bigboots.core.BBSceneManager;
+import com.bigboots.gui.BBGuiManager;
+import com.bigboots.gui.BBProgressbarController;
 import com.jme3.animation.LoopMode;
 import com.jme3.bullet.PhysicsSpace;
 import com.jme3.bullet.PhysicsTickListener;
@@ -101,7 +103,7 @@ public class BBBulletPhysic extends RigidBodyControl implements PhysicsCollision
     }
 
     protected void createGhostObject() {
-        ghostObject = new PhysicsGhostObject(new SphereCollisionShape(explosionRadius));
+     //   ghostObject = new PhysicsGhostObject(new SphereCollisionShape(explosionRadius));
     }
 
     public void collision(PhysicsCollisionEvent event) {
@@ -110,19 +112,23 @@ public class BBBulletPhysic extends RigidBodyControl implements PhysicsCollision
         }
         
         if (event.getObjectA() == this || event.getObjectB() == this) {
-            System.out.println("*******!!! COLLISION FOR BULLET !!!**********");
-            space.add(ghostObject);
-            ghostObject.setPhysicsLocation(getPhysicsLocation(vector));
-            space.addTickListener(this);
+//            System.out.println("*******!!! COLLISION FOR BULLET !!!**********");
+//            space.add(ghostObject);
+//            ghostObject.setPhysicsLocation(getPhysicsLocation(vector));
+//            space.addTickListener(this);
             if (effect != null && spatial.getParent() != null) {
                 curTime = 0;
-                effect.setLocalTranslation(spatial.getLocalTranslation());
+                effect.setLocalTranslation(spatial.getWorldTranslation());
                 spatial.getParent().attachChild(effect);
                 effect.emitAllParticles();
                 expSound.play();
             }
             space.remove(this);
+            spatial.getControl(RigidBodyControl.class).setEnabled(false);
+            spatial.getControl(RigidBodyControl.class).destroy();
             spatial.removeFromParent();
+            spatial = null;
+            
             
             if (event.getObjectA() instanceof CharacterControl){
 /*                System.out.println("*******!!! BULLET HIT OBJECT ["+ event.getObjectA().toString() +"] ON Object A !!!**********");
@@ -137,7 +143,8 @@ public class BBBulletPhysic extends RigidBodyControl implements PhysicsCollision
                 BBEntity tmpEnt = BBMonsterManager.getInstance().getMonster(event.getNodeA().getName());
                 int health = (Integer) tmpEnt.getSkills("HEALTH");
                 health = (int) (health - event.getCombinedFriction());
-                System.out.println("*******!!! HEAlTH : "+health);
+                BBGuiManager.getInstance().getNifty().getScreen("hud").findControl("enemy_progress", BBProgressbarController.class).setProgress(health / 100.0f);
+                //System.out.println("*******!!! HEAlTH : "+health);
                 if(health <= 0){
                     tmpEnt.stopAllAudio();
                     tmpEnt.setSkills("HEALTH", 0);
@@ -154,15 +161,18 @@ public class BBBulletPhysic extends RigidBodyControl implements PhysicsCollision
                 BBEntity tmpEnt = BBMonsterManager.getInstance().getMonster(event.getNodeB().getName());
                 int health = (Integer) tmpEnt.getSkills("HEALTH");
                 health = (int) (health - event.getCombinedFriction());
-                System.out.println("*******!!! HEAlTH : "+health);
+                BBGuiManager.getInstance().getNifty().getScreen("hud").findControl("enemy_progress", BBProgressbarController.class).setProgress(health / 100.0f);
+                //System.out.println("*******!!! HEAlTH : "+health);
                 if(health <= 0){
                     tmpEnt.stopAllAudio();
                     tmpEnt.setSkills("HEALTH", 0);
                     tmpEnt.setEnabled(false);
                     tmpEnt.getComponent(BBAnimComponent.class).getChannel().setAnim("mutant_death", 0.50f);
                     tmpEnt.getComponent(BBAnimComponent.class).getChannel().setLoopMode(LoopMode.DontLoop);
+                    
                 }else{
                     tmpEnt.setSkills("HEALTH", health);
+                    
                 }
             }
             
@@ -174,37 +184,43 @@ public class BBBulletPhysic extends RigidBodyControl implements PhysicsCollision
     }
 
     public void physicsTick(PhysicsSpace space, float f) {
-        //get all overlapping objects and apply impulse to them
-        for (Iterator<PhysicsCollisionObject> it = ghostObject.getOverlappingObjects().iterator(); it.hasNext();) {            
-            PhysicsCollisionObject physicsCollisionObject = it.next();
-            if (physicsCollisionObject instanceof PhysicsRigidBody) {
-                PhysicsRigidBody prBody = (PhysicsRigidBody) physicsCollisionObject;
-                prBody.getPhysicsLocation(vector2);
-                vector2.subtractLocal(vector);
-                float force = explosionRadius - vector2.length();
-                force *= forceFactor;
-                force = force > 0 ? force : 0;
-                vector2.normalizeLocal();
-                vector2.multLocal(force);
-                ((PhysicsRigidBody) physicsCollisionObject).applyImpulse(vector2, Vector3f.ZERO);
-            }
-        }
-        space.removeTickListener(this);
-        space.remove(ghostObject);
+//        //get all overlapping objects and apply impulse to them
+//        for (Iterator<PhysicsCollisionObject> it = ghostObject.getOverlappingObjects().iterator(); it.hasNext();) {            
+//            PhysicsCollisionObject physicsCollisionObject = it.next();
+//            if (physicsCollisionObject instanceof PhysicsRigidBody) {
+//                PhysicsRigidBody prBody = (PhysicsRigidBody) physicsCollisionObject;
+//                prBody.getPhysicsLocation(vector2);
+//                vector2.subtractLocal(vector);
+//                float force = explosionRadius - vector2.length();
+//                force *= forceFactor;
+//                force = force > 0 ? force : 0;
+//                vector2.normalizeLocal();
+//                vector2.multLocal(force);
+//                ((PhysicsRigidBody) physicsCollisionObject).applyImpulse(vector2, Vector3f.ZERO);
+//            }
+//        }
+//        space.removeTickListener(this);
+//        space.remove(ghostObject);
     }
 
     @Override
     public void update(float tpf) {
         super.update(tpf);
+        
+        
         if(enabled){
             timer+=tpf;
             if(timer>maxTime){
-                //expSound.stop();
+                expSound.destroy();
                 if(spatial.getParent()!=null){
                     space.removeCollisionListener(this);
                     space.remove(this);
+                    spatial.getControl(RigidBodyControl.class).setEnabled(false);
+                    spatial.getControl(RigidBodyControl.class).destroy();
                     spatial.removeFromParent();
+                    spatial = null;
                 }
+               timer = 0; 
             }
         }
         if (enabled && curTime >= 0) {
@@ -212,6 +228,7 @@ public class BBBulletPhysic extends RigidBodyControl implements PhysicsCollision
             if (curTime > fxTime) {
                 curTime = -1;
                 effect.removeFromParent();
+                effect = null;
             }
         }
     }

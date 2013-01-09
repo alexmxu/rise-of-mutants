@@ -15,8 +15,10 @@
  */
 package com.bigboots.core;
 
+import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.TextureKey;
+import com.jme3.asset.plugins.FileLocator;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Spatial;
 import com.jme3.util.SkyFactory;
@@ -35,10 +37,12 @@ import java.net.URL;
 
 import com.jme3.post.filters.*;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
+import com.jme3.shadow.BasicShadowRenderer;
 import com.jme3.shadow.PssmShadowRenderer;
 import com.jme3.shadow.PssmShadowRenderer.CompareMode;
 import com.jme3.shadow.PssmShadowRenderer.FilterMode;
 import com.jme3.texture.Texture;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Iterator;
@@ -99,19 +103,23 @@ public class BBSceneManager {
         }
         mFilterProcessor = new FilterPostProcessor(assetManager);
         viewPort.addProcessor(mFilterProcessor);
-        
-        PssmShadowRenderer pssmRenderer = new PssmShadowRenderer(assetManager, 1024, 3);
-        pssmRenderer.setDirection(new Vector3f(-1, -1, -1).normalizeLocal());
-        //pssmRenderer.setLambda(0.55f);
-        pssmRenderer.setShadowIntensity(0.6f);
-        //pssmRenderer.setCompareMode(CompareMode.Software);
-        //pssmRenderer.setFilterMode(FilterMode.Bilinear);
-        //pssmRenderer.displayDebug();
-        viewPort.addProcessor(pssmRenderer);
+       
     }
     
-    public Spatial loadSpatial(String name){
-        Spatial model = assetManager.loadModel(name);
+    public void addFileLocator(String locator){
+        assetManager.registerLocator(locator, FileLocator.class);
+    }
+    
+    public void removeFileLocator(String locator){
+        assetManager.unregisterLocator(locator, FileLocator.class);
+    }
+    
+    public InputStream locateFile(String filepath){
+        return assetManager.locateAsset(new AssetKey(filepath)).openStream();
+    }
+    
+    public Node loadSpatial(String name){
+        Node model = (Node) assetManager.loadModel(name);
         return model;
     }
     // TODO : Change it next time
@@ -199,6 +207,10 @@ public class BBSceneManager {
     public void addChild(Spatial sp){
         rootNode.attachChild(sp);
     }
+
+    public void removeChild(Spatial sp){
+        rootNode.detachChild(sp);
+    }    
     
     public void addChild(Node node){
         rootNode.attachChild(node);
@@ -210,16 +222,31 @@ public class BBSceneManager {
     }
     
     //TODO : To be changed
-    public void setupLight(){
+    public void setupBasicLight(){
         // We add light so we see the scene
-        al = new AmbientLight();
-        al.setColor(ColorRGBA.White.mult(1.3f));
-        rootNode.addLight(al); 
         DirectionalLight dl = new DirectionalLight();
-        dl.setColor(ColorRGBA.White);
-        dl.setDirection(new Vector3f(0.8f, -2.8f, 0.8f).normalizeLocal());
-        rootNode.addLight(dl);   
+        dl.setDirection(new Vector3f(0.5f, -0.5f, -0.6f).normalizeLocal());
+        dl.setColor(new ColorRGBA(1.0f,1.0f,1.0f,1));
+        rootNode.addLight(dl); 
     }  
+    
+    public void setUpBasicShadow(){
+/*        BasicShadowRenderer bsr = new BasicShadowRenderer(assetManager, 256);
+        bsr.setDirection(new Vector3f(0.5f, -0.5f, -0.6f).normalizeLocal()); // light direction
+        viewPort.addProcessor(bsr);
+*/        
+        PssmShadowRenderer pssmRenderer = new PssmShadowRenderer(assetManager, 1024, 3);
+        pssmRenderer.setDirection(new Vector3f(0.5f, -0.5f, -0.6f).normalizeLocal());
+        //pssmRenderer.setLambda(0.55f);
+        pssmRenderer.setShadowIntensity(0.4f);
+        //pssmRenderer.setCompareMode(CompareMode.Software);
+        //pssmRenderer.setFilterMode(FilterMode.Bilinear);
+        //pssmRenderer.setShadowZextend();
+        //pssmRenderer.displayDebug();
+        viewPort.addProcessor(pssmRenderer);
+         
+    }
+    
     
     private void initAssetManager(){
         if (BBSettings.getInstance().getSettings() != null){
