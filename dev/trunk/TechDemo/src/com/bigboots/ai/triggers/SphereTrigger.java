@@ -1,6 +1,7 @@
 
 package com.bigboots.ai.triggers;
 import com.bigboots.BBWorldManager;
+import com.bigboots.physics.BBPhysicsManager;
 import com.jme3.bullet.collision.PhysicsCollisionObject;
 import com.jme3.bullet.collision.shapes.SphereCollisionShape;
 import com.jme3.bullet.control.GhostControl;
@@ -54,7 +55,7 @@ public class SphereTrigger implements TriggerControl {
         checkTimer += tpf;
         if (checkTimer >= checkTime) {
             checkTimer = 0;
-
+/*
                 List<PhysicsCollisionObject> objects = ghostControl.getOverlappingObjects();
                 for (Iterator<PhysicsCollisionObject> it = objects.iterator(); it.hasNext();) {
                     PhysicsCollisionObject physicsCollisionObject = it.next();
@@ -63,7 +64,7 @@ public class SphereTrigger implements TriggerControl {
                             return;                   
                     }
                 }
-            
+            */
         }
     }
 
@@ -71,7 +72,7 @@ public class SphereTrigger implements TriggerControl {
         if (spatial == null) {
             if (this.spatial != null) {
                 this.spatial.removeControl(ghostControl);
-                world.getPhysicsSpace().remove(ghostControl);
+                BBPhysicsManager.getInstance().getPhysicsSpace().remove(ghostControl);
             }
             this.spatial = spatial;
             return;
@@ -81,7 +82,7 @@ public class SphereTrigger implements TriggerControl {
             ghostControl = new GhostControl(new SphereCollisionShape(10));
         }
         spatial.addControl(ghostControl);
-        world.getPhysicsSpace().add(ghostControl);
+        BBPhysicsManager.getInstance().getPhysicsSpace().add(ghostControl);
     }
 
     public void setEnabled(boolean enabled) {
