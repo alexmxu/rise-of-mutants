@@ -61,6 +61,7 @@ import com.jme3.input.controls.KeyTrigger;
 import com.jme3.input.controls.MouseAxisTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.util.BufferUtils;
 import de.lessvoid.nifty.screen.Screen;
@@ -335,9 +336,9 @@ public class BBInGameState extends BBAbstractState{
         Node enemyNode = new Node("enemyNode");
         BBSceneManager.getInstance().getRootNode().attachChild(enemyNode);
         
-        for (int i=0; i<5; i++){
-         Vector3f mPos = new Vector3f(100 + i*10, 100, 0f);  
-         BBMonsterManager.getInstance().createMonter("ENEMY" + i, "Scenes/TestScene/mutant.j3o", mPos, new Vector3f(0,-1.0f, 0), 1+i*0.5f);
+        for (int i=0; i<30; i++){
+         Vector3f mPos = new Vector3f(100 + i*13, 100, 0f);  
+         BBMonsterManager.getInstance().createMonter("ENEMY" + i, "Scenes/TestScene/mutant.j3o", mPos, new Vector3f(0,-1.0f, 0), 1+FastMath.nextRandomFloat()*2);
          enemyNode.attachChild(BBMonsterManager.getInstance().getMonster("ENEMY" + i).getComponent(BBNodeComponent.class));
         }
         
@@ -429,16 +430,11 @@ public class BBInGameState extends BBAbstractState{
     private void loadScene(){       
         // Load a blender file Scene. 
         DesktopAssetManager dsk = (DesktopAssetManager) BBSceneManager.getInstance().getAssetManager();        
-        ModelKey bk = new ModelKey("Scenes/levels/level_01/level_01.blend");
+        ModelKey bk = new ModelKey("J3O/Scenes/level_01.j3o");
         Node nd =  (Node) dsk.loadModel(bk);                 
         
-        String entities = "assets/Models";
-        String baseTex = "assets/Textures/base_textures";
-        String levelTex = "assets/Textures/level_textures";
-        String scenePath = bk.getFolder().substring(0, bk.getFolder().length() - 1); //BlenderKey sets "File.separator" in the end of String
-
         // Creating Entities from the Blend Scene
-        BBSceneComposer sc = new BBSceneComposer(nd, entities, scenePath, baseTex, levelTex, BBSceneManager.getInstance().getAssetManager());
+        BBSceneComposer sc = new BBSceneComposer(nd, BBSceneManager.getInstance().getAssetManager());
 
         //Clear Blend File
         nd.detachAllChildren();
@@ -461,7 +457,7 @@ public class BBInGameState extends BBAbstractState{
         // Load the main map (here blend loading)
         BBSceneManager.getInstance().setupBasicLight();
         BBSceneManager.getInstance().createSky();
-        BBSceneManager.getInstance().setUpBasicShadow();  
+//        BBSceneManager.getInstance().setUpBasicShadow();  
               
         mLoadCtrl.setProgressLoading("Loading main player avatar ...");
     }

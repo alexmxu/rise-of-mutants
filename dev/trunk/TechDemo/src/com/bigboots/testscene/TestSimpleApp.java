@@ -28,8 +28,6 @@ import com.bigboots.components.BBEntity;
 import com.bigboots.components.BBMeshComponent;
 import com.bigboots.components.BBNodeComponent;
 import com.bigboots.components.BBObject;
-import com.bigboots.components.camera.BBFirstPersonCamera;
-import com.bigboots.components.camera.BBThirdPersonCamera;
 import com.bigboots.input.BBInputManager;
 import com.bigboots.physics.BBPhysicsManager;
 import com.jme3.animation.AnimChannel;
