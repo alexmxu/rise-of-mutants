@@ -52,7 +52,7 @@ import java.io.IOException;
 public class AutonomousCharacterControl implements AutonomousControl {
     private long entityId;
     private float checkRadius = 2;
-    private float speed = 10f * BBGlobals.PHYSICS_TPT;
+//    private float speed = 10f * BBGlobals.PHYSICS_TPT;
     private Vector3f targetLocation = new Vector3f();
     private Vector3f vector = new Vector3f();
     private Vector3f vector2 = new Vector3f();
@@ -129,7 +129,7 @@ public class AutonomousCharacterControl implements AutonomousControl {
         }
         Float spatialSpeed = (Float) spatial.getUserData("Speed");
         if (spatialSpeed != null) {
-            speed = spatialSpeed * BBGlobals.PHYSICS_TPT;
+//            speed = spatialSpeed * BBGlobals.PHYSICS_TPT;
         }
         characterControl = spatial.getControl(CharacterControl.class);
     }
@@ -165,7 +165,7 @@ public class AutonomousCharacterControl implements AutonomousControl {
             vector2.y = 0;
             vector2.normalizeLocal();
             characterControl.setViewDirection(vector2);
-            vector2.multLocal(speed);
+//            vector2.multLocal(speed);
             characterControl.setWalkDirection(vector2);
         }
     }

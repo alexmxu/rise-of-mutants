@@ -20,7 +20,7 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.system.JmeContext;
 import com.jme3.system.JmeSystem;
-import com.jme3.system.SystemListener;
+
 import com.jme3.system.Timer;
 
 import java.util.concurrent.Callable;
@@ -28,17 +28,25 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 //
-import com.jme3.renderer.ViewPort;
-import com.jme3.system.AppSettings;
-import com.jme3.renderer.Camera;
-import com.jme3.math.Vector3f;
+
+
 import java.util.concurrent.Future;
+/*
+import com.jme3.math.Vector3f;
+import com.jme3.light.AmbientLight;
+import com.jme3.light.DirectionalLight;
+import com.jme3.math.ColorRGBA;
+import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
+import com.jme3.util.SkyFactory;
+*/
+import com.jme3.system.SystemListener;
 
 /**
  *
  * 
  */
-public class BBEngineSystem implements SystemListener {
+public class BBEngineSystem {
     
     private static final Logger logger = Logger.getLogger(BBEngineSystem.class.getName());
     
@@ -47,15 +55,9 @@ public class BBEngineSystem implements SystemListener {
     protected JmeContext context;
     protected Timer timer;
     protected boolean pauseOnFocus = true;
-    protected float speed = 1f;
-    protected boolean paused = false;
-    protected float secondCounter = 0.0f;
-    
-    protected boolean showSettings = true;
-    protected ViewPort viewPort;
-    protected AppSettings settings;
-    protected Camera cam;
-    
+    //protected float speed = 1f;
+    protected boolean mSystemPaused = false;
+   
     private final ConcurrentLinkedQueue<AppTask<?>> taskQueue = new ConcurrentLinkedQueue<AppTask<?>>();
     
     
@@ -67,31 +69,51 @@ public class BBEngineSystem implements SystemListener {
     }
     
     
+    
     public void create(){
+                
         if (context != null && context.isCreated()){
             logger.warning("start() called when application already created!");
             return;
         }
-        boolean loadSettings = false;
-        if (settings == null){
-            settings = new AppSettings(true);
-            loadSettings = true;
-        }
         
-        // show settings dialog
-        if (showSettings) {
-            if (!JmeSystem.showSettingsDialog(settings, loadSettings)) {
-                return;
-            }
-        }
         
-           
-        logger.log(Level.FINE, "Starting application: {0}", getClass().getName());
-        context = JmeSystem.newContext(settings, JmeContext.Type.Display);
-        context.setSystemListener(this);
+        logger.log(Level.INFO, "Starting application: {0}", getClass().getName());
+        context = JmeSystem.newContext(BBSettings.getInstance().getSettings(), JmeContext.Type.Display);
+        
         context.create(false);
     }
     
+     /**
+     * Initializes the application's canvas for use.
+     * <p>
+     * After calling this method, cast the {@link #getContext() context} to 
+     * {@link JmeCanvasContext},
+     * then acquire the canvas with {@link JmeCanvasContext#getCanvas() }
+     * and attach it to an AWT/Swing Frame.
+     * The rendering thread will start when the canvas becomes visible on
+     * screen, however if you wish to start the context immediately you
+     * may call {@link #startCanvas() } to force the rendering thread
+     * to start. 
+     * 
+     * @see JmeCanvasContext
+     * @see Type#Canvas
+     */
+    public void createCanvas(){
+        if (context != null && context.isCreated()){
+            logger.warning("createCanvas() called when application already created!");
+            return;
+        }
+
+        //if (settings == null){
+        //    settings = new AppSettings(true);
+        //}
+
+        logger.log(Level.FINE, "Starting application: {0}", getClass().getName());
+        context = JmeSystem.newContext(BBSettings.getInstance().getSettings(), JmeContext.Type.Canvas);
+        this.startCanvas();
+    }
+   
     
     /**
      * Do not call manually.
@@ -104,40 +126,25 @@ public class BBEngineSystem implements SystemListener {
      * and far values 1 and 1000 units respectively.
      */
     public void initialize(){
-        // aquire important objects from the context
-        //settings = context.getSettings();
+
         timer = context.getTimer();
        
         renderer = context.getRenderer();
+              
         renderManager = new RenderManager(renderer);
         //Remy - 09/14/2010 setted the timer in the renderManager
         renderManager.setTimer(timer);
-        
-        //init camera
-        cam = new Camera(settings.getWidth(), settings.getHeight());
-        cam.setFrustumPerspective(45f, (float)cam.getWidth() / cam.getHeight(), 1f, 1000f);
-        cam.setLocation(new Vector3f(0f, 0f, 10f));
-        cam.lookAt(new Vector3f(0f, 0f, 0f), Vector3f.UNIT_Y);
-        viewPort = renderManager.createMainView("Default", cam);
-        
-        //viewPort.setClearEnabled(true);
-        // TODO : Control this
-        viewPort.setEnabled(true);
-
-        
+ 
         // update timer so that the next delta is not too large
-        timer.reset();
+        timer.reset(); 
+
     }
-    
-    public void reshape(int w, int h){
-        renderManager.notifyReshape(w, h);
-    }
-    
+      
     /**
      * Do not call manually.
      * Callback from ContextListener.
      */
-    public void update(){
+    public void update(float tpf){
         //execute AppTasks
         AppTask<?> task = taskQueue.poll();
         toploop: do {
@@ -149,38 +156,29 @@ public class BBEngineSystem implements SystemListener {
             task.invoke();
         } while (((task = taskQueue.poll()) != null));
         
-        if (speed == 0 || paused)
-            return;
+        //if (speed == 0 || mSystemPaused)
+        //    return;
         
-        timer.update();
-        
-        float tpf = timer.getTimePerFrame() * speed;
+        renderer.getStatistics().clearFrame();
+       
+        //float tpf = timer.getTimePerFrame() * speed;
+        renderManager.render(tpf, context.isRenderable());
 
-        secondCounter += timer.getTimePerFrame();
-        int fps = (int) timer.getFrameRate();
-        if (secondCounter >= 1.0f) {
-            secondCounter = 0.0f;
-        }
-
-        // update states
-        //stateManager.update(tpf);
-        // update and root node
-        //rootNode.updateLogicalState(tpf);
-        //rootNode.updateGeometricState();
-        
-        // render states
-        //stateManager.render(renderManager);
-        //renderManager.render(tpf);
-        // TODO : Control this        
-        renderManager.render(tpf,true);
-        
-        //stateManager.postRender();
     }
     
+      
+    public void setContextListener(SystemListener lstr){
+        context.setSystemListener(lstr);
+    }
+        
     public <V> Future<V> enqueue(Callable<V> callable) {
         AppTask<V> task = new AppTask<V>(callable);
         taskQueue.add(task);
         return task;
+    }
+    
+     public void reshape(int w, int h){
+        renderManager.notifyReshape(w, h);
     }
     
     public void requestClose(boolean esc){
@@ -189,16 +187,14 @@ public class BBEngineSystem implements SystemListener {
     
     public void gainFocus(){
         if (pauseOnFocus){
-            paused = false;
+            mSystemPaused = false;
             context.setAutoFlushFrames(true);
-            //if (inputManager != null)
-            //    inputManager.reset();
         }
     }
     
     public void loseFocus(){
         if (pauseOnFocus){
-            paused = true;
+            mSystemPaused = true;
             context.setAutoFlushFrames(false);
         }
     }
@@ -206,18 +202,34 @@ public class BBEngineSystem implements SystemListener {
     public void handleError(String errMsg, Throwable t){
         logger.log(Level.SEVERE, errMsg, t);
     }
+
+    /**
+     * Requests the context to close, shutting down the main loop
+     * and making necessary cleanup operations.
+     * 
+     * Same as calling stop(false)
+     * 
+     * @see #stop(boolean) 
+     */
+    public void stop(){
+        stop(false);
+    }    
+    
+    /**
+     * Requests the context to close, shutting down the main loop
+     * and making necessary cleanup operations. 
+     * After the application has stopped, it cannot be used anymore.
+     */
+    public void stop(boolean waitFor){
+        logger.log(Level.FINE, "Closing application: {0}", getClass().getName());
+        context.destroy(waitFor);
+    }
     
     /**
      * Do not call manually.
      * Callback from ContextListener.
      */
-    public void destroy(){
-        //stateManager.cleanup();
-        
-        //destroyInput();
-        //if (audioRenderer != null)
-        //    audioRenderer.cleanup();
-        
+    public void destroy(){       
         timer.reset();
     }
     
@@ -250,5 +262,43 @@ public class BBEngineSystem implements SystemListener {
     public Renderer getRenderer(){
         return renderer;
     }
-     
+    
+    public Timer getTimer(){
+        return timer;
+    }
+    
+    public void setSystemPause(boolean val){
+        mSystemPaused = val;
+    }
+    
+    public boolean isSystemPause(){
+        return mSystemPaused;
+    }
+    
+
+    /**
+     * Starts the rendering thread after createCanvas() has been called.
+     * <p>
+     * Same as calling startCanvas(false)
+     * 
+     * @see #startCanvas(boolean) 
+     */
+    public void startCanvas(){
+        startCanvas(false);
+    }
+
+    /**
+     * Starts the rendering thread after createCanvas() has been called.
+     * <p>
+     * Calling this method is optional, the canvas will start automatically
+     * when it becomes visible.
+     * 
+     * @param waitFor If true, the current thread will block until the 
+     * rendering thread is running
+     */
+    public void startCanvas(boolean waitFor){
+        context.create(waitFor);
+    }
+    
+    
 }
