@@ -593,9 +593,9 @@ public class TestCharacterOnTrack extends SimpleApplication implements AnimEvent
         CollisionShape myComplexShape = CollisionShapeFactory.createMeshShape(physicsModelsFinal);
         physicsModelsFinal.detachAllChildren();
         RigidBodyControl worldPhysics = new RigidBodyControl(myComplexShape,0);  
-        worldPhysics.createDebugShape(assetManager);        
+//        worldPhysics.createDebugShape(assetManager);        
         bulletAppState.getPhysicsSpace().add(worldPhysics); 
-        rootNode.attachChild(worldPhysics.debugShape());
+//        rootNode.attachChild(worldPhysics.debugShape());
         physicsModelsFinal = null;
     }
     

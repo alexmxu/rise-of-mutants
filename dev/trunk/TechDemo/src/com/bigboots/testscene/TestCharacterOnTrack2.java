@@ -540,7 +540,7 @@ public class TestCharacterOnTrack2 extends SimpleApplication implements AnimEven
         CollisionShape myComplexShape = CollisionShapeFactory.createMeshShape(ndmd);
         //physicsModelsFinal.detachAllChildren();
         RigidBodyControl worldPhysics = new RigidBodyControl(myComplexShape,0);  
-        worldPhysics.createDebugShape(assetManager);        
+//        worldPhysics.createDebugShape(assetManager);        
         bulletAppState.getPhysicsSpace().add(worldPhysics); 
 
         rootNode.attachChild(ndmd);
